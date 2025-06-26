@@ -1,0 +1,134 @@
+.home-page {
+  text-align: center;
+}
+
+.hero {
+  padding: 3rem 1rem;
+  margin-bottom: 2rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.lead {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.counter-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-button-hover);
+}
+
+.btn-secondary {
+  background-color: var(--color-breadcrumb-text);
+  color: var(--color-button-text);
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-breadcrumb-active);
+}
+
+.btn-small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-small:hover {
+  background-color: var(--color-border);
+}
+
+.features {
+  margin: 3rem 0;
+}
+
+.features h2 {
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  padding: 1.5rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--color-card-shadow);
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px var(--color-card-shadow);
+}
+
+.feature-card h3 {
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.feature-card p {
+  color: var(--color-text);
+  opacity: 0.8;
+  transition: color 0.3s ease;
+}
+
+.read-the-docs {
+  color: var(--color-text);
+  opacity: 0.7;
+  margin-top: 3rem;
+  transition: color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,352 @@
+.campground-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.campground-detail-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.campground-detail-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2.5rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.campground-detail-location {
+  font-size: 1.1rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.campground-detail-content {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Gallery styles */
+.campground-detail-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.campground-detail-main-image {
+  width: 100%;
+  height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.campground-detail-main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.campground-detail-thumbnails {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 60px;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.thumbnail:hover {
+  opacity: 0.9;
+}
+
+.thumbnail.active {
+  opacity: 1;
+  box-shadow: 0 0 0 2px #4f46e5;
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Info styles */
+.campground-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.campground-detail-description {
+  background-color: var(--color-card-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.campground-detail-description h2 {
+  margin-top: 0;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.campground-detail-description p {
+  line-height: 1.6;
+  color: var(--color-text);
+  opacity: 0.8;
+  transition: color 0.3s ease;
+}
+
+.campground-detail-author {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  font-style: italic;
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.campground-detail-booking {
+  background-color: var(--color-card-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.campground-detail-price {
+  margin-bottom: 1.5rem;
+}
+
+.campground-detail-price h3 {
+  font-size: 1.8rem;
+  color: var(--color-text);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.campground-detail-price span {
+  font-size: 1rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  font-weight: normal;
+  transition: color 0.3s ease;
+}
+
+.book-button {
+  display: block;
+  width: 80%;
+  padding: 0.75rem;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0 auto 1rem auto;
+}
+
+.book-button:hover {
+  background-color: var(--color-button-hover);
+}
+
+.campground-detail-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.edit-button, .delete-button {
+  flex: 1;
+  padding: 0.75rem;
+  text-align: center;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.edit-button {
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: var(--color-border);
+}
+
+.delete-button {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #fecaca;
+}
+
+/* Reviews styles */
+.campground-detail-reviews {
+  background-color: var(--color-card-bg);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.campground-detail-reviews h2 {
+  margin-top: 0;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.review-item {
+  padding: 1.5rem;
+  border-radius: 8px;
+  background-color: var(--color-card-bg);
+  transition: background-color 0.3s ease;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.review-author {
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.review-rating {
+  color: var(--color-text);
+  opacity: 0.5;
+  font-size: 1.25rem;
+  transition: color 0.3s ease;
+}
+
+.star.filled {
+  color: #fbbf24;
+}
+
+.review-body {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--color-text);
+  opacity: 0.8;
+  transition: color 0.3s ease;
+}
+
+.no-reviews {
+  text-align: center;
+  color: var(--color-text);
+  opacity: 0.7;
+  font-style: italic;
+  margin-bottom: 2rem;
+  transition: color 0.3s ease;
+}
+
+.add-review-button {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+  padding: 0.75rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.add-review-button:hover {
+  background-color: var(--color-border);
+}
+
+/* Loading, error, and not found states */
+.campground-detail-loading,
+.campground-detail-error,
+.campground-detail-not-found {
+  text-align: center;
+  padding: 3rem;
+  margin: 2rem auto;
+  max-width: 800px;
+  border-radius: 8px;
+}
+
+.campground-detail-loading {
+  color: var(--color-text);
+  opacity: 0.7;
+  background-color: var(--color-card-bg);
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.campground-detail-error {
+  color: #e53e3e;
+  background-color: #fff5f5;
+}
+
+.campground-detail-not-found {
+  color: var(--color-text);
+  opacity: 0.7;
+  background-color: var(--color-card-bg);
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .campground-detail-content {
+    grid-template-columns: 1fr;
+  }
+
+  .campground-detail-main-image {
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .campground-detail-header h1 {
+    font-size: 2rem;
+  }
+
+  .campground-detail-main-image {
+    height: 300px;
+  }
+
+  .campground-detail-reviews,
+  .campground-detail-description,
+  .campground-detail-booking {
+    padding: 1.25rem;
+  }
+}

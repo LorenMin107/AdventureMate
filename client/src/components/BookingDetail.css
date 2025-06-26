@@ -1,0 +1,380 @@
+/* Airbnb-style Booking Detail Page */
+.booking-detail {
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 0 80px;
+  font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+/* Main layout - two columns for desktop */
+.booking-detail-card {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 48px;
+  margin-top: 24px;
+  margin-bottom: 48px;
+}
+
+/* Trip summary section - left column */
+.booking-detail-header {
+  flex: 1;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card-bg);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Trip summary header with image */
+.booking-detail-image {
+  width: 100%;
+  height: 240px;
+  position: relative;
+  overflow: hidden;
+}
+
+.booking-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.booking-detail-no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: var(--color-card-bg);
+  color: var(--color-breadcrumb-text);
+  font-style: italic;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Trip summary content */
+.booking-detail-campground-info {
+  padding: 24px;
+  border-bottom: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
+}
+
+.booking-detail-campground-info h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.booking-detail-location {
+  color: var(--color-breadcrumb-text);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.booking-detail-location::before {
+  content: "📍";
+  margin-right: 6px;
+}
+
+/* Trip dates section */
+.booking-detail-trip-dates {
+  padding: 24px;
+  border-bottom: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
+}
+
+.booking-detail-trip-dates h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.booking-detail-dates-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.booking-detail-date-box {
+  flex: 1;
+}
+
+.booking-detail-date-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-breadcrumb-text);
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.booking-detail-date-value {
+  font-size: 15px;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.booking-detail-dates-divider {
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-border);
+  transition: color 0.3s ease;
+}
+
+/* Booking details section - right column */
+.booking-detail-info {
+  flex: 1;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Section styling */
+.booking-detail-section {
+  background-color: var(--color-card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.booking-detail-section-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
+}
+
+.booking-detail-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.booking-detail-section-content {
+  padding: 24px;
+}
+
+/* Reservation details */
+.booking-detail-info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.booking-detail-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.booking-detail-label {
+  font-weight: 400;
+  color: var(--color-text);
+  font-size: 15px;
+  transition: color 0.3s ease;
+}
+
+.booking-detail-value {
+  color: var(--color-text);
+  font-size: 15px;
+  text-align: right;
+  transition: color 0.3s ease;
+  word-break: break-word;
+  max-width: 60%;
+}
+
+/* Transaction ID specific styling */
+.transaction-id-item {
+  flex-wrap: wrap;
+}
+
+.transaction-id-value {
+  font-family: monospace;
+  font-size: 14px;
+  background-color: var(--color-breadcrumb-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin-top: 4px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Price breakdown */
+.booking-detail-price-breakdown {
+  border-top: 1px solid var(--color-border);
+  margin-top: 16px;
+  padding-top: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.booking-detail-price {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+/* Action buttons */
+.booking-detail-footer {
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.booking-detail-back-button,
+.booking-detail-campground-button {
+  display: inline-block;
+  padding: 14px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.booking-detail-back-button {
+  background-color: var(--color-breadcrumb-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  flex: 1;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.booking-detail-back-button:hover {
+  background-color: var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.booking-detail-campground-button {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border: 1px solid var(--color-button-bg);
+  flex: 1;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.booking-detail-campground-button:hover {
+  background-color: var(--color-button-hover);
+  border-color: var(--color-button-hover);
+  color: var(--color-button-text);
+  text-decoration: none;
+}
+
+/* Status messages */
+.booking-detail-loading,
+.booking-detail-error,
+.booking-detail-not-found,
+.booking-detail-unauthorized,
+.booking-detail-login-message {
+  padding: 48px 24px;
+  text-align: center;
+  background-color: var(--color-card-bg);
+  border-radius: 12px;
+  margin: 48px auto;
+  max-width: 600px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-detail-loading {
+  color: var(--color-breadcrumb-text);
+}
+
+.booking-detail-error {
+  color: #C13515; /* Keep error color red for visibility in both themes */
+}
+
+.booking-detail-not-found,
+.booking-detail-unauthorized {
+  color: var(--color-breadcrumb-text);
+}
+
+.booking-detail-login-message {
+  color: var(--color-text);
+}
+
+.booking-detail-login-message a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.booking-detail-login-message a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .booking-detail {
+    padding: 0 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .booking-detail {
+    padding: 0 24px;
+  }
+
+  .booking-detail-card {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .booking-detail-header,
+  .booking-detail-info {
+    min-width: 100%;
+  }
+
+  .booking-detail-image {
+    height: 200px;
+  }
+
+  .booking-detail-footer {
+    flex-direction: column;
+  }
+
+  .booking-detail-back-button,
+  .booking-detail-campground-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-detail {
+    padding: 0 16px;
+  }
+
+  .booking-detail-dates-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .booking-detail-dates-divider {
+    display: none;
+  }
+}

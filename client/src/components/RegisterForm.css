@@ -1,0 +1,152 @@
+/* Airbnb-inspired register form styling */
+.register-form-container {
+  max-width: 568px;
+  margin: 3rem auto;
+  padding: 2.5rem;
+  background-color: var(--color-card-bg);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-text {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+  position: relative;
+  display: inline-block;
+  transition: color 0.3s ease;
+}
+
+.logo-text::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-primary);
+  transform: scaleX(0.7);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.logo-text:hover::after {
+  transform: scaleX(1);
+}
+
+.register-form-container h2 {
+  text-align: left;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.error-message {
+  background-color: #fff8f8; /* Lighter red background for Airbnb style */
+  color: #ff385c; /* Airbnb-like red color */
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  border: 1px solid #ffb4bc;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.form-group input {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2); /* Using primary color with transparency */
+}
+
+.register-button {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.3s ease;
+  margin-top: 0.75rem;
+}
+
+.register-button:hover {
+  background-color: var(--color-primary-hover);
+  transform: scale(1.01);
+}
+
+.register-button:disabled {
+  background-color: var(--color-border);
+  color: var(--color-text);
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.form-footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--color-text);
+  opacity: 0.9;
+  transition: color 0.3s ease;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.form-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.form-footer a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .register-form-container {
+    margin: 1.5rem;
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+}

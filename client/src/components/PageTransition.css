@@ -1,0 +1,49 @@
+.page-transition {
+  width: 100%;
+}
+
+/* Enter animation */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Exit animation */
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Different animations for different routes */
+/* You can add more specific animations based on route patterns */
+[data-route-pattern="/campgrounds"] .page-enter {
+  transform: translateX(20px);
+}
+
+[data-route-pattern="/campgrounds"] .page-enter-active {
+  transform: translateX(0);
+}
+
+[data-route-pattern="/campgrounds"] .page-exit-active {
+  transform: translateX(-20px);
+}
+
+[data-route-pattern="/admin"] .page-enter {
+  transform: scale(0.95);
+}
+
+[data-route-pattern="/admin"] .page-enter-active {
+  transform: scale(1);
+}
+
+[data-route-pattern="/admin"] .page-exit-active {
+  transform: scale(1.05);
+  opacity: 0;
+}

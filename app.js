@@ -14,9 +14,10 @@ const passport = require("passport"); // for authentication (login, logout)
 const LocalStrategy = require("passport-local"); // local strategy for authentication
 const mongoSanitize = require("express-mongo-sanitize"); // sanitize user input to prevent NoSQL Injection
 const helmet = require("helmet"); // to set various HTTP headers for security (security middleware)
+const cors = require("cors"); // to allow cross-origin requests
 
 const campgroundRoutes = require("./routes/campgrounds");
-const reviewRoutes = require("./routes/reviews");
+const reviewRoutes = require("./routes/reviews");   
 const userRoutes = require("./routes/users");
 const bookingRoutes = require("./routes/bookings");
 const User = require("./models/user");
@@ -39,9 +40,21 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views")); // set the views directory
 
 app.use(express.urlencoded({ extended: true })); // to parse the form data
+app.use(express.json()); // to parse JSON data
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public"))); // to serve static files like CSS, JS, images
 app.use(mongoSanitize({ replaceWith: "_" })); // sanitize user input to prevent NoSQL Injection
+
+// Configure CORS
+const corsOptions = {
+  origin: process.env.NODE_ENV === "production" 
+    ? ["https://myancamp.com", "https://www.myancamp.com"] 
+    : ["http://localhost:5173"],
+  credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
+app.use(cors(corsOptions));
 
 // store the session in the database using connect-mongo package (MongoStore) and set the session configuration options
 const store = new MongoStore({
@@ -155,18 +168,51 @@ app.use((req, res, next) => {
   next();
 });
 
+// API Routes
+const campgroundApiRoutes = require("./routes/api/campgrounds");
+const reviewApiRoutes = require("./routes/api/reviews");
+const userApiRoutes = require("./routes/api/users");
+const bookingApiRoutes = require("./routes/api/bookings");
+const adminApiRoutes = require("./routes/api/admin");
+
+// Traditional Routes
 app.use("/campgrounds/:id/reviews", reviewRoutes); // use the review routes
 app.use("/campgrounds", campgroundRoutes); // use the campground routes
-app.use("/bookings", bookingRoutes);
+// app.use("/bookings", bookingRoutes);
 app.use("/admin", adminRoutes);
 app.use("/", userRoutes); // use the user routes
+
+// API Routes
+app.use("/api/campgrounds/:id/reviews", reviewApiRoutes); // use the review API routes
+app.use("/api/campgrounds", campgroundApiRoutes); // use the campground API routes
+app.use("/api/bookings", bookingApiRoutes); // use the booking API routes
+app.use("/api/admin", adminApiRoutes); // use the admin API routes
+app.use("/api/users", userApiRoutes); // use the user API routes
 
 app.get("/", (req, res) => {
   res.render("home");
 });
 
+// Serve React app
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "public/dist")));
+
+  // For any routes that don't match API or traditional routes, serve the React app
+  app.get("/app/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/dist/index.html"));
+  });
+} else {
+  // In development mode, handle React app routes
+  app.get("/app/*", (req, res) => {
+    res.redirect("http://localhost:5173" + req.originalUrl);
+  });
+}
+
 app.all("*", (req, res, next) => {
   // catch all route
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(404).json({ error: "API endpoint not found" });
+  }
   next(new ExpressError("Page Not Found", 404)); // pass the error to the error handler middleware
 });
 
@@ -174,9 +220,20 @@ app.use((err, req, res, next) => {
   // error handler middleware
   const { statusCode = 500 } = err;
   if (!err.message) err.message = "Oh No, Something Went Wrong!";
+
+  // Check if the request is an API request
+  if (req.originalUrl.startsWith('/api')) {
+    // Return JSON error response for API requests
+    return res.status(statusCode).json({
+      error: err.message,
+      status: statusCode
+    });
+  }
+
+  // Render error template for traditional requests
   res.status(statusCode).render("error", { err }); // render the error template with the error message
 });
 
-app.listen(3000, () => {
-  console.log("Serving on Port 3000...");
+app.listen(3001, () => {
+  console.log("Serving on Port 3001...");
 });

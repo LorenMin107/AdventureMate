@@ -1,0 +1,143 @@
+.booking-list {
+  margin-top: 2rem;
+}
+
+.booking-list-title {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.booking-list-table-container {
+  overflow-x: auto;
+  margin-bottom: 2rem;
+}
+
+.booking-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  background-color: var(--color-card-bg);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-list-table th,
+.booking-list-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
+}
+
+.booking-list-table th {
+  background-color: var(--color-card-bg);
+  font-weight: bold;
+  color: var(--color-text);
+  opacity: 0.8;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-list-table tr:hover {
+  background-color: var(--color-border);
+  transition: background-color 0.3s ease;
+}
+
+.booking-list-campground {
+  font-weight: bold;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.booking-list-price {
+  font-weight: bold;
+  color: var(--color-text);
+  opacity: 0.9;
+  transition: color 0.3s ease;
+}
+
+.booking-list-view-button {
+  display: inline-block;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-list-view-button:hover {
+  background-color: var(--color-button-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.booking-list-loading,
+.booking-list-error,
+.booking-list-empty,
+.booking-list-login-message {
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  margin: 2rem 0;
+  transition: background-color 0.3s ease;
+}
+
+.booking-list-error {
+  color: #dc3545; /* Keep error text red for visibility in both themes */
+  background-color: var(--color-card-bg);
+  transition: background-color 0.3s ease;
+}
+
+.booking-list-empty {
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.booking-list-browse-link {
+  display: inline-block;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-list-browse-link:hover {
+  background-color: var(--color-button-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.booking-list-login-message {
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  opacity: 0.9;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-list-login-message a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .booking-list-table th,
+  .booking-list-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .booking-list-view-button {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+}

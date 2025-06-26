@@ -1,0 +1,117 @@
+.campground-new-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 4px;
+  background-color: var(--color-primary);
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  transition: color 0.3s ease;
+}
+
+.page-header p {
+  font-size: 1.2rem;
+  color: var(--color-breadcrumb-text);
+  max-width: 600px;
+  margin: 0 auto;
+  transition: color 0.3s ease;
+}
+
+.loading-container,
+.unauthorized-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background-color: var(--color-card-bg);
+  border-radius: 16px;
+  margin: 2rem 0;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: 0 4px 20px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.loading-container {
+  color: var(--color-primary);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.unauthorized-container {
+  color: #ef4444; /* Keep error text red for visibility in both themes */
+  font-weight: 500;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.unauthorized-container a {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary);
+  color: var(--color-button-text);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.unauthorized-container a:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .campground-new-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .page-header p {
+    font-size: 1rem;
+  }
+
+  .loading-container,
+  .unauthorized-container {
+    padding: 2rem 1.5rem;
+    border-radius: 12px;
+  }
+}

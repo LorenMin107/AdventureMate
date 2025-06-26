@@ -1,0 +1,85 @@
+.booking-form-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.booking-form-page-title {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.booking-form-page-campground-info {
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-form-page-campground-info h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.booking-form-page-campground-info .location {
+  color: var(--color-text);
+  opacity: 0.7;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.booking-form-page-campground-info .price {
+  font-weight: bold;
+  color: var(--color-text);
+  opacity: 0.9;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.booking-form-page-loading,
+.booking-form-page-error,
+.booking-form-page-not-found {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.booking-form-page-loading {
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.booking-form-page-error {
+  color: #e74c3c; /* Keep error color red for visibility in both themes */
+}
+
+.booking-form-page-not-found {
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .booking-form-page {
+    padding: 1rem;
+  }
+
+  .booking-form-page-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .booking-form-page-campground-info {
+    padding: 1rem;
+  }
+}

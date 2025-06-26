@@ -1,0 +1,152 @@
+.booking-checkout-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.booking-checkout-page-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #333;
+  text-align: center;
+}
+
+.booking-checkout-page-summary {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.booking-checkout-page-summary h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.5rem;
+}
+
+.booking-checkout-page-campground {
+  margin-bottom: 1.5rem;
+}
+
+.booking-checkout-page-campground h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.booking-checkout-page-campground .location {
+  color: #7f8c8d;
+  font-size: 1rem;
+}
+
+.booking-checkout-page-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed #e0e0e0;
+}
+
+.detail-item.total {
+  border-bottom: none;
+  border-top: 2px solid #e0e0e0;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.detail-label {
+  color: #7f8c8d;
+}
+
+.detail-value {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.booking-checkout-page-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.booking-checkout-page-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.booking-checkout-page-button {
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  flex: 1;
+}
+
+.booking-checkout-page-button.cancel {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.booking-checkout-page-button.cancel:hover {
+  background-color: #d0d0d0;
+}
+
+.booking-checkout-page-button.checkout {
+  background-color: #27ae60;
+  color: white;
+}
+
+.booking-checkout-page-button.checkout:hover {
+  background-color: #219653;
+}
+
+.booking-checkout-page-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.booking-checkout-page-loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #7f8c8d;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .booking-checkout-page {
+    padding: 1rem;
+  }
+  
+  .booking-checkout-page-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .booking-checkout-page-summary {
+    padding: 1rem;
+  }
+  
+  .booking-checkout-page-actions {
+    flex-direction: column;
+  }
+}

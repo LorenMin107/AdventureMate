@@ -9,7 +9,7 @@ const ImageSchema = new Schema({
 });
 
 ImageSchema.virtual("thumbnail").get(function () {
-  return this.url.replace("/upload", "/upload/w_200");
+  return this.url ? this.url.replace("/upload", "/upload/w_200") : '';
 });
 
 const opts = { toJSON: { virtuals: true } }; // to include virtuals when calling toJSON on the model
@@ -57,8 +57,9 @@ const CampgroundSchema = new Schema(
 );
 
 CampgroundSchema.virtual("properties.popUpMarkup").get(function () {
+  const description = this.description || '';
   return `<strong><a href="/campgrounds/${this._id}">${this.title}</a></strong>
-  <p></p>${this.description.substring(0, 20)}...</p>`;
+  <p>${description.substring(0, 20)}${description.length > 20 ? '...' : ''}</p>`;
 });
 
 CampgroundSchema.post("findOneAndDelete", async function (doc) {

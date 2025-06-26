@@ -1,0 +1,102 @@
+.campground-map-container {
+  width: 100%;
+  height: 100% !important; /* Take up full height of parent container */
+  min-height: 300px !important; /* Ensure minimum height */
+  border-radius: 8px;
+  overflow: visible; /* Changed from hidden to visible to ensure markers and popups aren't cut off */
+  position: relative;
+  z-index: 1; /* Ensure proper stacking context */
+  margin-bottom: 0; /* Ensure no extra space below the map */
+  box-sizing: border-box; /* Include padding and border in the element's width and height */
+  background-color: transparent !important; /* Ensure background is transparent */
+  transition: opacity 0.3s ease; /* Smooth transition for opacity changes */
+  flex: 1; /* Allow the container to grow and fill available space */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack children vertically */
+}
+
+.campground-map-container .mapboxgl-map {
+  width: 100%;
+  height: 100%;
+  background-color: transparent !important; /* Ensure background is transparent */
+  transition: opacity 0.3s ease; /* Smooth transition for opacity changes */
+}
+
+/* Ensure the map canvas is properly styled */
+.campground-map-container .mapboxgl-canvas-container,
+.campground-map-container .mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  background-color: transparent !important; /* Ensure background is transparent */
+  transition: opacity 0.3s ease; /* Smooth transition for opacity changes */
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.map-loading-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.campground-popup {
+  max-width: 200px;
+  font-family: inherit;
+}
+
+.campground-popup h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+.campground-popup p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.campground-popup strong {
+  color: #333;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Make the map responsive */
+@media (max-width: 768px) {
+  .campground-map-container {
+    min-height: 250px !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .campground-map-container {
+    min-height: 200px !important;
+    margin-bottom: 0 !important;
+  }
+}

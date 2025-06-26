@@ -1,0 +1,210 @@
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.admin-navbar {
+  width: 100%;
+  background-color: var(--color-header-bg);
+  color: var(--color-header-text);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: fixed;
+  top: 70px; /* Position below the main navbar */
+  left: 0;
+  right: 0;
+  z-index: 999; /* One less than the main navbar to ensure proper stacking */
+  height: auto;
+  overflow-x: auto;
+  box-shadow: 0 1px 4px var(--color-card-shadow); /* Very subtle shadow for Airbnb style */
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 24px;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transform: translateZ(0); /* Force hardware acceleration */
+  backface-visibility: hidden; /* Prevent flickering in some browsers */
+  -webkit-transform: translate3d(0,0,0); /* Additional hardware acceleration for Safari */
+  -webkit-backface-visibility: hidden; /* Additional fix for Safari */
+}
+
+.admin-navbar-brand {
+  padding: 0.75rem 0;
+  margin-right: 1.5rem;
+  transition: border-color 0.3s ease;
+  white-space: nowrap;
+}
+
+.admin-navbar-brand h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-header-text);
+  transition: color 0.3s ease;
+  letter-spacing: 0.01em;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 0;
+  flex: 1;
+  gap: 8px; /* Airbnb-style spacing between nav items */
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--color-header-text);
+  opacity: 0.85;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 400;
+  border-radius: 24px; /* Airbnb-style rounded corners */
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+}
+
+.admin-nav-item:hover {
+  background-color: var(--color-border); /* Use theme variable for hover effect */
+  color: var(--color-header-text);
+  opacity: 1;
+  text-decoration: none;
+}
+
+.admin-nav-item.active {
+  background-color: var(--color-primary);
+  color: var(--color-button-text);
+  opacity: 1;
+  font-weight: 500;
+  box-shadow: 0 1px 2px var(--color-card-shadow); /* Use theme variable for shadow */
+}
+
+.admin-nav-icon {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+
+.admin-nav-divider {
+  display: none;
+}
+
+.admin-content {
+  flex: 1;
+  margin-left: 0;
+  padding: 2rem;
+  padding-top: calc(2rem + 130px); /* Add extra padding for both navbars (70px main + 60px admin) */
+  background-color: var(--color-background);
+  min-height: calc(100vh - 130px); /* Adjust for both navbar heights */
+  transition: background-color 0.3s ease;
+}
+
+.admin-layout-unauthorized {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: var(--color-background);
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.admin-layout-unauthorized h2 {
+  font-size: 2rem;
+  color: #dc3545; /* Keep error color red for visibility in both themes */
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+.admin-layout-unauthorized p {
+  font-size: 1.25rem;
+  color: var(--color-breadcrumb-text);
+  margin-bottom: 2rem;
+  transition: color 0.3s ease;
+}
+
+.admin-layout-home-link {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--color-primary);
+  color: var(--color-button-text);
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-layout-home-link:hover {
+  background-color: var(--color-primary-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .admin-navbar {
+    top: 80px; /* Adjust for main navbar height on medium screens */
+    padding: 0 16px;
+  }
+
+  .admin-navbar-brand {
+    padding: 0.5rem 0;
+  }
+
+  .admin-navbar-brand h2 {
+    font-size: 1.1rem;
+  }
+
+  .admin-nav {
+    gap: 6px;
+  }
+
+  .admin-nav-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .admin-content {
+    padding: 1rem;
+    padding-top: calc(1rem + 130px); /* Adjust for both navbars (80px main + 50px admin) */
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-navbar {
+    top: 90px; /* Adjust for main navbar height on small screens */
+    overflow-x: auto;
+    padding: 0 12px;
+  }
+
+  .admin-navbar-brand {
+    padding: 0.5rem 0;
+    margin-right: 0.75rem;
+  }
+
+  .admin-nav {
+    gap: 4px;
+  }
+
+  .admin-nav-item {
+    padding: 0.5rem 0.625rem;
+    border-radius: 16px; /* Smaller radius for mobile */
+  }
+
+  .admin-nav-icon {
+    margin-right: 0.25rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-content {
+    padding-top: calc(1rem + 130px); /* Adjust for both navbars (90px main + 40px admin) */
+  }
+}

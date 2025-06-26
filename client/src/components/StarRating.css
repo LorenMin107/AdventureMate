@@ -1,0 +1,35 @@
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+}
+
+.star {
+  font-size: 1.5rem;
+  color: var(--color-border);
+  margin-right: 2px;
+  transition: color 0.3s ease;
+}
+
+.star.filled {
+  color: #ffc107; /* Keep yellow color for filled stars in both themes for consistency */
+}
+
+.star.editable {
+  cursor: pointer;
+}
+
+.star.editable:hover {
+  transform: scale(1.1);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

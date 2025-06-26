@@ -1,0 +1,305 @@
+/* AdminBookingList.css */
+.admin-booking-list {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-booking-list-title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 10px;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Filter styles */
+.admin-booking-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  background-color: var(--color-card-bg);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-booking-list-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-booking-list-filter-group label {
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 0;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-list-filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  min-width: 150px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.admin-booking-list-filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem var(--color-card-shadow);
+}
+
+.admin-booking-list-table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.admin-booking-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-card-bg);
+  transition: background-color 0.3s ease;
+}
+
+.admin-booking-list-table th,
+.admin-booking-list-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-booking-list-table th {
+  background-color: var(--color-card-bg);
+  font-weight: 600;
+  color: var(--color-text);
+  position: sticky;
+  top: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-booking-list-item:hover {
+  background-color: var(--color-border);
+  transition: background-color 0.3s ease;
+}
+
+.admin-booking-list-id {
+  font-family: monospace;
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-list-user {
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-list-campground {
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-list-price {
+  font-weight: 600;
+  color: var(--color-primary);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-list-view-button {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-booking-list-view-button:hover {
+  background-color: var(--color-button-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+/* Status styles */
+.admin-booking-list-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  text-transform: capitalize;
+  min-width: 80px;
+}
+
+.admin-booking-list-status-pending {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.admin-booking-list-status-confirmed {
+  background-color: #28a745;
+  color: white;
+}
+
+.admin-booking-list-status-cancelled {
+  background-color: #dc3545;
+  color: white;
+}
+
+.admin-booking-list-loading,
+.admin-booking-list-error,
+.admin-booking-list-empty,
+.admin-booking-list-unauthorized {
+  padding: 20px;
+  text-align: center;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  margin: 20px 0;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-booking-list-loading {
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-list-error {
+  color: #dc3545; /* Keep error text red for visibility in both themes */
+  background-color: var(--color-card-bg);
+  transition: background-color 0.3s ease;
+}
+
+.admin-booking-list-empty {
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-list-unauthorized {
+  color: #dc3545; /* Keep error text red for visibility in both themes */
+  background-color: var(--color-card-bg);
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.admin-booking-list-retry-button {
+  padding: 8px 16px;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-booking-list-retry-button:hover {
+  background-color: var(--color-button-hover);
+}
+
+/* Pagination styles */
+.admin-booking-list-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px;
+}
+
+.admin-booking-list-pagination-button {
+  padding: 8px 16px;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-booking-list-pagination-button:hover:not(:disabled) {
+  background-color: var(--color-button-hover);
+}
+
+.admin-booking-list-pagination-button:disabled {
+  background-color: var(--color-border);
+  color: var(--color-text);
+  opacity: 0.5;
+  cursor: not-allowed;
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+
+.admin-booking-list-pagination-info {
+  margin: 0 15px;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .admin-booking-list-table th,
+  .admin-booking-list-table td {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+
+  .admin-booking-list-view-button {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  .admin-booking-list-pagination-button,
+  .admin-booking-list-retry-button {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .admin-booking-list-pagination-info {
+    font-size: 0.8rem;
+    margin: 0 10px;
+  }
+
+  /* Responsive filter styles */
+  .admin-booking-list-filters {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .admin-booking-list-filter-group {
+    width: 100%;
+  }
+
+  .admin-booking-list-filter-select {
+    flex-grow: 1;
+  }
+
+  .admin-booking-list-status {
+    min-width: 70px;
+    padding: 3px 6px;
+    font-size: 0.75rem;
+  }
+}

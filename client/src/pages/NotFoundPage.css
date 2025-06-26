@@ -1,0 +1,92 @@
+.not-found-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.not-found-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.not-found-page h1 {
+  font-size: 8rem;
+  font-weight: 700;
+  color: #f44336;
+  margin: 0;
+  line-height: 1;
+}
+
+.not-found-page h2 {
+  font-size: 2.5rem;
+  margin: 1rem 0;
+  color: #333;
+}
+
+.not-found-page p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #666;
+}
+
+.not-found-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.not-found-actions .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.not-found-actions .btn-primary {
+  background-color: #2b6cb0;
+  color: white;
+}
+
+.not-found-actions .btn-primary:hover {
+  background-color: #1e4e8c;
+}
+
+.not-found-actions .btn-secondary {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.not-found-actions .btn-secondary:hover {
+  background-color: #cbd5e0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .not-found-page h1 {
+    font-size: 6rem;
+  }
+  
+  .not-found-page h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .not-found-page h1 {
+    font-size: 4rem;
+  }
+  
+  .not-found-page h2 {
+    font-size: 1.5rem;
+  }
+  
+  .not-found-actions {
+    flex-direction: column;
+  }
+}

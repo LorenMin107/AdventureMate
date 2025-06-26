@@ -1,0 +1,209 @@
+.booking-list {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.booking-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.booking-list-header h1 {
+  font-size: 2rem;
+  color: var(--color-text);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.booking-list-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.booking-list-limit {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-card-bg);
+  font-size: 0.875rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.booking-list-table-container {
+  overflow-x: auto;
+  margin-bottom: 2rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-list-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.booking-list-table th,
+.booking-list-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
+}
+
+.booking-list-table th {
+  background-color: var(--color-breadcrumb-bg);
+  font-weight: bold;
+  color: var(--color-breadcrumb-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-list-table th.sortable {
+  cursor: pointer;
+  position: relative;
+}
+
+.booking-list-table th.sortable:hover {
+  background-color: var(--color-border);
+  transition: background-color 0.3s ease;
+}
+
+.booking-list-table th.sorted-asc::after {
+  content: "▲";
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.booking-list-table th.sorted-desc::after {
+  content: "▼";
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.booking-list-table tr:hover {
+  background-color: var(--color-breadcrumb-bg);
+  transition: background-color 0.3s ease;
+}
+
+.booking-list-actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.booking-list-view-button {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--color-primary);
+  color: var(--color-button-text);
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-list-view-button:hover {
+  background-color: var(--color-primary-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.booking-list-cancel-button {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: #dc3545; /* Keep red for cancel button for visibility in both themes */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.booking-list-cancel-button:hover {
+  background-color: #c82333;
+}
+
+.booking-list-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.pagination-button {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-breadcrumb-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  color: var(--color-text);
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: var(--color-border);
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-breadcrumb-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-list-loading,
+.booking-list-error,
+.booking-list-unauthorized {
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  margin: 2rem 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-list-error {
+  color: #dc3545; /* Keep error color red for visibility in both themes */
+  background-color: var(--color-card-bg);
+}
+
+.booking-list-unauthorized {
+  color: var(--color-breadcrumb-text);
+  background-color: var(--color-card-bg);
+}
+
+@media (max-width: 992px) {
+  .booking-list-table th,
+  .booking-list-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .booking-list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .booking-list {
+    padding: 1rem;
+  }
+
+  .booking-list-pagination {
+    flex-wrap: wrap;
+  }
+}

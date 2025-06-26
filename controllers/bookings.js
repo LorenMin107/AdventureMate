@@ -80,13 +80,16 @@ module.exports.processPayment = async (req, res) => {
       },
     ],
     mode: "payment",
-    success_url: `${req.protocol}://${req.get(
-      "host"
-    )}/bookings/${id}/success?session_id={CHECKOUT_SESSION_ID}&startDate=${startDate}&endDate=${endDate}&totalDays=${totalDays}&totalPrice=${totalPrice}`,
-    cancel_url: `${req.protocol}://${req.get("host")}/bookings/${id}/checkout`,
+    success_url: `http://localhost:5173/bookings/payment-success?session_id={CHECKOUT_SESSION_ID}&campground_id=${id}`,
+    cancel_url: `http://localhost:5173/campgrounds/${id}`,
     metadata: {
+      campgroundId: id,
+      userId: req.user._id.toString(),
       username: user.username,
+      startDate: startDate,
+      endDate: endDate,
       totalDays: totalDays,
+      totalPrice: totalPrice
     },
   });
 
@@ -95,29 +98,79 @@ module.exports.processPayment = async (req, res) => {
 
 module.exports.paymentSuccess = async (req, res) => {
   const { id } = req.params;
-  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+  const session_id = req.query.session_id;
+  const timestamp = new Date().toISOString();
+  const requestIP = req.ip || 'unknown';
+  const userAgent = req.get('User-Agent') || 'unknown';
+  const referer = req.get('Referer') || 'unknown';
+
+  console.log(`[${timestamp}] Traditional payment success endpoint called for session_id: ${session_id}`);
+  console.log(`Request details - IP: ${requestIP}, User-Agent: ${userAgent}, Referer: ${referer}`);
+
+  const session = await stripe.checkout.sessions.retrieve(session_id);
 
   if (session.payment_status === "paid") {
-    const booking = new Booking({
+    console.log(`[${timestamp}] Payment verified as paid for session_id: ${session_id}`);
+
+    // Extract booking details from session metadata
+    const { startDate, endDate, totalDays, totalPrice, userId } = session.metadata;
+
+    // Verify the user matches
+    if (userId !== req.user._id.toString()) {
+      console.log(`[${timestamp}] User mismatch for session_id: ${session_id}. Expected: ${userId}, Got: ${req.user._id.toString()}`);
+      req.flash("error", "User mismatch. Please try again.");
+      return res.redirect(`/bookings/${id}/checkout`);
+    }
+
+    // Check if a booking with this session ID already exists
+    let booking = await Booking.findOne({ sessionId: session_id });
+
+    if (booking) {
+      const bookingCreatedAt = booking.createdAt.toISOString();
+      const timeSinceCreation = new Date() - booking.createdAt;
+
+      console.log(`[${timestamp}] Duplicate booking detected for session_id: ${session_id}`);
+      console.log(`Original booking created at: ${bookingCreatedAt} (${timeSinceCreation}ms ago)`);
+      console.log(`Booking with session ID ${session_id} already exists. Redirecting to bookings view.`);
+
+      req.flash("success", "Your booking was already confirmed!");
+      return res.redirect(`/bookings/view`);
+    }
+
+    // Create the booking if it doesn't exist
+    console.log(`[${timestamp}] Creating new booking for session_id: ${session_id}`);
+    const startTime = Date.now();
+
+    booking = new Booking({
       user: req.user._id,
       campground: id,
-      startDate: req.query.startDate,
-      endDate: req.query.endDate,
-      totalDays: req.query.totalDays,
-      totalPrice: req.query.totalPrice,
-      sessionId: session.id, // Store sessionId
+      startDate: startDate,
+      endDate: endDate,
+      totalDays: totalDays,
+      totalPrice: totalPrice,
+      sessionId: session_id, // Store sessionId
+      paid: true
     });
     await booking.save();
+    console.log(`[${timestamp}] Booking saved to database with _id: ${booking._id}`);
 
     const campground = await Campground.findById(id).populate("images");
     campground.bookings.push(booking._id);
     await campground.save();
+    console.log(`[${timestamp}] Campground updated with booking reference`);
 
     req.user.bookings.push(booking._id); // Associate booking with user
     await req.user.save(); // Save user with new booking
+    console.log(`[${timestamp}] User updated with booking reference`);
+
+    const endTime = Date.now();
+    const processingTime = endTime - startTime;
+    console.log(`[${timestamp}] Booking creation process completed in ${processingTime}ms`);
 
     req.flash("success", "Successfully booked campground!");
-    res.render("bookings/transaction", { booking, session, user: req.user, campground, username: req.user.username });
+
+    // Redirect to booking view page
+    res.redirect(`/bookings/view`);
   } else {
     req.flash("error", "Payment failed. Please try again.");
     res.redirect(`/bookings/${id}/checkout`);

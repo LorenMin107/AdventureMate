@@ -1,0 +1,110 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Common variables for both themes */
+  --font-synthesis: none;
+  --text-rendering: optimizeLegibility;
+  --webkit-font-smoothing: antialiased;
+  --moz-osx-font-smoothing: grayscale;
+
+  /* Light theme variables (default) */
+  --color-text: #213547;
+  --color-background: #ffffff;
+  --color-primary: #2e7d32; /* Changed to medium green */
+  --color-primary-hover: #1b5e20; /* Changed to darker green */
+  --color-secondary: #43a047; /* Changed to slightly different green */
+  --color-card-bg: #f8f9fa;
+  --color-card-shadow: rgba(0, 0, 0, 0.1);
+  --color-button-bg: #2e7d32; /* Changed to medium green */
+  --color-button-hover: #1b5e20; /* Changed to darker green */
+  --color-button-text: white;
+  --color-border: #e5e7eb;
+  --color-header-bg: #ffffff;
+  --color-header-text: #213547;
+  --color-breadcrumb-bg: #f8f9fa;
+  --color-breadcrumb-text: #6c757d;
+  --color-breadcrumb-active: #6c757d;
+  --color-footer-bg: #ffffff;
+  --color-footer-text: #213547;
+
+  font-synthesis: var(--font-synthesis);
+  text-rendering: var(--text-rendering);
+  -webkit-font-smoothing: var(--webkit-font-smoothing);
+  -moz-osx-font-smoothing: var(--moz-osx-font-smoothing);
+
+  color: var(--color-text);
+  background-color: var(--color-background);
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  --color-text: rgba(255, 255, 255, 0.87);
+  --color-background: #242424;
+  --color-primary: #4caf50; /* Changed to brighter green for dark theme */
+  --color-primary-hover: #388e3c; /* Changed to medium green for dark theme */
+  --color-secondary: #66bb6a; /* Changed to light green for dark theme */
+  --color-card-bg: #1e1e1e;
+  --color-card-shadow: rgba(0, 0, 0, 0.3);
+  --color-button-bg: #4caf50; /* Changed to brighter green for dark theme */
+  --color-button-hover: #388e3c; /* Changed to medium green for dark theme */
+  --color-button-text: white;
+  --color-border: #2d2d2d;
+  --color-header-bg: #1a1a1a;
+  --color-header-text: white;
+  --color-breadcrumb-bg: #1e1e1e;
+  --color-breadcrumb-text: #a1a1aa;
+  --color-breadcrumb-active: #d4d4d8;
+  --color-footer-bg: #1a1a1a;
+  --color-footer-text: #a1a1aa;
+}
+
+a {
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: inherit;
+  transition: color 0.3s ease;
+}
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.3s ease, color 0.3s ease;
+}
+button:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-button-hover);
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* We're now using CSS variables for theming, so we don't need this media query anymore */

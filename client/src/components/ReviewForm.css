@@ -1,0 +1,112 @@
+.review-form {
+  margin-top: 2rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.review-form-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.review-form-error {
+  background-color: var(--color-card-bg);
+  color: #dc3545; /* Keep error color red for visibility in both themes */
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  border: 1px solid #dc3545;
+  transition: background-color 0.3s ease;
+}
+
+.review-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.review-form-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.review-form-rating label {
+  font-weight: bold;
+  margin-right: 0.5rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.review-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.review-form-body label {
+  font-weight: bold;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.review-form-body textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.review-form-body textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+}
+
+.review-form-submit {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.review-form-submit:hover {
+  background-color: var(--color-button-hover);
+}
+
+.review-form-submit:disabled {
+  background-color: var(--color-breadcrumb-text);
+  cursor: not-allowed;
+}
+
+.review-form-login-message {
+  background-color: var(--color-card-bg);
+  color: var(--color-breadcrumb-text);
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 2rem;
+  text-align: center;
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.review-form-login-message a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}

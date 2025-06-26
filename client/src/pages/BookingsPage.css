@@ -1,0 +1,42 @@
+.bookings-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.bookings-page-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--color-text);
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.bookings-page-loading,
+.bookings-page-error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.bookings-page-loading {
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.bookings-page-error {
+  color: #e74c3c; /* Keep error color red for visibility in both themes */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .bookings-page {
+    padding: 1rem;
+  }
+
+  .bookings-page-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}

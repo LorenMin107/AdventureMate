@@ -1,0 +1,119 @@
+.booking-form {
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  margin-top: 1rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-form-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.booking-form-error {
+  background-color: #f8d7da; /* Keep error background color for visibility in both themes */
+  color: #dc3545; /* Keep error text color red for visibility in both themes */
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.booking-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.booking-form-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.booking-form-date-field {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.booking-form-date-field label {
+  font-weight: bold;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.booking-form-date-field input {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-form-date-field input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem var(--color-primary-hover);
+}
+
+.booking-form-price {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.booking-form-submit {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.booking-form-submit:hover {
+  background-color: var(--color-button-hover);
+}
+
+.booking-form-submit:disabled {
+  background-color: var(--color-breadcrumb-text);
+  color: var(--color-button-text);
+  cursor: not-allowed;
+}
+
+.booking-form-login-message {
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  opacity: 0.9;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+  text-align: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.booking-form-login-message a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .booking-form-dates {
+    flex-direction: column;
+  }
+}

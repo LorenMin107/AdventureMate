@@ -1,0 +1,353 @@
+/* AdminBookingDetail.css */
+.admin-booking-detail {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-booking-detail-title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: var(--color-text);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 10px;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.admin-booking-detail-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .admin-booking-detail-card {
+    flex-direction: row;
+  }
+}
+
+/* Header section with image and trip dates */
+.admin-booking-detail-header {
+  flex: 1;
+  padding: 20px;
+  border-right: 1px solid var(--color-border);
+  background-color: var(--color-card-bg);
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.admin-booking-detail-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.admin-booking-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-booking-detail-no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-border);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-booking-detail-campground-info {
+  margin-bottom: 20px;
+}
+
+.admin-booking-detail-campground-info h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.4rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-location {
+  color: var(--color-text);
+  opacity: 0.7;
+  font-size: 0.9rem;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-trip-dates {
+  margin-top: 20px;
+}
+
+.admin-booking-detail-trip-dates h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-dates-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-booking-detail-date-box {
+  flex: 1;
+  padding: 10px;
+  background-color: var(--color-card-bg);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-booking-detail-date-label {
+  font-size: 0.8rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  margin-bottom: 5px;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-date-value {
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-dates-divider {
+  margin: 0 10px;
+  color: var(--color-text);
+  opacity: 0.5;
+  transition: color 0.3s ease;
+}
+
+/* Info section with booking details */
+.admin-booking-detail-info {
+  flex: 1;
+  padding: 20px;
+}
+
+.admin-booking-detail-section {
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.admin-booking-detail-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.admin-booking-detail-section-header {
+  margin-bottom: 15px;
+}
+
+.admin-booking-detail-section-title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.admin-booking-detail-label {
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-value {
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-price {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  transition: color 0.3s ease;
+}
+
+/* Status styles */
+.admin-booking-detail-status {
+  font-size: 1.2rem;
+  text-transform: capitalize;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.admin-booking-detail-status-pending {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.admin-booking-detail-status-confirmed {
+  background-color: #28a745;
+  color: white;
+}
+
+.admin-booking-detail-status-cancelled {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Payment status styles */
+.admin-booking-detail-payment-status {
+  font-size: 1.2rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.admin-booking-detail-payment-status.paid {
+  background-color: #28a745;
+  color: white;
+}
+
+.admin-booking-detail-payment-status.unpaid {
+  background-color: #6c757d;
+  color: white;
+}
+
+.transaction-id-item {
+  word-break: break-all;
+}
+
+.transaction-id-value {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-booking-detail-price-breakdown {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--color-border);
+  transition: border-color 0.3s ease;
+}
+
+/* Footer with action buttons */
+.admin-booking-detail-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.admin-booking-detail-back-button,
+.admin-booking-detail-user-button,
+.admin-booking-detail-campground-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.admin-booking-detail-back-button {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+}
+
+.admin-booking-detail-back-button:hover {
+  background-color: var(--color-button-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.admin-booking-detail-user-button {
+  background-color: var(--color-secondary);
+  color: var(--color-button-text);
+}
+
+.admin-booking-detail-user-button:hover {
+  background-color: var(--color-primary-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.admin-booking-detail-campground-button {
+  background-color: var(--color-primary);
+  color: var(--color-button-text);
+}
+
+.admin-booking-detail-campground-button:hover {
+  background-color: var(--color-primary-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+/* Status messages */
+.admin-booking-detail-loading,
+.admin-booking-detail-error,
+.admin-booking-detail-not-found,
+.admin-booking-detail-unauthorized {
+  padding: 20px;
+  text-align: center;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  margin: 20px 0;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-booking-detail-loading {
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-error {
+  color: #dc3545; /* Keep error text red for visibility in both themes */
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-not-found {
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-unauthorized {
+  color: #dc3545; /* Keep error text red for visibility in both themes */
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .admin-booking-detail-header,
+  .admin-booking-detail-info {
+    padding: 15px;
+  }
+
+  .admin-booking-detail-footer {
+    flex-direction: column;
+  }
+
+  .admin-booking-detail-back-button,
+  .admin-booking-detail-user-button,
+  .admin-booking-detail-campground-button {
+    width: 100%;
+    text-align: center;
+  }
+}

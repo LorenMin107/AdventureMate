@@ -1,0 +1,378 @@
+.user-detail {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.user-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.user-detail-header h1 {
+  font-size: 2rem;
+  color: var(--color-text);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.user-detail-back-button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-breadcrumb-text);
+  color: var(--color-button-text);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.user-detail-back-button:hover {
+  background-color: var(--color-breadcrumb-active);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.user-detail-card {
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px var(--color-card-shadow);
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-detail-info {
+  flex: 1;
+  min-width: 300px;
+}
+
+.user-detail-info-item {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.3s ease;
+}
+
+.user-detail-info-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.user-detail-label {
+  font-weight: bold;
+  color: var(--color-breadcrumb-text);
+  transition: color 0.3s ease;
+}
+
+.user-detail-value {
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.user-role {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.user-role.admin {
+  background-color: #dc3545;
+  color: white;
+}
+
+.user-role.user {
+  background-color: #28a745;
+  color: white;
+}
+
+.user-detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-left: 2rem;
+}
+
+.user-detail-admin-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.user-detail-admin-button.grant {
+  background-color: #dc3545;
+  color: white;
+}
+
+.user-detail-admin-button.grant:hover {
+  background-color: #c82333;
+}
+
+.user-detail-admin-button.remove {
+  background-color: #6c757d;
+  color: white;
+}
+
+.user-detail-admin-button.remove:hover {
+  background-color: #5a6268;
+}
+
+/* Tabs */
+.user-detail-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 1.5rem;
+  transition: border-color 0.3s ease;
+}
+
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-breadcrumb-text);
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.tab-button:hover {
+  color: var(--color-text);
+}
+
+.tab-button.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.user-detail-tab-content {
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Bookings Tab */
+.user-bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.user-booking-item {
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-booking-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.user-booking-title {
+  font-weight: bold;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.user-booking-dates {
+  color: var(--color-breadcrumb-text);
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+}
+
+.user-booking-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+  opacity: 0.8;
+  transition: color 0.3s ease;
+}
+
+.user-booking-price {
+  font-weight: bold;
+  color: var(--color-primary);
+  transition: color 0.3s ease;
+}
+
+.user-booking-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.user-booking-view-button,
+.user-booking-cancel-button {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.user-booking-view-button {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  text-decoration: none;
+}
+
+.user-booking-view-button:hover {
+  background-color: var(--color-button-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.user-booking-cancel-button {
+  background-color: #dc3545; /* Keep red for cancel button for better visibility */
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.user-booking-cancel-button:hover {
+  background-color: #c82333;
+}
+
+/* Reviews Tab */
+.user-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.user-review-item {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.user-review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.user-review-campground {
+  font-weight: bold;
+  color: #333;
+}
+
+.user-review-rating {
+  display: flex;
+}
+
+.star {
+  font-size: 1rem;
+  color: #e0e0e0;
+  margin-right: 2px;
+}
+
+.star.filled {
+  color: #ffc107;
+}
+
+.user-review-body {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.user-review-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-review-view-button {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.user-review-view-button:hover {
+  background-color: #0069d9;
+  text-decoration: none;
+  color: white;
+}
+
+.user-no-data {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 1rem;
+}
+
+.user-detail-loading,
+.user-detail-error,
+.user-detail-not-found,
+.user-detail-unauthorized {
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  margin: 2rem 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.user-detail-error {
+  color: #dc3545; /* Keep error color red for visibility in both themes */
+  background-color: var(--color-card-bg);
+}
+
+.user-detail-not-found,
+.user-detail-unauthorized {
+  color: var(--color-breadcrumb-text);
+  background-color: var(--color-card-bg);
+}
+
+@media (max-width: 768px) {
+  .user-detail {
+    padding: 1rem;
+  }
+
+  .user-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .user-detail-card {
+    flex-direction: column;
+  }
+
+  .user-detail-actions {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+
+  .user-detail-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .tab-button {
+    padding: 0.5rem 1rem;
+  }
+}
