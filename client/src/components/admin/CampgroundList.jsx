@@ -28,10 +28,13 @@ const CampgroundList = () => {
     const fetchCampgrounds = async () => {
       try {
         setLoading(true);
+        // If sort field is 'price', change it to 'title' since price is no longer a field
+        const sortField = sort.field === 'price' ? 'title' : sort.field;
+
         const queryParams = new URLSearchParams({
           page: pagination.page,
           limit: pagination.limit,
-          sortField: sort.field,
+          sortField: sortField,
           sortOrder: sort.order
         });
 
@@ -157,11 +160,8 @@ const CampgroundList = () => {
               >
                 Location
               </th>
-              <th 
-                className={`sortable ${sort.field === 'price' ? `sorted-${sort.order}` : ''}`}
-                onClick={() => handleSortChange('price')}
-              >
-                Price
+              <th>
+                Pricing
               </th>
               <th>Author</th>
               <th>Reviews</th>
@@ -174,7 +174,7 @@ const CampgroundList = () => {
               <tr key={campground._id}>
                 <td>{campground.title}</td>
                 <td>{campground.location}</td>
-                <td>${campground.price.toFixed(2)}</td>
+                <td>See campsites</td>
                 <td>{campground.author?.username || 'Unknown'}</td>
                 <td>{campground.reviews?.length || 0}</td>
                 <td>{campground.bookings?.length || 0}</td>

@@ -1,0 +1,373 @@
+.campsites-container {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.campsites-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.campsites-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.add-campsite-button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.add-campsite-button:hover {
+  background-color: var(--color-button-hover);
+}
+
+.campsites-loading, .campsites-error {
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  margin: 1rem 0;
+  transition: background-color 0.3s ease;
+}
+
+.campsites-loading {
+  color: var(--color-primary);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.campsites-error {
+  color: #dc2626; /* Keep error color red for visibility in both themes */
+}
+
+.no-campsites {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text);
+  opacity: 0.7;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  border: 1px dashed var(--color-border);
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.campsites-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .campsites-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .campsites-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.campsite-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px var(--color-card-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  border: 1px solid var(--color-border);
+}
+
+.campsite-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px var(--color-card-shadow);
+}
+
+.campsite-image {
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.campsite-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.campsite-card:hover .campsite-image img {
+  transform: scale(1.05);
+}
+
+.no-image {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  opacity: 0.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.campsite-details {
+  padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.campsite-details h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.campsite-description {
+  margin-bottom: 1.25rem;
+  color: var(--color-text);
+  opacity: 0.8;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.3s ease;
+}
+
+.campsite-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.feature-tag {
+  padding: 0.35rem 0.75rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.campsite-info {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.info-label {
+  color: var(--color-text);
+  opacity: 0.7;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.info-value {
+  font-weight: 600;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.info-value.available {
+  color: #10b981; /* Green color that works in both light and dark themes */
+  font-weight: 600;
+}
+
+.info-value.unavailable {
+  color: #ef4444; /* Red color that works in both light and dark themes */
+  font-weight: 600;
+}
+
+.campsite-actions {
+  display: flex;
+  padding: 1.25rem;
+  background-color: var(--color-card-bg);
+  border-top: 1px solid var(--color-border);
+  gap: 0.75rem;
+  transition: background-color 0.3s ease;
+}
+
+.book-button, .edit-button, .delete-button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-button:hover, .edit-button:hover, .delete-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.book-button:active, .edit-button:active, .delete-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.book-button {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  text-decoration: none;
+  flex-grow: 1;
+}
+
+.book-button:hover {
+  background-color: var(--color-button-hover);
+}
+
+.edit-button {
+  background-color: #4f46e5; /* Indigo color that works in both themes */
+  color: white;
+  text-decoration: none;
+}
+
+.edit-button:hover {
+  background-color: #4338ca; /* Darker indigo */
+}
+
+.delete-button {
+  background-color: #ef4444; /* Red color that works in both themes */
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #dc2626; /* Darker red */
+}
+.campsite-name-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.campsite-name-link:hover {
+  text-decoration: underline;
+}
+
+.campsite-card-link {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.campsite-name {
+  color: var(--color-primary);
+  transition: color 0.3s ease;
+}
+
+.campsite-card-link:hover .campsite-name {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .campsites-container {
+    padding: 1rem;
+  }
+
+  .campsites-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .add-campsite-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .campsite-image {
+    height: 180px;
+  }
+
+  .campsite-details {
+    padding: 1.25rem;
+  }
+
+  .campsite-actions {
+    flex-wrap: wrap;
+  }
+
+  .book-button, .edit-button, .delete-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .campsites-list {
+    gap: 1.5rem;
+  }
+
+  .campsite-card {
+    border-radius: 8px;
+  }
+
+  .campsite-image {
+    height: 160px;
+  }
+
+  .campsite-details h3 {
+    font-size: 1.2rem;
+  }
+
+  .feature-tag {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .campsite-actions {
+    padding: 1rem;
+  }
+
+  .edit-button, .delete-button {
+    flex: 1;
+    text-align: center;
+  }
+}

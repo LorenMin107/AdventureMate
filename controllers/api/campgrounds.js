@@ -45,7 +45,6 @@ module.exports.createCampground = async (req, res) => {
       title: req.body.campground.title,
       location: req.body.campground.location,
       description: req.body.campground.description,
-      price: req.body.campground.price,
       geometry: geoData.body.features[0].geometry,
       author: req.user._id
     });
@@ -148,8 +147,7 @@ module.exports.updateCampground = async (req, res) => {
     const updateData = {
       title: req.body.campground.title,
       location: req.body.campground.location,
-      description: req.body.campground.description,
-      price: req.body.campground.price
+      description: req.body.campground.description
     };
 
     if (geometry) {

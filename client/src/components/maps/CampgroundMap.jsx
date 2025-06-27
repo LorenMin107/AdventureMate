@@ -78,21 +78,45 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
       // Add event listener for window resize
       window.addEventListener('resize', handleResize);
 
-      // Add a MutationObserver to detect DOM changes that might affect the map container size
-      const observer = new MutationObserver(() => {
-        if (map) {
-          map.resize();
-        }
-      });
-
-      // Observe the parent element for changes
-      const parentElement = mapRef.current.getContainer().parentElement;
-      if (parentElement) {
-        observer.observe(parentElement, { 
-          attributes: true, 
-          childList: true, 
-          subtree: true 
+      // Add a ResizeObserver to monitor container size changes directly
+      let resizeObserver;
+      try {
+        resizeObserver = new ResizeObserver((entries) => {
+          // When container size changes, resize the map
+          if (map) {
+            map.resize();
+          }
         });
+
+        // Start observing the map container
+        const container = mapRef.current.getContainer();
+        if (container) {
+          resizeObserver.observe(container);
+        }
+
+        // Also observe the parent element for more reliable size detection
+        if (container.parentElement) {
+          resizeObserver.observe(container.parentElement);
+        }
+      } catch (e) {
+        console.error('ResizeObserver not supported, falling back to MutationObserver:', e);
+
+        // Fallback to MutationObserver if ResizeObserver is not supported
+        const mutationObserver = new MutationObserver(() => {
+          if (map) {
+            map.resize();
+          }
+        });
+
+        // Observe the parent element for changes
+        const parentElement = mapRef.current.getContainer().parentElement;
+        if (parentElement) {
+          mutationObserver.observe(parentElement, { 
+            attributes: true, 
+            childList: true, 
+            subtree: true 
+          });
+        }
       }
 
       // Force a style recalculation to ensure the map container is properly sized
@@ -102,6 +126,11 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
           const container = mapRef.current.getContainer();
           // Force a reflow by accessing offsetHeight
           const height = container.offsetHeight;
+          const width = container.offsetWidth;
+
+          // Log dimensions for debugging
+          console.log(`Map container dimensions: ${width}x${height}`);
+
           // Apply a small style change and revert it to trigger a repaint
           container.style.opacity = '0.99';
           setTimeout(() => {
@@ -114,14 +143,18 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
       // Call the force style recalculation after a delay
       const styleRecalcTimer = setTimeout(forceStyleRecalculation, 500);
 
-      // Clean up the timeouts, event listener, and observer on component unmount
+      // Clean up the timeouts, event listener, and observers on component unmount
       return () => {
         clearTimeout(resizeTimer);
         clearTimeout(secondResizeTimer);
         clearTimeout(thirdResizeTimer);
         clearTimeout(styleRecalcTimer);
         window.removeEventListener('resize', handleResize);
-        observer.disconnect();
+
+        // Disconnect observers
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+        }
 
         // Ensure the map is properly cleaned up when unmounting
         if (mapRef.current) {
@@ -158,12 +191,40 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
 
   // Delay rendering the map to ensure container is properly sized
   useEffect(() => {
-    // Set a timeout to render the map after a delay
-    const renderTimer = setTimeout(() => {
-      setRenderMap(true);
-    }, 500); // 500ms delay before rendering the map
+    // First, ensure the container is visible and has dimensions
+    if (document.querySelector('.campground-map-container')) {
+      const container = document.querySelector('.campground-map-container');
+      container.style.display = 'flex';
+      container.style.visibility = 'visible';
 
-    return () => clearTimeout(renderTimer);
+      // Force a reflow to ensure the container has dimensions
+      const height = container.offsetHeight;
+      const width = container.offsetWidth;
+
+      // Only render the map if the container has dimensions
+      if (height > 0 && width > 0) {
+        // Set a timeout to render the map after a delay
+        const renderTimer = setTimeout(() => {
+          setRenderMap(true);
+        }, 100); // Reduced delay to 100ms since we've already checked dimensions
+
+        return () => clearTimeout(renderTimer);
+      } else {
+        // If container doesn't have dimensions yet, try again after a delay
+        const retryTimer = setTimeout(() => {
+          setRenderMap(true);
+        }, 500);
+
+        return () => clearTimeout(retryTimer);
+      }
+    } else {
+      // If container doesn't exist yet, use the original delay
+      const renderTimer = setTimeout(() => {
+        setRenderMap(true);
+      }, 500);
+
+      return () => clearTimeout(renderTimer);
+    }
   }, []);
 
   // This effect specifically addresses the issue where the map size is incorrect

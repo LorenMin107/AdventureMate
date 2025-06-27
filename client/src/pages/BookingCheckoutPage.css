@@ -42,6 +42,54 @@
   font-size: 1rem;
 }
 
+.booking-checkout-page-campsite {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  border-left: 3px solid var(--color-primary);
+}
+
+.booking-checkout-page-campsite h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+.booking-checkout-page-campsite .description {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.features {
+  margin-top: 0.5rem;
+}
+
+.features-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.features-list {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.features-list li {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.capacity {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
 .booking-checkout-page-details {
   display: flex;
   flex-direction: column;

@@ -1,0 +1,536 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import MaskedInput from 'react-text-mask';
+import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import './CampsiteForm.css';
+
+/**
+ * CampsiteForm component for creating and editing campsites
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.campgroundId - ID of the parent campground
+ * @param {Object} props.campsite - Existing campsite data for editing (optional)
+ * @param {boolean} props.isEditing - Whether the form is for editing (true) or creating (false)
+ */
+const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
+  const navigate = useNavigate();
+
+  // Configure the currency mask
+  const currencyMask = createNumberMask({
+    prefix: '$',
+    suffix: '',
+    includeThousandsSeparator: true,
+    thousandsSeparatorSymbol: ',',
+    allowDecimal: true,
+    decimalSymbol: '.',
+    decimalLimit: 2,
+    integerLimit: 7,
+    allowNegative: false,
+    allowLeadingZeroes: false,
+  });
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    capacity: 1,
+    features: [],
+    availability: true
+  });
+
+  const [featureInput, setFeatureInput] = useState('');
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  // Initialize form data if editing an existing campsite
+  useEffect(() => {
+    if (campsite && isEditing) {
+      setFormData({
+        name: campsite.name || '',
+        description: campsite.description || '',
+        price: campsite.price || '',
+        capacity: campsite.capacity || 1,
+        features: campsite.features || [],
+        availability: campsite.availability !== undefined ? campsite.availability : true
+      });
+
+      if (campsite.images && campsite.images.length > 0) {
+        setExistingImages(campsite.images);
+      }
+    }
+  }, [campsite, isEditing]);
+
+  // Helper function to format price for display
+  const formatPrice = (price) => {
+    if (!price) return '';
+    // Remove any non-numeric characters except decimal point
+    const numericValue = price.toString().replace(/[^0-9.]/g, '');
+    return numericValue;
+  };
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    // Special handling for price field
+    if (name === 'price') {
+      // Extract numeric value from masked input
+      const numericValue = value.replace(/[^0-9.]/g, '');
+      setFormData(prev => ({
+        ...prev,
+        [name]: numericValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }));
+    }
+
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
+  };
+
+  // Handle price input change from masked input
+  const handlePriceChange = (e) => {
+    const rawValue = e.target.value;
+    // Extract numeric value from masked input (remove $ and commas)
+    const numericValue = rawValue.replace(/[$,]/g, '');
+
+    setFormData(prev => ({
+      ...prev,
+      price: numericValue
+    }));
+
+    // Clear validation error
+    if (validationErrors.price) {
+      setValidationErrors(prev => ({
+        ...prev,
+        price: null
+      }));
+    }
+  };
+
+  // Handle feature input
+  const handleFeatureInputChange = (e) => {
+    setFeatureInput(e.target.value);
+  };
+
+  // Add a feature
+  const addFeature = () => {
+    if (featureInput.trim() && !formData.features.includes(featureInput.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        features: [...prev.features, featureInput.trim()]
+      }));
+      setFeatureInput('');
+    }
+  };
+
+  // Remove a feature
+  const removeFeature = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      features: prev.features.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Handle image file selection
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(prev => [...prev, ...files]);
+
+    // Create preview URLs for the selected images
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(prev => [...prev, ...newPreviews]);
+  };
+
+  // Remove a selected image
+  const removeSelectedImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+
+    // Revoke the object URL to avoid memory leaks
+    URL.revokeObjectURL(imagePreviews[index]);
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Toggle an existing image for deletion
+  const toggleImageForDeletion = (filename) => {
+    if (imagesToDelete.includes(filename)) {
+      setImagesToDelete(prev => prev.filter(name => name !== filename));
+    } else {
+      setImagesToDelete(prev => [...prev, filename]);
+    }
+  };
+
+  // Validate the form
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = 'Description is required';
+    }
+
+    // Validate price - ensure it's a valid number after removing any formatting
+    const priceValue = formData.price ? formData.price.toString().replace(/[$,]/g, '') : '';
+    if (!priceValue) {
+      errors.price = 'Price is required';
+    } else if (isNaN(priceValue) || parseFloat(priceValue) <= 0) {
+      errors.price = 'Price must be a positive number';
+    }
+
+    if (!formData.capacity || formData.capacity < 1) {
+      errors.capacity = 'Capacity must be at least 1';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Create FormData object for file uploads
+      const formDataToSend = new FormData();
+
+      // Nest campsite data under 'campsite' property as expected by the schema
+      formDataToSend.append('campsite[name]', formData.name);
+      formDataToSend.append('campsite[description]', formData.description);
+
+      // Ensure price is a clean numeric value without formatting
+      const cleanPrice = formData.price ? formData.price.toString().replace(/[$,]/g, '') : '';
+      formDataToSend.append('campsite[price]', cleanPrice);
+
+      formDataToSend.append('campsite[capacity]', formData.capacity);
+      formDataToSend.append('campsite[availability]', formData.availability);
+
+      // Add features as an array
+      formData.features.forEach(feature => {
+        formDataToSend.append('campsite[features][]', feature);
+      });
+
+      // Add images to form data
+      images.forEach(image => {
+        formDataToSend.append('image', image);
+      });
+
+      // Add images to delete if editing
+      if (isEditing && imagesToDelete.length > 0) {
+        imagesToDelete.forEach(filename => {
+          formDataToSend.append('deleteImages[]', filename);
+        });
+      }
+
+      // Determine URL and method based on whether we're creating or editing
+      const url = isEditing 
+        ? `/api/v1/campsites/${campsite?._id}` 
+        : `/api/v1/campgrounds/${campgroundId}/campsites`;
+
+      const method = isEditing ? 'PUT' : 'POST';
+
+      // Send the request
+      const response = await fetch(url, {
+        method,
+        body: formDataToSend,
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log('Error response:', errorData);
+
+        // Check if the response is in the standardized format with field-specific errors
+        if (errorData.status === 'error') {
+          // Handle field-specific errors
+          if (errorData.error && typeof errorData.error === 'object' && errorData.error.errors) {
+            const fieldErrors = {};
+            errorData.error.errors.forEach(err => {
+              // Convert API field names (e.g., 'campsite.name') to form field names (e.g., 'name')
+              const fieldName = err.field.replace('campsite.', '');
+              fieldErrors[fieldName] = err.message;
+            });
+            setValidationErrors(fieldErrors);
+            setError('Please correct the validation errors');
+            return;
+          } else {
+            // Handle general error message
+            throw new Error(errorData.error || errorData.message || 'Failed to save campsite');
+          }
+        } else {
+          // Handle legacy error format
+          throw new Error(errorData.error || 'Failed to save campsite');
+        }
+      }
+
+      // Check if the response has content before parsing
+      const contentType = response.headers.get('content-type');
+      let campsiteData;
+
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        // Check if the response is in the standardized format
+        campsiteData = data.status && data.data ? data.data.campsite : data.campsite;
+
+        if (!campsiteData) {
+          throw new Error('Campsite data not found in response');
+        }
+      } else {
+        // If response is not JSON or empty, just proceed without parsing
+        console.log('Response is not JSON or empty, proceeding without parsing');
+      }
+
+      // Navigate back to the campground detail page
+      navigate(`/campgrounds/${campgroundId}`);
+    } catch (err) {
+      console.error('Error saving campsite:', err);
+      setError(err.message || 'Failed to save campsite. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="campsite-form-container">
+      <h2>{isEditing ? 'Edit Campsite' : 'Create New Campsite'}</h2>
+
+      {error && (
+        <div className="form-error-message">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="campsite-form">
+        <div className="form-group">
+          <label htmlFor="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className={validationErrors.name ? 'error' : ''}
+            disabled={loading}
+          />
+          {validationErrors.name && (
+            <div className="validation-error">{validationErrors.name}</div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="price">Price (per night)</label>
+          <div className={`currency-input-container ${validationErrors.price ? 'has-error' : ''}`}>
+            <MaskedInput
+              mask={currencyMask}
+              id="price"
+              name="price"
+              value={formData.price ? (typeof formData.price === 'string' && formData.price.startsWith('$') ? formData.price : `$${formData.price}`) : ''}
+              onChange={handlePriceChange}
+              className={`currency-input ${validationErrors.price ? 'error' : ''}`}
+              placeholder="$0.00"
+              disabled={loading}
+              guide={false}
+              keepCharPositions={false}
+            />
+          </div>
+          {validationErrors.price && (
+            <div className="validation-error">{validationErrors.price}</div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="capacity">Capacity (people)</label>
+          <input
+            type="number"
+            id="capacity"
+            name="capacity"
+            value={formData.capacity}
+            onChange={handleChange}
+            min="1"
+            className={validationErrors.capacity ? 'error' : ''}
+            disabled={loading}
+          />
+          {validationErrors.capacity && (
+            <div className="validation-error">{validationErrors.capacity}</div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            rows="5"
+            className={validationErrors.description ? 'error' : ''}
+            disabled={loading}
+          ></textarea>
+          {validationErrors.description && (
+            <div className="validation-error">{validationErrors.description}</div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label>Features</label>
+          <div className="feature-input-container">
+            <input
+              type="text"
+              id="feature-input"
+              value={featureInput}
+              onChange={handleFeatureInputChange}
+              placeholder="Add a feature (e.g., Fire pit, Picnic table)"
+              disabled={loading}
+            />
+            <button
+              type="button"
+              onClick={addFeature}
+              disabled={!featureInput.trim() || loading}
+              className="add-feature-button"
+            >
+              Add
+            </button>
+          </div>
+
+          {formData.features.length > 0 && (
+            <div className="features-list">
+              {formData.features.map((feature, index) => (
+                <div key={index} className="feature-tag">
+                  {feature}
+                  <button
+                    type="button"
+                    onClick={() => removeFeature(index)}
+                    className="remove-feature-button"
+                    disabled={loading}
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="availability" className="checkbox-label">
+            <input
+              type="checkbox"
+              id="availability"
+              name="availability"
+              checked={formData.availability}
+              onChange={handleChange}
+              disabled={loading}
+            />
+            Available for booking
+          </label>
+        </div>
+
+        <div className="form-group">
+          <label>Images</label>
+
+          {/* Existing images (for editing) */}
+          {isEditing && existingImages.length > 0 && (
+            <div className="existing-images">
+              <p>Current Images:</p>
+              <div className="image-preview-container">
+                {existingImages.map((image, index) => (
+                  <div 
+                    key={index} 
+                    className={`image-preview ${imagesToDelete.includes(image.filename) ? 'marked-for-deletion' : ''}`}
+                  >
+                    <img src={image.url} alt={`Campsite ${index + 1}`} />
+                    <button 
+                      type="button" 
+                      className="remove-image-button"
+                      onClick={() => toggleImageForDeletion(image.filename)}
+                    >
+                      {imagesToDelete.includes(image.filename) ? 'Restore' : 'Remove'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* New image upload */}
+          <div className="image-upload">
+            <input
+              type="file"
+              id="images"
+              name="images"
+              onChange={handleImageChange}
+              multiple
+              accept="image/*"
+              disabled={loading}
+            />
+            <label htmlFor="images" className="upload-button">
+              Select Images
+            </label>
+          </div>
+
+          {/* Preview of selected images */}
+          {imagePreviews.length > 0 && (
+            <div className="image-preview-container">
+              {imagePreviews.map((preview, index) => (
+                <div key={index} className="image-preview">
+                  <img src={preview} alt={`Preview ${index + 1}`} />
+                  <button 
+                    type="button" 
+                    className="remove-image-button"
+                    onClick={() => removeSelectedImage(index)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="form-actions">
+          <button 
+            type="button" 
+            className="cancel-button"
+            onClick={() => navigate(`/campgrounds/${campgroundId}`)}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            className="submit-button"
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : isEditing ? 'Update Campsite' : 'Create Campsite'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default CampsiteForm;

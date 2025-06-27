@@ -21,6 +21,18 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  // New field to identify campground owners
+  isOwner: {
+    type: Boolean,
+    default: false,
+  },
+  // References to owned campgrounds
+  ownedCampgrounds: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Campground",
+    },
+  ],
   bookings: [
     {
       type: Schema.Types.ObjectId,

@@ -44,6 +44,29 @@
   transition: color 0.3s ease;
 }
 
+.booking-form-page-campground-info .price-amount {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 1.3rem;
+  transition: color 0.3s ease;
+}
+
+.booking-form-page-campground-info .loading-price {
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
+.booking-form-page-campground-info .no-price {
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--color-text);
+  opacity: 0.7;
+  transition: color 0.3s ease;
+}
+
 .booking-form-page-loading,
 .booking-form-page-error,
 .booking-form-page-not-found {

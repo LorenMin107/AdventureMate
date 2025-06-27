@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import CampgroundMap from '../components/maps/CampgroundMap';
 import ReviewList from '../components/ReviewList';
 import ReviewForm from '../components/ReviewForm';
+import CampsiteList from '../components/CampsiteList';
 import './CampgroundDetailPage.css';
 
 /**
@@ -29,6 +30,8 @@ const CampgroundDetailPage = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [mapKey, setMapKey] = useState(Date.now()); // Used to force re-render of the map
   const [reviews, setReviews] = useState([]);
+  const [campsites, setCampsites] = useState([]);
+  const [loadingCampsites, setLoadingCampsites] = useState(false);
 
   // Fetch campground data
   useEffect(() => {
@@ -76,6 +79,41 @@ const CampgroundDetailPage = () => {
 
     fetchCampground();
   }, [id]);
+
+  // Fetch campsites data
+  const fetchCampsites = async (campgroundId) => {
+    setLoadingCampsites(true);
+    try {
+      const response = await fetch(`/api/v1/campgrounds/${campgroundId}/campsites`);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch campsites');
+      }
+
+      const data = await response.json();
+
+      // Check if the response is in the standardized format
+      const campsitesData = data.status && data.data ? data.data.campsites : data.campsites;
+
+      if (!campsitesData) {
+        throw new Error('Campsites data not found in response');
+      }
+
+      setCampsites(campsitesData);
+    } catch (err) {
+      console.error('Error fetching campsites:', err);
+      // Don't set error state here, as we already have the campground data
+    } finally {
+      setLoadingCampsites(false);
+    }
+  };
+
+  // Fetch campsites when campground data is loaded
+  useEffect(() => {
+    if (campground && campground._id) {
+      fetchCampsites(campground._id);
+    }
+  }, [campground]);
 
   // Force map re-render when location changes or when campground data is loaded
   useEffect(() => {
@@ -214,11 +252,37 @@ const CampgroundDetailPage = () => {
     return <div className="not-found-container">Campground not found</div>;
   }
 
-  const { title, images, location: campLocation, description, price, author, geometry } = campground;
+  const { title, images, location: campLocation, description, author, geometry } = campground;
 
-  // Check if current user is the author or an admin
-  const isAuthorOrAdmin = currentUser && 
-    (currentUser.isAdmin || (author && currentUser._id === author._id));
+  // Calculate the starting price from available campsites
+  const getStartingPrice = () => {
+    if (campsites.length === 0) {
+      // If no campsites, return 0
+      return 0;
+    }
+
+    // Filter available campsites
+    const availableCampsites = campsites.filter(campsite => campsite.availability);
+
+    if (availableCampsites.length === 0) {
+      // If no available campsites, return 0
+      return 0;
+    }
+
+    // Find the minimum price among available campsites
+    return Math.min(...availableCampsites.map(campsite => campsite.price));
+  };
+
+  const startingPrice = getStartingPrice();
+
+  // Check if current user is the owner, author, or an admin
+  const isOwner = currentUser && 
+    (currentUser.isAdmin || 
+     (campground.owner && currentUser._id === campground.owner._id) || 
+     (author && currentUser._id === author._id));
+
+  // For backward compatibility, if there's no explicit owner, the author is considered the owner
+  const effectiveOwner = campground.owner ? campground.owner : author;
 
   return (
     <div className="campground-detail-page">
@@ -230,7 +294,7 @@ const CampgroundDetailPage = () => {
           </p>
         </div>
 
-        {isAuthorOrAdmin && (
+        {isOwner && (
           <div className="admin-actions">
             <Link to={`/campgrounds/${id}/edit`} className="edit-button">
               Edit
@@ -296,10 +360,6 @@ const CampgroundDetailPage = () => {
           <div className="info-section">
             <h2>Details</h2>
             <div className="detail-item">
-              <span className="detail-label">Price:</span>
-              <span className="detail-value">${price} per night</span>
-            </div>
-            <div className="detail-item">
               <span className="detail-label">Hosted by:</span>
               <span className="detail-value">{author ? author.username : 'Unknown'}</span>
             </div>
@@ -307,26 +367,29 @@ const CampgroundDetailPage = () => {
 
           <div className="booking-section">
             <div className="price-display">
-              <span className="price">${price}</span>
-              <span className="price-unit">night</span>
+              <span className="price">${startingPrice}</span>
+              <span className="price-unit">starting price per night</span>
             </div>
 
-            {currentUser ? (
-              <Link to={`/bookings/${id}/book`} className="book-button">
-                Book this campground
-              </Link>
-            ) : (
+            {!currentUser && (
               <div className="login-to-book">
                 <Link to={`/login?redirect=/campgrounds/${id}`} className="book-button">
                   Log in to book
                 </Link>
-                <p className="login-message">You need to be logged in to book a campground</p>
+                <p className="login-message">You need to be logged in to book a campsite</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
+      {/* Campsites Section */}
+      <CampsiteList 
+        campgroundId={id}
+        isOwner={isOwner}
+      />
+
+      {/* Reviews Section */}
       <div className="reviews-section">
         <h2>Reviews</h2>
         <ReviewList 

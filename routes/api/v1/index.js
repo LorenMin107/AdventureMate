@@ -3,6 +3,7 @@ const router = express.Router();
 
 // Import all route files
 const campgroundRoutes = require('./campgrounds');
+const campsiteRoutes = require('./campsites');
 const reviewRoutes = require('./reviews');
 const userRoutes = require('./users');
 const bookingRoutes = require('./bookings');
@@ -10,7 +11,9 @@ const adminRoutes = require('./admin');
 
 // Mount routes
 router.use('/campgrounds/:id/reviews', reviewRoutes);
+router.use('/campgrounds/:campgroundId/campsites', campsiteRoutes);
 router.use('/campgrounds', campgroundRoutes);
+router.use('/campsites', campsiteRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/admin', adminRoutes);
 router.use('/users', userRoutes);

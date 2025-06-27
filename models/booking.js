@@ -7,10 +7,17 @@ const BookingSchema = new Schema({
     ref: "User",
     required: true
   },
+  // Keep campground reference for backward compatibility and for easier querying
   campground: {
     type: Schema.Types.ObjectId,
     ref: "Campground",
     required: true
+  },
+  // Add reference to specific campsite
+  campsite: {
+    type: Schema.Types.ObjectId,
+    ref: "Campsite"
+    // Not required for backward compatibility
   },
   startDate: {
     type: Date,
@@ -27,6 +34,11 @@ const BookingSchema = new Schema({
   totalPrice: {
     type: Number,
     required: true
+  },
+  // Number of people for this booking
+  guests: {
+    type: Number,
+    default: 1
   },
   sessionId: {
     type: String,

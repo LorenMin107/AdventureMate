@@ -117,18 +117,27 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  max-width: 300px;
 }
 
 .price-symbol {
   position: absolute;
   left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--color-breadcrumb-text);
   font-weight: 600;
   transition: color 0.3s ease;
+  z-index: 2;
+  pointer-events: none; /* Allow clicking through the symbol to the input */
 }
 
 .price-input-container input {
+  width: 100%;
   padding-left: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 /* Image upload styling */

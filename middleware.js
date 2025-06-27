@@ -179,3 +179,37 @@ module.exports.addBookingCountToUser = async (req, res, next) => {
   }
   next();
 };
+
+// Check if user is a campground owner (for API routes)
+module.exports.isOwnerApi = async (req, res, next) => {
+  const { id, campgroundId } = req.params;
+
+  // Determine which ID to use (campgroundId for nested routes, id for direct routes)
+  const campId = campgroundId || id;
+
+  if (!campId) {
+    return res.status(400).json({ error: "Campground ID is required" });
+  }
+
+  const campground = await Campground.findById(campId);
+
+  if (!campground) {
+    return res.status(404).json({ error: "Campground not found" });
+  }
+
+  // Check if user is the owner or an admin
+  // First check the owner field, then fall back to author for backward compatibility
+  const isOwner = (campground.owner && campground.owner.equals(req.user._id)) || 
+                 (campground.author && campground.author.equals(req.user._id));
+
+  if (!isOwner && !req.user.isAdmin) {
+    return res.status(403).json({ 
+      error: "You do not have permission to modify this campground",
+      message: "Only the campground owner or an admin can perform this action"
+    });
+  }
+
+  // Add the campground to the request for potential use in route handlers
+  req.campground = campground;
+  next();
+};

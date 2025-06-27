@@ -251,17 +251,17 @@
 /* Map section */
 .map-section {
   width: 100%;
-  height: 100%;
+  height: 400px; /* Fixed height to ensure proper dimensions */
   padding: 0;
   box-sizing: border-box;
   position: relative;
   background-color: transparent !important; /* Ensure background is transparent */
   transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition for opacity and visibility changes */
   overflow: hidden; /* Ensure any overflow is hidden */
-  display: flex;
-  flex-direction: column;
-  flex: 1; /* Allow it to grow and fill available space */
+  display: block; /* Use block instead of flex to ensure proper sizing */
   min-height: 400px; /* Ensure a minimum height */
+  margin: 0; /* Remove any margin that might affect sizing */
+  border: none; /* Remove any border that might affect sizing */
 }
 
 /* Map section loading state */
@@ -274,6 +274,16 @@
 .map-section-loaded {
   opacity: 1;
   visibility: visible;
+}
+
+/* Ensure the map container takes up the full height of its parent */
+.map-section .campground-map-container {
+  height: 100% !important;
+  width: 100% !important;
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
 }
 
 .map-section h2 {
@@ -352,8 +362,9 @@
   }
 
   .map-section {
+    height: 400px; /* Fixed height for consistency */
     min-height: 400px; /* Ensure map has enough height when stacked */
-    flex: none; /* Don't use flex growth when stacked */
+    display: block; /* Use block display for consistent sizing */
   }
 
   .main-image {
@@ -382,8 +393,15 @@
   }
 
   .map-section {
+    height: 350px; /* Slightly smaller height on medium screens */
     min-height: 350px;
-    flex: none; /* Don't use flex growth when stacked */
+    display: block; /* Use block display for consistent sizing */
+  }
+
+  /* Ensure the map container is properly sized on medium screens */
+  .map-section .campground-map-container {
+    height: 100% !important;
+    width: 100% !important;
   }
 }
 
@@ -397,8 +415,15 @@
   }
 
   .map-section {
+    height: 300px; /* Smaller height on small screens */
     min-height: 300px;
-    flex: none; /* Don't use flex growth when stacked */
+    display: block; /* Use block display for consistent sizing */
+  }
+
+  /* Ensure the map container is properly sized on small screens */
+  .map-section .campground-map-container {
+    height: 100% !important;
+    width: 100% !important;
   }
 
   .thumbnail {

@@ -177,8 +177,8 @@ const BookingDetail = ({ initialBooking = null }) => {
             </div>
             <div className="booking-detail-section-content">
               <div className="booking-detail-info-item">
-                <span className="booking-detail-label">${campground.price} × {totalDays} nights</span>
-                <span className="booking-detail-value">${(campground.price * totalDays).toFixed(2)}</span>
+                <span className="booking-detail-label">${(totalPrice / totalDays).toFixed(2)} × {totalDays} nights</span>
+                <span className="booking-detail-value">${totalPrice.toFixed(2)}</span>
               </div>
 
               <div className="booking-detail-price-breakdown">

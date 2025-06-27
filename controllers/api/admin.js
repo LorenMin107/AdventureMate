@@ -2,6 +2,7 @@ const User = require("../../models/user");
 const Booking = require("../../models/booking");
 const Campground = require("../../models/campground");
 const Review = require("../../models/review");
+const mongoose = require("mongoose");
 
 module.exports.getDashboardStats = async (req, res) => {
   try {
@@ -11,12 +12,16 @@ module.exports.getDashboardStats = async (req, res) => {
     const totalCampgrounds = await Campground.countDocuments();
     const totalReviews = await Review.countDocuments();
 
+    // Count total campsites
+    const totalCampsites = await mongoose.model("Campsite").countDocuments();
+
     // Get recent bookings
     const recentBookings = await Booking.find({})
       .sort({ createdAt: -1 })
       .limit(5)
       .populate("user", "username email")
-      .populate("campground", "title location");
+      .populate("campground", "title location")
+      .populate("campsite", "name price capacity");
 
     // Get recent users
     const recentUsers = await User.find({})
@@ -29,6 +34,7 @@ module.exports.getDashboardStats = async (req, res) => {
         totalUsers,
         totalBookings,
         totalCampgrounds,
+        totalCampsites,
         totalReviews
       },
       recentBookings,
@@ -86,6 +92,7 @@ module.exports.getBookings = async (req, res) => {
       .limit(limit)
       .populate("user", "username email")
       .populate("campground", "title location price")
+      .populate("campsite", "name price capacity features")
       .sort(sortOptions);
 
     const totalPages = Math.ceil(totalBookings / limit);

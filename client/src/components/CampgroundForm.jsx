@@ -16,8 +16,7 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
   const [formData, setFormData] = useState({
     title: '',
     location: '',
-    description: '',
-    price: ''
+    description: ''
   });
 
   const [images, setImages] = useState([]);
@@ -35,8 +34,7 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
       setFormData({
         title: campground.title || '',
         location: campground.location || '',
-        description: campground.description || '',
-        price: campground.price || ''
+        description: campground.description || ''
       });
 
       if (campground.images && campground.images.length > 0) {
@@ -106,12 +104,6 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
       errors.description = 'Description is required';
     }
 
-    if (!formData.price) {
-      errors.price = 'Price is required';
-    } else if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
-      errors.price = 'Price must be a positive number';
-    }
-
     // If not editing and no images are selected
     if (!isEditing && images.length === 0) {
       errors.images = 'At least one image is required';
@@ -147,7 +139,6 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
       formDataToSend.append('campground[title]', formData.title);
       formDataToSend.append('campground[location]', formData.location);
       formDataToSend.append('campground[description]', formData.description);
-      formDataToSend.append('campground[price]', formData.price);
 
       // Add images to form data
       images.forEach(image => {
@@ -226,13 +217,23 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
         }
       }
 
-      const data = await response.json();
+      // Check if the response has content before parsing
+      const contentType = response.headers.get('content-type');
+      let campgroundData;
 
-      // Check if the response is in the new standardized format
-      const campgroundData = data.status && data.data ? data.data.campground : data.campground;
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        // Check if the response is in the new standardized format
+        campgroundData = data.status && data.data ? data.data.campground : data.campground;
 
-      if (!campgroundData) {
-        throw new Error('Campground data not found in response');
+        if (!campgroundData) {
+          throw new Error('Campground data not found in response');
+        }
+      } else {
+        // If response is not JSON or empty, just proceed without parsing
+        console.log('Response is not JSON or empty, proceeding without parsing');
+        // Use a default ID to navigate back to the campgrounds list
+        campgroundData = { _id: 'list' };
       }
 
       // Navigate to the campground detail page
@@ -316,26 +317,6 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
           )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="price">Price (per night)</label>
-          <div className="price-input-container">
-            <span className="price-symbol">$</span>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              min="0"
-              step="0.01"
-              className={validationErrors.price ? 'error' : ''}
-              disabled={loading}
-            />
-          </div>
-          {validationErrors.price && (
-            <div className="validation-error">{validationErrors.price}</div>
-          )}
-        </div>
 
         <div className="form-group">
           <label htmlFor="description">Description</label>

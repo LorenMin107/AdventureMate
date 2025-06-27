@@ -69,37 +69,92 @@ module.exports.getBooking = async (req, res) => {
 module.exports.createBooking = async (req, res) => {
   try {
     const { id } = req.params;
-    const { startDate, endDate } = req.body;
+    const { startDate, endDate, campsiteId, guests } = req.body;
 
     const campground = await Campground.findById(id);
     if (!campground) {
       return res.status(404).json({ error: "Campground not found" });
     }
 
+    // If a campsite is specified, fetch it and use its price
+    let campsite = null;
+    let pricePerNight = 0; // Default to 0 instead of using campground price
+
+    // Calculate the minimum price from available campsites
+    const Campsite = require('../../models/campsite');
+    const campsites = await Campsite.find({ campground: id, availability: true });
+
+    if (campsites.length > 0) {
+      // Find the minimum price among available campsites
+      pricePerNight = Math.min(...campsites.map(site => site.price));
+    }
+
+    if (campsiteId) {
+      campsite = await require('../../models/campsite').findById(campsiteId);
+      if (!campsite) {
+        return res.status(404).json({ error: "Campsite not found" });
+      }
+
+      // Verify campsite belongs to this campground
+      if (campsite.campground.toString() !== id) {
+        return res.status(400).json({ error: "Campsite does not belong to this campground" });
+      }
+
+      // Verify campsite is available
+      if (!campsite.availability) {
+        return res.status(400).json({ error: "Campsite is not available for booking" });
+      }
+
+      // Use campsite price
+      pricePerNight = campsite.price;
+
+      // Verify guest count doesn't exceed capacity
+      if (guests > campsite.capacity) {
+        return res.status(400).json({ error: `This campsite has a maximum capacity of ${campsite.capacity} guests` });
+      }
+    }
+
     // Calculate days and price
-    const { daysCount, totalPrice } = calculateDaysAndPrice(startDate, endDate, campground.price);
+    const { daysCount, totalPrice } = calculateDaysAndPrice(startDate, endDate, pricePerNight);
 
     // Create booking object
     const bookingData = {
       user: req.user._id,
       campground: campground._id,
+      campsite: campsiteId || null,
       startDate,
       endDate,
       totalDays: daysCount,
       totalPrice,
+      guests: guests || 1,
       status: 'pending'
     };
 
     // Return booking data for client-side checkout
-    res.json({
+    const response = {
       booking: bookingData,
       campground: {
         id: campground._id,
         title: campground.title,
         location: campground.location,
-        price: campground.price
+        price: pricePerNight // Use the calculated minimum price
       }
-    });
+    };
+
+    // Add campsite data if a campsite was selected
+    if (campsite) {
+      response.campsite = {
+        id: campsite._id,
+        name: campsite.name,
+        description: campsite.description,
+        features: campsite.features,
+        price: campsite.price,
+        capacity: campsite.capacity,
+        images: campsite.images
+      };
+    }
+
+    res.json(response);
   } catch (error) {
     console.error("Error creating booking:", error);
     res.status(400).json({ error: error.message || "Failed to create booking" });
@@ -109,11 +164,35 @@ module.exports.createBooking = async (req, res) => {
 module.exports.createCheckoutSession = async (req, res) => {
   try {
     const { id } = req.params;
-    const { startDate, endDate, totalDays, totalPrice } = req.body;
+    const { startDate, endDate, totalDays, totalPrice, campsiteId, guests } = req.body;
 
     const campground = await Campground.findById(id);
     if (!campground) {
       return res.status(404).json({ error: "Campground not found" });
+    }
+
+    // If a campsite is specified, fetch it
+    let campsite = null;
+    if (campsiteId) {
+      campsite = await require('../../models/campsite').findById(campsiteId);
+      if (!campsite) {
+        return res.status(404).json({ error: "Campsite not found" });
+      }
+
+      // Verify campsite belongs to this campground
+      if (campsite.campground.toString() !== id) {
+        return res.status(400).json({ error: "Campsite does not belong to this campground" });
+      }
+
+      // Verify campsite is available
+      if (!campsite.availability) {
+        return res.status(400).json({ error: "Campsite is not available for booking" });
+      }
+
+      // Verify guest count doesn't exceed capacity
+      if (guests > campsite.capacity) {
+        return res.status(400).json({ error: `This campsite has a maximum capacity of ${campsite.capacity} guests` });
+      }
     }
 
     // Create a Stripe checkout session
@@ -124,8 +203,12 @@ module.exports.createCheckoutSession = async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name: `${campground.title} - ${totalDays} days`,
-              description: `Booking for ${totalDays} days at ${campground.title} by ${req.user.username}`,
+              name: campsite 
+                ? `${campground.title} - ${campsite.name} - ${totalDays} days` 
+                : `${campground.title} - ${totalDays} days`,
+              description: campsite
+                ? `Booking for ${totalDays} days at ${campsite.name} in ${campground.title} by ${req.user.username} (${guests} guest${guests !== 1 ? 's' : ''})`
+                : `Booking for ${totalDays} days at ${campground.title} by ${req.user.username}`,
             },
             unit_amount: Math.round(totalPrice * 100),
           },
@@ -138,10 +221,12 @@ module.exports.createCheckoutSession = async (req, res) => {
       metadata: {
         campgroundId: id,
         userId: req.user._id.toString(),
+        campsiteId: campsiteId || '',
         startDate,
         endDate,
         totalDays,
-        totalPrice
+        totalPrice,
+        guests: guests || 1
       },
     });
 
@@ -176,7 +261,7 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     }
 
     // Extract booking details from session metadata
-    const { startDate, endDate, totalDays, totalPrice, userId } = session.metadata;
+    const { startDate, endDate, totalDays, totalPrice, userId, campsiteId, guests } = session.metadata;
 
     // Verify the user matches
     if (userId !== req.user._id.toString()) {
@@ -196,7 +281,8 @@ module.exports.handlePaymentSuccess = async (req, res) => {
       console.log(`Booking with session ID ${session_id} already exists. Returning existing booking.`);
 
       // Return the existing booking
-      return res.json({
+      // Prepare response for existing booking
+      const existingBookingResponse = {
         success: true,
         message: `Payment already processed and booking confirmed. Original booking was created ${timeSinceCreation}ms ago.`,
         booking: {
@@ -205,12 +291,37 @@ module.exports.handlePaymentSuccess = async (req, res) => {
           endDate: booking.endDate,
           totalDays: booking.totalDays,
           totalPrice: booking.totalPrice,
+          guests: booking.guests || 1,
           campground: {
             id: booking.campground,
             title: (await Campground.findById(booking.campground)).title
           }
         }
-      });
+      };
+
+      // Add campsite data if the booking has a campsite
+      if (booking.campsite) {
+        try {
+          const Campsite = require('../../models/campsite');
+          const campsite = await Campsite.findById(booking.campsite);
+          if (campsite) {
+            existingBookingResponse.booking.campsite = {
+              id: campsite._id,
+              name: campsite.name,
+              price: campsite.price,
+              description: campsite.description,
+              features: campsite.features,
+              capacity: campsite.capacity,
+              images: campsite.images
+            };
+          }
+        } catch (err) {
+          console.error(`[${timestamp}] Error fetching campsite data for existing booking:`, err);
+          // Continue without campsite data if there's an error
+        }
+      }
+
+      return res.json(existingBookingResponse);
     }
 
     // Create the booking if it doesn't exist
@@ -220,10 +331,12 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     booking = new Booking({
       user: req.user._id,
       campground: id,
+      campsite: campsiteId || null,
       startDate,
       endDate,
       totalDays,
       totalPrice,
+      guests: parseInt(guests || 1, 10),
       sessionId: session_id,
       paid: true,
       status: 'confirmed'
@@ -247,7 +360,8 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     const processingTime = endTime - startTime;
     console.log(`[${timestamp}] Booking creation process completed in ${processingTime}ms`);
 
-    res.json({
+    // Prepare response
+    const responseData = {
       success: true,
       message: "Payment successful and booking confirmed",
       booking: {
@@ -256,12 +370,37 @@ module.exports.handlePaymentSuccess = async (req, res) => {
         endDate,
         totalDays,
         totalPrice,
+        guests: parseInt(guests || 1, 10),
         campground: {
           id: campground._id,
           title: campground.title
         }
       }
-    });
+    };
+
+    // Add campsite data if a campsite was selected
+    if (campsiteId) {
+      try {
+        const Campsite = require('../../models/campsite');
+        const campsite = await Campsite.findById(campsiteId);
+        if (campsite) {
+          responseData.booking.campsite = {
+            id: campsite._id,
+            name: campsite.name,
+            price: campsite.price,
+            description: campsite.description,
+            features: campsite.features,
+            capacity: campsite.capacity,
+            images: campsite.images
+          };
+        }
+      } catch (err) {
+        console.error(`[${timestamp}] Error fetching campsite data for response:`, err);
+        // Continue without campsite data if there's an error
+      }
+    }
+
+    res.json(responseData);
   } catch (error) {
     console.error("Error handling payment success:", error);
     res.status(500).json({ error: "Failed to process payment confirmation" });

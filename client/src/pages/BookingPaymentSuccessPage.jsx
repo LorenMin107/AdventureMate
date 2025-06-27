@@ -138,6 +138,53 @@ const BookingPaymentSuccessPage = () => {
                 <span className="value">{bookingDetails.campground.title}</span>
               </div>
 
+              {bookingDetails.campsite && (
+                <>
+                  <div className="booking-payment-success-item">
+                    <span className="label">Campsite:</span>
+                    <span className="value">{bookingDetails.campsite.name}</span>
+                  </div>
+
+                  {bookingDetails.campsite.description && (
+                    <div className="booking-payment-success-item">
+                      <span className="label">Description:</span>
+                      <span className="value description">{bookingDetails.campsite.description}</span>
+                    </div>
+                  )}
+
+                  {bookingDetails.campsite.capacity && (
+                    <div className="booking-payment-success-item">
+                      <span className="label">Capacity:</span>
+                      <span className="value">{bookingDetails.campsite.capacity} {bookingDetails.campsite.capacity === 1 ? 'person' : 'people'}</span>
+                    </div>
+                  )}
+
+                  {bookingDetails.campsite.features && bookingDetails.campsite.features.length > 0 && (
+                    <div className="booking-payment-success-item features-item">
+                      <span className="label">Features:</span>
+                      <div className="value features-list">
+                        <ul>
+                          {bookingDetails.campsite.features.map((feature, index) => (
+                            <li key={index}>{feature}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {bookingDetails.campsite.images && bookingDetails.campsite.images.length > 0 && (
+                    <div className="booking-payment-success-campsite-image">
+                      <img 
+                        src={bookingDetails.campsite.images[0].url} 
+                        alt={bookingDetails.campsite.name} 
+                      />
+                    </div>
+                  )}
+
+                  <div className="booking-payment-success-separator"></div>
+                </>
+              )}
+
               <div className="booking-payment-success-item">
                 <span className="label">Check-in:</span>
                 <span className="value">{new Date(bookingDetails.startDate).toLocaleDateString()}</span>

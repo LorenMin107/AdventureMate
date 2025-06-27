@@ -13,6 +13,9 @@ const CampgroundsPage = lazy(() => import('../pages/CampgroundsPage'));
 const CampgroundDetailPage = lazy(() => import('../pages/CampgroundDetailPage'));
 const CampgroundNewPage = lazy(() => import('../pages/CampgroundNewPage'));
 const CampgroundEditPage = lazy(() => import('../pages/CampgroundEditPage'));
+const CampsiteNewPage = lazy(() => import('../pages/CampsiteNewPage'));
+const CampsiteEditPage = lazy(() => import('../pages/CampsiteEditPage'));
+const CampsiteDetailPage = lazy(() => import('../pages/CampsiteDetailPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 // Booking pages
@@ -29,6 +32,7 @@ const AdminDashboard = lazy(() => import('../components/admin/AdminDashboard'));
 const UserList = lazy(() => import('../components/admin/UserList'));
 const UserDetail = lazy(() => import('../components/admin/UserDetail'));
 const CampgroundList = lazy(() => import('../components/admin/CampgroundList'));
+const AdminCampsiteList = lazy(() => import('../components/admin/AdminCampsiteList'));
 const AdminBookingList = lazy(() => import('../components/admin/AdminBookingList'));
 const AdminBookingDetail = lazy(() => import('../components/admin/AdminBookingDetail'));
 
@@ -81,6 +85,14 @@ const routes = [
           },
         ],
       },
+      {
+        path: 'campsites/:id',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <CampsiteDetailPage />
+          </Suspense>
+        ),
+      },
 
       // Protected routes
       {
@@ -102,6 +114,14 @@ const routes = [
                 element: (
                   <Suspense fallback={<LoadingFallback />}>
                     <CampgroundEditPage />
+                  </Suspense>
+                ),
+              },
+              {
+                path: ':id/campsites/new',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <CampsiteNewPage />
                   </Suspense>
                 ),
               },
@@ -160,6 +180,14 @@ const routes = [
               </Suspense>
             ),
           },
+          {
+            path: 'campsites/:id/edit',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <CampsiteEditPage />
+              </Suspense>
+            ),
+          },
         ],
       },
 
@@ -209,6 +237,14 @@ const routes = [
                 element: (
                   <Suspense fallback={<LoadingFallback />}>
                     <CampgroundList />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'campsites',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <AdminCampsiteList />
                   </Suspense>
                 ),
               },

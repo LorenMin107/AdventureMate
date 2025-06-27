@@ -33,13 +33,26 @@ const CampgroundSchema = new Schema(
         required: true,
       },
     },
-    price: Number,
     description: String,
     location: String,
+    // The author field is kept for backward compatibility
     author: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    // New owner field to explicitly represent campground ownership
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    // Campground no longer has a price field - prices are defined at the campsite level
+    // Array of campsites within this campground
+    campsites: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Campsite",
+      },
+    ],
     reviews: [
       {
         type: Schema.Types.ObjectId,
@@ -57,6 +70,7 @@ const CampgroundSchema = new Schema(
 );
 
 CampgroundSchema.virtual("properties.popUpMarkup").get(function () {
+  if (!this._id || !this.title) return '';
   const description = this.description || '';
   return `<strong><a href="/campgrounds/${this._id}">${this.title}</a></strong>
   <p>${description.substring(0, 20)}${description.length > 20 ? '...' : ''}</p>`;

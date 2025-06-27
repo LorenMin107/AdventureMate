@@ -85,6 +85,66 @@
   transition: color 0.3s ease;
 }
 
+/* Campsite info styles */
+.admin-booking-detail-campsite-info {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  border-left: 3px solid var(--color-primary);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.admin-booking-detail-campsite-info h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-campsite-price,
+.admin-booking-detail-campsite-capacity {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-campsite-price {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.admin-booking-detail-campsite-features {
+  margin-top: 10px;
+}
+
+.admin-booking-detail-campsite-features p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.admin-booking-detail-feature-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.admin-booking-detail-feature-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background-color: var(--color-card-bg);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
 .admin-booking-detail-trip-dates {
   margin-top: 20px;
 }
@@ -255,7 +315,8 @@
 
 .admin-booking-detail-back-button,
 .admin-booking-detail-user-button,
-.admin-booking-detail-campground-button {
+.admin-booking-detail-campground-button,
+.admin-booking-detail-campsite-button {
   padding: 8px 16px;
   border-radius: 4px;
   text-decoration: none;
@@ -293,6 +354,17 @@
 
 .admin-booking-detail-campground-button:hover {
   background-color: var(--color-primary-hover);
+  text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.admin-booking-detail-campsite-button {
+  background-color: #4f46e5; /* Indigo color */
+  color: var(--color-button-text);
+}
+
+.admin-booking-detail-campsite-button:hover {
+  background-color: #4338ca; /* Darker indigo */
   text-decoration: none;
   color: var(--color-button-text);
 }
@@ -346,7 +418,8 @@
 
   .admin-booking-detail-back-button,
   .admin-booking-detail-user-button,
-  .admin-booking-detail-campground-button {
+  .admin-booking-detail-campground-button,
+  .admin-booking-detail-campsite-button {
     width: 100%;
     text-align: center;
   }

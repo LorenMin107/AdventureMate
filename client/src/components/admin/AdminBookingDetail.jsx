@@ -85,7 +85,7 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const { campground, user, startDate, endDate, totalDays, totalPrice, sessionId, createdAt, status, paid } = booking;
+  const { campground, campsite, user, startDate, endDate, totalDays, totalPrice, sessionId, createdAt, status, paid } = booking;
 
   return (
     <div className="admin-booking-detail">
@@ -110,6 +110,34 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
           <div className="admin-booking-detail-campground-info">
             <h3>{campground.title}</h3>
             <p className="admin-booking-detail-location">{campground.location}</p>
+
+            {campsite && (
+              <div className="admin-booking-detail-campsite-info">
+                <h4>Campsite: {campsite.name}</h4>
+                {campsite.price && (
+                  <p className="admin-booking-detail-campsite-price">
+                    ${campsite.price} per night
+                  </p>
+                )}
+                {campsite.capacity && (
+                  <p className="admin-booking-detail-campsite-capacity">
+                    Capacity: {campsite.capacity} {campsite.capacity === 1 ? 'person' : 'people'}
+                  </p>
+                )}
+                {campsite.features && campsite.features.length > 0 && (
+                  <div className="admin-booking-detail-campsite-features">
+                    <p>Features:</p>
+                    <div className="admin-booking-detail-feature-tags">
+                      {campsite.features.map((feature, index) => (
+                        <span key={index} className="admin-booking-detail-feature-tag">
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="admin-booking-detail-trip-dates">
@@ -208,8 +236,8 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
             </div>
             <div className="admin-booking-detail-section-content">
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">${campground.price} × {totalDays} nights</span>
-                <span className="admin-booking-detail-value">${(campground.price * totalDays).toFixed(2)}</span>
+                <span className="admin-booking-detail-label">${(totalPrice / totalDays).toFixed(2)} × {totalDays} nights</span>
+                <span className="admin-booking-detail-value">${totalPrice.toFixed(2)}</span>
               </div>
 
               <div className="admin-booking-detail-price-breakdown">
@@ -242,6 +270,22 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
             >
               View Campgrounds
             </Link>
+
+            <Link 
+              to={`/admin/campsites`} 
+              className="admin-booking-detail-campsite-button"
+            >
+              Manage Campsites
+            </Link>
+
+            {campsite && (
+              <Link 
+                to={`/campsites/${campsite._id}`} 
+                className="admin-booking-detail-campsite-button"
+              >
+                View Campsite
+              </Link>
+            )}
           </div>
         </div>
       </div>

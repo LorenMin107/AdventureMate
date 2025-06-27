@@ -1,6 +1,7 @@
 const Campground = require("../models/campground");
 const Booking = require("../models/booking");
 const User = require("../models/user");
+const Campsite = require("../models/campsite");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 function calculateDaysAndPrice(startDate, endDate, pricePerNight) {
@@ -12,7 +13,23 @@ function calculateDaysAndPrice(startDate, endDate, pricePerNight) {
 }
 module.exports.bookCampground = async (req, res) => {
   const campground = await Campground.findById(req.params.id);
-  const { daysCount, totalPrice } = calculateDaysAndPrice(req.body.startDate, req.body.endDate, campground.price);
+
+  // Calculate the starting price from available campsites
+  let startingPrice = 0;
+
+  // Fetch all available campsites for the campground
+  const campsites = await Campsite.find({ 
+    campground: campground._id,
+    availability: true
+  });
+
+  // If there are available campsites, find the minimum price
+  if (campsites.length > 0) {
+    startingPrice = Math.min(...campsites.map(campsite => campsite.price));
+  }
+
+  const { daysCount, totalPrice } = calculateDaysAndPrice(req.body.startDate, req.body.endDate, startingPrice);
+
   // Pass booking details to checkout page via query parameters
   res.redirect(
     `/bookings/${campground._id}/checkout?startDate=${req.body.startDate}&endDate=${req.body.endDate}&totalDays=${daysCount}&totalPrice=${totalPrice}`

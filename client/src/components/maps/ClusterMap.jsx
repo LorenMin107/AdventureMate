@@ -89,7 +89,7 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
             <div className="popup-content">
               <h3>{selectedCampground.title}</h3>
               <p>{selectedCampground.location}</p>
-              <p className="popup-price">${selectedCampground.price}/night</p>
+              <p className="popup-price">View pricing</p>
               <Link 
                 to={`/campgrounds/${selectedCampground._id}`}
                 className="popup-view-button"

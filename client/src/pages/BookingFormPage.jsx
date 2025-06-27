@@ -14,6 +14,8 @@ const BookingFormPage = () => {
   const [campground, setCampground] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [startingPrice, setStartingPrice] = useState(0);
+  const [loadingCampsites, setLoadingCampsites] = useState(false);
 
   useEffect(() => {
     const fetchCampground = async () => {
@@ -50,6 +52,46 @@ const BookingFormPage = () => {
     fetchCampground();
   }, [id]);
 
+  // Fetch campsites and calculate starting price
+  useEffect(() => {
+    if (!campground || !campground._id) return;
+
+    const fetchCampsites = async () => {
+      setLoadingCampsites(true);
+      try {
+        const response = await fetch(`/api/v1/campgrounds/${campground._id}/campsites`);
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch campsites');
+        }
+
+        const data = await response.json();
+
+        // Check if the response is in the standardized format
+        const campsitesData = data.status && data.data ? data.data.campsites : data.campsites;
+
+        if (!campsitesData) {
+          throw new Error('Campsites data not found in response');
+        }
+
+        // Filter available campsites
+        const availableCampsites = campsitesData.filter(campsite => campsite.availability);
+
+        // Calculate the starting price from available campsites
+        if (availableCampsites.length > 0) {
+          const minPrice = Math.min(...availableCampsites.map(campsite => campsite.price));
+          setStartingPrice(minPrice);
+        }
+      } catch (err) {
+        console.error('Error fetching campsites:', err);
+      } finally {
+        setLoadingCampsites(false);
+      }
+    };
+
+    fetchCampsites();
+  }, [campground]);
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !currentUser) {
@@ -75,7 +117,15 @@ const BookingFormPage = () => {
       <div className="booking-form-page-campground-info">
         <h2>{campground.title}</h2>
         <p className="location">{campground.location}</p>
-        <p className="price">${campground.price} per night</p>
+        <p className="price">
+          {loadingCampsites ? (
+            <span className="loading-price">Loading price...</span>
+          ) : startingPrice > 0 ? (
+            <>Starting from <span className="price-amount">${startingPrice}</span> per night</>
+          ) : (
+            <span className="no-price">Contact for pricing</span>
+          )}
+        </p>
       </div>
       <BookingForm campground={campground} />
     </div>

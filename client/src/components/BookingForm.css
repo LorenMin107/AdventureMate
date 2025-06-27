@@ -65,6 +65,66 @@
   box-shadow: 0 0 0 0.2rem var(--color-primary-hover);
 }
 
+.booking-form-campsites {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.booking-form-campsite-field {
+  width: 100%;
+}
+
+.selected-campsite-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  border-left: 3px solid var(--color-primary);
+}
+
+.selected-campsite-info h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+.selected-campsite-info p {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.campsite-features {
+  margin-top: 0.5rem;
+}
+
+.campsite-features p {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.campsite-features ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.campsite-features li {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.booking-form-guests {
+  margin-bottom: 1rem;
+}
+
+.booking-form-guests-field {
+  width: 100%;
+  max-width: 200px;
+}
+
 .booking-form-price {
   font-size: 1.1rem;
   font-weight: bold;

@@ -59,33 +59,39 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dashboard">
       <h1 className="admin-dashboard-title">Admin Dashboard</h1>
-      
+
       <div className="admin-dashboard-stats">
         <div className="admin-stat-card">
           <h3>Total Users</h3>
           <div className="admin-stat-value">{stats?.totalUsers || 0}</div>
           <Link to="/admin/users" className="admin-stat-link">Manage Users</Link>
         </div>
-        
+
         <div className="admin-stat-card">
           <h3>Total Campgrounds</h3>
           <div className="admin-stat-value">{stats?.totalCampgrounds || 0}</div>
           <Link to="/admin/campgrounds" className="admin-stat-link">Manage Campgrounds</Link>
         </div>
-        
+
+        <div className="admin-stat-card">
+          <h3>Total Campsites</h3>
+          <div className="admin-stat-value">{stats?.totalCampsites || 0}</div>
+          <Link to="/admin/campsites" className="admin-stat-link">Manage Campsites</Link>
+        </div>
+
         <div className="admin-stat-card">
           <h3>Total Bookings</h3>
           <div className="admin-stat-value">{stats?.totalBookings || 0}</div>
           <Link to="/admin/bookings" className="admin-stat-link">View All Bookings</Link>
         </div>
-        
+
         <div className="admin-stat-card">
           <h3>Total Reviews</h3>
           <div className="admin-stat-value">{stats?.totalReviews || 0}</div>
           <Link to="/campgrounds" className="admin-stat-link">View Campgrounds</Link>
         </div>
       </div>
-      
+
       <div className="admin-dashboard-recent">
         <div className="admin-recent-section">
           <h2>Recent Bookings</h2>
@@ -122,7 +128,7 @@ const AdminDashboard = () => {
             View All Bookings
           </Link>
         </div>
-        
+
         <div className="admin-recent-section">
           <h2>Recent Users</h2>
           {recentUsers.length > 0 ? (
