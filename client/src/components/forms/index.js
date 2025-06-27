@@ -9,5 +9,6 @@ export { default as Select } from './Select';
 export { default as Textarea } from './Textarea';
 export { default as Checkbox } from './Checkbox';
 export { default as DatePicker } from './DatePicker';
+export { default as DateRangePicker } from './DateRangePicker';
 export { default as ErrorMessage } from './ErrorMessage';
 export { default as LoadingSpinner } from './LoadingSpinner';

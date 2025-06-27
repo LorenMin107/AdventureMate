@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
-import { Form, DatePicker, ErrorMessage } from './forms';
+import { Form, DateRangePicker, ErrorMessage } from './forms';
 import { bookingSchema } from '../utils/validationSchemas';
 import './BookingForm.css';
 
@@ -51,20 +51,29 @@ const BookingForm = ({ campground }) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create booking');
+        // Check if the error response is in the new standardized format
+        const errorMessage = errorData.status === 'error' 
+          ? errorData.error || errorData.message 
+          : errorData.error || 'Failed to create booking';
+        throw new Error(errorMessage);
       }
 
       const responseData = await response.json();
 
+      // Check if the response is in the new standardized format
+      const bookingData = responseData.status && responseData.data 
+        ? responseData.data 
+        : responseData;
+
       // Navigate to checkout page with booking data
       navigate('/bookings/checkout', { 
         state: { 
-          booking: responseData.booking,
-          campground: responseData.campground
+          booking: bookingData.booking,
+          campground: bookingData.campground
         } 
       });
 
-      return responseData; // Return data to trigger success handling
+      return bookingData; // Return data to trigger success handling
     } catch (err) {
       console.error('Error creating booking:', err);
       // Set API-specific error
@@ -104,18 +113,11 @@ const BookingForm = ({ campground }) => {
         className="booking-form-container"
       >
         <div className="booking-form-dates">
-          <DatePicker
-            name="startDate"
-            label="Check-in Date"
-            min={tomorrowString}
-            required
-            className="booking-form-date-field"
-          />
-
-          <DatePicker
-            name="endDate"
-            label="Check-out Date"
-            min={tomorrowString}
+          <DateRangePicker
+            startDateName="startDate"
+            endDateName="endDate"
+            label="Select Check-in and Check-out Dates"
+            minDate={tomorrow}
             required
             className="booking-form-date-field"
           />

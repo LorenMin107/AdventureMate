@@ -1,0 +1,812 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MyanCamp API",
+    "description": "API documentation for MyanCamp - a campground booking platform",
+    "version": "1.0.0",
+    "contact": {
+      "name": "MyanCamp Support",
+      "email": "support@myancamp.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001/api/v1",
+      "description": "Development server"
+    },
+    {
+      "url": "https://myancamp.com/api/v1",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Campgrounds",
+      "description": "Campground operations"
+    },
+    {
+      "name": "Reviews",
+      "description": "Review operations"
+    },
+    {
+      "name": "Users",
+      "description": "User operations"
+    },
+    {
+      "name": "Bookings",
+      "description": "Booking operations"
+    },
+    {
+      "name": "Admin",
+      "description": "Admin operations"
+    }
+  ],
+  "paths": {
+    "/campgrounds": {
+      "get": {
+        "tags": ["Campgrounds"],
+        "summary": "Get all campgrounds",
+        "description": "Returns a list of all campgrounds and distinct locations",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "campgrounds": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Campground"
+                          }
+                        },
+                        "locations": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Campgrounds retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Campgrounds"],
+        "summary": "Create a new campground",
+        "description": "Creates a new campground with the provided data",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "campground": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "example": "Inle Lake Campground"
+                      },
+                      "location": {
+                        "type": "string",
+                        "example": "Inle Lake, Shan State, Myanmar"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "A beautiful campground by the lake"
+                      },
+                      "price": {
+                        "type": "number",
+                        "example": 20
+                      }
+                    },
+                    "required": ["title", "location", "description", "price"]
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "campground[title]": {
+                    "type": "string",
+                    "example": "Inle Lake Campground"
+                  },
+                  "campground[location]": {
+                    "type": "string",
+                    "example": "Inle Lake, Shan State, Myanmar"
+                  },
+                  "campground[description]": {
+                    "type": "string",
+                    "example": "A beautiful campground by the lake"
+                  },
+                  "campground[price]": {
+                    "type": "number",
+                    "example": 20
+                  },
+                  "image": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Campground created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "campground": {
+                          "$ref": "#/components/schemas/Campground"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Campground created successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campgrounds/search": {
+      "get": {
+        "tags": ["Campgrounds"],
+        "summary": "Search campgrounds",
+        "description": "Search for campgrounds by title",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "campgrounds": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Campground"
+                          }
+                        },
+                        "searchTerm": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Found 2 campgrounds matching \"lake\""
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campgrounds/{id}": {
+      "get": {
+        "tags": ["Campgrounds"],
+        "summary": "Get a specific campground",
+        "description": "Returns a specific campground by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Campground ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "campground": {
+                          "$ref": "#/components/schemas/Campground"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Campground retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campground not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Campgrounds"],
+        "summary": "Update a campground",
+        "description": "Updates a specific campground by ID",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Campground ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "campground": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "example": "Updated Campground Title"
+                      },
+                      "location": {
+                        "type": "string",
+                        "example": "Updated Location"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "Updated description"
+                      },
+                      "price": {
+                        "type": "number",
+                        "example": 25
+                      }
+                    }
+                  },
+                  "deleteImages": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "campground[title]": {
+                    "type": "string",
+                    "example": "Updated Campground Title"
+                  },
+                  "campground[location]": {
+                    "type": "string",
+                    "example": "Updated Location"
+                  },
+                  "campground[description]": {
+                    "type": "string",
+                    "example": "Updated description"
+                  },
+                  "campground[price]": {
+                    "type": "number",
+                    "example": 25
+                  },
+                  "image": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  },
+                  "deleteImages": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Campground updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "campground": {
+                          "$ref": "#/components/schemas/Campground"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Campground updated successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campground not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Campgrounds"],
+        "summary": "Delete a campground",
+        "description": "Deletes a specific campground by ID",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Campground ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campground deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "null"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Campground deleted successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campground not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Campground": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "title": {
+            "type": "string",
+            "example": "Inle Lake Campground"
+          },
+          "price": {
+            "type": "number",
+            "example": 20
+          },
+          "description": {
+            "type": "string",
+            "example": "A beautiful campground by the lake"
+          },
+          "location": {
+            "type": "string",
+            "example": "Inle Lake, Shan State, Myanmar"
+          },
+          "geometry": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "example": "Point"
+              },
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "example": [96.9102, 20.5862]
+              }
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "example": "https://res.cloudinary.com/dlvtzyb7j/image/upload/v1624456518/MyanCamp/campground1_xyzabc.jpg"
+                },
+                "filename": {
+                  "type": "string",
+                  "example": "MyanCamp/campground1_xyzabc"
+                }
+              }
+            }
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "60d21b4667d0d8992e610c85"
+              },
+              "username": {
+                "type": "string",
+                "example": "admin"
+              }
+            }
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "example": "60d21b4667d0d8992e610c85"
+                },
+                "body": {
+                  "type": "string",
+                  "example": "Great place to stay!"
+                },
+                "rating": {
+                  "type": "number",
+                  "example": 5
+                },
+                "author": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "60d21b4667d0d8992e610c85"
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "user123"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-06-23T10:15:18.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-06-23T10:15:18.000Z"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "error"
+          },
+          "data": {
+            "type": "null"
+          },
+          "message": {
+            "type": "string",
+            "example": "An error occurred while processing your request"
+          },
+          "error": {
+            "type": "string",
+            "example": "Campground not found"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session"
+      }
+    }
+  }
+}

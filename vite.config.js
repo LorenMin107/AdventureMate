@@ -40,7 +40,8 @@ export default defineConfig({
       '@hooks': path.resolve(__dirname, 'client/src/hooks'),
       '@layouts': path.resolve(__dirname, 'client/src/layouts'),
       '@pages': path.resolve(__dirname, 'client/src/pages'),
-      '@utils': path.resolve(__dirname, 'client/src/utils')
+      '@utils': path.resolve(__dirname, 'client/src/utils'),
+      'react-map-gl': path.resolve(__dirname, 'node_modules/react-map-gl/dist/mapbox.js')
     },
     mainFields: ['module', 'main', 'browser']
   },

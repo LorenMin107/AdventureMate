@@ -3,15 +3,24 @@ const { cloudinary } = require("../../cloudinary");
 const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
 const mapBoxToken = process.env.MAPBOX_TOKEN;
 const geocoder = mbxGeocoding({ accessToken: mapBoxToken });
+const ApiResponse = require("../../utils/ApiResponse");
+const ExpressError = require("../../utils/ExpressError");
 
 module.exports.index = async (req, res) => {
   try {
     const campgrounds = await Campground.find({});
     const locations = await Campground.distinct("location");
-    res.json({ campgrounds, locations });
+    return ApiResponse.success(
+      { campgrounds, locations },
+      "Campgrounds retrieved successfully"
+    ).send(res);
   } catch (error) {
     console.error("Failed to fetch data:", error);
-    res.status(500).json({ error: "Failed to fetch campgrounds" });
+    return ApiResponse.error(
+      "Failed to fetch campgrounds",
+      "An error occurred while retrieving campgrounds",
+      500
+    ).send(res);
   }
 };
 
@@ -23,6 +32,14 @@ module.exports.createCampground = async (req, res) => {
         limit: 1,
       })
       .send();
+
+    if (!geoData.body.features.length) {
+      return ApiResponse.error(
+        "Invalid location",
+        "Could not geocode the provided location",
+        400
+      ).send(res);
+    }
 
     const campground = new Campground({
       title: req.body.campground.title,
@@ -38,10 +55,18 @@ module.exports.createCampground = async (req, res) => {
     }
 
     await campground.save();
-    res.status(201).json({ campground, message: "Successfully created new campground" });
+    return ApiResponse.success(
+      { campground },
+      "Campground created successfully",
+      201
+    ).send(res);
   } catch (error) {
     console.error("Error creating campground:", error);
-    res.status(400).json({ error: error.message || "Failed to create campground" });
+    return ApiResponse.error(
+      error.message || "Failed to create campground",
+      "An error occurred while creating the campground",
+      400
+    ).send(res);
   }
 };
 
@@ -52,13 +77,24 @@ module.exports.showCampground = async (req, res) => {
       .populate("author");
 
     if (!campground) {
-      return res.status(404).json({ error: "Campground not found" });
+      return ApiResponse.error(
+        "Campground not found",
+        "The requested campground does not exist",
+        404
+      ).send(res);
     }
 
-    res.json({ campground });
+    return ApiResponse.success(
+      { campground },
+      "Campground retrieved successfully"
+    ).send(res);
   } catch (error) {
     console.error("Error fetching campground:", error);
-    res.status(500).json({ error: "Failed to fetch campground" });
+    return ApiResponse.error(
+      "Failed to fetch campground",
+      "An error occurred while retrieving the campground",
+      500
+    ).send(res);
   }
 };
 
@@ -68,10 +104,18 @@ module.exports.searchCampgrounds = async (req, res) => {
     const campgrounds = await Campground.find({
       title: { $regex: new RegExp(search, "i") },
     });
-    res.json({ campgrounds, searchTerm: search });
+
+    return ApiResponse.success(
+      { campgrounds, searchTerm: search },
+      `Found ${campgrounds.length} campgrounds matching "${search}"`
+    ).send(res);
   } catch (error) {
     console.error("Error during search:", error);
-    res.status(500).json({ error: "Error performing search" });
+    return ApiResponse.error(
+      "Error performing search",
+      "An error occurred while searching for campgrounds",
+      500
+    ).send(res);
   }
 };
 
@@ -88,6 +132,15 @@ module.exports.updateCampground = async (req, res) => {
           limit: 1,
         })
         .send();
+
+      if (!geoData.body.features.length) {
+        return ApiResponse.error(
+          "Invalid location",
+          "Could not geocode the provided location",
+          400
+        ).send(res);
+      }
+
       geometry = geoData.body.features[0].geometry;
     }
 
@@ -110,7 +163,11 @@ module.exports.updateCampground = async (req, res) => {
     );
 
     if (!campground) {
-      return res.status(404).json({ error: "Campground not found" });
+      return ApiResponse.error(
+        "Campground not found",
+        "The requested campground does not exist",
+        404
+      ).send(res);
     }
 
     // Add new images if any
@@ -132,13 +189,17 @@ module.exports.updateCampground = async (req, res) => {
     }
 
     await campground.save();
-    res.json({ 
-      campground, 
-      message: "Successfully updated campground" 
-    });
+    return ApiResponse.success(
+      { campground },
+      "Campground updated successfully"
+    ).send(res);
   } catch (error) {
     console.error("Error updating campground:", error);
-    res.status(400).json({ error: error.message || "Failed to update campground" });
+    return ApiResponse.error(
+      error.message || "Failed to update campground",
+      "An error occurred while updating the campground",
+      400
+    ).send(res);
   }
 };
 
@@ -148,7 +209,11 @@ module.exports.deleteCampground = async (req, res) => {
     const campground = await Campground.findById(id);
 
     if (!campground) {
-      return res.status(404).json({ error: "Campground not found" });
+      return ApiResponse.error(
+        "Campground not found",
+        "The requested campground does not exist",
+        404
+      ).send(res);
     }
 
     // Delete images from cloudinary
@@ -157,9 +222,16 @@ module.exports.deleteCampground = async (req, res) => {
     }
 
     await Campground.findByIdAndDelete(id);
-    res.json({ message: "Successfully deleted campground" });
+    return ApiResponse.success(
+      null,
+      "Campground deleted successfully"
+    ).send(res);
   } catch (error) {
     console.error("Error deleting campground:", error);
-    res.status(500).json({ error: "Failed to delete campground" });
+    return ApiResponse.error(
+      "Failed to delete campground",
+      "An error occurred while deleting the campground",
+      500
+    ).send(res);
   }
 };

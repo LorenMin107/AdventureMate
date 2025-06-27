@@ -42,20 +42,28 @@ const CampgroundDetailPage = () => {
         }
 
         const data = await response.json();
-        setCampground(data.campground);
+
+        // Check if the response is in the new standardized format
+        const campgroundData = data.status && data.data ? data.data.campground : data.campground;
+
+        if (!campgroundData) {
+          throw new Error('Campground data not found in response');
+        }
+
+        setCampground(campgroundData);
 
         // Set reviews if available and properly populated
-        if (data.campground && data.campground.reviews && Array.isArray(data.campground.reviews)) {
+        if (campgroundData.reviews && Array.isArray(campgroundData.reviews)) {
           // Check if reviews are populated with author information
-          const areReviewsPopulated = data.campground.reviews.every(review => 
+          const areReviewsPopulated = campgroundData.reviews.every(review => 
             review.author && typeof review.author === 'object' && review.author._id
           );
 
           if (areReviewsPopulated) {
-            setReviews(data.campground.reviews);
+            setReviews(campgroundData.reviews);
           } else {
             // If reviews are not populated, fetch them separately
-            fetchReviews(data.campground._id);
+            fetchReviews(campgroundData._id);
           }
         }
       } catch (err) {
@@ -147,6 +155,15 @@ const CampgroundDetailPage = () => {
         throw new Error('Failed to delete campground');
       }
 
+      // Try to parse the response, but don't worry if it fails
+      try {
+        const data = await response.json();
+        console.log('Delete response:', data);
+      } catch (parseError) {
+        // Ignore JSON parsing errors, as some DELETE endpoints may not return JSON
+        console.log('No JSON response from delete operation');
+      }
+
       navigate('/campgrounds');
     } catch (err) {
       console.error('Error deleting campground:', err);
@@ -174,7 +191,11 @@ const CampgroundDetailPage = () => {
       }
 
       const data = await response.json();
-      setReviews(data.reviews || []);
+
+      // Check if the response is in the new standardized format
+      const responseData = data.status && data.data ? data.data : data;
+
+      setReviews(responseData.reviews || []);
     } catch (err) {
       console.error('Error fetching reviews:', err);
       // Don't set error state here, as we already have the campground data

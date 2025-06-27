@@ -25,15 +25,28 @@ const CampgroundEditPage = () => {
         const response = await fetch(`/api/campgrounds/${id}`);
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch campground: ${response.status}`);
+          const errorData = await response.json();
+          // Check if the error response is in the new standardized format
+          const errorMessage = errorData.status === 'error' 
+            ? errorData.error || errorData.message 
+            : `Failed to fetch campground: ${response.status}`;
+          throw new Error(errorMessage);
         }
 
         const data = await response.json();
-        setCampground(data.campground);
+
+        // Check if the response is in the new standardized format
+        const campgroundData = data.status && data.data ? data.data.campground : data.campground;
+
+        if (!campgroundData) {
+          throw new Error('Campground data not found in response');
+        }
+
+        setCampground(campgroundData);
 
         // Check if user is authorized to edit this campground
         const isAdmin = currentUser?.isAdmin;
-        const isAuthor = currentUser?._id === data.campground.author?._id;
+        const isAuthor = currentUser?._id === campgroundData.author?._id;
 
         if (!isAdmin && !isAuthor) {
           setUnauthorized(true);

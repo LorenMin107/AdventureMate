@@ -177,16 +177,97 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save campground');
+        console.log('Error response:', errorData);
+
+        // Check if the response is in the new standardized format with field-specific errors
+        if (errorData.status === 'error') {
+          console.log('Error status is "error"');
+          console.log('Error object:', errorData.error);
+
+          // Check for field-specific errors in different possible formats
+          if (errorData.error) {
+            console.log('Error object type:', typeof errorData.error);
+
+            // Case 1: error is an object with errors array
+            if (typeof errorData.error === 'object' && errorData.error.errors) {
+              console.log('Found field-specific errors (format 1):', errorData.error.errors);
+              const fieldErrors = {};
+              errorData.error.errors.forEach(err => {
+                console.log('Processing error:', err);
+                // Convert API field names (e.g., 'campground.title') to form field names (e.g., 'title')
+                const fieldName = err.field.replace('campground.', '');
+                console.log('Field name after conversion:', fieldName);
+                fieldErrors[fieldName] = err.message;
+              });
+              console.log('Final field errors:', fieldErrors);
+              setValidationErrors(fieldErrors);
+              setError('Please correct the validation errors');
+              return; // Don't throw, just return to avoid the catch block
+            } 
+            // Case 2: error is a string "Validation Error"
+            else if (errorData.error === 'Validation Error' && errorData.message) {
+              console.log('Found validation error message:', errorData.message);
+              // Set a general validation error
+              setError(errorData.message || 'Please correct the validation errors');
+              return; // Don't throw, just return to avoid the catch block
+            }
+
+            // If we get here, handle as a general error
+            throw new Error(errorData.error || errorData.message || 'Failed to save campground');
+          } else {
+            console.log('No field-specific errors found');
+            // Handle general error message
+            throw new Error(errorData.error || errorData.message || 'Failed to save campground');
+          }
+        } else {
+          console.log('Error status is not "error"');
+          // Handle legacy error format
+          throw new Error(errorData.error || 'Failed to save campground');
+        }
       }
 
       const data = await response.json();
 
+      // Check if the response is in the new standardized format
+      const campgroundData = data.status && data.data ? data.data.campground : data.campground;
+
+      if (!campgroundData) {
+        throw new Error('Campground data not found in response');
+      }
+
       // Navigate to the campground detail page
-      navigate(`/campgrounds/${data.campground?._id}`);
+      navigate(`/campgrounds/${campgroundData._id}`);
     } catch (err) {
       console.error('Error saving campground:', err);
-      setError(err.message || 'Failed to save campground. Please try again later.');
+
+      // Check if this is an axios error with a response
+      if (err.response && err.response.data) {
+        const responseData = err.response.data;
+        console.log('Error response data:', responseData);
+
+        // Handle standardized API error response
+        if (responseData.status === 'error') {
+          if (responseData.error && typeof responseData.error === 'object' && responseData.error.errors) {
+            // Handle field-specific validation errors
+            const fieldErrors = {};
+            responseData.error.errors.forEach(err => {
+              const fieldName = err.field.replace('campground.', '');
+              fieldErrors[fieldName] = err.message;
+            });
+            setValidationErrors(fieldErrors);
+            setError('Please correct the validation errors');
+          } else {
+            // Handle general error message
+            setError(responseData.error || responseData.message || 'Failed to save campground');
+          }
+        } else {
+          // Handle non-standardized error response
+          setError(responseData.error || responseData.message || err.message || 'Failed to save campground');
+        }
+      } else {
+        // Handle generic error
+        setError(err.message || 'Failed to save campground. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }

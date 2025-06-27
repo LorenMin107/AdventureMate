@@ -1,0 +1,18 @@
+const express = require('express');
+const router = express.Router();
+
+// Import all route files
+const campgroundRoutes = require('./campgrounds');
+const reviewRoutes = require('./reviews');
+const userRoutes = require('./users');
+const bookingRoutes = require('./bookings');
+const adminRoutes = require('./admin');
+
+// Mount routes
+router.use('/campgrounds/:id/reviews', reviewRoutes);
+router.use('/campgrounds', campgroundRoutes);
+router.use('/bookings', bookingRoutes);
+router.use('/admin', adminRoutes);
+router.use('/users', userRoutes);
+
+module.exports = router;

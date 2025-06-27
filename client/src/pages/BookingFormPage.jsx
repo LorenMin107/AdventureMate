@@ -19,13 +19,26 @@ const BookingFormPage = () => {
     const fetchCampground = async () => {
       try {
         const response = await fetch(`/api/campgrounds/${id}`);
-        
+
         if (!response.ok) {
-          throw new Error(`Failed to fetch campground: ${response.status}`);
+          const errorData = await response.json();
+          // Check if the error response is in the new standardized format
+          const errorMessage = errorData.status === 'error' 
+            ? errorData.error || errorData.message 
+            : `Failed to fetch campground: ${response.status}`;
+          throw new Error(errorMessage);
         }
-        
+
         const data = await response.json();
-        setCampground(data.campground);
+
+        // Check if the response is in the new standardized format
+        const campgroundData = data.status && data.data ? data.data.campground : data.campground;
+
+        if (!campgroundData) {
+          throw new Error('Campground data not found in response');
+        }
+
+        setCampground(campgroundData);
       } catch (err) {
         console.error('Error fetching campground:', err);
         setError('Failed to load campground details. Please try again later.');

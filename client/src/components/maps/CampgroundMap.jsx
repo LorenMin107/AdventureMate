@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Map, Marker, NavigationControl, Popup } from 'react-map-gl/mapbox';
+import { Map, Marker, NavigationControl, Popup } from 'react-map-gl';
 import { useTheme } from '../../context/ThemeContext';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './CampgroundMap.css';

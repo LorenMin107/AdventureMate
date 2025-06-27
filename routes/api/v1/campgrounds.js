@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const campgrounds = require("../../controllers/api/campgrounds");
-const catchAsync = require("../../utils/catchAsync");
-const { isLoggedInApi, isAuthorApi, isAdminApi } = require("../../middleware");
-const { validate, campgroundValidators } = require("../../middleware/validators");
+const campgrounds = require("../../../controllers/api/campgrounds");
+const catchAsync = require("../../../utils/catchAsync");
+const { isLoggedInApi, isAuthorApi, isAdminApi } = require("../../../middleware");
+const { validate, campgroundValidators } = require("../../../middleware/validators");
 
 const multer = require("multer");
-const { storage } = require("../../cloudinary");
+const { storage } = require("../../../cloudinary");
 const upload = multer({ storage });
 
 // Get all campgrounds

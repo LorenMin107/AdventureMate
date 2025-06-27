@@ -15,6 +15,8 @@ const LocalStrategy = require("passport-local"); // local strategy for authentic
 const mongoSanitize = require("express-mongo-sanitize"); // sanitize user input to prevent NoSQL Injection
 const helmet = require("helmet"); // to set various HTTP headers for security (security middleware)
 const cors = require("cors"); // to allow cross-origin requests
+const swaggerUi = require("swagger-ui-express"); // for API documentation
+const swaggerDocument = require("./docs/swagger.json"); // swagger documentation
 
 const campgroundRoutes = require("./routes/campgrounds");
 const reviewRoutes = require("./routes/reviews");   
@@ -25,6 +27,7 @@ const adminRoutes = require("./routes/admin");
 const { addBookingCountToUser } = require("./middleware");
 
 const ExpressError = require("./utils/ExpressError"); // import the ExpressError class from the utils folder
+const ApiResponse = require("./utils/ApiResponse"); // import the ApiResponse class for standardized API responses
 const dbUrl = "mongodb://localhost:27017/myan-camp"; // set the database URL
 mongoose.connect(dbUrl);
 const db = mongoose.connection;
@@ -169,11 +172,7 @@ app.use((req, res, next) => {
 });
 
 // API Routes
-const campgroundApiRoutes = require("./routes/api/campgrounds");
-const reviewApiRoutes = require("./routes/api/reviews");
-const userApiRoutes = require("./routes/api/users");
-const bookingApiRoutes = require("./routes/api/bookings");
-const adminApiRoutes = require("./routes/api/admin");
+const apiV1Routes = require("./routes/api/v1");
 
 // Traditional Routes
 app.use("/campgrounds/:id/reviews", reviewRoutes); // use the review routes
@@ -182,12 +181,31 @@ app.use("/campgrounds", campgroundRoutes); // use the campground routes
 app.use("/admin", adminRoutes);
 app.use("/", userRoutes); // use the user routes
 
-// API Routes
+// API Routes (Legacy - to be deprecated)
+const campgroundApiRoutes = require("./routes/api/campgrounds");
+const reviewApiRoutes = require("./routes/api/reviews");
+const userApiRoutes = require("./routes/api/users");
+const bookingApiRoutes = require("./routes/api/bookings");
+const adminApiRoutes = require("./routes/api/admin");
+
 app.use("/api/campgrounds/:id/reviews", reviewApiRoutes); // use the review API routes
 app.use("/api/campgrounds", campgroundApiRoutes); // use the campground API routes
 app.use("/api/bookings", bookingApiRoutes); // use the booking API routes
 app.use("/api/admin", adminApiRoutes); // use the admin API routes
 app.use("/api/users", userApiRoutes); // use the user API routes
+
+// Versioned API Routes
+app.use("/api/v1", apiV1Routes); // use the versioned API routes
+
+// API Documentation
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  swaggerOptions: {
+    docExpansion: 'none',
+    persistAuthorization: true
+  }
+}));
 
 app.get("/", (req, res) => {
   res.render("home");
@@ -211,7 +229,7 @@ if (process.env.NODE_ENV === "production") {
 app.all("*", (req, res, next) => {
   // catch all route
   if (req.originalUrl.startsWith('/api')) {
-    return res.status(404).json({ error: "API endpoint not found" });
+    return ApiResponse.error("API endpoint not found", "The requested API endpoint does not exist", 404).send(res);
   }
   next(new ExpressError("Page Not Found", 404)); // pass the error to the error handler middleware
 });
@@ -223,17 +241,61 @@ app.use((err, req, res, next) => {
 
   // Check if the request is an API request
   if (req.originalUrl.startsWith('/api')) {
-    // Return JSON error response for API requests
-    return res.status(statusCode).json({
-      error: err.message,
-      status: statusCode
-    });
+    // Return standardized JSON error response for API requests
+    return ApiResponse.error(
+      err.message,
+      "An error occurred while processing your request",
+      statusCode
+    ).send(res);
   }
 
   // Render error template for traditional requests
   res.status(statusCode).render("error", { err }); // render the error template with the error message
 });
 
-app.listen(3001, () => {
-  console.log("Serving on Port 3001...");
-});
+// Get port from environment variable or use default
+const PORT = process.env.PORT || 3001;
+
+// Function to start the server
+const startServer = (port) => {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(port, () => {
+      console.log(`Serving on Port ${port}...`);
+      resolve(server);
+    }).on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.log(`Port ${port} is already in use, trying another port...`);
+        reject(err);
+      } else {
+        reject(err);
+      }
+    });
+  });
+};
+
+// Try to start the server on the specified port, or try alternative ports
+const tryStartServer = async (initialPort, maxAttempts = 5) => {
+  let currentPort = initialPort;
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    try {
+      const server = await startServer(currentPort);
+      return server;
+    } catch (err) {
+      if (err.code === 'EADDRINUSE') {
+        attempts++;
+        currentPort++;
+      } else {
+        console.error('Failed to start server:', err);
+        process.exit(1);
+      }
+    }
+  }
+
+  console.error(`Could not find an available port after ${maxAttempts} attempts.`);
+  process.exit(1);
+};
+
+// Start the server
+tryStartServer(PORT);

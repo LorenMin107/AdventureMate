@@ -34,7 +34,7 @@ const CampgroundList = () => {
           sortField: sort.field,
           sortOrder: sort.order
         });
-        
+
         const response = await fetch(`/api/campgrounds?${queryParams}`, {
           credentials: 'include'
         });
@@ -44,9 +44,13 @@ const CampgroundList = () => {
         }
 
         const data = await response.json();
-        setCampgrounds(data.campgrounds || []);
-        setPagination(data.pagination || pagination);
-        setSort(data.sort || sort);
+
+        // Check if the response is in the new standardized format
+        const responseData = data.status && data.data ? data.data : data;
+
+        setCampgrounds(responseData.campgrounds || []);
+        setPagination(responseData.pagination || pagination);
+        setSort(responseData.sort || sort);
         setError(null);
       } catch (err) {
         console.error('Error fetching campgrounds:', err);
@@ -76,17 +80,26 @@ const CampgroundList = () => {
     if (!window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/campgrounds/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to delete campground: ${response.status}`);
       }
-      
+
+      // Try to parse the response, but don't worry if it fails
+      try {
+        const data = await response.json();
+        console.log('Delete response:', data);
+      } catch (parseError) {
+        // Ignore JSON parsing errors, as some DELETE endpoints may not return JSON
+        console.log('No JSON response from delete operation');
+      }
+
       // Update the campgrounds list
       setCampgrounds(campgrounds.filter(campground => campground._id !== id));
     } catch (err) {

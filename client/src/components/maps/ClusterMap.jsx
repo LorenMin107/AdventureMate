@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Map, Marker, Popup, NavigationControl } from 'react-map-gl/mapbox';
+import { Map, Marker, Popup, NavigationControl } from 'react-map-gl';
 import { useTheme } from '../../context/ThemeContext';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './ClusterMap.css';
