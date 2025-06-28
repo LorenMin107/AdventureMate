@@ -8,6 +8,7 @@ const reviewRoutes = require('./reviews');
 const userRoutes = require('./users');
 const bookingRoutes = require('./bookings');
 const adminRoutes = require('./admin');
+const authRoutes = require('./auth');
 
 // Mount routes
 router.use('/campgrounds/:id/reviews', reviewRoutes);
@@ -17,5 +18,6 @@ router.use('/campsites', campsiteRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/admin', adminRoutes);
 router.use('/users', userRoutes);
+router.use('/auth', authRoutes);
 
 module.exports = router;

@@ -4,6 +4,7 @@ const Campground = require("./models/campground");
 const Review = require("./models/review");
 const User = require("./models/user");
 const Booking = require("./models/booking");
+const config = require("./config");
 
 module.exports.isLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
@@ -211,5 +212,19 @@ module.exports.isOwnerApi = async (req, res, next) => {
 
   // Add the campground to the request for potential use in route handlers
   req.campground = campground;
+  next();
+};
+
+// Add configuration to res.locals for use in templates
+module.exports.addConfigToTemplates = (req, res, next) => {
+  // Add only the configuration values that templates need
+  res.locals.config = {
+    mapbox: {
+      token: config.mapbox.token
+    },
+    environment: config.server.env,
+    isDevelopment: config.server.isDevelopment,
+    isProduction: config.server.isProduction
+  };
   next();
 };

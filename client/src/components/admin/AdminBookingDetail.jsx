@@ -278,14 +278,21 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
               Manage Campsites
             </Link>
 
-            {campsite && (
+            {campsite && campsite._id ? (
               <Link 
                 to={`/campsites/${campsite._id}`} 
                 className="admin-booking-detail-campsite-button"
               >
                 View Campsite
               </Link>
-            )}
+            ) : campsite ? (
+              <Link 
+                to={`/campsites/${campsite}`} 
+                className="admin-booking-detail-campsite-button"
+              >
+                View Campsite
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

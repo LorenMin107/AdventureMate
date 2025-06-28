@@ -45,10 +45,13 @@ export const AuthProvider = ({ children }) => {
           setCurrentUser(data.user);
         }
       } catch (err) {
-        // Handle abort error differently than other errors
+        // Handle different types of connection errors
         if (err.name === 'AbortError') {
           console.warn('Auth status check timed out. Server might be unavailable.');
           setError('Server connection timed out. Please try again later.');
+        } else if (err.message && err.message.includes('ECONNREFUSED')) {
+          console.warn('Backend server is not running:', err);
+          setError('Cannot connect to the server. Please make sure the backend server is running by executing "npm run dev:server" in a separate terminal.');
         } else {
           console.error('Error checking auth status:', err);
           setError('Failed to authenticate user');
@@ -86,8 +89,14 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(data.user);
       return data.user;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      if (err.message && err.message.includes('ECONNREFUSED')) {
+        const serverError = 'Cannot connect to the server. Please make sure the backend server is running by executing "npm run dev:server" in a separate terminal.';
+        setError(serverError);
+        throw new Error(serverError);
+      } else {
+        setError(err.message);
+        throw err;
+      }
     } finally {
       setLoading(false);
     }
@@ -106,8 +115,14 @@ export const AuthProvider = ({ children }) => {
 
       setCurrentUser(null);
     } catch (err) {
-      setError('Failed to logout');
-      console.error('Logout error:', err);
+      if (err.message && err.message.includes('ECONNREFUSED')) {
+        const serverError = 'Cannot connect to the server. Please make sure the backend server is running by executing "npm run dev:server" in a separate terminal.';
+        setError(serverError);
+        console.error('Logout error (server not running):', err);
+      } else {
+        setError('Failed to logout');
+        console.error('Logout error:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -138,8 +153,14 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(data.user);
       return data.user;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      if (err.message && err.message.includes('ECONNREFUSED')) {
+        const serverError = 'Cannot connect to the server. Please make sure the backend server is running by executing "npm run dev:server" in a separate terminal.';
+        setError(serverError);
+        throw new Error(serverError);
+      } else {
+        setError(err.message);
+        throw err;
+      }
     } finally {
       setLoading(false);
     }

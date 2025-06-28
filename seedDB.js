@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const User = require("./models/user"); // Adjust the path as necessary
+const config = require("./config");
 
-mongoose.connect("mongodb://localhost:27017/myan-camp");
+// Use the MongoDB connection string from the config module
+mongoose.connect(config.db.url);
 
 const seedAdmin = async () => {
   try {
-    await User.deleteMany({});
-
     // Check if the admin user already exists
     const existingAdmin = await User.findOne({ username: "admin" });
     if (existingAdmin) {

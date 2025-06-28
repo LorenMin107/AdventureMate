@@ -73,6 +73,14 @@ MyanCamp is a web application for discovering, booking, and reviewing campground
 
 ### Running the Application
 
+#### Recommended: Run Both Backend and Frontend
+1. Start both the backend and frontend servers with a single command:
+   ```
+   npm run dev
+   ```
+
+   This will start both the backend server on port 3001 and the frontend server on port 5173.
+
 #### Backend Only (Express API)
 1. Start the backend server:
    ```
@@ -94,6 +102,8 @@ MyanCamp is a web application for discovering, booking, and reviewing campground
    ```
    npm run dev:client
    ```
+
+   > **Important**: The backend server must be running for the frontend to work properly. If you see connection errors, make sure you've started the backend server with `npm run dev:server` in a separate terminal.
 
 2. Access the React application in your browser:
    ```

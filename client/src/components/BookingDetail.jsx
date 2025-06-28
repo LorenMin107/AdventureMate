@@ -98,7 +98,7 @@ const BookingDetail = ({ initialBooking = null }) => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const { campground, startDate, endDate, totalDays, totalPrice, sessionId } = booking;
+  const { campground, campsite, startDate, endDate, totalDays, totalPrice, sessionId } = booking;
 
   return (
     <div className="booking-detail">
@@ -122,6 +122,34 @@ const BookingDetail = ({ initialBooking = null }) => {
             <h3>{campground.title}</h3>
             <p className="booking-detail-location">{campground.location}</p>
           </div>
+
+          {campsite && (
+            <div className="booking-detail-campsite-info">
+              <h4>Campsite: {campsite.name}</h4>
+              {campsite.price && (
+                <p className="booking-detail-campsite-price">
+                  ${campsite.price} per night
+                </p>
+              )}
+              {campsite.capacity && (
+                <p className="booking-detail-campsite-capacity">
+                  Capacity: {campsite.capacity} {campsite.capacity === 1 ? 'person' : 'people'}
+                </p>
+              )}
+              {campsite.features && campsite.features.length > 0 && (
+                <div className="booking-detail-campsite-features">
+                  <p>Features:</p>
+                  <div className="booking-detail-feature-tags">
+                    {campsite.features.map((feature, index) => (
+                      <span key={index} className="booking-detail-feature-tag">
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="booking-detail-trip-dates">
             <h4>Your trip</h4>
@@ -204,6 +232,15 @@ const BookingDetail = ({ initialBooking = null }) => {
             >
               View Campground
             </Link>
+
+            {campsite && (campsite._id || typeof campsite === 'string') && (
+              <Link 
+                to={`/campsites/${campsite._id || campsite}`} 
+                className="booking-detail-campsite-button"
+              >
+                View Campsite
+              </Link>
+            )}
           </div>
         </div>
       </div>

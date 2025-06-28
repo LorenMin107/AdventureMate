@@ -178,7 +178,7 @@ const CampsiteDetailPage = () => {
           <h1>{name}</h1>
           {campground && (
             <p className="campground-link">
-              Part of <Link to={`/campgrounds/${campground._id}`}>{campground.title}</Link>
+              Part of (<Link to={`/campgrounds/${campground._id}`}>{campground.title}</Link>)
             </p>
           )}
         </div>

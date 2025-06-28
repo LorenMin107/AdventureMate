@@ -1,7 +1,8 @@
 const Campground = require("../../models/campground");
 const Booking = require("../../models/booking");
 const User = require("../../models/user");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const config = require("../../config");
+const stripe = require("stripe")(config.stripe.secretKey);
 
 function calculateDaysAndPrice(startDate, endDate, pricePerNight) {
   const start = new Date(startDate);
@@ -42,6 +43,7 @@ module.exports.getBooking = async (req, res) => {
     const { id } = req.params;
     const booking = await Booking.findById(id)
       .populate("campground")
+      .populate("campsite")
       .populate("user", "username email");
 
     if (!booking) {
