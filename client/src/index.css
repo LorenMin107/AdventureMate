@@ -16,6 +16,7 @@
   --color-primary-hover: #1b5e20; /* Changed to darker green */
   --color-secondary: #43a047; /* Changed to slightly different green */
   --color-card-bg: #f8f9fa;
+  --color-card-bg-light: rgba(0, 0, 0, 0.05);
   --color-card-shadow: rgba(0, 0, 0, 0.1);
   --color-button-bg: #2e7d32; /* Changed to medium green */
   --color-button-hover: #1b5e20; /* Changed to darker green */
@@ -28,6 +29,9 @@
   --color-breadcrumb-active: #6c757d;
   --color-footer-bg: #ffffff;
   --color-footer-text: #213547;
+  --color-warning: #ffc107; /* Warning color (amber) */
+  --color-success: #28a745; /* Success color (green) */
+  --color-error: #dc3545; /* Error color (red) */
 
   font-synthesis: var(--font-synthesis);
   text-rendering: var(--text-rendering);
@@ -46,6 +50,7 @@
   --color-primary-hover: #388e3c; /* Changed to medium green for dark theme */
   --color-secondary: #66bb6a; /* Changed to light green for dark theme */
   --color-card-bg: #1e1e1e;
+  --color-card-bg-light: rgba(255, 255, 255, 0.05);
   --color-card-shadow: rgba(0, 0, 0, 0.3);
   --color-button-bg: #4caf50; /* Changed to brighter green for dark theme */
   --color-button-hover: #388e3c; /* Changed to medium green for dark theme */
@@ -58,6 +63,9 @@
   --color-breadcrumb-active: #d4d4d8;
   --color-footer-bg: #1a1a1a;
   --color-footer-text: #a1a1aa;
+  --color-warning: #ffca2c; /* Warning color (amber) - slightly brighter for dark theme */
+  --color-success: #2dbc4e; /* Success color (green) - slightly brighter for dark theme */
+  --color-error: #e74c3c; /* Error color (red) - slightly brighter for dark theme */
 }
 
 a {
