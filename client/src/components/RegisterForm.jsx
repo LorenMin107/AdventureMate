@@ -79,9 +79,18 @@ const RegisterForm = () => {
     try {
       // Remove confirmPassword before sending to API
       const { confirmPassword, ...userData } = formData;
-      await register(userData);
-      addSuccessMessage('Registration successful! Welcome to MyanCamp.');
-      navigate('/'); // Redirect to home page after successful registration
+      const user = await register(userData);
+
+      // Check if email is verified
+      if (user && !user.isEmailVerified) {
+        // Redirect to email verification page with a message
+        addSuccessMessage('Registration successful! Please check your email to verify your account.');
+        navigate('/verify-email-required');
+      } else {
+        // This case is unlikely but handled for completeness
+        addSuccessMessage('Registration successful! Welcome to MyanCamp.');
+        navigate('/');
+      }
     } catch (err) {
       // Error is already handled by the AuthContext
       console.error('Registration error:', err);

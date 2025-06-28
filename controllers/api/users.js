@@ -1,5 +1,7 @@
 const User = require("../../models/user");
 const Contact = require("../../models/contact");
+const { generateEmailVerificationToken, generateVerificationUrl } = require("../../utils/emailUtils");
+const { sendVerificationEmail } = require("../../utils/emailService");
 
 module.exports.register = async (req, res) => {
   try {
@@ -16,24 +18,32 @@ module.exports.register = async (req, res) => {
     const user = new User({ email, username, phone });
     const registeredUser = await User.register(user, password);
 
-    // Log the user in
-    req.login(registeredUser, (err) => {
-      if (err) {
-        return res.status(500).json({ error: "Failed to login after registration" });
-      }
+    try {
+      // Generate email verification token
+      const verificationToken = await generateEmailVerificationToken(registeredUser, req);
 
-      // Return user data (excluding sensitive information)
-      const userResponse = {
-        _id: registeredUser._id,
-        username: registeredUser.username,
-        email: registeredUser.email,
-        phone: registeredUser.phone
-      };
+      // Generate verification URL
+      const verificationUrl = generateVerificationUrl(verificationToken.token);
 
-      res.status(201).json({ 
-        user: userResponse,
-        message: "Registration successful" 
-      });
+      // Send verification email
+      await sendVerificationEmail(registeredUser, verificationUrl);
+    } catch (emailError) {
+      console.error("Error sending verification email:", emailError);
+      // Continue with registration even if email fails
+    }
+
+    // Return user data (excluding sensitive information) without logging in
+    const userResponse = {
+      _id: registeredUser._id,
+      username: registeredUser.username,
+      email: registeredUser.email,
+      phone: registeredUser.phone,
+      isEmailVerified: registeredUser.isEmailVerified
+    };
+
+    res.status(201).json({ 
+      user: userResponse,
+      message: "Registration successful. Please check your email to verify your account before logging in." 
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -45,13 +55,28 @@ module.exports.login = (req, res) => {
   // The actual authentication is handled by passport middleware
   // This function is called after successful authentication
 
+  // Check if email is verified
+  if (!req.user.isEmailVerified) {
+    return res.status(403).json({
+      error: 'Email not verified',
+      message: 'Please verify your email address before logging in.',
+      user: {
+        _id: req.user._id,
+        username: req.user.username,
+        email: req.user.email,
+        isEmailVerified: false
+      }
+    });
+  }
+
   // Return user data (excluding sensitive information)
   const userResponse = {
     _id: req.user._id,
     username: req.user.username,
     email: req.user.email,
     phone: req.user.phone,
-    isAdmin: req.user.isAdmin || false
+    isAdmin: req.user.isAdmin || false,
+    isEmailVerified: req.user.isEmailVerified
   };
 
   res.json({ 
@@ -91,11 +116,15 @@ module.exports.getUser = async (req, res) => {
       email: user.email,
       phone: user.phone,
       isAdmin: user.isAdmin || false,
+      isEmailVerified: user.isEmailVerified,
       reviews: user.reviews,
       bookings: user.bookings
     };
 
-    res.json({ user: userResponse });
+    res.json({ 
+      user: userResponse,
+      emailVerified: user.isEmailVerified
+    });
   } catch (error) {
     console.error("Error fetching user:", error);
     res.status(500).json({ error: "Failed to fetch user data" });
@@ -110,18 +139,21 @@ module.exports.checkAuthStatus = async (req, res) => {
       username: req.user.username,
       email: req.user.email,
       phone: req.user.phone,
-      isAdmin: req.user.isAdmin || false
+      isAdmin: req.user.isAdmin || false,
+      isEmailVerified: req.user.isEmailVerified
     };
 
     return res.json({ 
       isAuthenticated: true,
-      user: userResponse
+      user: userResponse,
+      emailVerified: req.user.isEmailVerified
     });
   }
 
   res.json({ 
     isAuthenticated: false,
-    user: null
+    user: null,
+    emailVerified: false
   });
 };
 
@@ -150,12 +182,14 @@ module.exports.updateProfile = async (req, res) => {
       email: user.email,
       phone: user.phone,
       isAdmin: user.isAdmin || false,
+      isEmailVerified: user.isEmailVerified,
       reviews: user.reviews,
       bookings: user.bookings
     };
 
     res.json({ 
       user: userResponse,
+      emailVerified: user.isEmailVerified,
       message: "Profile updated successfully" 
     });
   } catch (error) {

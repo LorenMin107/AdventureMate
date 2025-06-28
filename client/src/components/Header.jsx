@@ -6,6 +6,10 @@ const Header = () => {
   const { currentUser, isAuthenticated, logout } = useAuth();
   const location = useLocation();
 
+  // Check if user is authenticated but email is not verified
+  const isEmailVerified = currentUser?.isEmailVerified ?? false;
+  const showAuthenticatedLinks = isAuthenticated && isEmailVerified;
+
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
@@ -46,45 +50,60 @@ const Header = () => {
             </li>
             {isAuthenticated ? (
               <>
-                <li className="nav-item">
-                  <NavLink 
-                    to="/profile" 
-                    className={({ isActive }) => 
-                      isActive ? "nav-link active" : "nav-link"
-                    }
-                  >
-                    Profile
-                  </NavLink>
-                </li>
-                {!currentUser?.isAdmin && (
+                {showAuthenticatedLinks ? (
+                  <>
+                    <li className="nav-item">
+                      <NavLink 
+                        to="/profile" 
+                        className={({ isActive }) => 
+                          isActive ? "nav-link active" : "nav-link"
+                        }
+                      >
+                        Profile
+                      </NavLink>
+                    </li>
+                    {!currentUser?.isAdmin && (
+                      <li className="nav-item">
+                        <NavLink 
+                          to="/bookings" 
+                          className={({ isActive }) => 
+                            isActive ? "nav-link active" : "nav-link"
+                          }
+                        >
+                          My Bookings
+                        </NavLink>
+                      </li>
+                    )}
+                    {currentUser?.isAdmin && (
+                      <li className="nav-item">
+                        <NavLink 
+                          to="/admin" 
+                          className={({ isActive }) => 
+                            isActive ? "nav-link active" : "nav-link"
+                          }
+                        >
+                          Admin
+                        </NavLink>
+                      </li>
+                    )}
+                    <li className="nav-item">
+                      <a href="#" onClick={handleLogout} className="nav-link">
+                        Logout
+                      </a>
+                    </li>
+                  </>
+                ) : (
                   <li className="nav-item">
                     <NavLink 
-                      to="/bookings" 
+                      to="/verify-email-required" 
                       className={({ isActive }) => 
                         isActive ? "nav-link active" : "nav-link"
                       }
                     >
-                      My Bookings
+                      Verify Email
                     </NavLink>
                   </li>
                 )}
-                {currentUser?.isAdmin && (
-                  <li className="nav-item">
-                    <NavLink 
-                      to="/admin" 
-                      className={({ isActive }) => 
-                        isActive ? "nav-link active" : "nav-link"
-                      }
-                    >
-                      Admin
-                    </NavLink>
-                  </li>
-                )}
-                <li className="nav-item">
-                  <a href="#" onClick={handleLogout} className="nav-link">
-                    Logout
-                  </a>
-                </li>
               </>
             ) : (
               <>

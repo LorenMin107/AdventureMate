@@ -5,7 +5,11 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import ProtectedRoute from '../components/ProtectedRoute';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
+import EmailVerificationRequired from '../components/EmailVerificationRequired';
 import LoadingFallback from './LoadingFallback';
+
+// Import the email verification page
+const EmailVerificationPage = lazy(() => import('../pages/EmailVerificationPage'));
 
 // Lazy load components for code splitting
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -63,6 +67,18 @@ const routes = [
       {
         path: 'register',
         element: <RegisterForm />,
+      },
+      {
+        path: 'verify-email',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <EmailVerificationPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'verify-email-required',
+        element: <EmailVerificationRequired />,
       },
       {
         path: 'campgrounds',

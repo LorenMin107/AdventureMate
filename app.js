@@ -149,6 +149,10 @@ app.use((req, res, next) => {
 // Import API versioning middleware
 const { versionRoutes, deprecateEndpoint } = require("./middleware/apiVersioning");
 const { authenticateJWT } = require("./middleware/jwtAuth");
+const { apiLimiter } = require("./middleware/rateLimiter");
+
+// Apply rate limiting to all API routes
+app.use('/api', apiLimiter);
 
 // Apply JWT authentication middleware to all API routes
 app.use('/api', authenticateJWT);

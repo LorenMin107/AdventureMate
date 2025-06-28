@@ -26,6 +26,14 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  // Email verification fields
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+  emailVerifiedAt: {
+    type: Date,
+  },
   // References to owned campgrounds
   ownedCampgrounds: [
     {

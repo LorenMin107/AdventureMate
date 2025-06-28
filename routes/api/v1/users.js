@@ -4,6 +4,7 @@ const users = require("../../../controllers/api/users");
 const catchAsync = require("../../../utils/catchAsync");
 const passport = require("passport");
 const { isLoggedInApi } = require("../../../middleware");
+const { requireEmailVerified } = require("../../../middleware/jwtAuth");
 
 // Register a new user
 router.post("/register", catchAsync(users.register));
@@ -26,12 +27,12 @@ router.post("/logout", users.logout);
 router.get("/status", users.checkAuthStatus);
 
 // Get current user data
-router.get("/profile", isLoggedInApi, catchAsync(users.getUser));
+router.get("/profile", isLoggedInApi, requireEmailVerified, catchAsync(users.getUser));
 
 // Update user profile
-router.put("/profile", isLoggedInApi, catchAsync(users.updateProfile));
+router.put("/profile", isLoggedInApi, requireEmailVerified, catchAsync(users.updateProfile));
 
 // Submit a contact form
-router.post("/contact", isLoggedInApi, catchAsync(users.submitContact));
+router.post("/contact", isLoggedInApi, requireEmailVerified, catchAsync(users.submitContact));
 
 module.exports = router;

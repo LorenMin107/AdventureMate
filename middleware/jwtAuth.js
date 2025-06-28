@@ -11,25 +11,25 @@ const authenticateJWT = async (req, res, next) => {
   try {
     // Extract token from Authorization header
     const token = extractTokenFromHeader(req);
-    
+
     if (!token) {
       return next(); // No token provided, continue without authentication
     }
-    
+
     // Verify the token
     const decoded = verifyAccessToken(token);
-    
+
     // Find the user
     const user = await User.findById(decoded.sub);
-    
+
     if (!user) {
       return next(); // User not found, continue without authentication
     }
-    
+
     // Set the user in the request object
     req.user = user;
     req.isAuthenticated = () => true; // For compatibility with passport
-    
+
     next();
   } catch (error) {
     // Token verification failed, continue without authentication
@@ -79,9 +79,24 @@ const requireOwner = (req, res, next) => {
   next();
 };
 
+/**
+ * Middleware to check if user's email is verified
+ * This middleware should be used after authenticateJWT and requireAuth
+ */
+const requireEmailVerified = (req, res, next) => {
+  if (!req.user.isEmailVerified) {
+    return res.status(403).json({ 
+      error: 'Forbidden', 
+      message: 'Email verification required. Please verify your email address before accessing this resource.' 
+    });
+  }
+  next();
+};
+
 module.exports = {
   authenticateJWT,
   requireAuth,
   requireAdmin,
-  requireOwner
+  requireOwner,
+  requireEmailVerified
 };

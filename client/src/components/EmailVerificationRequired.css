@@ -1,0 +1,137 @@
+.email-verification-required {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  padding: 2rem 1rem;
+}
+
+.verification-container {
+  max-width: 600px;
+  width: 100%;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  padding: 2rem;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.verification-container h1 {
+  margin-bottom: 2rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.verification-message {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.warning-icon {
+  width: 60px;
+  height: 60px;
+  background-color: var(--color-warning, #ffc107);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.resend-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: var(--color-card-bg-light, rgba(0, 0, 0, 0.05));
+  border-radius: 8px;
+}
+
+.resend-loading, .resend-success, .resend-error {
+  margin-top: 1rem;
+}
+
+.spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--color-button-bg, #3498db);
+  animation: spin 1s ease-in-out infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.resend-success {
+  color: var(--color-success, #28a745);
+}
+
+.resend-error {
+  color: var(--color-error, #dc3545);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-button-bg, #3498db);
+  color: var(--color-button-text, white);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-button-hover, #2980b9);
+}
+
+.btn-secondary {
+  background-color: var(--color-breadcrumb-text, #6c757d);
+  color: var(--color-button-text, white);
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-breadcrumb-active, #5a6268);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .verification-container {
+    padding: 1.5rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}

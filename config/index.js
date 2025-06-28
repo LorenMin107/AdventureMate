@@ -36,6 +36,10 @@ const server = {
   isDevelopment: process.env.NODE_ENV !== 'production',
   isProduction: process.env.NODE_ENV === 'production',
   logLevel: process.env.LOG_LEVEL ? parseInt(process.env.LOG_LEVEL, 10) : 2, // Default to INFO level (2)
+  // Client URL for frontend application
+  clientUrl: process.env.CLIENT_URL || (process.env.NODE_ENV === 'production' 
+    ? 'https://myancamp.com' 
+    : 'http://localhost:5173'),
 };
 
 // Session configuration
@@ -148,6 +152,16 @@ const jwt = {
   refreshTokenExpiry: process.env.JWT_REFRESH_TOKEN_EXPIRY || "7d", // 7 days
 };
 
+// Email configuration
+const email = {
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT || 587,
+  secure: process.env.EMAIL_SECURE === 'true',
+  user: process.env.EMAIL_USER,
+  password: process.env.EMAIL_PASSWORD,
+  from: process.env.EMAIL_FROM || '"MyanCamp" <noreply@myancamp.com>',
+};
+
 // Validate required environment variables in production
 if (server.isProduction) {
   validateEnv({
@@ -174,4 +188,5 @@ module.exports = {
   cors,
   csp,
   jwt,
+  email,
 };
