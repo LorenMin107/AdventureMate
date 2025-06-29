@@ -27,7 +27,14 @@ module.exports.getBookings = async (req, res) => {
     }
 
     const bookings = await Booking.find(query)
-      .populate("campground")
+      .populate({
+        path: "campground",
+        select: "title location images"
+      })
+      .populate({
+        path: "campsite",
+        select: "name description features price capacity images"
+      })
       .populate("user", "username email")
       .sort({ createdAt: -1 });
 
@@ -42,8 +49,14 @@ module.exports.getBooking = async (req, res) => {
   try {
     const { id } = req.params;
     const booking = await Booking.findById(id)
-      .populate("campground")
-      .populate("campsite")
+      .populate({
+        path: "campground",
+        select: "title location images"
+      })
+      .populate({
+        path: "campsite",
+        select: "name description features price capacity images"
+      })
       .populate("user", "username email");
 
     if (!booking) {
@@ -272,7 +285,15 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     }
 
     // Check if a booking with this session ID already exists
-    let booking = await Booking.findOne({ sessionId: session_id });
+    let booking = await Booking.findOne({ sessionId: session_id })
+      .populate({
+        path: "campground",
+        select: "title location images"
+      })
+      .populate({
+        path: "campsite",
+        select: "name description features price capacity images"
+      });
 
     if (booking) {
       const bookingCreatedAt = booking.createdAt.toISOString();
@@ -295,32 +316,25 @@ module.exports.handlePaymentSuccess = async (req, res) => {
           totalPrice: booking.totalPrice,
           guests: booking.guests || 1,
           campground: {
-            id: booking.campground,
-            title: (await Campground.findById(booking.campground)).title
+            id: booking.campground._id,
+            title: booking.campground.title,
+            location: booking.campground.location,
+            images: booking.campground.images
           }
         }
       };
 
       // Add campsite data if the booking has a campsite
       if (booking.campsite) {
-        try {
-          const Campsite = require('../../models/campsite');
-          const campsite = await Campsite.findById(booking.campsite);
-          if (campsite) {
-            existingBookingResponse.booking.campsite = {
-              id: campsite._id,
-              name: campsite.name,
-              price: campsite.price,
-              description: campsite.description,
-              features: campsite.features,
-              capacity: campsite.capacity,
-              images: campsite.images
-            };
-          }
-        } catch (err) {
-          console.error(`[${timestamp}] Error fetching campsite data for existing booking:`, err);
-          // Continue without campsite data if there's an error
-        }
+        existingBookingResponse.booking.campsite = {
+          id: booking.campsite._id,
+          name: booking.campsite.name,
+          price: booking.campsite.price,
+          description: booking.campsite.description,
+          features: booking.campsite.features,
+          capacity: booking.campsite.capacity,
+          images: booking.campsite.images
+        };
       }
 
       return res.json(existingBookingResponse);

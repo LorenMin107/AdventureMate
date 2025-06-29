@@ -17,9 +17,16 @@ module.exports.isLoggedIn = (req, res, next) => {
 
 // API version of isLoggedIn middleware that returns JSON instead of redirecting
 module.exports.isLoggedInApi = (req, res, next) => {
+  console.log('isLoggedInApi middleware called');
+  console.log('req.isAuthenticated():', req.isAuthenticated());
+  console.log('req.user:', req.user ? req.user._id : 'No user');
+
   if (!req.isAuthenticated()) {
+    console.log('User not authenticated, returning 401');
     return res.status(401).json({ error: "You must be logged in to access this resource" });
   }
+
+  console.log('User authenticated, continuing to next middleware');
   next();
 };
 

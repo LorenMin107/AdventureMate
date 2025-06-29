@@ -1,0 +1,292 @@
+.two-factor-setup-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.setup-title {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Status styles */
+.two-factor-status {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.status-enabled, .status-disabled {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.status-enabled {
+  color: #27ae60;
+}
+
+.status-disabled {
+  color: #e74c3c;
+}
+
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+}
+
+.status-enabled .status-icon {
+  background-color: #27ae60;
+  color: white;
+}
+
+.status-disabled .status-icon {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.status-description {
+  color: #555;
+  line-height: 1.5;
+}
+
+.two-factor-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Button styles */
+.setup-button, .disable-button, .generate-codes-button, 
+.next-button, .verify-button, .done-button, 
+.disable-confirm-button, .generate-confirm-button {
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: none;
+}
+
+.setup-button, .next-button, .verify-button, .done-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.setup-button:hover, .next-button:hover, .verify-button:hover, .done-button:hover {
+  background-color: #2980b9;
+}
+
+.disable-button, .disable-confirm-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.disable-button:hover, .disable-confirm-button:hover {
+  background-color: #c0392b;
+}
+
+.generate-codes-button, .generate-confirm-button {
+  background-color: #f39c12;
+  color: white;
+}
+
+.generate-codes-button:hover, .generate-confirm-button:hover {
+  background-color: #d35400;
+}
+
+.back-button, .cancel-button {
+  background-color: #ecf0f1;
+  color: #7f8c8d;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover, .cancel-button:hover {
+  background-color: #dde4e6;
+}
+
+button:disabled {
+  background-color: #95a5a6 !important;
+  color: #ecf0f1 !important;
+  cursor: not-allowed;
+}
+
+/* QR code styles */
+.qr-code-container, .verification-container, 
+.backup-codes-container, .disable-container, 
+.generate-codes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.qr-code {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+  min-height: 300px; /* Ensure there's space for the QR code */
+  background-color: #f8f9fa; /* Light background to make QR code stand out */
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #ddd;
+}
+
+.qr-code img {
+  max-width: 300px; /* Match the width set in the backend */
+  width: 100%; /* Ensure it fills the container */
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.qr-code-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.qr-code-error p {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.retry-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background-color: #2980b9;
+}
+
+.secret-key {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.secret-key code {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.setup-instruction {
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Form styles */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Backup codes styles */
+.backup-codes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.backup-code {
+  background-color: #f8f9fa;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-family: monospace;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+/* Add spacing between buttons in two-factor setup actions */
+.two-factor-setup__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .two-factor-setup__actions {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+  .form-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .two-factor-actions {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+}

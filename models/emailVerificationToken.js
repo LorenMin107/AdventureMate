@@ -45,7 +45,6 @@ const EmailVerificationTokenSchema = new Schema({
 
 // Index for faster queries and automatic expiration
 EmailVerificationTokenSchema.index({ user: 1 });
-EmailVerificationTokenSchema.index({ token: 1 });
 EmailVerificationTokenSchema.index({ expiresAt: 1 });
 EmailVerificationTokenSchema.index({ email: 1 });
 

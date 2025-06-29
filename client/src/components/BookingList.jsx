@@ -16,7 +16,7 @@ const BookingList = ({ initialBookings = [] }) => {
   const [loading, setLoading] = useState(!initialBookings.length);
   const [error, setError] = useState(null);
   const { currentUser, isAuthenticated } = useAuth();
-  
+
   useEffect(() => {
     // If we have initial bookings, no need to fetch
     if (initialBookings.length > 0) {
@@ -24,24 +24,24 @@ const BookingList = ({ initialBookings = [] }) => {
       setLoading(false);
       return;
     }
-    
+
     // Only fetch if user is authenticated
     if (!isAuthenticated) {
       setLoading(false);
       return;
     }
-    
+
     const fetchBookings = async () => {
       try {
         setLoading(true);
         const response = await fetch('/api/bookings', {
           credentials: 'include'
         });
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch bookings: ${response.status}`);
         }
-        
+
         const data = await response.json();
         setBookings(data.bookings || []);
         setError(null);
@@ -52,10 +52,10 @@ const BookingList = ({ initialBookings = [] }) => {
         setLoading(false);
       }
     };
-    
+
     fetchBookings();
   }, [initialBookings, isAuthenticated]);
-  
+
   if (!isAuthenticated) {
     return (
       <div className="booking-list-login-message">
@@ -63,15 +63,15 @@ const BookingList = ({ initialBookings = [] }) => {
       </div>
     );
   }
-  
+
   if (loading) {
     return <div className="booking-list-loading">Loading bookings...</div>;
   }
-  
+
   if (error) {
     return <div className="booking-list-error">{error}</div>;
   }
-  
+
   if (bookings.length === 0) {
     return (
       <div className="booking-list-empty">
@@ -82,22 +82,23 @@ const BookingList = ({ initialBookings = [] }) => {
       </div>
     );
   }
-  
+
   // Format date to local string
   const formatDate = (dateString) => {
     if (!dateString) return 'Not available';
     return new Date(dateString).toLocaleDateString();
   };
-  
+
   return (
     <div className="booking-list">
       <h2 className="booking-list-title">{currentUser.username}'s Bookings</h2>
-      
+
       <div className="booking-list-table-container">
         <table className="booking-list-table">
           <thead>
             <tr>
               <th>Campground</th>
+              <th>Campsite</th>
               <th>Check-in</th>
               <th>Check-out</th>
               <th>Days</th>
@@ -109,7 +110,14 @@ const BookingList = ({ initialBookings = [] }) => {
             {bookings.map(booking => (
               <tr key={booking._id} className="booking-list-item">
                 <td className="booking-list-campground">
-                  {booking.campground.title}
+                  {booking.campground && booking.campground.title ? 
+                    booking.campground.title : 
+                    'Campground name not available'}
+                </td>
+                <td className="booking-list-campsite">
+                  {booking.campsite && booking.campsite.name ? 
+                    booking.campsite.name : 
+                    'No specific campsite'}
                 </td>
                 <td>{formatDate(booking.startDate)}</td>
                 <td>{formatDate(booking.endDate)}</td>

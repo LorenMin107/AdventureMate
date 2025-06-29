@@ -41,7 +41,6 @@ const RefreshTokenSchema = new Schema({
 
 // Index for faster queries and automatic expiration
 RefreshTokenSchema.index({ user: 1 });
-RefreshTokenSchema.index({ token: 1 });
 RefreshTokenSchema.index({ expiresAt: 1 });
 
 /**

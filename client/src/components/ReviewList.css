@@ -74,3 +74,54 @@
   background-color: var(--color-card-bg);
   transition: background-color 0.3s ease;
 }
+
+.review-campground {
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.review-campground:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.review-date {
+  font-size: 0.85rem;
+  color: var(--color-breadcrumb-text);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.review-list-browse-link {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.review-list-browse-link:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.review-list-login-message {
+  padding: 1rem;
+  text-align: center;
+  color: var(--color-breadcrumb-text);
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  margin-top: 1rem;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.review-list-login-message a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}

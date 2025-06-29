@@ -93,9 +93,12 @@ const sessionConfig = {
   saveUninitialized: config.session.saveUninitialized,
   cookie: {
     httpOnly: config.session.cookie.httpOnly,
-    secure: config.session.cookie.secure,
+    // In development, set secure to false to allow cookies over HTTP
+    secure: process.env.NODE_ENV === 'production' ? config.session.cookie.secure : false,
     expires: Date.now() + config.session.cookie.expires,
     maxAge: config.session.cookie.maxAge,
+    // Add SameSite attribute to allow cookies in cross-site requests
+    sameSite: 'lax'
   },
 };
 
@@ -139,6 +142,13 @@ passport.use(new LocalStrategy(User.authenticate())); // use the local strategy 
 passport.serializeUser(User.serializeUser()); // serialize the user to store in the session cookie (login)
 passport.deserializeUser(User.deserializeUser()); // deserialize the user to store in the session cookie (logout)
 
+// Import session security middleware
+const { validateSession, rotateSession } = require('./middleware/sessionSecurity');
+
+// Apply session security middleware
+app.use(validateSession);
+app.use(rotateSession);
+
 app.use((req, res, next) => {
   res.locals.currentUser = req.user; // make the current user available in all templates
   res.locals.success = req.flash("success"); // make the success flash message available in all templates
@@ -155,6 +165,8 @@ const { apiLimiter } = require("./middleware/rateLimiter");
 app.use('/api', apiLimiter);
 
 // Apply JWT authentication middleware to all API routes
+// This middleware doesn't block requests without a JWT token, it just sets req.user if a token is provided
+console.log('Applying JWT authentication middleware to all API routes');
 app.use('/api', authenticateJWT);
 
 // Apply versioning middleware to all API routes
@@ -176,6 +188,7 @@ const reviewApiRoutes = require("./routes/api/reviews");
 const userApiRoutes = require("./routes/api/users");
 const bookingApiRoutes = require("./routes/api/bookings");
 const adminApiRoutes = require("./routes/api/admin");
+const twoFactorAuthApiRoutes = require("./routes/api/twoFactorAuth");
 
 // Add deprecation notices to legacy API routes
 const deprecationOptions = {
@@ -203,6 +216,10 @@ app.use("/api/admin",
 app.use("/api/users", 
   deprecateEndpoint({ ...deprecationOptions, alternativeUrl: '/api/v1/users' }), 
   userApiRoutes
+);
+app.use("/api/2fa", 
+  deprecateEndpoint({ ...deprecationOptions, alternativeUrl: '/api/v1/2fa' }), 
+  twoFactorAuthApiRoutes
 );
 
 // Versioned API Routes

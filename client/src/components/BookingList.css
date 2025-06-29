@@ -51,6 +51,12 @@
   transition: color 0.3s ease;
 }
 
+.booking-list-campsite {
+  color: var(--color-text);
+  font-style: italic;
+  transition: color 0.3s ease;
+}
+
 .booking-list-price {
   font-weight: bold;
   color: var(--color-text);

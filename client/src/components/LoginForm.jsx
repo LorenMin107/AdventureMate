@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import TwoFactorVerification from './TwoFactorVerification';
 import './LoginForm.css';
 
 /**
@@ -11,8 +12,10 @@ import './LoginForm.css';
 const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [formError, setFormError] = useState('');
-  const { login, error, loading } = useAuth();
+  const [userId, setUserId] = useState(null);
+  const { login, error, loading, requiresTwoFactor } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
   const navigate = useNavigate();
 
@@ -32,7 +35,15 @@ const LoginForm = () => {
     }
 
     try {
-      await login(username, password);
+      const result = await login(username, password, rememberMe);
+
+      // Check if 2FA is required
+      if (result && result.requiresTwoFactor) {
+        setUserId(result.userId);
+        // The requiresTwoFactor state in AuthContext will trigger the 2FA verification UI
+        return;
+      }
+
       addSuccessMessage('Login successful! Welcome back.');
       navigate('/'); // Redirect to home page after successful login
     } catch (err) {
@@ -42,6 +53,20 @@ const LoginForm = () => {
     }
   };
 
+  // Handle cancellation of 2FA verification
+  const handleCancelTwoFactor = () => {
+    setUserId(null);
+    setUsername('');
+    setPassword('');
+    setRememberMe(false);
+  };
+
+  // If 2FA verification is required, show the 2FA verification component
+  if (requiresTwoFactor && userId) {
+    return <TwoFactorVerification userId={userId} onCancel={handleCancelTwoFactor} />;
+  }
+
+  // Otherwise, show the login form
   return (
     <div className="login-form-container">
       <div className="form-logo">
@@ -79,6 +104,18 @@ const LoginForm = () => {
             disabled={loading}
             placeholder="Enter your password"
           />
+        </div>
+
+        <div className="form-group checkbox-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              disabled={loading}
+            />
+            <span>Remember me for 30 days</span>
+          </label>
         </div>
 
         <button type="submit" className="login-button" disabled={loading}>

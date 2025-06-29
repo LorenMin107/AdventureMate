@@ -65,6 +65,12 @@ const RegisterForm = () => {
       return false;
     }
 
+    // Phone validation
+    if (!formData.phone.trim()) {
+      setFormError('Phone number is required');
+      return false;
+    }
+
     return true;
   };
 
@@ -142,7 +148,7 @@ const RegisterForm = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="phone">Phone (optional)</label>
+          <label htmlFor="phone">Phone</label>
           <input
             type="tel"
             id="phone"
@@ -150,7 +156,8 @@ const RegisterForm = () => {
             value={formData.phone}
             onChange={handleChange}
             disabled={loading}
-            placeholder="Enter your phone number (optional)"
+            required
+            placeholder="Enter your phone number"
           />
         </div>
 

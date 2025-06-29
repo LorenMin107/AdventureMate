@@ -35,9 +35,46 @@ const CampgroundDetailPage = () => {
 
   // Fetch campground data
   useEffect(() => {
+    // Add a cache mechanism to prevent excessive API calls
+    const CAMPGROUND_CACHE_KEY = `campground_${id}_cache`;
+    const CAMPGROUND_CACHE_EXPIRY = `campground_${id}_cache_expiry`;
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
     const fetchCampground = async () => {
       setLoading(true);
       try {
+        // Check if we have a cached campground data that's still valid
+        const cachedCampground = localStorage.getItem(CAMPGROUND_CACHE_KEY);
+        const cacheExpiry = localStorage.getItem(CAMPGROUND_CACHE_EXPIRY);
+
+        // If we have a valid cache, use it
+        if (cachedCampground && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
+          console.log(`Using cached campground data for id: ${id}`);
+          const campgroundData = JSON.parse(cachedCampground);
+          setCampground(campgroundData);
+
+          // Set reviews if available and properly populated
+          if (campgroundData.reviews && Array.isArray(campgroundData.reviews)) {
+            // Check if reviews are populated with author information
+            const areReviewsPopulated = campgroundData.reviews.every(review => 
+              review.author && typeof review.author === 'object' && review.author._id
+            );
+
+            if (areReviewsPopulated) {
+              setReviews(campgroundData.reviews);
+            } else {
+              // If reviews are not populated, fetch them separately
+              fetchReviews(campgroundData._id);
+            }
+          }
+
+          setLoading(false);
+          return;
+        }
+
+        // No valid cache, make the API call
+        console.log(`No valid campground cache for id: ${id}, making API call`);
+
         const response = await fetch(`/api/campgrounds/${id}`);
 
         if (!response.ok) {
@@ -54,6 +91,10 @@ const CampgroundDetailPage = () => {
         }
 
         setCampground(campgroundData);
+
+        // Cache the campground data
+        localStorage.setItem(CAMPGROUND_CACHE_KEY, JSON.stringify(campgroundData));
+        localStorage.setItem(CAMPGROUND_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
 
         // Set reviews if available and properly populated
         if (campgroundData.reviews && Array.isArray(campgroundData.reviews)) {
@@ -82,8 +123,29 @@ const CampgroundDetailPage = () => {
 
   // Fetch campsites data
   const fetchCampsites = async (campgroundId) => {
+    // Add a cache mechanism to prevent excessive API calls
+    const CAMPSITES_CACHE_KEY = `campsites_${campgroundId}_cache`;
+    const CAMPSITES_CACHE_EXPIRY = `campsites_${campgroundId}_cache_expiry`;
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
     setLoadingCampsites(true);
     try {
+      // Check if we have a cached campsites data that's still valid
+      const cachedCampsites = localStorage.getItem(CAMPSITES_CACHE_KEY);
+      const cacheExpiry = localStorage.getItem(CAMPSITES_CACHE_EXPIRY);
+
+      // If we have a valid cache, use it
+      if (cachedCampsites && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
+        console.log(`Using cached campsites data for campground id: ${campgroundId}`);
+        const campsitesData = JSON.parse(cachedCampsites);
+        setCampsites(campsitesData);
+        setLoadingCampsites(false);
+        return;
+      }
+
+      // No valid cache, make the API call
+      console.log(`No valid campsites cache for campground id: ${campgroundId}, making API call`);
+
       const response = await fetch(`/api/v1/campgrounds/${campgroundId}/campsites`);
 
       if (!response.ok) {
@@ -100,6 +162,10 @@ const CampgroundDetailPage = () => {
       }
 
       setCampsites(campsitesData);
+
+      // Cache the campsites data
+      localStorage.setItem(CAMPSITES_CACHE_KEY, JSON.stringify(campsitesData));
+      localStorage.setItem(CAMPSITES_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
     } catch (err) {
       console.error('Error fetching campsites:', err);
       // Don't set error state here, as we already have the campground data
@@ -211,17 +277,65 @@ const CampgroundDetailPage = () => {
 
   // Handle review submission
   const handleReviewSubmitted = (newReview) => {
-    setReviews(prevReviews => [...prevReviews, newReview]);
+    // Update reviews state
+    const updatedReviews = [...reviews, newReview];
+    setReviews(updatedReviews);
+
+    // Update reviews cache
+    if (campground && campground._id) {
+      const REVIEWS_CACHE_KEY = `reviews_${campground._id}_cache`;
+      const REVIEWS_CACHE_EXPIRY = `reviews_${campground._id}_cache_expiry`;
+      const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+      localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(updatedReviews));
+      localStorage.setItem(REVIEWS_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
+
+      console.log(`Updated reviews cache after adding review for campground id: ${campground._id}`);
+    }
   };
 
   // Handle review deletion
   const handleReviewDeleted = (reviewId) => {
-    setReviews(prevReviews => prevReviews.filter(review => review._id !== reviewId));
+    // Update reviews state
+    const updatedReviews = reviews.filter(review => review._id !== reviewId);
+    setReviews(updatedReviews);
+
+    // Update reviews cache
+    if (campground && campground._id) {
+      const REVIEWS_CACHE_KEY = `reviews_${campground._id}_cache`;
+      const REVIEWS_CACHE_EXPIRY = `reviews_${campground._id}_cache_expiry`;
+      const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+      localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(updatedReviews));
+      localStorage.setItem(REVIEWS_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
+
+      console.log(`Updated reviews cache after deleting review for campground id: ${campground._id}`);
+    }
   };
 
   // Fetch reviews separately if they're not properly populated
   const fetchReviews = async (campgroundId) => {
+    // Add a cache mechanism to prevent excessive API calls
+    const REVIEWS_CACHE_KEY = `reviews_${campgroundId}_cache`;
+    const REVIEWS_CACHE_EXPIRY = `reviews_${campgroundId}_cache_expiry`;
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
     try {
+      // Check if we have a cached reviews data that's still valid
+      const cachedReviews = localStorage.getItem(REVIEWS_CACHE_KEY);
+      const cacheExpiry = localStorage.getItem(REVIEWS_CACHE_EXPIRY);
+
+      // If we have a valid cache, use it
+      if (cachedReviews && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
+        console.log(`Using cached reviews data for campground id: ${campgroundId}`);
+        const reviewsData = JSON.parse(cachedReviews);
+        setReviews(reviewsData);
+        return;
+      }
+
+      // No valid cache, make the API call
+      console.log(`No valid reviews cache for campground id: ${campgroundId}, making API call`);
+
       const response = await fetch(`/api/campgrounds/${campgroundId}/reviews`);
 
       if (!response.ok) {
@@ -232,8 +346,13 @@ const CampgroundDetailPage = () => {
 
       // Check if the response is in the new standardized format
       const responseData = data.status && data.data ? data.data : data;
+      const reviewsData = responseData.reviews || [];
 
-      setReviews(responseData.reviews || []);
+      setReviews(reviewsData);
+
+      // Cache the reviews data
+      localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(reviewsData));
+      localStorage.setItem(REVIEWS_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
     } catch (err) {
       console.error('Error fetching reviews:', err);
       // Don't set error state here, as we already have the campground data

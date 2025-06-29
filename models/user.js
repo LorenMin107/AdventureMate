@@ -6,8 +6,7 @@ const UserSchema = new Schema({
   username: {
     type: String,
     required: true,
-    unique: true,
-    index: true, // Ensure an index is set for sorting
+    unique: true, // unique already creates an index
   },
   email: {
     type: String,
@@ -16,6 +15,7 @@ const UserSchema = new Schema({
   },
   phone: {
     type: String,
+    required: true,
   },
   isAdmin: {
     type: Boolean,
@@ -34,6 +34,51 @@ const UserSchema = new Schema({
   emailVerifiedAt: {
     type: Date,
   },
+  // Account security fields
+  failedLoginAttempts: {
+    type: Number,
+    default: 0,
+  },
+  accountLocked: {
+    type: Boolean,
+    default: false,
+  },
+  lockUntil: {
+    type: Date,
+    default: null,
+  },
+  lastLoginAt: {
+    type: Date,
+  },
+  lastLoginIP: {
+    type: String,
+  },
+  // Two-factor authentication fields
+  isTwoFactorEnabled: {
+    type: Boolean,
+    default: false,
+  },
+  twoFactorSecret: {
+    type: String,
+    default: null,
+  },
+  twoFactorSetupCompleted: {
+    type: Boolean,
+    default: false,
+  },
+  backupCodes: [{
+    code: {
+      type: String,
+    },
+    isUsed: {
+      type: Boolean,
+      default: false,
+    },
+    usedAt: {
+      type: Date,
+      default: null,
+    }
+  }],
   // References to owned campgrounds
   ownedCampgrounds: [
     {

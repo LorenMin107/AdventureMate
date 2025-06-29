@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
+import TwoFactorSetup from '../components/TwoFactorSetup';
+import BookingList from '../components/BookingList';
+import UserReviewList from '../components/UserReviewList';
 import './ProfilePage.css';
 
 /**
@@ -12,6 +15,7 @@ const ProfilePage = () => {
   const [updateError, setUpdateError] = useState(null);
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [phoneError, setPhoneError] = useState('');
+  const [activeSection, setActiveSection] = useState('personal');
 
   // Initialize phone state with user's phone number when userDetails is loaded
   useEffect(() => {
@@ -23,21 +27,21 @@ const ProfilePage = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate phone number
     if (phone && !validatePhone(phone)) {
       setPhoneError('Please enter a valid phone number');
       return;
     }
-    
+
     setUpdateError(null);
     setUpdateSuccess(false);
-    
+
     try {
       await updateProfile({ phone });
       setIsEditing(false);
       setUpdateSuccess(true);
-      
+
       // Hide success message after 3 seconds
       setTimeout(() => {
         setUpdateSuccess(false);
@@ -76,77 +80,155 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-page">
-      <h1 className="profile-page-title">My Profile</h1>
-      
-      <div className="profile-card">
-        <div className="profile-info">
-          <div className="profile-field">
-            <label>Username:</label>
-            <span>{userDetails.username}</span>
-          </div>
-          
-          <div className="profile-field">
-            <label>Email:</label>
-            <span>{userDetails.email}</span>
-          </div>
-          
-          {isEditing ? (
-            <form onSubmit={handleSubmit} className="profile-form">
-              <div className="profile-field">
-                <label htmlFor="phone">Phone Number:</label>
-                <input
-                  type="text"
-                  id="phone"
-                  value={phone}
-                  onChange={handlePhoneChange}
-                  placeholder="Enter your phone number"
-                  className={phoneError ? 'input-error' : ''}
-                />
-                {phoneError && <div className="error-message">{phoneError}</div>}
+      <div className="profile-header">
+        <div className="profile-avatar">
+          {userDetails.username ? userDetails.username.charAt(0).toUpperCase() : 'U'}
+        </div>
+        <h1 className="profile-page-title">
+          {userDetails.username}'s Profile
+        </h1>
+      </div>
+
+      <div className="profile-container">
+        <div className="profile-sidebar">
+          <nav className="profile-nav">
+            <ul className="profile-nav-list">
+              <li 
+                className={`profile-nav-item ${activeSection === 'personal' ? 'active' : ''}`}
+                onClick={() => setActiveSection('personal')}
+              >
+                <span className="profile-nav-icon">👤</span>
+                <span>Personal Info</span>
+              </li>
+              <li 
+                className={`profile-nav-item ${activeSection === 'security' ? 'active' : ''}`}
+                onClick={() => setActiveSection('security')}
+              >
+                <span className="profile-nav-icon">🔒</span>
+                <span>Security</span>
+              </li>
+              <li 
+                className={`profile-nav-item ${activeSection === 'bookings' ? 'active' : ''}`}
+                onClick={() => setActiveSection('bookings')}
+              >
+                <span className="profile-nav-icon">🏕️</span>
+                <span>Bookings</span>
+              </li>
+              <li 
+                className={`profile-nav-item ${activeSection === 'reviews' ? 'active' : ''}`}
+                onClick={() => setActiveSection('reviews')}
+              >
+                <span className="profile-nav-icon">⭐</span>
+                <span>Reviews</span>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <div className="profile-content">
+          {updateError && (
+            <div className="profile-update-error">{updateError}</div>
+          )}
+
+          {updateSuccess && (
+            <div className="profile-update-success">Profile updated successfully!</div>
+          )}
+
+          {activeSection === 'personal' && (
+            <div className="profile-section">
+              <h2 className="section-title">Personal Information</h2>
+              <div className="profile-card">
+                <div className="profile-info">
+                  <div className="profile-field">
+                    <label>Username</label>
+                    <span>{userDetails.username}</span>
+                  </div>
+
+                  <div className="profile-field">
+                    <label>Email</label>
+                    <span>{userDetails.email}</span>
+                  </div>
+
+                  {isEditing ? (
+                    <form onSubmit={handleSubmit} className="profile-form">
+                      <div className="profile-field">
+                        <label htmlFor="phone">Phone Number</label>
+                        <input
+                          type="text"
+                          id="phone"
+                          value={phone}
+                          onChange={handlePhoneChange}
+                          placeholder="Enter your phone number"
+                          className={phoneError ? 'input-error' : ''}
+                        />
+                        {phoneError && <div className="error-message">{phoneError}</div>}
+                      </div>
+
+                      <div className="profile-actions">
+                        <button type="submit" className="save-button">Save</button>
+                        <button 
+                          type="button" 
+                          className="cancel-button"
+                          onClick={() => {
+                            setIsEditing(false);
+                            setPhone(userDetails.phone || '');
+                            setPhoneError('');
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="profile-field">
+                        <label>Phone</label>
+                        <span>{userDetails.phone || 'Not provided'}</span>
+                      </div>
+
+                      <div className="profile-actions">
+                        <button 
+                          className="edit-button"
+                          onClick={() => setIsEditing(true)}
+                        >
+                          {userDetails.phone ? 'Update Phone Number' : 'Add Phone Number'}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-              
-              <div className="profile-actions">
-                <button type="submit" className="save-button">Save</button>
-                <button 
-                  type="button" 
-                  className="cancel-button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setPhone(userDetails.phone || '');
-                    setPhoneError('');
-                  }}
-                >
-                  Cancel
-                </button>
+            </div>
+          )}
+
+          {activeSection === 'security' && (
+            <div className="profile-section">
+              <h2 className="section-title">Security Settings</h2>
+              <div className="profile-card">
+                <TwoFactorSetup />
               </div>
-            </form>
-          ) : (
-            <>
-              <div className="profile-field">
-                <label>Phone:</label>
-                <span>{userDetails.phone || 'Not provided'}</span>
+            </div>
+          )}
+
+          {activeSection === 'bookings' && (
+            <div className="profile-section">
+              <h2 className="section-title">My Bookings</h2>
+              <div className="profile-card">
+                <BookingList initialBookings={userDetails?.bookings || []} />
               </div>
-              
-              <div className="profile-actions">
-                <button 
-                  className="edit-button"
-                  onClick={() => setIsEditing(true)}
-                >
-                  {userDetails.phone ? 'Update Phone Number' : 'Add Phone Number'}
-                </button>
+            </div>
+          )}
+
+          {activeSection === 'reviews' && (
+            <div className="profile-section">
+              <h2 className="section-title">My Reviews</h2>
+              <div className="profile-card">
+                <UserReviewList initialReviews={userDetails?.reviews || []} />
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
-      
-      {updateError && (
-        <div className="profile-update-error">{updateError}</div>
-      )}
-      
-      {updateSuccess && (
-        <div className="profile-update-success">Profile updated successfully!</div>
-      )}
     </div>
   );
 };
