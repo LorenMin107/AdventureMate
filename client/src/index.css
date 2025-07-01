@@ -29,6 +29,7 @@
   --color-breadcrumb-active: #6c757d;
   --color-footer-bg: #ffffff;
   --color-footer-text: #213547;
+  --color-text-muted: #6c757d; /* Muted text color */
   --color-warning: #ffc107; /* Warning color (amber) */
   --color-success: #28a745; /* Success color (green) */
   --color-error: #dc3545; /* Error color (red) */
@@ -63,6 +64,7 @@
   --color-breadcrumb-active: #d4d4d8;
   --color-footer-bg: #1a1a1a;
   --color-footer-text: #a1a1aa;
+  --color-text-muted: #a1a1aa; /* Muted text color */
   --color-warning: #ffca2c; /* Warning color (amber) - slightly brighter for dark theme */
   --color-success: #2dbc4e; /* Success color (green) - slightly brighter for dark theme */
   --color-error: #e74c3c; /* Error color (red) - slightly brighter for dark theme */
