@@ -45,4 +45,11 @@ router.post("/contact", isLoggedInApi, catchAsync(users.submitContact));
 // Get user reviews
 router.get("/reviews", isLoggedInApi, catchAsync(users.getUserReviews));
 
+// Password reset routes
+// Request a password reset (public route)
+router.post("/forgot-password", catchAsync(users.requestPasswordReset));
+
+// Reset password with token (public route)
+router.post("/reset-password", catchAsync(users.resetPassword));
+
 module.exports = router;

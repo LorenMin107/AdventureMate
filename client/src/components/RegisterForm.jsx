@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
@@ -17,9 +17,76 @@ const RegisterForm = () => {
     phone: ''
   });
   const [formError, setFormError] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    message: 'Password is too weak',
+    color: '#dc3545'
+  });
   const { register, error, loading } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
   const navigate = useNavigate();
+
+  // Check password strength
+  useEffect(() => {
+    if (!formData.password) {
+      setPasswordStrength({
+        score: 0,
+        message: 'Password is too weak',
+        color: '#dc3545'
+      });
+      return;
+    }
+
+    // Check password strength
+    let score = 0;
+    let message = '';
+    let color = '';
+
+    // Length check
+    if (formData.password.length >= 8) score += 1;
+
+    // Uppercase check
+    if (/[A-Z]/.test(formData.password)) score += 1;
+
+    // Lowercase check
+    if (/[a-z]/.test(formData.password)) score += 1;
+
+    // Number check
+    if (/\d/.test(formData.password)) score += 1;
+
+    // Special character check
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) score += 1;
+
+    // Set message and color based on score
+    switch (score) {
+      case 0:
+      case 1:
+        message = 'Password is too weak';
+        color = '#dc3545'; // red
+        break;
+      case 2:
+        message = 'Password is weak';
+        color = '#ffc107'; // yellow
+        break;
+      case 3:
+        message = 'Password is moderate';
+        color = '#fd7e14'; // orange
+        break;
+      case 4:
+        message = 'Password is strong';
+        color = '#28a745'; // green
+        break;
+      case 5:
+        message = 'Password is very strong';
+        color = '#20c997'; // teal
+        break;
+      default:
+        message = 'Password is too weak';
+        color = '#dc3545'; // red
+    }
+
+    setPasswordStrength({ score, message, color });
+  }, [formData.password]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,8 +121,8 @@ const RegisterForm = () => {
       return false;
     }
 
-    if (formData.password.length < 6) {
-      setFormError('Password must be at least 6 characters long');
+    if (passwordStrength.score < 3) {
+      setFormError('Please choose a stronger password');
       return false;
     }
 
@@ -171,8 +238,36 @@ const RegisterForm = () => {
             onChange={handleChange}
             disabled={loading}
             required
-            placeholder="Create a password (min. 6 characters)"
+            placeholder="Create a password"
           />
+
+          {formData.password && (
+            <div className="password-strength">
+              <div className="password-strength-bar">
+                <div 
+                  className="password-strength-progress" 
+                  style={{ 
+                    width: `${(passwordStrength.score / 5) * 100}%`,
+                    backgroundColor: passwordStrength.color 
+                  }}
+                ></div>
+              </div>
+              <div className="password-strength-text" style={{ color: passwordStrength.color }}>
+                {passwordStrength.message}
+              </div>
+            </div>
+          )}
+
+          <div className="password-requirements">
+            <p>Password must:</p>
+            <ul>
+              <li className={formData.password.length >= 8 ? 'met' : ''}>Be at least 8 characters long</li>
+              <li className={/[A-Z]/.test(formData.password) ? 'met' : ''}>Include at least one uppercase letter</li>
+              <li className={/[a-z]/.test(formData.password) ? 'met' : ''}>Include at least one lowercase letter</li>
+              <li className={/\d/.test(formData.password) ? 'met' : ''}>Include at least one number</li>
+              <li className={/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? 'met' : ''}>Include at least one special character</li>
+            </ul>
+          </div>
         </div>
 
         <div className="form-group">
@@ -189,7 +284,11 @@ const RegisterForm = () => {
           />
         </div>
 
-        <button type="submit" className="register-button" disabled={loading}>
+        <button 
+          type="submit" 
+          className="register-button" 
+          disabled={loading || (formData.password && passwordStrength.score < 3)}
+        >
           {loading ? 'Creating Account...' : 'Sign up'}
         </button>
       </form>

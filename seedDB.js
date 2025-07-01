@@ -20,6 +20,7 @@ const seedAdmin = async () => {
       email: "lorenmin69@gmail.com",
       phone: "09945727000",
       isAdmin: true,
+      isEmailVerified: true, // Add this line to bypass email verification
     });
 
     // Register the user with a password using Passport's register method

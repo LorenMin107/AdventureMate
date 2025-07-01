@@ -3,7 +3,15 @@ const Contact = require("../../models/contact");
 const Review = require("../../models/review");
 const Campground = require("../../models/campground");
 const { generateEmailVerificationToken, generateVerificationUrl } = require("../../utils/emailUtils");
-const { sendVerificationEmail } = require("../../utils/emailService");
+const { sendVerificationEmail, sendPasswordResetEmail } = require("../../utils/emailService");
+const { 
+  generatePasswordResetToken, 
+  generatePasswordResetUrl, 
+  verifyPasswordResetToken, 
+  markPasswordResetTokenAsUsed,
+  validatePasswordStrength,
+  createPasswordChangeAuditLog
+} = require("../../utils/passwordUtils");
 
 module.exports.register = async (req, res) => {
   try {
@@ -233,17 +241,22 @@ module.exports.checkAuthStatus = async (req, res) => {
       isTwoFactorEnabled: req.user.isTwoFactorEnabled || false
     };
 
+    // Check if 2FA verification is pending
+    const requiresTwoFactor = !!(req.session.twoFactorAuth && req.session.twoFactorAuth.twoFactorPending);
+
     return res.json({ 
       isAuthenticated: true,
       user: userResponse,
-      emailVerified: req.user.isEmailVerified
+      emailVerified: req.user.isEmailVerified,
+      requiresTwoFactor: requiresTwoFactor
     });
   }
 
   res.json({ 
     isAuthenticated: false,
     user: null,
-    emailVerified: false
+    emailVerified: false,
+    requiresTwoFactor: false
   });
 };
 
@@ -443,5 +456,120 @@ module.exports.getUserReviews = async (req, res) => {
   } catch (error) {
     console.error("Error fetching user reviews:", error);
     res.status(500).json({ error: "Failed to fetch reviews" });
+  }
+};
+
+/**
+ * Request a password reset
+ * This endpoint allows users to request a password reset by providing their email
+ * It generates a reset token and sends an email with a reset link
+ */
+module.exports.requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // For security reasons, don't reveal if the email exists or not
+    // Always return a success message even if the email doesn't exist
+    if (!user) {
+      console.log(`Password reset requested for non-existent email: ${email}`);
+      return res.json({ 
+        message: "If your email is registered, you will receive a password reset link shortly." 
+      });
+    }
+
+    // Generate a password reset token
+    const resetToken = await generatePasswordResetToken(user, req);
+
+    // Generate the reset URL
+    const resetUrl = generatePasswordResetUrl(resetToken.token);
+
+    // Send the password reset email
+    await sendPasswordResetEmail(user, resetUrl);
+
+    res.json({ 
+      message: "If your email is registered, you will receive a password reset link shortly." 
+    });
+  } catch (error) {
+    console.error("Error requesting password reset:", error);
+    res.status(500).json({ error: "Failed to process password reset request" });
+  }
+};
+
+/**
+ * Reset password using a token
+ * This endpoint allows users to reset their password using a token received via email
+ * It verifies the token, validates the new password, and updates the user's password
+ */
+module.exports.resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({ error: "Token and password are required" });
+    }
+
+    // Validate password strength
+    const passwordValidation = validatePasswordStrength(password);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({ error: passwordValidation.message });
+    }
+
+    // Verify the token
+    const resetToken = await verifyPasswordResetToken(token);
+
+    // Find the user
+    const user = await User.findById(resetToken.user);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Set the new password
+    await user.setPassword(password);
+
+    // Add audit log entry directly to the user document
+    // Create the password change event
+    const passwordChangeEvent = {
+      date: new Date(),
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.headers['user-agent'],
+      reason: 'reset'
+    };
+
+    // If the user doesn't have a passwordHistory array, create one
+    if (!user.passwordHistory) {
+      user.passwordHistory = [];
+    }
+
+    // Add the event to the user's password history
+    user.passwordHistory.push(passwordChangeEvent);
+
+    // Log the audit entry creation
+    console.log('Password change audit log created for user:', user._id);
+
+    // Save the user with both password change and audit log in a single operation
+    await user.save();
+
+    // Mark the token as used (separate document, so no version conflict)
+    await markPasswordResetTokenAsUsed(token);
+
+    res.json({ 
+      message: "Password has been reset successfully. You can now log in with your new password." 
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+
+    // Provide more specific error messages for token validation issues
+    if (error.message.includes('invalid') || error.message.includes('expired') || error.message.includes('used')) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    res.status(500).json({ error: "Failed to reset password" });
   }
 };

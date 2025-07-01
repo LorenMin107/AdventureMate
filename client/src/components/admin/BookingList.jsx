@@ -34,7 +34,7 @@ const BookingList = () => {
           sortField: sort.field,
           sortOrder: sort.order
         });
-        
+
         const response = await fetch(`/api/admin/bookings?${queryParams}`, {
           credentials: 'include'
         });
@@ -76,20 +76,20 @@ const BookingList = () => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) {
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/admin/bookings/${bookingId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to cancel booking: ${response.status}`);
       }
-      
+
       // Remove the booking from the list
       setBookings(bookings.filter(booking => booking._id !== bookingId));
-      
+
       // Update pagination if needed
       if (bookings.length === 1 && pagination.page > 1) {
         setPagination({ ...pagination, page: pagination.page - 1 });
@@ -184,14 +184,22 @@ const BookingList = () => {
             {bookings.map(booking => (
               <tr key={booking._id}>
                 <td>
-                  <Link to={`/campgrounds/${booking.campground._id}`}>
-                    {booking.campground.title}
-                  </Link>
+                  {booking.campground ? (
+                    <Link to={`/campgrounds/${booking.campground._id}`}>
+                      {booking.campground.title}
+                    </Link>
+                  ) : (
+                    <span>Unknown campground</span>
+                  )}
                 </td>
                 <td>
-                  <Link to={`/admin/users/${booking.user._id}`}>
-                    {booking.user.username}
-                  </Link>
+                  {booking.user ? (
+                    <Link to={`/admin/users/${booking.user._id}`}>
+                      {booking.user.username}
+                    </Link>
+                  ) : (
+                    <span>Unknown user</span>
+                  )}
                 </td>
                 <td>{formatDate(booking.startDate)}</td>
                 <td>{formatDate(booking.endDate)}</td>

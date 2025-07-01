@@ -19,8 +19,6 @@ router.post('/verify-setup', isLoggedInApi, catchAsync(twoFactorAuthController.v
 // Disable 2FA
 router.post('/disable', isLoggedInApi, catchAsync(twoFactorAuthController.disable2FA));
 
-// Generate new backup codes
-router.post('/backup-codes', isLoggedInApi, catchAsync(twoFactorAuthController.generateNewBackupCodes));
 
 // Verify 2FA during login
 router.post('/verify-login', catchAsync(twoFactorAuthController.verify2FALogin));

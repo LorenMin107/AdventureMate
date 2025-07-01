@@ -33,8 +33,21 @@ const CampsiteSchema = new Schema({
     type: Boolean,
     default: true
   },
-  // We can add more specific availability logic later if needed
-  // For example, a calendar of available dates
+  // Track booked dates to prevent double bookings
+  bookedDates: [{
+    startDate: {
+      type: Date,
+      required: true
+    },
+    endDate: {
+      type: Date,
+      required: true
+    },
+    booking: {
+      type: Schema.Types.ObjectId,
+      ref: "Booking"
+    }
+  }]
 });
 
 // Virtual property for thumbnail images
@@ -46,5 +59,32 @@ CampsiteSchema.virtual("thumbnail").get(function () {
 
 // Ensure virtuals are included when converting to JSON
 CampsiteSchema.set('toJSON', { virtuals: true });
+
+// Method to check if a campsite is available for specific dates
+CampsiteSchema.methods.isAvailableForDates = function(startDate, endDate) {
+  // If the campsite is not available at all, return false
+  if (!this.availability) {
+    return false;
+  }
+
+  // Convert string dates to Date objects if needed
+  const start = startDate instanceof Date ? startDate : new Date(startDate);
+  const end = endDate instanceof Date ? endDate : new Date(endDate);
+
+  // Check if the requested dates overlap with any booked dates
+  for (const bookedDate of this.bookedDates) {
+    const bookedStart = new Date(bookedDate.startDate);
+    const bookedEnd = new Date(bookedDate.endDate);
+
+    // Check for overlap
+    if (
+      (start <= bookedEnd && end >= bookedStart) // Requested dates overlap with booked dates
+    ) {
+      return false; // Dates are not available
+    }
+  }
+
+  return true; // Dates are available
+};
 
 module.exports = mongoose.model("Campsite", CampsiteSchema);

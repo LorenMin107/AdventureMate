@@ -156,49 +156,6 @@ exports.disable2FA = async (req, res) => {
   }
 };
 
-/**
- * Generate new backup codes
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-exports.generateNewBackupCodes = async (req, res) => {
-  try {
-    // Ensure user is authenticated
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    // Check if 2FA is enabled
-    if (!req.user.isTwoFactorEnabled) {
-      return res.status(400).json({ error: '2FA is not enabled for this account' });
-    }
-
-    const { token } = req.body;
-
-    // Verify the token
-    const isValid = verifyToken(token, req.user.twoFactorSecret);
-
-    if (!isValid) {
-      return res.status(400).json({ error: 'Invalid verification code' });
-    }
-
-    // Generate new backup codes
-    const backupCodes = generateBackupCodes();
-    const backupCodesForStorage = prepareBackupCodesForStorage(backupCodes);
-
-    // Update backup codes
-    req.user.backupCodes = backupCodesForStorage;
-    await req.user.save();
-
-    res.json({
-      message: 'New backup codes generated successfully',
-      backupCodes
-    });
-  } catch (error) {
-    console.error('Error generating new backup codes:', error);
-    res.status(500).json({ error: 'Failed to generate new backup codes' });
-  }
-};
 
 /**
  * Verify TOTP token during login

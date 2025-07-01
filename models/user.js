@@ -53,6 +53,24 @@ const UserSchema = new Schema({
   lastLoginIP: {
     type: String,
   },
+  // Password history for audit logging
+  passwordHistory: [{
+    date: {
+      type: Date,
+      default: Date.now
+    },
+    ipAddress: {
+      type: String
+    },
+    userAgent: {
+      type: String
+    },
+    reason: {
+      type: String,
+      enum: ['reset', 'change', 'initial'],
+      default: 'change'
+    }
+  }],
   // Two-factor authentication fields
   isTwoFactorEnabled: {
     type: Boolean,

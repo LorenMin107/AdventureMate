@@ -367,6 +367,24 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     await campground.save();
     console.log(`[${timestamp}] Campground updated with booking reference`);
 
+    // If a specific campsite was booked, update its booked dates
+    if (campsiteId) {
+      const Campsite = require('../../models/campsite');
+      const campsite = await Campsite.findById(campsiteId);
+
+      if (campsite) {
+        // Add the booked dates to the campsite
+        campsite.bookedDates.push({
+          startDate,
+          endDate,
+          booking: booking._id
+        });
+
+        await campsite.save();
+        console.log(`[${timestamp}] Campsite updated with booked dates`);
+      }
+    }
+
     // Update user with booking
     req.user.bookings.push(booking._id);
     await req.user.save();

@@ -19,7 +19,7 @@ const TwoFactorSetup = () => {
   const qrCodeImgRef = useRef(null);
   const componentMounted = useRef(true);
   const setupDataRef = useRef(null); // Store setup data persistently
-  const { userDetails, initiate2FASetup, verify2FASetup, disable2FA, generateNewBackupCodes, loading, error } = useUser();
+  const { userDetails, initiate2FASetup, verify2FASetup, disable2FA, loading, error } = useUser();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
 
   // Track component mount/unmount with more debugging
@@ -143,8 +143,14 @@ const TwoFactorSetup = () => {
   };
 
   // Disable 2FA
-  const handleDisable2FA = async () => {
+  const handleDisable2FA = async (e) => {
+    if (e) e.preventDefault();
     setFormError('');
+
+    if (!token.trim()) {
+      setFormError('Verification code is required to disable 2FA');
+      return;
+    }
 
     try {
       await disable2FA(token);
@@ -161,19 +167,6 @@ const TwoFactorSetup = () => {
     }
   };
 
-  // Generate new backup codes
-  const handleGenerateNewBackupCodes = async () => {
-    setFormError('');
-
-    try {
-      const result = await generateNewBackupCodes(token);
-      setBackupCodes(result.backupCodes);
-      addSuccessMessage('New backup codes generated successfully.');
-    } catch (err) {
-      console.error('Error generating new backup codes:', err);
-      setFormError(err.message || 'Failed to generate new backup codes. Please try again.');
-    }
-  };
 
   // Reset the setup process
   const handleCancel = () => {
@@ -200,27 +193,34 @@ const TwoFactorSetup = () => {
             <div className="two-factor-setup__header">
               <h2>Two-Factor Authentication</h2>
               <p>Two-factor authentication is currently enabled for your account.</p>
+              <p>To disable 2FA, enter the verification code from your authenticator app.</p>
             </div>
 
-            <div className="two-factor-setup__actions">
-              <button
-                  type="button"
-                  onClick={handleDisable2FA}
-                  className="btn btn-danger"
-                  disabled={loading}
-              >
-                {loading ? 'Disabling...' : 'Disable 2FA'}
-              </button>
+            <form onSubmit={handleDisable2FA} className="two-factor-setup__form">
+              <div className="form-group">
+                <label htmlFor="disable-verification-token">Verification Code:</label>
+                <input
+                    type="text"
+                    id="disable-verification-token"
+                    value={token}
+                    onChange={(e) => setToken(e.target.value)}
+                    placeholder="Enter 6-digit code"
+                    maxLength="6"
+                    className="form-control"
+                    required
+                />
+              </div>
 
-              <button
-                  type="button"
-                  onClick={handleGenerateNewBackupCodes}
-                  className="btn btn-secondary"
-                  disabled={loading}
-              >
-                {loading ? 'Generating...' : 'Generate New Backup Codes'}
-              </button>
-            </div>
+              <div className="two-factor-setup__actions">
+                <button
+                    type="submit"
+                    className="btn btn-danger"
+                    disabled={loading || !token.trim()}
+                >
+                  {loading ? 'Disabling...' : 'Disable 2FA'}
+                </button>
+              </div>
+            </form>
           </div>
       );
     }

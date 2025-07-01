@@ -8,7 +8,7 @@ const rateLimit = require('express-rate-limit');
 // Default rate limit options
 const defaultOptions = {
   standardWindowMs: 15 * 60 * 1000, // 15 minutes
-  standardMax: 1000, // 1000 requests per windowMs (increased from 100)
+  standardMax: 2000, // 2000 requests per windowMs (increased from 1000)
   message: 'Too many requests from this IP, please try again later'
 };
 
@@ -27,7 +27,7 @@ const apiLimiter = rateLimit({
 // More restrictive rate limiter for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 200, // 200 requests per hour (increased from 100, comment was incorrect)
+  max: 400, // 400 requests per hour (increased from 200)
   message: {
     error: 'Rate limit exceeded',
     message: 'Too many authentication attempts, please try again later'
@@ -39,7 +39,7 @@ const authLimiter = rateLimit({
 // Rate limiter for email verification endpoints
 const emailVerificationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 100, // 100 requests per hour (increased from 50, comment was incorrect)
+  max: 200, // 200 requests per hour (increased from 100)
   message: {
     error: 'Rate limit exceeded',
     message: 'Too many verification attempts, please try again later'
@@ -51,7 +51,7 @@ const emailVerificationLimiter = rateLimit({
 // Rate limiter for resending verification emails
 const resendVerificationLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours
-  max: 60, // 60 requests per day (increased from 30, comment was incorrect)
+  max: 120, // 120 requests per day (increased from 60)
   message: {
     error: 'Rate limit exceeded',
     message: 'You have reached the limit for resending verification emails. Please try again tomorrow.'

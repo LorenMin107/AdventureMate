@@ -9,6 +9,7 @@ const ExpressError = require("../../utils/ExpressError");
 module.exports.index = async (req, res) => {
   try {
     const { campgroundId } = req.params;
+    const { startDate, endDate } = req.query;
 
     // Verify campground exists
     const campground = await Campground.findById(campgroundId);
@@ -21,7 +22,15 @@ module.exports.index = async (req, res) => {
     }
 
     // Find all campsites for this campground
-    const campsites = await Campsite.find({ campground: campgroundId });
+    let campsites = await Campsite.find({ campground: campgroundId });
+
+    // If date parameters are provided, filter campsites by availability for those dates
+    if (startDate && endDate) {
+      // Filter campsites that are available for the requested dates
+      campsites = campsites.filter(campsite => {
+        return campsite.isAvailableForDates(startDate, endDate);
+      });
+    }
 
     return ApiResponse.success(
       { campsites },

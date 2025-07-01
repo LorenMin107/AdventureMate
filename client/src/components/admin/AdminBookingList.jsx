@@ -144,10 +144,10 @@ const AdminBookingList = ({ initialBookings = [] }) => {
                   {booking._id.substring(0, 8)}...
                 </td>
                 <td className="admin-booking-list-user">
-                  {booking.user.username}
+                  {booking.user ? booking.user.username : 'Unknown user'}
                 </td>
                 <td className="admin-booking-list-campground">
-                  {booking.campground.title}
+                  {booking.campground ? booking.campground.title : 'Unknown campground'}
                 </td>
                 <td>{formatDate(booking.startDate)}</td>
                 <td>{formatDate(booking.endDate)}</td>

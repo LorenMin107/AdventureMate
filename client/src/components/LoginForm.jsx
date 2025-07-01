@@ -104,6 +104,9 @@ const LoginForm = () => {
             disabled={loading}
             placeholder="Enter your password"
           />
+          <div className="forgot-password-link">
+            <Link to="/forgot-password">Forgot password?</Link>
+          </div>
         </div>
 
         <div className="form-group checkbox-group">

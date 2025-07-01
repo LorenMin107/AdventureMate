@@ -95,8 +95,8 @@
 }
 
 .register-button {
-  background-color: var(--color-primary);
-  color: white;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
   padding: 1rem;
   border: none;
   border-radius: 8px;
@@ -108,7 +108,7 @@
 }
 
 .register-button:hover {
-  background-color: var(--color-primary-hover);
+  background-color: var(--color-button-hover);
   transform: scale(1.01);
 }
 
@@ -141,6 +141,63 @@
 .form-footer a:hover {
   color: var(--color-primary-hover);
   text-decoration: underline;
+}
+
+/* Password strength indicator */
+.password-strength {
+  margin-top: 1rem;
+}
+
+.password-strength-bar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.password-strength-progress {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-strength-text {
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+/* Password requirements */
+.password-requirements {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-card-bg-light);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.password-requirements p {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.password-requirements ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.password-requirements li {
+  margin-bottom: 0.25rem;
+  color: var(--color-text-muted, #6c757d);
+}
+
+.password-requirements li.met {
+  color: var(--color-success);
+}
+
+.password-requirements li.met::before {
+  content: '✓ ';
 }
 
 @media (max-width: 600px) {

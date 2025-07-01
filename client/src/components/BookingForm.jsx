@@ -22,55 +22,108 @@ const BookingForm = ({ campground }) => {
   const [loadingCampsites, setLoadingCampsites] = useState(false);
   const [guests, setGuests] = useState(1);
   const [startingPrice, setStartingPrice] = useState(0);
+  const [excludeDates, setExcludeDates] = useState([]);
 
   // Calculate tomorrow's date for min attribute
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowString = tomorrow.toISOString().split('T')[0];
 
+  // State for selected dates
+  const [selectedDates, setSelectedDates] = useState({ startDate: '', endDate: '' });
+
   // Fetch campsites for the campground
-  useEffect(() => {
-    const fetchCampsites = async () => {
-      if (!campground || !campground._id) return;
+  const fetchCampsites = async (startDate = '', endDate = '') => {
+    if (!campground || !campground._id) return;
 
-      setLoadingCampsites(true);
-      try {
-        const response = await fetch(`/api/v1/campgrounds/${campground._id}/campsites`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch campsites');
-        }
-
-        const data = await response.json();
-
-        // Check if the response is in the standardized format
-        const campsitesData = data.status === 'success' && data.data 
-          ? data.data.campsites 
-          : data.campsites;
-
-        // Filter out unavailable campsites
-        const availableCampsites = campsitesData.filter(campsite => campsite.availability);
-
-        setCampsites(availableCampsites);
-
-        // Calculate starting price from available campsites
-        if (availableCampsites.length > 0) {
-          const minPrice = Math.min(...availableCampsites.map(campsite => campsite.price));
-          setStartingPrice(minPrice);
-        } else {
-          // If no available campsites, set starting price to 0
-          setStartingPrice(0);
-        }
-      } catch (err) {
-        console.error('Error fetching campsites:', err);
-        setApiError('Failed to load campsites. You can still book the campground without selecting a specific campsite.');
-      } finally {
-        setLoadingCampsites(false);
+    setLoadingCampsites(true);
+    try {
+      // Add date parameters to the request if they are provided
+      let url = `/api/v1/campgrounds/${campground._id}/campsites`;
+      if (startDate && endDate) {
+        url += `?startDate=${startDate}&endDate=${endDate}`;
       }
-    };
 
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch campsites');
+      }
+
+      const data = await response.json();
+
+      // Check if the response is in the standardized format
+      const campsitesData = data.status === 'success' && data.data 
+        ? data.data.campsites 
+        : data.campsites;
+
+      // Filter out unavailable campsites
+      const availableCampsites = campsitesData.filter(campsite => {
+        // If dates are selected, check if the campsite has any booked dates that overlap
+        if (startDate && endDate) {
+          // The backend should already filter out unavailable campsites based on dates
+          return campsite.availability;
+        } else {
+          // If no dates are selected, just check the general availability
+          return campsite.availability;
+        }
+      });
+
+      setCampsites(availableCampsites);
+      setSelectedCampsite(null); // Reset selected campsite when dates change
+
+      // Calculate starting price from available campsites
+      if (availableCampsites.length > 0) {
+        const minPrice = Math.min(...availableCampsites.map(campsite => campsite.price));
+        setStartingPrice(minPrice);
+      } else {
+        // If no available campsites, set starting price to 0
+        setStartingPrice(0);
+      }
+
+      // Extract booked dates from all campsites to disable them in the date picker
+      const allBookedDates = [];
+      campsitesData.forEach(campsite => {
+        if (campsite.bookedDates && campsite.bookedDates.length > 0) {
+          campsite.bookedDates.forEach(booking => {
+            // Generate all dates between start and end date
+            const start = new Date(booking.startDate);
+            const end = new Date(booking.endDate);
+            const currentDate = new Date(start);
+
+            while (currentDate <= end) {
+              allBookedDates.push(new Date(currentDate));
+              currentDate.setDate(currentDate.getDate() + 1);
+            }
+          });
+        }
+      });
+
+      // Update the excludeDates state with all booked dates
+      setExcludeDates(allBookedDates);
+    } catch (err) {
+      console.error('Error fetching campsites:', err);
+      setApiError('Failed to load campsites. You can still book the campground without selecting a specific campsite.');
+    } finally {
+      setLoadingCampsites(false);
+    }
+  };
+
+  // Initial fetch of campsites
+  useEffect(() => {
     fetchCampsites();
   }, [campground]);
+
+  // Handle date change to fetch available campsites for the selected dates
+  const handleDateChange = (name, value) => {
+    const newDates = { ...selectedDates, [name]: value };
+    setSelectedDates(newDates);
+
+    // If both dates are selected, fetch available campsites for those dates
+    if (newDates.startDate && newDates.endDate) {
+      fetchCampsites(newDates.startDate, newDates.endDate);
+    }
+  };
 
   // Default values for the form
   const defaultValues = {
@@ -180,6 +233,8 @@ const BookingForm = ({ campground }) => {
             minDate={tomorrow}
             required
             className="booking-form-date-field"
+            onChange={handleDateChange}
+            excludeDates={excludeDates}
           />
         </div>
 

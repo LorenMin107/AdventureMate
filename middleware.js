@@ -94,8 +94,8 @@ module.exports.isReviewAuthorApi = async (req, res, next) => {
   next();
 };
 
-module.exports.validateBookingDates = (req, res, next) => {
-  const { startDate, endDate } = req.body;
+module.exports.validateBookingDates = async (req, res, next) => {
+  const { startDate, endDate, campsiteId } = req.body;
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
   if (startDate < tomorrow || endDate < tomorrow) {
@@ -108,12 +108,35 @@ module.exports.validateBookingDates = (req, res, next) => {
     return res.redirect(`/campgrounds/${req.params.id}`);
   }
 
+  // If a specific campsite is selected, check if it's available for the requested dates
+  if (campsiteId) {
+    try {
+      const Campsite = require("./models/campsite");
+      const campsite = await Campsite.findById(campsiteId);
+
+      if (!campsite) {
+        req.flash("error", "Campsite not found.");
+        return res.redirect(`/campgrounds/${req.params.id}`);
+      }
+
+      // Check if the campsite is available for the requested dates
+      if (!campsite.isAvailableForDates(startDate, endDate)) {
+        req.flash("error", "The selected campsite is already booked for these dates. Please choose different dates or a different campsite.");
+        return res.redirect(`/campgrounds/${req.params.id}`);
+      }
+    } catch (err) {
+      console.error("Error checking campsite availability:", err);
+      req.flash("error", "Failed to check campsite availability.");
+      return res.redirect(`/campgrounds/${req.params.id}`);
+    }
+  }
+
   next();
 };
 
 // API version of validateBookingDates middleware that returns JSON instead of redirecting
-module.exports.validateBookingDatesApi = (req, res, next) => {
-  const { startDate, endDate } = req.body;
+module.exports.validateBookingDatesApi = async (req, res, next) => {
+  const { startDate, endDate, campsiteId } = req.body;
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
   if (startDate < tomorrow || endDate < tomorrow) {
@@ -122,6 +145,29 @@ module.exports.validateBookingDatesApi = (req, res, next) => {
 
   if (new Date(endDate) < new Date(startDate)) {
     return res.status(400).json({ error: "End date cannot be before start date" });
+  }
+
+  // If a specific campsite is selected, check if it's available for the requested dates
+  if (campsiteId) {
+    try {
+      const Campsite = require("./models/campsite");
+      const campsite = await Campsite.findById(campsiteId);
+
+      if (!campsite) {
+        return res.status(404).json({ error: "Campsite not found" });
+      }
+
+      // Check if the campsite is available for the requested dates
+      if (!campsite.isAvailableForDates(startDate, endDate)) {
+        return res.status(400).json({ 
+          error: "Campsite is not available for the selected dates",
+          message: "The selected campsite is already booked for these dates. Please choose different dates or a different campsite."
+        });
+      }
+    } catch (err) {
+      console.error("Error checking campsite availability:", err);
+      return res.status(500).json({ error: "Failed to check campsite availability" });
+    }
   }
 
   next();

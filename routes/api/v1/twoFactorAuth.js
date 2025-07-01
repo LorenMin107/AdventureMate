@@ -20,7 +20,6 @@ const backupCodeValidation = [
 router.post('/setup', authenticateJWT, requireAuth, twoFactorAuthController.initiate2FASetup);
 router.post('/verify-setup', authenticateJWT, requireAuth, validate(tokenValidation), twoFactorAuthController.verify2FASetup);
 router.post('/disable', authenticateJWT, requireAuth, validate(tokenValidation), twoFactorAuthController.disable2FA);
-router.post('/backup-codes', authenticateJWT, requireAuth, validate(tokenValidation), twoFactorAuthController.generateNewBackupCodes);
 
 // Route for verifying 2FA during login (doesn't require full authentication)
 router.post('/verify-login', authLimiter, validate(backupCodeValidation), twoFactorAuthController.verify2FALogin);

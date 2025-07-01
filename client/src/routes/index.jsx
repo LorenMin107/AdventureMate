@@ -8,8 +8,10 @@ import RegisterForm from '../components/RegisterForm';
 import EmailVerificationRequired from '../components/EmailVerificationRequired';
 import LoadingFallback from './LoadingFallback';
 
-// Import the email verification page
+// Import the email verification and password reset pages
 const EmailVerificationPage = lazy(() => import('../pages/EmailVerificationPage'));
+const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 
 // Lazy load components for code splitting
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -79,6 +81,22 @@ const routes = [
       {
         path: 'verify-email-required',
         element: <EmailVerificationRequired />,
+      },
+      {
+        path: 'forgot-password',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ForgotPasswordPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'reset-password',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ResetPasswordPage />
+          </Suspense>
+        ),
       },
       {
         path: 'campgrounds',

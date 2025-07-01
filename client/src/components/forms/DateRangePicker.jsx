@@ -29,53 +29,54 @@ const DateRangePicker = ({
   maxDate,
   required = false,
   className = '',
+  excludeDates = [],
   ...rest
 }) => {
   const { theme } = useTheme();
   const { control, formState: { errors }, setValue, watch } = useFormContext();
-  
+
   // Watch the start and end date values
   const startDate = watch(startDateName);
   const endDate = watch(endDateName);
-  
+
   // State to track if the date picker is open
   const [isOpen, setIsOpen] = useState(false);
-  
+
   // Convert string dates to Date objects if needed
   const parseDate = (dateString) => {
     if (!dateString) return null;
     if (dateString instanceof Date) return dateString;
     return new Date(dateString);
   };
-  
+
   // Format the selected date range for display
   const formatDateRange = () => {
     const start = parseDate(startDate);
     const end = parseDate(endDate);
-    
+
     if (!start && !end) return 'Select dates';
     if (start && !end) return `${start.toLocaleDateString()} - ?`;
-    
+
     return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
   };
-  
+
   // Handle date changes
   const handleDatesChange = (dates) => {
     const [start, end] = dates;
     setValue(startDateName, start, { shouldValidate: true });
     setValue(endDateName, end, { shouldValidate: true });
-    
+
     // Close the date picker when both dates are selected
     if (start && end) {
       setTimeout(() => setIsOpen(false), 300);
     }
   };
-  
+
   // Toggle the date picker open/closed
   const toggleDatePicker = () => {
     setIsOpen(!isOpen);
   };
-  
+
   // Close the date picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -84,16 +85,16 @@ const DateRangePicker = ({
         setIsOpen(false);
       }
     };
-    
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-  
+
   return (
     <div className={`date-range-picker ${className}`}>
       {label && (
@@ -102,7 +103,7 @@ const DateRangePicker = ({
           {required && <span className="required-mark">*</span>}
         </label>
       )}
-      
+
       <div className="date-range-picker-container">
         <div 
           className={`date-range-picker-input ${errors[startDateName] || errors[endDateName] ? 'date-range-picker-error' : ''}`}
@@ -111,7 +112,7 @@ const DateRangePicker = ({
           <span className="date-range-display">{formatDateRange()}</span>
           <span className="date-range-picker-icon">📅</span>
         </div>
-        
+
         {isOpen && (
           <div className={`date-range-picker-calendar ${theme === 'dark' ? 'dark-theme' : ''}`}>
             <Controller
@@ -125,6 +126,7 @@ const DateRangePicker = ({
                   endDate={parseDate(endDate)}
                   minDate={minDate}
                   maxDate={maxDate}
+                  excludeDates={excludeDates}
                   selectsRange
                   inline
                   monthsShown={2}
@@ -136,7 +138,7 @@ const DateRangePicker = ({
           </div>
         )}
       </div>
-      
+
       {(errors[startDateName] || errors[endDateName]) && (
         <p className="date-range-picker-error-message">
           {errors[startDateName]?.message || errors[endDateName]?.message}
@@ -154,6 +156,7 @@ DateRangePicker.propTypes = {
   maxDate: PropTypes.instanceOf(Date),
   required: PropTypes.bool,
   className: PropTypes.string,
+  excludeDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
 };
 
 export default DateRangePicker;

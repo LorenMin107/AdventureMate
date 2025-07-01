@@ -2,24 +2,27 @@
   max-width: 600px;
   margin: 2rem auto;
   padding: 2rem;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-card-bg);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .setup-title {
   margin-bottom: 1.5rem;
-  color: #2c3e50;
+  color: var(--color-text);
   text-align: center;
+  transition: color 0.3s ease;
 }
 
 .error-message {
-  background-color: #ffebee;
-  color: #d32f2f;
+  background-color: #fff8f8; /* Lighter red background for Airbnb style */
+  color: #ff385c; /* Airbnb-like red color */
   padding: 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
   font-size: 0.9rem;
+  border: 1px solid #ffb4bc;
 }
 
 /* Status styles */
@@ -38,11 +41,11 @@
 }
 
 .status-enabled {
-  color: #27ae60;
+  color: var(--color-success);
 }
 
 .status-disabled {
-  color: #e74c3c;
+  color: var(--color-error);
 }
 
 .status-icon {
@@ -56,18 +59,20 @@
 }
 
 .status-enabled .status-icon {
-  background-color: #27ae60;
-  color: white;
+  background-color: var(--color-success);
+  color: var(--color-button-text);
 }
 
 .status-disabled .status-icon {
-  background-color: #e74c3c;
-  color: white;
+  background-color: var(--color-error);
+  color: var(--color-button-text);
 }
 
 .status-description {
-  color: #555;
+  color: var(--color-text);
+  opacity: 0.9;
   line-height: 1.5;
+  transition: color 0.3s ease;
 }
 
 .two-factor-actions {
@@ -91,51 +96,54 @@
 }
 
 .setup-button, .next-button, .verify-button, .done-button {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
 }
 
 .setup-button:hover, .next-button:hover, .verify-button:hover, .done-button:hover {
-  background-color: #2980b9;
+  background-color: var(--color-button-hover);
 }
 
 .disable-button, .disable-confirm-button {
-  background-color: #e74c3c;
-  color: white;
+  background-color: var(--color-error);
+  color: var(--color-button-text);
 }
 
 .disable-button:hover, .disable-confirm-button:hover {
-  background-color: #c0392b;
+  background-color: #c0392b; /* Darker shade of error color */
 }
 
 .generate-codes-button, .generate-confirm-button {
-  background-color: #f39c12;
-  color: white;
+  background-color: var(--color-warning);
+  color: var(--color-button-text);
 }
 
 .generate-codes-button:hover, .generate-confirm-button:hover {
-  background-color: #d35400;
+  background-color: #d35400; /* Darker shade of warning color */
 }
 
 .back-button, .cancel-button {
-  background-color: #ecf0f1;
-  color: #7f8c8d;
-  border: none;
-  border-radius: 4px;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   padding: 0.75rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
 .back-button:hover, .cancel-button:hover {
-  background-color: #dde4e6;
+  background-color: var(--color-border);
+  transform: scale(1.01);
 }
 
 button:disabled {
-  background-color: #95a5a6 !important;
-  color: #ecf0f1 !important;
+  background-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
 }
 
 /* QR code styles */
@@ -153,18 +161,20 @@ button:disabled {
   align-items: center;
   margin: 1rem 0;
   min-height: 300px; /* Ensure there's space for the QR code */
-  background-color: #f8f9fa; /* Light background to make QR code stand out */
+  background-color: var(--color-card-bg-light); /* Light background to make QR code stand out */
   border-radius: 8px;
   padding: 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .qr-code img {
   max-width: 300px; /* Match the width set in the backend */
   width: 100%; /* Ensure it fills the container */
   height: auto;
-  border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border-radius: 8px;
+  box-shadow: 0 6px 20px var(--color-card-shadow); /* Subtle shadow for depth */
+  transition: box-shadow 0.3s ease;
 }
 
 .qr-code-error {
@@ -176,46 +186,55 @@ button:disabled {
 }
 
 .qr-code-error p {
-  color: #e74c3c;
+  color: var(--color-error);
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .retry-button {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.1s ease, background-color 0.3s ease;
 }
 
 .retry-button:hover {
-  background-color: #2980b9;
+  background-color: var(--color-button-hover);
+  transform: scale(1.01);
 }
 
 .secret-key {
-  background-color: #f8f9fa;
+  background-color: var(--color-card-bg-light);
   padding: 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 0.9rem;
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .secret-key code {
   display: block;
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background-color: #e9ecef;
-  border-radius: 4px;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
   font-family: monospace;
   word-break: break-all;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .setup-instruction {
-  color: #555;
+  color: var(--color-text);
+  opacity: 0.9;
   line-height: 1.5;
+  transition: color 0.3s ease;
 }
 
 /* Form styles */
@@ -227,21 +246,26 @@ button:disabled {
 
 .form-group label {
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
 }
 
 .form-group input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   font-size: 1rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
   letter-spacing: 1px;
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-group input:focus {
+  border-color: var(--color-primary);
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
 }
 
 .form-actions {
@@ -259,12 +283,14 @@ button:disabled {
 }
 
 .backup-code {
-  background-color: #f8f9fa;
+  background-color: var(--color-card-bg-light);
   padding: 0.75rem;
-  border-radius: 4px;
+  border-radius: 8px;
   font-family: monospace;
   text-align: center;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Add spacing between buttons in two-factor setup actions */

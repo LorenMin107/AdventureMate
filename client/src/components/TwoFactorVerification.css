@@ -1,33 +1,65 @@
 .two-factor-verification-container {
-  max-width: 400px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 568px;
+  margin: 3rem auto;
+  padding: 2.5rem;
+  background-color: var(--color-card-bg);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-logo {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .logo-text {
   font-size: 1.8rem;
-  font-weight: bold;
-  color: #2c3e50;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.5px;
+  position: relative;
+  display: inline-block;
+  transition: color 0.3s ease;
+}
+
+.logo-text::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-primary);
+  transform: scaleX(0.7);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.logo-text:hover::after {
+  transform: scaleX(1);
+}
+
+.two-factor-verification-container h2 {
+  text-align: left;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .verification-instruction {
   margin-bottom: 1.5rem;
-  color: #555;
+  color: var(--color-text);
+  opacity: 0.9;
   text-align: center;
+  transition: color 0.3s ease;
 }
 
 .verification-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .form-group {
@@ -38,90 +70,92 @@
 
 .form-group label {
   font-weight: 600;
-  color: #333;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
 }
 
 .form-group input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   font-size: 1rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
   letter-spacing: 1px;
+  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-group input:focus {
+  border-color: var(--color-primary);
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
 }
 
 .error-message {
-  background-color: #ffebee;
-  color: #d32f2f;
+  background-color: #fff8f8; /* Lighter red background for Airbnb style */
+  color: #ff385c; /* Airbnb-like red color */
   padding: 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
   font-size: 0.9rem;
+  border: 1px solid #ffb4bc;
 }
 
 .verify-button {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
+  padding: 1rem;
   border: none;
-  border-radius: 4px;
-  padding: 0.75rem;
+  border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: transform 0.1s ease, background-color 0.3s ease;
+  margin-top: 0.75rem;
 }
 
 .verify-button:hover {
-  background-color: #2980b9;
+  background-color: var(--color-button-hover);
+  transform: scale(1.01);
 }
 
 .verify-button:disabled {
-  background-color: #95a5a6;
+  background-color: var(--color-border);
+  color: var(--color-text);
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
-.toggle-backup-button {
-  background-color: transparent;
-  color: #3498db;
-  border: none;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-decoration: underline;
-  align-self: center;
-}
-
-.toggle-backup-button:hover {
-  color: #2980b9;
-}
-
-.toggle-backup-button:disabled {
-  color: #95a5a6;
-  cursor: not-allowed;
-}
 
 .cancel-button {
-  background-color: #ecf0f1;
-  color: #7f8c8d;
-  border: none;
-  border-radius: 4px;
-  padding: 0.75rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  margin-top: 0.5rem;
 }
 
 .cancel-button:hover {
-  background-color: #dde4e6;
+  background-color: var(--color-border);
+  transform: scale(1.01);
 }
 
 .cancel-button:disabled {
-  background-color: #ecf0f1;
-  color: #bdc3c7;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .two-factor-verification-container {
+    margin: 1.5rem;
+    padding: 1.5rem;
+    max-width: 100%;
+  }
 }

@@ -101,7 +101,7 @@ const AdminDashboard = () => {
                 <div key={booking._id} className="admin-recent-item">
                   <div className="admin-recent-item-header">
                     <span className="admin-recent-item-title">
-                      {booking.campground.title}
+                      {booking.campground ? booking.campground.title : 'Unknown campground'}
                     </span>
                     <span className="admin-recent-item-date">
                       {new Date(booking.startDate).toLocaleDateString()} - 
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
                     </span>
                   </div>
                   <div className="admin-recent-item-details">
-                    <span>Booked by: {booking.user.username}</span>
+                    <span>Booked by: {booking.user ? booking.user.username : 'Unknown user'}</span>
                     <span>${booking.totalPrice.toFixed(2)}</span>
                   </div>
                   <Link 

@@ -256,40 +256,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // Generate new backup codes
-  const generateNewBackupCodes = async (token) => {
-    if (!isAuthenticated) {
-      throw new Error('You must be logged in to generate new backup codes');
-    }
-
-    // Not setting loading state for 2FA operations since the component has its own loading state
-    setError(null);
-
-    try {
-      const response = await fetch('/api/2fa/backup-codes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({ token })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate new backup codes');
-      }
-
-      const data = await response.json();
-
-      return {
-        backupCodes: data.backupCodes
-      };
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    }
-  };
 
   // Context value
   const value = {
@@ -302,7 +268,6 @@ export const UserProvider = ({ children }) => {
     initiate2FASetup,
     verify2FASetup,
     disable2FA,
-    generateNewBackupCodes,
     hasBookings: userDetails?.bookings?.length > 0,
     hasReviews: userDetails?.reviews?.length > 0
   };
