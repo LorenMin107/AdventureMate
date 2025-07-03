@@ -23,7 +23,7 @@ const Header = () => {
     <header className="header">
       <div className="container">
         <Link to="/" className="logo">
-          MyanCamp
+          AdventureMate
         </Link>
         <nav className="nav">
           <ul className="nav-list">

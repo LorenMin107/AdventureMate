@@ -1,4 +1,4 @@
-// Configuration module for MyanCamp application
+// Configuration module for AdventureMate application
 // This module centralizes all configuration values and provides validation
 
 // Load environment variables from .env file in non-production environments
@@ -23,7 +23,7 @@ const validateEnv = (envVars) => {
 
 // Database configuration
 const db = {
-  url: process.env.DB_URL || "mongodb://localhost:27017/myan-camp",
+  url: process.env.DB_URL || "mongodb://localhost:27017/adventure-mate",
   options: {
     // Removed deprecated options that are no longer needed in MongoDB driver 4.0+
   }
@@ -38,7 +38,7 @@ const server = {
   logLevel: process.env.LOG_LEVEL ? parseInt(process.env.LOG_LEVEL, 10) : 2, // Default to INFO level (2)
   // Client URL for frontend application
   clientUrl: process.env.CLIENT_URL || (process.env.NODE_ENV === 'production' 
-    ? 'https://myancamp.com' 
+    ? 'https://adventuremate.com' 
     : 'http://localhost:5173'),
 };
 
@@ -67,7 +67,7 @@ const cloudinary = {
   cloudName: process.env.CLOUDINARY_CLOUD_NAME,
   apiKey: process.env.CLOUDINARY_KEY,
   apiSecret: process.env.CLOUDINARY_SECRET,
-  folder: process.env.CLOUDINARY_FOLDER || "MyanCamp",
+  folder: process.env.CLOUDINARY_FOLDER || "AdventureMate",
   allowedFormats: (process.env.CLOUDINARY_ALLOWED_FORMATS || "jpeg,png,jpg").split(','),
 };
 
@@ -86,7 +86,7 @@ const stripe = {
 // CORS configuration
 const cors = {
   origin: server.isProduction 
-    ? ["https://myancamp.com", "https://www.myancamp.com"] 
+    ? ["https://adventuremate.com", "https://www.adventuremate.com"] 
     : ["http://localhost:5173"],
   credentials: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -159,7 +159,7 @@ const email = {
   secure: process.env.EMAIL_SECURE === 'true',
   user: process.env.EMAIL_USER,
   password: process.env.EMAIL_PASSWORD,
-  from: process.env.EMAIL_FROM || '"MyanCamp" <noreply@myancamp.com>',
+  from: process.env.EMAIL_FROM || '"AdventureMate" <noreply@adventuremate.com>',
 };
 
 // Validate required environment variables in production

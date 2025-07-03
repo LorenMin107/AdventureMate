@@ -70,7 +70,7 @@ const LoginForm = () => {
   return (
     <div className="login-form-container">
       <div className="form-logo">
-        <span className="logo-text">MyanCamp</span>
+        <span className="logo-text">AdventureMate</span>
       </div>
 
       <h2>Log in to your account</h2>

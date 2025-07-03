@@ -8,7 +8,7 @@ const HomePage = () => {
   return (
     <div className="home-page">
       <section className="hero">
-        <h1>Welcome to MyanCamp</h1>
+        <h1>Welcome to AdventureMate</h1>
         <p className="lead">Discover, book, and review campgrounds in Myanmar</p>
         <div className="cta-buttons">
           <Link to="/campgrounds" className="btn btn-primary">View Campgrounds</Link>
@@ -26,7 +26,7 @@ const HomePage = () => {
       </section>
 
       <section className="features">
-        <h2>Why Choose MyanCamp?</h2>
+        <h2>Why Choose AdventureMate?</h2>
         <div className="feature-grid">
           <div className="feature-card">
             <h3>Discover Nature</h3>
@@ -44,7 +44,7 @@ const HomePage = () => {
       </section>
 
       <p className="read-the-docs">
-        This is a React application for MyanCamp
+        This is a React application for AdventureMate
       </p>
     </div>
   );

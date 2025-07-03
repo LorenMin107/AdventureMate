@@ -11,10 +11,10 @@ const Footer = () => {
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3>MyanCamp</h3>
+            <h3>AdventureMate</h3>
             <p>Discover, book, and review campgrounds in Myanmar</p>
           </div>
-          
+
           <div className="footer-section">
             <h3>Links</h3>
             <ul className="footer-links">
@@ -24,16 +24,16 @@ const Footer = () => {
               <li><Link to="/contact">Contact</Link></li>
             </ul>
           </div>
-          
+
           <div className="footer-section">
             <h3>Contact</h3>
-            <p>Email: info@myancamp.com</p>
+            <p>Email: info@adventuremate.com</p>
             <p>Phone: +95 123 456 789</p>
           </div>
         </div>
-        
+
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} MyanCamp. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AdventureMate. All rights reserved.</p>
         </div>
       </div>
     </footer>
