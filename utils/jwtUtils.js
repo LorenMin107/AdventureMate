@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const config = require('../config');
 const RefreshToken = require('../models/refreshToken');
 const BlacklistedToken = require('../models/blacklistedToken');
+const { logError, logInfo, logDebug } = require('./logger');
 
 // Default expiration times
 const ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutes
@@ -29,14 +30,10 @@ const generateAccessToken = (user, expiresIn = ACCESS_TOKEN_EXPIRY) => {
     email: user.email,
     isAdmin: user.isAdmin || false,
     isOwner: user.isOwner || false,
-    type: 'access'
+    type: 'access',
   };
 
-  return jwt.sign(
-    payload,
-    config.jwt.accessTokenSecret,
-    { expiresIn }
-  );
+  return jwt.sign(payload, config.jwt.accessTokenSecret, { expiresIn });
 };
 
 /**
@@ -60,7 +57,7 @@ const generateRefreshToken = async (user, req, expiresIn = REFRESH_TOKEN_EXPIRY)
     token: tokenString,
     expiresAt,
     ipAddress: req.ip || req.connection.remoteAddress,
-    userAgent: req.headers['user-agent']
+    userAgent: req.headers['user-agent'],
   });
 
   // Save the refresh token to the database
@@ -68,7 +65,7 @@ const generateRefreshToken = async (user, req, expiresIn = REFRESH_TOKEN_EXPIRY)
 
   return {
     token: tokenString,
-    expiresAt
+    expiresAt,
   };
 };
 
@@ -175,13 +172,17 @@ const blacklistAccessToken = async (token, user, req, reason = 'logout') => {
       expiresAt: new Date(decoded.exp * 1000), // Convert to milliseconds
       reason,
       ipAddress: req.ip || req.connection.remoteAddress,
-      userAgent: req.headers['user-agent']
+      userAgent: req.headers['user-agent'],
     };
 
     // Add to blacklist
     return await BlacklistedToken.addToBlacklist(tokenData);
   } catch (error) {
-    console.error('Error blacklisting access token:', error);
+    logError('Error blacklisting access token', error, { 
+      userId: user?._id,
+      tokenType: 'access',
+      reason 
+    });
     throw error;
   }
 };
@@ -206,5 +207,5 @@ module.exports = {
   blacklistAccessToken,
   isTokenBlacklisted,
   ACCESS_TOKEN_EXPIRY,
-  REFRESH_TOKEN_EXPIRY
+  REFRESH_TOKEN_EXPIRY,
 };

@@ -6,11 +6,12 @@ import CampgroundMap from '../components/maps/CampgroundMap';
 import ReviewList from '../components/ReviewList';
 import ReviewForm from '../components/ReviewForm';
 import CampsiteList from '../components/CampsiteList';
+import { logError, logInfo } from '../utils/logger';
 import './CampgroundDetailPage.css';
 
 /**
  * CampgroundDetailPage displays detailed information about a single campground
- * 
+ *
  * Note: Special handling has been added to ensure the map displays correctly when
  * navigating from the campgrounds page to a specific campground detail page:
  * 1. A unique key is generated for the map component when the location changes or campground data loads
@@ -50,15 +51,15 @@ const CampgroundDetailPage = () => {
 
         // If we have a valid cache, use it
         if (cachedCampground && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
-          console.log(`Using cached campground data for id: ${id}`);
+          logInfo('Using cached campground data', { id });
           const campgroundData = JSON.parse(cachedCampground);
           setCampground(campgroundData);
 
           // Set reviews if available and properly populated
           if (campgroundData.reviews && Array.isArray(campgroundData.reviews)) {
             // Check if reviews are populated with author information
-            const areReviewsPopulated = campgroundData.reviews.every(review => 
-              review.author && typeof review.author === 'object' && review.author._id
+            const areReviewsPopulated = campgroundData.reviews.every(
+              (review) => review.author && typeof review.author === 'object' && review.author._id
             );
 
             if (areReviewsPopulated) {
@@ -74,7 +75,7 @@ const CampgroundDetailPage = () => {
         }
 
         // No valid cache, make the API call
-        console.log(`No valid campground cache for id: ${id}, making API call`);
+        logInfo('No valid campground cache, making API call', { id });
 
         const response = await apiClient.get(`/campgrounds/${id}`);
 
@@ -97,8 +98,8 @@ const CampgroundDetailPage = () => {
         // Set reviews if available and properly populated
         if (campgroundData.reviews && Array.isArray(campgroundData.reviews)) {
           // Check if reviews are populated with author information
-          const areReviewsPopulated = campgroundData.reviews.every(review => 
-            review.author && typeof review.author === 'object' && review.author._id
+          const areReviewsPopulated = campgroundData.reviews.every(
+            (review) => review.author && typeof review.author === 'object' && review.author._id
           );
 
           if (areReviewsPopulated) {
@@ -109,7 +110,7 @@ const CampgroundDetailPage = () => {
           }
         }
       } catch (err) {
-        console.error('Error fetching campground:', err);
+        logError('Error fetching campground', err);
         setError('Failed to load campground. Please try again later.');
       } finally {
         setLoading(false);
@@ -134,7 +135,7 @@ const CampgroundDetailPage = () => {
 
       // If we have a valid cache, use it
       if (cachedCampsites && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
-        console.log(`Using cached campsites data for campground id: ${campgroundId}`);
+        logInfo('Using cached campsites data', { campgroundId });
         const campsitesData = JSON.parse(cachedCampsites);
         setCampsites(campsitesData);
         setLoadingCampsites(false);
@@ -142,7 +143,7 @@ const CampgroundDetailPage = () => {
       }
 
       // No valid cache, make the API call
-      console.log(`No valid campsites cache for campground id: ${campgroundId}, making API call`);
+      logInfo('No valid campsites cache, making API call', { campgroundId });
 
       const response = await apiClient.get(`/campgrounds/${campgroundId}/campsites`);
 
@@ -162,7 +163,7 @@ const CampgroundDetailPage = () => {
       localStorage.setItem(CAMPSITES_CACHE_KEY, JSON.stringify(campsitesData));
       localStorage.setItem(CAMPSITES_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
     } catch (err) {
-      console.error('Error fetching campsites:', err);
+      logError('Error fetching campsites', err);
       // Don't set error state here, as we already have the campground data
     } finally {
       setLoadingCampsites(false);
@@ -248,11 +249,11 @@ const CampgroundDetailPage = () => {
       const response = await apiClient.delete(`/campgrounds/${id}`);
 
       // Log the response data
-      console.log('Delete response:', response.data);
+      logInfo('Delete response', response.data);
 
       navigate('/campgrounds');
     } catch (err) {
-      console.error('Error deleting campground:', err);
+      logError('Error deleting campground', err);
       alert(err.response?.data?.message || 'Failed to delete campground. Please try again later.');
     }
   };
@@ -272,14 +273,14 @@ const CampgroundDetailPage = () => {
       localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(updatedReviews));
       localStorage.setItem(REVIEWS_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
 
-      console.log(`Updated reviews cache after adding review for campground id: ${campground._id}`);
+      logInfo('Updated reviews cache after adding review', { campgroundId: campground._id });
     }
   };
 
   // Handle review deletion
   const handleReviewDeleted = (reviewId) => {
     // Update reviews state
-    const updatedReviews = reviews.filter(review => review._id !== reviewId);
+    const updatedReviews = reviews.filter((review) => review._id !== reviewId);
     setReviews(updatedReviews);
 
     // Update reviews cache
@@ -291,7 +292,7 @@ const CampgroundDetailPage = () => {
       localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(updatedReviews));
       localStorage.setItem(REVIEWS_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
 
-      console.log(`Updated reviews cache after deleting review for campground id: ${campground._id}`);
+      logInfo('Updated reviews cache after deleting review', { campgroundId: campground._id });
     }
   };
 
@@ -309,14 +310,14 @@ const CampgroundDetailPage = () => {
 
       // If we have a valid cache, use it
       if (cachedReviews && cacheExpiry && Date.now() < parseInt(cacheExpiry)) {
-        console.log(`Using cached reviews data for campground id: ${campgroundId}`);
+        logInfo('Using cached reviews data', { campgroundId });
         const reviewsData = JSON.parse(cachedReviews);
         setReviews(reviewsData);
         return;
       }
 
       // No valid cache, make the API call
-      console.log(`No valid reviews cache for campground id: ${campgroundId}, making API call`);
+      logInfo('No valid reviews cache, making API call', { campgroundId });
 
       const response = await apiClient.get(`/campgrounds/${campgroundId}/reviews`);
 
@@ -333,7 +334,7 @@ const CampgroundDetailPage = () => {
       localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(reviewsData));
       localStorage.setItem(REVIEWS_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
     } catch (err) {
-      console.error('Error fetching reviews:', err);
+      logError('Error fetching reviews', err);
       // Don't set error state here, as we already have the campground data
     }
   };
@@ -360,7 +361,7 @@ const CampgroundDetailPage = () => {
     }
 
     // Filter available campsites
-    const availableCampsites = campsites.filter(campsite => campsite.availability);
+    const availableCampsites = campsites.filter((campsite) => campsite.availability);
 
     if (availableCampsites.length === 0) {
       // If no available campsites, return 0
@@ -368,16 +369,17 @@ const CampgroundDetailPage = () => {
     }
 
     // Find the minimum price among available campsites
-    return Math.min(...availableCampsites.map(campsite => campsite.price));
+    return Math.min(...availableCampsites.map((campsite) => campsite.price));
   };
 
   const startingPrice = getStartingPrice();
 
   // Check if current user is the owner, author, or an admin
-  const isOwner = currentUser && 
-    (currentUser.isAdmin || 
-     (campground.owner && currentUser._id === campground.owner._id) || 
-     (author && currentUser._id === author._id));
+  const isOwner =
+    currentUser &&
+    (currentUser.isAdmin ||
+      (campground.owner && currentUser._id === campground.owner._id) ||
+      (author && currentUser._id === author._id));
 
   // For backward compatibility, if there's no explicit owner, the author is considered the owner
   const effectiveOwner = campground.owner ? campground.owner : author;
@@ -409,16 +411,16 @@ const CampgroundDetailPage = () => {
           {images && images.length > 0 ? (
             <>
               <div className="main-image">
-                <img 
-                  src={images[activeImageIndex].url} 
-                  alt={`${title} - Image ${activeImageIndex + 1}`} 
+                <img
+                  src={images[activeImageIndex].url}
+                  alt={`${title} - Image ${activeImageIndex + 1}`}
                 />
               </div>
 
               {images.length > 1 && (
                 <div className="image-thumbnails">
                   {images.map((image, index) => (
-                    <div 
+                    <div
                       key={index}
                       className={`thumbnail ${index === activeImageIndex ? 'active' : ''}`}
                       onClick={() => setActiveImageIndex(index)}
@@ -437,11 +439,14 @@ const CampgroundDetailPage = () => {
         </div>
 
         {geometry && geometry.coordinates && (
-          <div className={`map-section ${loading ? 'map-section-loading' : 'map-section-loaded'}`} ref={mapSectionRef}>
-            <CampgroundMap 
+          <div
+            className={`map-section ${loading ? 'map-section-loading' : 'map-section-loaded'}`}
+            ref={mapSectionRef}
+          >
+            <CampgroundMap
               key={mapKey} // Force re-render when key changes
-              geometry={geometry} 
-              title={title} 
+              geometry={geometry}
+              title={title}
               popupContent={`<strong>${title}</strong><p>${campLocation}</p>`}
             />
           </div>
@@ -482,23 +487,17 @@ const CampgroundDetailPage = () => {
       </div>
 
       {/* Campsites Section */}
-      <CampsiteList 
-        campgroundId={id}
-        isOwner={isOwner}
-      />
+      <CampsiteList campgroundId={id} isOwner={isOwner} />
 
       {/* Reviews Section */}
       <div className="reviews-section">
         <h2>Reviews</h2>
-        <ReviewList 
-          campgroundId={id} 
-          initialReviews={reviews} 
-          onReviewDeleted={handleReviewDeleted} 
+        <ReviewList
+          campgroundId={id}
+          initialReviews={reviews}
+          onReviewDeleted={handleReviewDeleted}
         />
-        <ReviewForm 
-          campgroundId={id} 
-          onReviewSubmitted={handleReviewSubmitted} 
-        />
+        <ReviewForm campgroundId={id} onReviewSubmitted={handleReviewSubmitted} />
       </div>
     </div>
   );

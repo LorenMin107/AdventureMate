@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import useOwners from '../hooks/useOwners';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './OwnerBookingsPage.css';
 
 /**
@@ -21,17 +22,22 @@ const OwnerBookingsPage = () => {
     page: 1,
     limit: 10,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   });
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
   const [campgroundFilter, setCampgroundFilter] = useState('all');
 
   // Fetch owner's bookings
-  const { data: bookingsData, isLoading, error: fetchError, refetch } = useOwnerBookings({
+  const {
+    data: bookingsData,
+    isLoading,
+    error: fetchError,
+    refetch,
+  } = useOwnerBookings({
     page: pagination.page,
     limit: pagination.limit,
     status: statusFilter !== 'all' ? statusFilter : undefined,
-    campground: campgroundFilter !== 'all' ? campgroundFilter : undefined
+    campground: campgroundFilter !== 'all' ? campgroundFilter : undefined,
   });
 
   useEffect(() => {
@@ -85,15 +91,15 @@ const OwnerBookingsPage = () => {
       showMessage(`Booking ${newStatus} successfully`, 'success');
 
       // Update the booking in the local state
-      setBookings(bookings.map(booking => 
-        booking._id === bookingId 
-          ? { ...booking, status: newStatus }
-          : booking
-      ));
+      setBookings(
+        bookings.map((booking) =>
+          booking._id === bookingId ? { ...booking, status: newStatus } : booking
+        )
+      );
 
       refetch();
     } catch (err) {
-      console.error('Error updating booking status:', err);
+      logError('Error updating booking status', err);
       showMessage('Failed to update booking status. Please try again.', 'error');
     }
   };
@@ -131,10 +137,10 @@ const OwnerBookingsPage = () => {
   const getBookingStats = () => {
     const stats = {
       total: bookings.length,
-      pending: bookings.filter(b => b.status === 'pending').length,
-      confirmed: bookings.filter(b => b.status === 'confirmed').length,
-      cancelled: bookings.filter(b => b.status === 'cancelled').length,
-      completed: bookings.filter(b => b.status === 'completed').length,
+      pending: bookings.filter((b) => b.status === 'pending').length,
+      confirmed: bookings.filter((b) => b.status === 'confirmed').length,
+      cancelled: bookings.filter((b) => b.status === 'cancelled').length,
+      completed: bookings.filter((b) => b.status === 'completed').length,
     };
     return stats;
   };
@@ -153,10 +159,7 @@ const OwnerBookingsPage = () => {
       <div className="owner-error">
         <h4>Error Loading Bookings</h4>
         <p>{error}</p>
-        <button 
-          onClick={() => refetch()} 
-          className="owner-btn owner-btn-primary"
-        >
+        <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
           Retry
         </button>
       </div>
@@ -175,9 +178,11 @@ const OwnerBookingsPage = () => {
             <p>Manage reservations for your campgrounds</p>
           </div>
           <div className="header-actions">
-            <select 
-              value={pagination.limit} 
-              onChange={(e) => setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })}
+            <select
+              value={pagination.limit}
+              onChange={(e) =>
+                setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })
+              }
               className="owner-select"
             >
               <option value="10">10 per page</option>
@@ -220,9 +225,9 @@ const OwnerBookingsPage = () => {
           <div className="filters-grid">
             <div className="filter-group">
               <label htmlFor="statusFilter">Status:</label>
-              <select 
-                id="statusFilter" 
-                value={statusFilter} 
+              <select
+                id="statusFilter"
+                value={statusFilter}
                 onChange={handleStatusChange}
                 className="owner-select"
               >
@@ -235,9 +240,9 @@ const OwnerBookingsPage = () => {
             </div>
             <div className="filter-group">
               <label htmlFor="campgroundFilter">Campground:</label>
-              <select 
-                id="campgroundFilter" 
-                value={campgroundFilter} 
+              <select
+                id="campgroundFilter"
+                value={campgroundFilter}
                 onChange={handleCampgroundChange}
                 className="owner-select"
               >
@@ -254,16 +259,12 @@ const OwnerBookingsPage = () => {
           <div className="empty-icon">📅</div>
           <h3>No Bookings Found</h3>
           <p>
-            {statusFilter !== 'all' 
+            {statusFilter !== 'all'
               ? `No ${statusFilter} bookings found. Try adjusting your filters.`
-              : 'You don\'t have any bookings yet. Bookings will appear here once guests start booking your campgrounds.'
-            }
+              : "You don't have any bookings yet. Bookings will appear here once guests start booking your campgrounds."}
           </p>
           {statusFilter !== 'all' && (
-            <button 
-              onClick={() => setStatusFilter('all')}
-              className="owner-btn owner-btn-outline"
-            >
+            <button onClick={() => setStatusFilter('all')} className="owner-btn owner-btn-outline">
               Show All Bookings
             </button>
           )}
@@ -289,14 +290,12 @@ const OwnerBookingsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {bookings.map(booking => (
+                  {bookings.map((booking) => (
                     <tr key={booking._id}>
                       <td>
                         <div className="booking-id">
                           <strong>#{booking._id.substring(0, 8)}</strong>
-                          <span className="booking-date">
-                            {formatDate(booking.createdAt)}
-                          </span>
+                          <span className="booking-date">{formatDate(booking.createdAt)}</span>
                         </div>
                       </td>
                       <td>
@@ -308,20 +307,18 @@ const OwnerBookingsPage = () => {
                       <td>
                         <div className="campground-info">
                           <strong>{booking.campground?.title || 'Unknown'}</strong>
-                          <span className="campground-location">{booking.campground?.location}</span>
+                          <span className="campground-location">
+                            {booking.campground?.location}
+                          </span>
                         </div>
                       </td>
                       <td>
-                        <span className="campsite-name">
-                          {booking.campsite?.name || 'N/A'}
-                        </span>
+                        <span className="campsite-name">{booking.campsite?.name || 'N/A'}</span>
                       </td>
                       <td>{formatDate(booking.startDate)}</td>
                       <td>{formatDate(booking.endDate)}</td>
                       <td>
-                        <span className="guest-count">
-                          {booking.numberOfGuests || 1}
-                        </span>
+                        <span className="guest-count">{booking.numberOfGuests || 1}</span>
                       </td>
                       <td>
                         <strong className="booking-total">
@@ -330,13 +327,14 @@ const OwnerBookingsPage = () => {
                       </td>
                       <td>
                         <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
-                          {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) || 'Pending'}
+                          {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) ||
+                            'Pending'}
                         </span>
                       </td>
                       <td className="actions-cell">
                         <div className="action-buttons">
-                          <Link 
-                            to={`/owner/bookings/${booking._id}`} 
+                          <Link
+                            to={`/owner/bookings/${booking._id}`}
                             className="owner-btn owner-btn-secondary owner-btn-sm"
                             title="View details"
                           >
@@ -344,14 +342,14 @@ const OwnerBookingsPage = () => {
                           </Link>
                           {booking.status === 'pending' && (
                             <>
-                              <button 
+                              <button
                                 onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
                                 className="owner-btn owner-btn-primary owner-btn-sm"
                                 title="Confirm booking"
                               >
                                 ✅
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleStatusUpdate(booking._id, 'cancelled')}
                                 className="owner-btn owner-btn-danger owner-btn-sm"
                                 title="Cancel booking"
@@ -361,7 +359,7 @@ const OwnerBookingsPage = () => {
                             </>
                           )}
                           {booking.status === 'confirmed' && (
-                            <button 
+                            <button
                               onClick={() => handleStatusUpdate(booking._id, 'completed')}
                               className="owner-btn owner-btn-outline owner-btn-sm"
                               title="Mark as completed"
@@ -381,15 +379,15 @@ const OwnerBookingsPage = () => {
           {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="owner-pagination">
-              <button 
-                onClick={() => handlePageChange(1)} 
+              <button
+                onClick={() => handlePageChange(1)}
                 disabled={pagination.page === 1}
                 className="owner-btn owner-btn-outline"
               >
                 First
               </button>
-              <button 
-                onClick={() => handlePageChange(pagination.page - 1)} 
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
                 className="owner-btn owner-btn-outline"
               >
@@ -397,19 +395,18 @@ const OwnerBookingsPage = () => {
               </button>
 
               <span className="pagination-info">
-                Page {pagination.page} of {pagination.totalPages} 
-                ({pagination.total} total bookings)
+                Page {pagination.page} of {pagination.totalPages}({pagination.total} total bookings)
               </span>
 
-              <button 
-                onClick={() => handlePageChange(pagination.page + 1)} 
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page >= pagination.totalPages}
                 className="owner-btn owner-btn-outline"
               >
                 Next
               </button>
-              <button 
-                onClick={() => handlePageChange(pagination.totalPages)} 
+              <button
+                onClick={() => handlePageChange(pagination.totalPages)}
                 disabled={pagination.page >= pagination.totalPages}
                 className="owner-btn owner-btn-outline"
               >

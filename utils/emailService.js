@@ -1,6 +1,11 @@
 const nodemailer = require('nodemailer');
 const config = require('../config');
-const { TEMPLATE_TYPES, getHtmlTemplate, getTextTemplate } = require('./emailTemplates/templateManager');
+const {
+  TEMPLATE_TYPES,
+  getHtmlTemplate,
+  getTextTemplate,
+} = require('./emailTemplates/templateManager');
+const { logError, logInfo, logDebug } = require('./logger');
 
 // Create a transporter object using SMTP transport
 let transporter;
@@ -15,15 +20,15 @@ if (config.email.host && config.email.user && config.email.password) {
     secure: config.email.secure,
     auth: {
       user: config.email.user,
-      pass: config.email.password
-    }
+      pass: config.email.password,
+    },
   });
-  console.log('Email transporter initialized with configured settings');
+  logInfo('Email transporter initialized with configured settings');
 } else {
   // No email configuration provided - will use ethereal.email for testing
   // This will be initialized on first use
   transporter = null;
-  console.log('No email configuration found, will use Ethereal Email for testing');
+  logInfo('No email configuration found, will use Ethereal Email for testing');
 }
 
 /**
@@ -39,7 +44,7 @@ const getTransporter = async () => {
 
   try {
     // Create a test account for development
-    console.log('Creating Ethereal Email test account for development...');
+    logInfo('Creating Ethereal Email test account for development');
     const testAccount = await nodemailer.createTestAccount();
 
     // Create a transporter object using the test account
@@ -49,14 +54,16 @@ const getTransporter = async () => {
       secure: false,
       auth: {
         user: testAccount.user,
-        pass: testAccount.pass
-      }
+        pass: testAccount.pass,
+      },
     });
 
-    console.log('Ethereal Email test account created:', testAccount.user);
+    logInfo('Ethereal Email test account created', { 
+      user: testAccount.user 
+    });
     return transporter;
   } catch (error) {
-    console.error('Failed to create Ethereal Email test account:', error);
+    logError('Failed to create Ethereal Email test account', error);
     throw new Error('Failed to initialize email transporter');
   }
 };
@@ -72,36 +79,47 @@ const getTransporter = async () => {
  */
 const sendEmail = async (options) => {
   try {
-    console.log(`Attempting to send email to: ${options.to}, subject: ${options.subject}`);
+    logInfo('Attempting to send email', { 
+      to: options.to,
+      subject: options.subject 
+    });
 
     const transport = await getTransporter();
-    console.log('Email transporter obtained successfully');
+    logDebug('Email transporter obtained successfully');
 
     const mailOptions = {
       from: config.email.from || '"MyanCamp" <noreply@myancamp.com>',
       to: options.to,
       subject: options.subject,
       text: options.text,
-      html: options.html
+      html: options.html,
     };
 
-    console.log('Sending email with options:', {
+    logDebug('Sending email with options', {
       from: mailOptions.from,
       to: mailOptions.to,
-      subject: mailOptions.subject
+      subject: mailOptions.subject,
     });
 
     const info = await transport.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
+    logInfo('Email sent successfully', { 
+      messageId: info.messageId,
+      to: options.to 
+    });
 
     // Log preview URL in development
     if (!config.server.isProduction && nodemailer.getTestMessageUrl(info)) {
-      console.log('Email preview URL:', nodemailer.getTestMessageUrl(info));
+      logInfo('Email preview URL', { 
+      previewUrl: nodemailer.getTestMessageUrl(info) 
+    });
     }
 
     return info;
   } catch (error) {
-    console.error('Failed to send email:', error);
+    logError('Failed to send email', error, { 
+      to: options.to,
+      subject: options.subject 
+    });
     throw new Error(`Failed to send email: ${error.message}`);
   }
 };
@@ -117,19 +135,19 @@ const sendVerificationEmail = async (user, verificationUrl) => {
 
   const html = getHtmlTemplate(TEMPLATE_TYPES.VERIFICATION, {
     username: user.username,
-    verificationUrl
+    verificationUrl,
   });
 
   const text = getTextTemplate(TEMPLATE_TYPES.VERIFICATION, {
     username: user.username,
-    verificationUrl
+    verificationUrl,
   });
 
   return await sendEmail({
     to: user.email,
     subject,
     text,
-    html
+    html,
   });
 };
 
@@ -142,18 +160,18 @@ const sendWelcomeEmail = async (user) => {
   const subject = 'Welcome to MyanCamp!';
 
   const html = getHtmlTemplate(TEMPLATE_TYPES.WELCOME, {
-    username: user.username
+    username: user.username,
   });
 
   const text = getTextTemplate(TEMPLATE_TYPES.WELCOME, {
-    username: user.username
+    username: user.username,
   });
 
   return await sendEmail({
     to: user.email,
     subject,
     text,
-    html
+    html,
   });
 };
 
@@ -168,19 +186,19 @@ const sendPasswordResetEmail = async (user, resetUrl) => {
 
   const html = getHtmlTemplate(TEMPLATE_TYPES.PASSWORD_RESET, {
     username: user.username,
-    resetUrl
+    resetUrl,
   });
 
   const text = getTextTemplate(TEMPLATE_TYPES.PASSWORD_RESET, {
     username: user.username,
-    resetUrl
+    resetUrl,
   });
 
   return await sendEmail({
     to: user.email,
     subject,
     text,
-    html
+    html,
   });
 };
 
@@ -195,19 +213,19 @@ const sendBookingConfirmationEmail = async (user, booking) => {
 
   const html = getHtmlTemplate(TEMPLATE_TYPES.BOOKING_CONFIRMATION, {
     username: user.username,
-    booking
+    booking,
   });
 
   const text = getTextTemplate(TEMPLATE_TYPES.BOOKING_CONFIRMATION, {
     username: user.username,
-    booking
+    booking,
   });
 
   return await sendEmail({
     to: user.email,
     subject,
     text,
-    html
+    html,
   });
 };
 
@@ -222,19 +240,19 @@ const sendAccountUpdateEmail = async (user, updates) => {
 
   const html = getHtmlTemplate(TEMPLATE_TYPES.ACCOUNT_UPDATE, {
     username: user.username,
-    updates
+    updates,
   });
 
   const text = getTextTemplate(TEMPLATE_TYPES.ACCOUNT_UPDATE, {
     username: user.username,
-    updates
+    updates,
   });
 
   return await sendEmail({
     to: user.email,
     subject,
     text,
-    html
+    html,
   });
 };
 
@@ -244,5 +262,5 @@ module.exports = {
   sendWelcomeEmail,
   sendPasswordResetEmail,
   sendBookingConfirmationEmail,
-  sendAccountUpdateEmail
+  sendAccountUpdateEmail,
 };

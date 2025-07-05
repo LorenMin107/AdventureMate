@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
+import { logError } from '../../utils/logger';
 import './AdminDashboard.css';
 
 /**
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
       setError(null);
       setLastRefreshed(new Date());
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      logError('Error fetching dashboard data', err);
       // Improved error handling for axios errors
       const errorMessage =
         err.response?.data?.message ||

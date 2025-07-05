@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './CampsiteList.css';
 
 /**
  * CampsiteList displays a list of campsites for a specific campground
- * 
+ *
  * @param {Object} props
  * @param {string} props.campgroundId - The ID of the campground
  * @param {boolean} props.isOwner - Whether the current user is the owner of the campground
@@ -33,7 +34,7 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
 
         setCampsites(campsitesData);
       } catch (err) {
-        console.error('Error fetching campsites:', err);
+        logError('Error fetching campsites', err);
         setError('Failed to load campsites. Please try again later.');
       } finally {
         setLoading(false);
@@ -52,9 +53,11 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
       await apiClient.delete(`/campsites/${campsiteId}`);
 
       // Remove the deleted campsite from the state
-      setCampsites(prevCampsites => prevCampsites.filter(campsite => campsite._id !== campsiteId));
+      setCampsites((prevCampsites) =>
+        prevCampsites.filter((campsite) => campsite._id !== campsiteId)
+      );
     } catch (err) {
-      console.error('Error deleting campsite:', err);
+      logError('Error deleting campsite', err);
       alert('Failed to delete campsite. Please try again later.');
     }
   };
@@ -81,7 +84,9 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
         <div className="no-campsites">
           <p>No campsites available for this campground yet.</p>
           {isOwner && (
-            <p>As the owner, you can add campsites to make this campground available for booking.</p>
+            <p>
+              As the owner, you can add campsites to make this campground available for booking.
+            </p>
           )}
         </div>
       </div>
@@ -100,7 +105,7 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
       </div>
 
       <div className="campsites-list">
-        {campsites.map(campsite => (
+        {campsites.map((campsite) => (
           <div key={campsite._id} className="campsite-card">
             <Link to={`/campsites/${campsite._id}`} className="campsite-card-link">
               <div className="campsite-image">
@@ -116,9 +121,12 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
                 <p className="campsite-description">{campsite.description}</p>
 
                 <div className="campsite-features">
-                  {campsite.features && campsite.features.map((feature, index) => (
-                    <span key={index} className="feature-tag">{feature}</span>
-                  ))}
+                  {campsite.features &&
+                    campsite.features.map((feature, index) => (
+                      <span key={index} className="feature-tag">
+                        {feature}
+                      </span>
+                    ))}
                 </div>
 
                 <div className="campsite-info">
@@ -128,11 +136,15 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
                   </div>
                   <div className="info-item">
                     <span className="info-label">Capacity:</span>
-                    <span className="info-value">{campsite.capacity} {campsite.capacity === 1 ? 'person' : 'people'}</span>
+                    <span className="info-value">
+                      {campsite.capacity} {campsite.capacity === 1 ? 'person' : 'people'}
+                    </span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Availability:</span>
-                    <span className={`info-value ${campsite.availability ? 'available' : 'unavailable'}`}>
+                    <span
+                      className={`info-value ${campsite.availability ? 'available' : 'unavailable'}`}
+                    >
                       {campsite.availability ? 'Available' : 'Unavailable'}
                     </span>
                   </div>
@@ -150,11 +162,11 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
                   <Link to={`/campsites/${campsite._id}/edit`} className="edit-button">
                     Edit
                   </Link>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteCampsite(campsite._id);
-                    }} 
+                    }}
                     className="delete-button"
                   >
                     Delete

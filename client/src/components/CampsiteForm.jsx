@@ -4,10 +4,11 @@ import MaskedInput from 'react-text-mask';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import apiClient from '../utils/api';
 import './CampsiteForm.css';
+import { logInfo, logError } from '../utils/logger';
 
 /**
  * CampsiteForm component for creating and editing campsites
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.campgroundId - ID of the parent campground
  * @param {Object} props.campsite - Existing campsite data for editing (optional)
@@ -37,7 +38,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
     price: '',
     capacity: 1,
     features: [],
-    availability: true
+    availability: true,
   });
 
   const [featureInput, setFeatureInput] = useState('');
@@ -59,7 +60,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
         price: campsite.price || '',
         capacity: campsite.capacity || 1,
         features: campsite.features || [],
-        availability: campsite.availability !== undefined ? campsite.availability : true
+        availability: campsite.availability !== undefined ? campsite.availability : true,
       });
 
       if (campsite.images && campsite.images.length > 0) {
@@ -84,22 +85,22 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
     if (name === 'price') {
       // Extract numeric value from masked input
       const numericValue = value.replace(/[^0-9.]/g, '');
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: numericValue
+        [name]: numericValue,
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value
+        [name]: type === 'checkbox' ? checked : value,
       }));
     }
 
     // Clear validation error for this field
     if (validationErrors[name]) {
-      setValidationErrors(prev => ({
+      setValidationErrors((prev) => ({
         ...prev,
-        [name]: null
+        [name]: null,
       }));
     }
   };
@@ -110,16 +111,16 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
     // Extract numeric value from masked input (remove $ and commas)
     const numericValue = rawValue.replace(/[$,]/g, '');
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      price: numericValue
+      price: numericValue,
     }));
 
     // Clear validation error
     if (validationErrors.price) {
-      setValidationErrors(prev => ({
+      setValidationErrors((prev) => ({
         ...prev,
-        price: null
+        price: null,
       }));
     }
   };
@@ -132,9 +133,9 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
   // Add a feature
   const addFeature = () => {
     if (featureInput.trim() && !formData.features.includes(featureInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        features: [...prev.features, featureInput.trim()]
+        features: [...prev.features, featureInput.trim()],
       }));
       setFeatureInput('');
     }
@@ -142,37 +143,37 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
 
   // Remove a feature
   const removeFeature = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      features: prev.features.filter((_, i) => i !== index)
+      features: prev.features.filter((_, i) => i !== index),
     }));
   };
 
   // Handle image file selection
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages(prev => [...prev, ...files]);
+    setImages((prev) => [...prev, ...files]);
 
     // Create preview URLs for the selected images
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews(prev => [...prev, ...newPreviews]);
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
   };
 
   // Remove a selected image
   const removeSelectedImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    setImages((prev) => prev.filter((_, i) => i !== index));
 
     // Revoke the object URL to avoid memory leaks
     URL.revokeObjectURL(imagePreviews[index]);
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Toggle an existing image for deletion
   const toggleImageForDeletion = (filename) => {
     if (imagesToDelete.includes(filename)) {
-      setImagesToDelete(prev => prev.filter(name => name !== filename));
+      setImagesToDelete((prev) => prev.filter((name) => name !== filename));
     } else {
-      setImagesToDelete(prev => [...prev, filename]);
+      setImagesToDelete((prev) => [...prev, filename]);
     }
   };
 
@@ -231,33 +232,34 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
       formDataToSend.append('campsite[availability]', formData.availability);
 
       // Add features as an array
-      formData.features.forEach(feature => {
+      formData.features.forEach((feature) => {
         formDataToSend.append('campsite[features][]', feature);
       });
 
       // Add images to form data
-      images.forEach(image => {
+      images.forEach((image) => {
         formDataToSend.append('image', image);
       });
 
       // Add images to delete if editing
       if (isEditing && imagesToDelete.length > 0) {
-        imagesToDelete.forEach(filename => {
+        imagesToDelete.forEach((filename) => {
           formDataToSend.append('deleteImages[]', filename);
         });
       }
 
       // Determine URL and method based on whether we're creating or editing
-      const url = isEditing 
-        ? `/campsites/${campsite?._id}` 
+      const url = isEditing
+        ? `/campsites/${campsite?._id}`
         : `/campgrounds/${campgroundId}/campsites`;
 
       const method = isEditing ? 'PUT' : 'POST';
 
       // Send the request using apiClient
-      const response = method === 'PUT'
-        ? await apiClient.put(url, formDataToSend)
-        : await apiClient.post(url, formDataToSend);
+      const response =
+        method === 'PUT'
+          ? await apiClient.put(url, formDataToSend)
+          : await apiClient.post(url, formDataToSend);
 
       // With apiClient (axios), the response data is already parsed as JSON
       const data = response.data;
@@ -266,12 +268,12 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
       const campsiteData = data.status && data.data ? data.data.campsite : data.campsite;
 
       // Log success
-      console.log('Campsite saved successfully:', campsiteData);
+      logInfo('Campsite saved successfully', campsiteData);
 
       // Navigate back to the campground detail page
       navigate(`/campgrounds/${campgroundId}`);
     } catch (err) {
-      console.error('Error saving campsite:', err);
+      logError('Error saving campsite', err);
 
       // Handle axios error responses
       if (err.response && err.response.data) {
@@ -282,7 +284,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
           // Handle field-specific errors
           if (errorData.error && typeof errorData.error === 'object' && errorData.error.errors) {
             const fieldErrors = {};
-            errorData.error.errors.forEach(err => {
+            errorData.error.errors.forEach((err) => {
               // Convert API field names (e.g., 'campsite.name') to form field names (e.g., 'name')
               const fieldName = err.field.replace('campsite.', '');
               fieldErrors[fieldName] = err.message;
@@ -311,11 +313,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
     <div className="campsite-form-container">
       <h2>{isEditing ? 'Edit Campsite' : 'Create New Campsite'}</h2>
 
-      {error && (
-        <div className="form-error-message">
-          {error}
-        </div>
-      )}
+      {error && <div className="form-error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="campsite-form">
         <div className="form-group">
@@ -329,9 +327,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
             className={validationErrors.name ? 'error' : ''}
             disabled={loading}
           />
-          {validationErrors.name && (
-            <div className="validation-error">{validationErrors.name}</div>
-          )}
+          {validationErrors.name && <div className="validation-error">{validationErrors.name}</div>}
         </div>
 
         <div className="form-group">
@@ -341,7 +337,13 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
               mask={currencyMask}
               id="price"
               name="price"
-              value={formData.price ? (typeof formData.price === 'string' && formData.price.startsWith('$') ? formData.price : `$${formData.price}`) : ''}
+              value={
+                formData.price
+                  ? typeof formData.price === 'string' && formData.price.startsWith('$')
+                    ? formData.price
+                    : `$${formData.price}`
+                  : ''
+              }
               onChange={handlePriceChange}
               className={`currency-input ${validationErrors.price ? 'error' : ''}`}
               placeholder="$0.00"
@@ -451,13 +453,13 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
               <p>Current Images:</p>
               <div className="image-preview-container">
                 {existingImages.map((image, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`image-preview ${imagesToDelete.includes(image.filename) ? 'marked-for-deletion' : ''}`}
                   >
                     <img src={image.url} alt={`Campsite ${index + 1}`} />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="remove-image-button"
                       onClick={() => toggleImageForDeletion(image.filename)}
                     >
@@ -491,8 +493,8 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
               {imagePreviews.map((preview, index) => (
                 <div key={index} className="image-preview">
                   <img src={preview} alt={`Preview ${index + 1}`} />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="remove-image-button"
                     onClick={() => removeSelectedImage(index)}
                   >
@@ -505,19 +507,15 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
         </div>
 
         <div className="form-actions">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="cancel-button"
             onClick={() => navigate(`/campgrounds/${campgroundId}`)}
             disabled={loading}
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
-            className="submit-button"
-            disabled={loading}
-          >
+          <button type="submit" className="submit-button" disabled={loading}>
             {loading ? 'Saving...' : isEditing ? 'Update Campsite' : 'Create Campsite'}
           </button>
         </div>

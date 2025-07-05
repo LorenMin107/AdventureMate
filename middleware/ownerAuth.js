@@ -1,5 +1,6 @@
 const Owner = require('../models/owner');
 const ExpressError = require('../utils/ExpressError');
+const { logError, logInfo, logDebug } = require('../utils/logger');
 
 /**
  * Middleware to check if user is a verified owner
@@ -8,17 +9,17 @@ const ExpressError = require('../utils/ExpressError');
 const requireVerifiedOwner = async (req, res, next) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'Authentication required' 
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Authentication required',
       });
     }
 
     // Check if user has owner flag in their profile
     if (!req.user.isOwner) {
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message: 'Owner privileges required' 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Owner privileges required',
       });
     }
 
@@ -36,38 +37,43 @@ const requireVerifiedOwner = async (req, res, next) => {
           city: 'Not provided',
           state: 'Not provided',
           zipCode: 'Not provided',
-          country: 'Myanmar'
+          country: 'Myanmar',
         },
         businessPhone: req.user.phone || 'Not provided',
         businessEmail: req.user.email,
         verificationStatus: 'verified',
         verifiedAt: new Date(),
-        verificationNotes: [{
-          note: 'Owner profile automatically created due to missing record',
-          type: 'system_note'
-        }]
+        verificationNotes: [
+          {
+            note: 'Owner profile automatically created due to missing record',
+            type: 'system_note',
+          },
+        ],
       });
 
       await newOwner.save();
 
       // Add the newly created owner to request object
       req.owner = newOwner;
-      console.log(`Created missing owner profile for user ${req.user._id}`);
+      logInfo('Created missing owner profile', { 
+      userId: req.user._id,
+      endpoint: req.originalUrl 
+    });
       next();
       return;
     }
 
     if (owner.verificationStatus !== 'verified') {
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message: `Owner verification required. Current status: ${owner.verificationStatusDisplay}` 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: `Owner verification required. Current status: ${owner.verificationStatusDisplay}`,
       });
     }
 
     if (!owner.isActive) {
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message: 'Owner account is suspended. Please contact support.' 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Owner account is suspended. Please contact support.',
       });
     }
 
@@ -75,10 +81,13 @@ const requireVerifiedOwner = async (req, res, next) => {
     req.owner = owner;
     next();
   } catch (error) {
-    console.error('Error in requireVerifiedOwner middleware:', error);
-    return res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Failed to verify owner status' 
+    logError('Error in requireVerifiedOwner middleware', error, { 
+      endpoint: req.originalUrl,
+      userId: req.user?._id 
+    });
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to verify owner status',
     });
   }
 };
@@ -90,17 +99,17 @@ const requireVerifiedOwner = async (req, res, next) => {
 const requireOwner = async (req, res, next) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'Authentication required' 
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Authentication required',
       });
     }
 
     // Check if user has owner flag in their profile
     if (!req.user.isOwner) {
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message: 'Owner privileges required' 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Owner privileges required',
       });
     }
 
@@ -118,31 +127,36 @@ const requireOwner = async (req, res, next) => {
           city: 'Not provided',
           state: 'Not provided',
           zipCode: 'Not provided',
-          country: 'Myanmar'
+          country: 'Myanmar',
         },
         businessPhone: req.user.phone || 'Not provided',
         businessEmail: req.user.email,
         verificationStatus: 'verified',
         verifiedAt: new Date(),
-        verificationNotes: [{
-          note: 'Owner profile automatically created due to missing record',
-          type: 'system_note'
-        }]
+        verificationNotes: [
+          {
+            note: 'Owner profile automatically created due to missing record',
+            type: 'system_note',
+          },
+        ],
       });
 
       await newOwner.save();
 
       // Add the newly created owner to request object
       req.owner = newOwner;
-      console.log(`Created missing owner profile for user ${req.user._id}`);
+      logInfo('Created missing owner profile', { 
+      userId: req.user._id,
+      endpoint: req.originalUrl 
+    });
       next();
       return;
     }
 
     if (!owner.isActive) {
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message: 'Owner account is suspended. Please contact support.' 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Owner account is suspended. Please contact support.',
       });
     }
 
@@ -150,10 +164,13 @@ const requireOwner = async (req, res, next) => {
     req.owner = owner;
     next();
   } catch (error) {
-    console.error('Error in requireOwner middleware:', error);
-    return res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Failed to verify owner status' 
+    logError('Error in requireOwner middleware', error, { 
+      endpoint: req.originalUrl,
+      userId: req.user?._id 
+    });
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to verify owner status',
     });
   }
 };
@@ -167,25 +184,25 @@ const requireCampgroundOwnership = async (req, res, next) => {
     const campgroundId = req.params.id || req.params.campgroundId;
 
     if (!campgroundId) {
-      return res.status(400).json({ 
-        error: 'Bad Request', 
-        message: 'Campground ID is required' 
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Campground ID is required',
       });
     }
 
     // Check if user is authenticated
     if (!req.user) {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'Authentication required' 
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Authentication required',
       });
     }
 
     // Check if user has owner flag in their profile
     if (!req.user.isOwner) {
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message: 'Owner privileges required' 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Owner privileges required',
       });
     }
 
@@ -204,44 +221,51 @@ const requireCampgroundOwnership = async (req, res, next) => {
             city: 'Not provided',
             state: 'Not provided',
             zipCode: 'Not provided',
-            country: 'Myanmar'
+            country: 'Myanmar',
           },
           businessPhone: req.user.phone || 'Not provided',
           businessEmail: req.user.email,
           verificationStatus: 'verified',
           verifiedAt: new Date(),
-          verificationNotes: [{
-            note: 'Owner profile automatically created due to missing record',
-            type: 'system_note'
-          }]
+          verificationNotes: [
+            {
+              note: 'Owner profile automatically created due to missing record',
+              type: 'system_note',
+            },
+          ],
         });
 
         await newOwner.save();
         req.owner = newOwner;
-        console.log(`Created missing owner profile for user ${req.user._id}`);
+        logInfo('Created missing owner profile', { 
+      userId: req.user._id,
+      endpoint: req.originalUrl 
+    });
       } else {
         req.owner = owner;
       }
     }
 
     // Check if the campground is in the owner's campgrounds array
-    const ownsCampground = req.owner.campgrounds.some(
-      id => id.toString() === campgroundId
-    );
+    const ownsCampground = req.owner.campgrounds.some((id) => id.toString() === campgroundId);
 
     if (!ownsCampground) {
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message: 'You do not have permission to access this campground' 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'You do not have permission to access this campground',
       });
     }
 
     next();
   } catch (error) {
-    console.error('Error in requireCampgroundOwnership middleware:', error);
-    return res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Failed to verify campground ownership' 
+    logError('Error in requireCampgroundOwnership middleware', error, { 
+      endpoint: req.originalUrl,
+      userId: req.user?._id,
+      campgroundId: req.params.id || req.params.campgroundId 
+    });
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to verify campground ownership',
     });
   }
 };
@@ -253,17 +277,17 @@ const requireCampgroundOwnership = async (req, res, next) => {
 const canManageCampgrounds = async (req, res, next) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'Authentication required' 
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Authentication required',
       });
     }
 
     // Check if user has owner flag in their profile
     if (!req.user.isOwner) {
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message: 'Owner privileges required' 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'Owner privileges required',
       });
     }
 
@@ -281,35 +305,41 @@ const canManageCampgrounds = async (req, res, next) => {
           city: 'Not provided',
           state: 'Not provided',
           zipCode: 'Not provided',
-          country: 'Myanmar'
+          country: 'Myanmar',
         },
         businessPhone: req.user.phone || 'Not provided',
         businessEmail: req.user.email,
         verificationStatus: 'verified',
         verifiedAt: new Date(),
-        verificationNotes: [{
-          note: 'Owner profile automatically created due to missing record',
-          type: 'system_note'
-        }]
+        verificationNotes: [
+          {
+            note: 'Owner profile automatically created due to missing record',
+            type: 'system_note',
+          },
+        ],
       });
 
       await newOwner.save();
 
       // Add the newly created owner to request object
       req.owner = newOwner;
-      console.log(`Created missing owner profile for user ${req.user._id}`);
+      logInfo('Created missing owner profile', { 
+      userId: req.user._id,
+      endpoint: req.originalUrl 
+    });
       next();
       return;
     }
 
     if (!owner.canManageCampgrounds()) {
-      const message = owner.verificationStatus !== 'verified' 
-        ? `Owner verification required. Current status: ${owner.verificationStatusDisplay}`
-        : 'Owner account is suspended. Please contact support.';
+      const message =
+        owner.verificationStatus !== 'verified'
+          ? `Owner verification required. Current status: ${owner.verificationStatusDisplay}`
+          : 'Owner account is suspended. Please contact support.';
 
-      return res.status(403).json({ 
-        error: 'Forbidden', 
-        message 
+      return res.status(403).json({
+        error: 'Forbidden',
+        message,
       });
     }
 
@@ -317,10 +347,13 @@ const canManageCampgrounds = async (req, res, next) => {
     req.owner = owner;
     next();
   } catch (error) {
-    console.error('Error in canManageCampgrounds middleware:', error);
-    return res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Failed to verify campground management permissions' 
+    logError('Error in canManageCampgrounds middleware', error, { 
+      endpoint: req.originalUrl,
+      userId: req.user?._id 
+    });
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to verify campground management permissions',
     });
   }
 };
@@ -340,7 +373,10 @@ const populateOwner = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    console.error('Error in populateOwner middleware:', error);
+    logError('Error in populateOwner middleware', error, { 
+      endpoint: req.originalUrl,
+      userId: req.user?._id 
+    });
     // Don't fail the request if owner population fails
     next();
   }
@@ -351,5 +387,5 @@ module.exports = {
   requireOwner,
   requireCampgroundOwnership,
   canManageCampgrounds,
-  populateOwner
+  populateOwner,
 };

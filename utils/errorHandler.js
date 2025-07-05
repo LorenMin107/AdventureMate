@@ -2,12 +2,9 @@
  * Error handling utilities for standardized error handling across the application
  */
 
-const logger = require('./logger');
+const { logError, logWarn, logInfo } = require('./logger');
 const ApiResponse = require('./ApiResponse');
 const ExpressError = require('./ExpressError');
-
-// Create a logger instance for error handling
-const errorLogger = logger.child('error-handler');
 
 /**
  * Middleware for handling errors
@@ -20,7 +17,7 @@ const errorHandler = (err, req, res, next) => {
   // Extract status code and set default if not provided
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Something went wrong';
-  
+
   // Log the error with appropriate context
   const logContext = {
     error: err,
@@ -28,17 +25,17 @@ const errorHandler = (err, req, res, next) => {
       method: req.method,
       url: req.originalUrl,
       ip: req.ip,
-      userId: req.user ? req.user._id : 'unauthenticated'
-    }
+      userId: req.user ? req.user._id : 'unauthenticated',
+    },
   };
-  
+
   // Log error with different levels based on status code
   if (statusCode >= 500) {
-    errorLogger.error(`Server Error: ${message}`, logContext);
+    logError(`Server Error: ${message}`, logContext);
   } else if (statusCode >= 400) {
-    errorLogger.warn(`Client Error: ${message}`, logContext);
+    logWarn(`Client Error: ${message}`, logContext);
   } else {
-    errorLogger.info(`Other Error: ${message}`, logContext);
+    logInfo(`Other Error: ${message}`, logContext);
   }
 
   // Check if the request is an API request
@@ -132,5 +129,5 @@ module.exports = {
   notFoundError,
   unauthorizedError,
   forbiddenError,
-  serverError
+  serverError,
 };

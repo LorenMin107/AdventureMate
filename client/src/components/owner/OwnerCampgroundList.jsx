@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFlashMessage } from '../../context/FlashMessageContext';
 import useOwners from '../../hooks/useOwners';
+import { logError } from '../../utils/logger';
 import './OwnerCampgroundList.css';
 
 /**
@@ -10,7 +11,7 @@ import './OwnerCampgroundList.css';
 const OwnerCampgroundList = () => {
   const { showMessage } = useFlashMessage();
   const { useOwnerCampgrounds, useDeleteCampground } = useOwners();
-  
+
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -22,15 +23,19 @@ const OwnerCampgroundList = () => {
   const deleteCampgroundMutation = useDeleteCampground();
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       [key]: value,
-      page: key !== 'page' ? 1 : value // Reset to page 1 when other filters change
+      page: key !== 'page' ? 1 : value, // Reset to page 1 when other filters change
     }));
   };
 
   const handleDelete = async (campgroundId, campgroundTitle) => {
-    if (!window.confirm(`Are you sure you want to delete "${campgroundTitle}"? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete "${campgroundTitle}"? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
@@ -39,7 +44,7 @@ const OwnerCampgroundList = () => {
       showMessage('Campground deleted successfully', 'success');
       refetch();
     } catch (error) {
-      console.error('Error deleting campground:', error);
+      logError('Error deleting campground', error);
       showMessage(
         error.response?.data?.message || 'Failed to delete campground. Please try again.',
         'error'
@@ -109,7 +114,7 @@ const OwnerCampgroundList = () => {
               className="filter-input"
             />
           </div>
-          
+
           <div className="filter-group">
             <label htmlFor="limit">Items per page</label>
             <select
@@ -136,7 +141,10 @@ const OwnerCampgroundList = () => {
             {filters.search ? (
               <p>No campgrounds match your search criteria. Try adjusting your search terms.</p>
             ) : (
-              <p>You haven't added any campgrounds yet. Start by creating your first campground listing.</p>
+              <p>
+                You haven't added any campgrounds yet. Start by creating your first campground
+                listing.
+              </p>
             )}
             <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-primary">
               Add Your First Campground
@@ -149,8 +157,8 @@ const OwnerCampgroundList = () => {
                 <div key={campground._id} className="campground-card">
                   <div className="campground-image">
                     {campground.images && campground.images.length > 0 ? (
-                      <img 
-                        src={campground.images[0].url} 
+                      <img
+                        src={campground.images[0].url}
                         alt={campground.title}
                         onError={(e) => {
                           e.target.src = '/placeholder-campground.jpg';
@@ -162,13 +170,13 @@ const OwnerCampgroundList = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="campground-content">
                     <div className="campground-header">
                       <h3>{campground.title}</h3>
                       <p className="campground-location">{campground.location}</p>
                     </div>
-                    
+
                     <div className="campground-stats">
                       <div className="stat-item">
                         <span className="stat-label">Campsites</span>
@@ -180,34 +188,35 @@ const OwnerCampgroundList = () => {
                       </div>
                       <div className="stat-item">
                         <span className="stat-label">Revenue</span>
-                        <span className="stat-value">{formatCurrency(campground.stats?.totalRevenue)}</span>
+                        <span className="stat-value">
+                          {formatCurrency(campground.stats?.totalRevenue)}
+                        </span>
                       </div>
                       <div className="stat-item">
                         <span className="stat-label">Rating</span>
                         <span className="stat-value">
-                          {campground.stats?.averageRating ? 
-                            `⭐ ${campground.stats.averageRating}` : 
-                            'No ratings'
-                          }
+                          {campground.stats?.averageRating
+                            ? `⭐ ${campground.stats.averageRating}`
+                            : 'No ratings'}
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="campground-actions">
-                      <Link 
+                      <Link
                         to={`/campgrounds/${campground._id}`}
                         className="owner-btn owner-btn-outline"
                         target="_blank"
                       >
                         View Public
                       </Link>
-                      <Link 
+                      <Link
                         to={`/owner/campgrounds/${campground._id}`}
                         className="owner-btn owner-btn-secondary"
                       >
                         Manage
                       </Link>
-                      <Link 
+                      <Link
                         to={`/owner/campgrounds/${campground._id}/edit`}
                         className="owner-btn owner-btn-primary"
                       >
@@ -236,12 +245,11 @@ const OwnerCampgroundList = () => {
                 >
                   Previous
                 </button>
-                
+
                 <span className="pagination-info">
-                  Page {pagination.page} of {pagination.pages} 
-                  ({pagination.total} total campgrounds)
+                  Page {pagination.page} of {pagination.pages}({pagination.total} total campgrounds)
                 </span>
-                
+
                 <button
                   onClick={() => handleFilterChange('page', pagination.page + 1)}
                   disabled={pagination.page >= pagination.pages}

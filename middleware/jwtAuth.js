@@ -2,6 +2,7 @@ const { verifyAccessToken, extractTokenFromHeader } = require('../utils/jwtUtils
 const User = require('../models/user');
 const ExpressError = require('../utils/ExpressError');
 const ApiResponse = require('../utils/ApiResponse');
+const { logError, logWarn, logDebug } = require('../utils/logger');
 
 /**
  * List of public API endpoints that don't require authentication
@@ -18,7 +19,7 @@ const publicApiEndpoints = [
   { method: 'GET', pattern: /^\/api\/v1\/campsites\/[^\/]+\/?$/ },
 
   // Reviews
-  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/reviews\/?$/ }
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/reviews\/?$/ },
 ];
 
 /**
@@ -27,8 +28,8 @@ const publicApiEndpoints = [
  * @returns {Boolean} - True if the request is for a public API endpoint
  */
 const isPublicApiEndpoint = (req) => {
-  return publicApiEndpoints.some(endpoint => 
-    req.method === endpoint.method && endpoint.pattern.test(req.originalUrl)
+  return publicApiEndpoints.some(
+    (endpoint) => req.method === endpoint.method && endpoint.pattern.test(req.originalUrl)
   );
 };
 
@@ -45,12 +46,18 @@ const authenticateJWT = async (req, res, next) => {
     if (!token) {
       // No token provided, continue without authentication
       // Check if this is an API endpoint that requires authentication
-      if (req.originalUrl.includes('/api/v1/') && 
-          !req.originalUrl.includes('/auth/') && 
-          !req.originalUrl.includes('/public/') &&
-          !isPublicApiEndpoint(req)) {
+      if (
+        req.originalUrl.includes('/api/v1/') &&
+        !req.originalUrl.includes('/auth/') &&
+        !req.originalUrl.includes('/public/') &&
+        !isPublicApiEndpoint(req)
+      ) {
         // Log the missing token for debugging
-        console.log(`JWT authentication failed: No token provided for ${req.method} ${req.originalUrl}`);
+        logDebug('JWT authentication failed: No token provided', { 
+          method: req.method,
+          url: req.originalUrl,
+          ip: req.ip 
+        });
       }
       return next();
     }
@@ -64,7 +71,11 @@ const authenticateJWT = async (req, res, next) => {
       const user = await User.findById(decoded.sub);
 
       if (!user) {
-        console.log(`JWT authentication failed: User not found for token subject ${decoded.sub}`);
+        logWarn('JWT authentication failed: User not found', { 
+          tokenSubject: decoded.sub,
+          method: req.method,
+          url: req.originalUrl 
+        });
         return next(); // User not found, continue without authentication
       }
 
@@ -79,38 +90,64 @@ const authenticateJWT = async (req, res, next) => {
     } catch (tokenError) {
       // Provide detailed error information based on the type of error
       if (tokenError.name === 'TokenExpiredError') {
-        console.log(`JWT authentication failed: Token expired for ${req.method} ${req.originalUrl}`);
+        logWarn('JWT authentication failed: Token expired', { 
+          method: req.method,
+          url: req.originalUrl,
+          ip: req.ip 
+        });
         // For API endpoints that explicitly require authentication, return 401
-        if (req.originalUrl.includes('/api/v1/') && 
-            req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        if (
+          req.originalUrl.includes('/api/v1/') &&
+          req.headers['x-requested-with'] === 'XMLHttpRequest'
+        ) {
           return ApiResponse.error(
-            'Token expired', 
+            'Token expired',
             'Your authentication token has expired. Please refresh the token or log in again.',
             401
           ).send(res);
         }
       } else if (tokenError.name === 'RevokedTokenError') {
-        console.log(`JWT authentication failed: Token has been revoked for ${req.method} ${req.originalUrl}`);
+        logWarn('JWT authentication failed: Token revoked', { 
+          method: req.method,
+          url: req.originalUrl,
+          ip: req.ip 
+        });
         // For API endpoints that explicitly require authentication, return 401
-        if (req.originalUrl.includes('/api/v1/') && 
-            req.headers['x-requested-with'] === 'XMLHttpRequest') {
+        if (
+          req.originalUrl.includes('/api/v1/') &&
+          req.headers['x-requested-with'] === 'XMLHttpRequest'
+        ) {
           return ApiResponse.error(
-            'Token revoked', 
+            'Token revoked',
             'Your authentication token has been revoked. Please log in again.',
             401
           ).send(res);
         }
       } else if (tokenError.name === 'JsonWebTokenError') {
-        console.log(`JWT authentication failed: Invalid token for ${req.method} ${req.originalUrl} - ${tokenError.message}`);
+        logWarn('JWT authentication failed: Invalid token', { 
+          method: req.method,
+          url: req.originalUrl,
+          error: tokenError.message,
+          ip: req.ip 
+        });
       } else {
-        console.log(`JWT authentication failed: ${tokenError.name} - ${tokenError.message}`);
+        logWarn('JWT authentication failed', { 
+          errorName: tokenError.name,
+          errorMessage: tokenError.message,
+          method: req.method,
+          url: req.originalUrl 
+        });
       }
 
       // For regular requests, continue without authentication
       next();
     }
   } catch (error) {
-    console.error('Error in JWT authentication middleware:', error);
+    logError('Error in JWT authentication middleware', error, { 
+          method: req.method,
+          url: req.originalUrl,
+          ip: req.ip 
+        });
     next();
   }
 };
@@ -121,9 +158,9 @@ const authenticateJWT = async (req, res, next) => {
  */
 const requireAuth = (req, res, next) => {
   if (!req.user) {
-    return res.status(401).json({ 
-      error: 'Unauthorized', 
-      message: 'Authentication required' 
+    return res.status(401).json({
+      error: 'Unauthorized',
+      message: 'Authentication required',
     });
   }
   next();
@@ -135,9 +172,9 @@ const requireAuth = (req, res, next) => {
  */
 const requireAdmin = (req, res, next) => {
   if (!req.user.isAdmin) {
-    return res.status(403).json({ 
-      error: 'Forbidden', 
-      message: 'Admin privileges required' 
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'Admin privileges required',
     });
   }
   next();
@@ -149,9 +186,9 @@ const requireAdmin = (req, res, next) => {
  */
 const requireOwner = (req, res, next) => {
   if (!req.user.isOwner) {
-    return res.status(403).json({ 
-      error: 'Forbidden', 
-      message: 'Owner privileges required' 
+    return res.status(403).json({
+      error: 'Forbidden',
+      message: 'Owner privileges required',
     });
   }
   next();
@@ -163,9 +200,10 @@ const requireOwner = (req, res, next) => {
  */
 const requireEmailVerified = (req, res, next) => {
   if (!req.user.isEmailVerified) {
-    return res.status(403).json({ 
-      error: 'Forbidden', 
-      message: 'Email verification required. Please verify your email address before accessing this resource.' 
+    return res.status(403).json({
+      error: 'Forbidden',
+      message:
+        'Email verification required. Please verify your email address before accessing this resource.',
     });
   }
   next();
@@ -176,5 +214,5 @@ module.exports = {
   requireAuth,
   requireAdmin,
   requireOwner,
-  requireEmailVerified
+  requireEmailVerified,
 };

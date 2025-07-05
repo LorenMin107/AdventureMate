@@ -56,7 +56,7 @@ module.exports.viewUserDetails = async (req, res) => {
 
     res.render("admin/userDetails", { user });
   } catch (err) {
-    console.error(err);
+    logError('Error in admin controller', err);
     req.flash("error", "Something went wrong");
     res.redirect("/admin/users");
   }

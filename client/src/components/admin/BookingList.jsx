@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
+import { logError } from '../../utils/logger';
 import './BookingList.css';
 
 /**
@@ -45,7 +46,7 @@ const BookingList = () => {
         setSort(data.sort || sort);
         setError(null);
       } catch (err) {
-        console.error('Error fetching bookings:', err);
+        logError('Error fetching bookings', err);
         setError('Failed to load bookings. Please try again later.');
       } finally {
         setLoading(false);
@@ -84,7 +85,7 @@ const BookingList = () => {
         setPagination({ ...pagination, page: pagination.page - 1 });
       }
     } catch (err) {
-      console.error('Error canceling booking:', err);
+      logError('Error canceling booking', err);
       alert('Failed to cancel booking. Please try again later.');
     }
   };

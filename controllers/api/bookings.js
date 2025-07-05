@@ -3,6 +3,7 @@ const Booking = require('../../models/booking');
 const User = require('../../models/user');
 const config = require('../../config');
 const stripe = require('stripe')(config.stripe.secretKey);
+const { logError, logInfo, logDebug } = require('../../utils/logger');
 
 function calculateDaysAndPrice(startDate, endDate, pricePerNight) {
   const start = new Date(startDate);
@@ -39,7 +40,11 @@ module.exports.getBookings = async (req, res) => {
 
     res.json({ bookings });
   } catch (error) {
-    console.error('Error fetching bookings:', error);
+    logError('Error fetching bookings', error, {
+      endpoint: '/api/v1/bookings',
+      userId: req.user?._id,
+      query: req.query,
+    });
     res.status(500).json({ error: 'Failed to fetch bookings' });
   }
 };
@@ -75,7 +80,11 @@ module.exports.getBooking = async (req, res) => {
 
     res.json({ booking, session });
   } catch (error) {
-    console.error('Error fetching booking:', error);
+    logError('Error fetching booking', error, {
+      endpoint: '/api/v1/bookings/:id',
+      userId: req.user?._id,
+      bookingId: req.params.id,
+    });
     res.status(500).json({ error: 'Failed to fetch booking' });
   }
 };
@@ -172,7 +181,12 @@ module.exports.createBooking = async (req, res) => {
 
     res.json(response);
   } catch (error) {
-    console.error('Error creating booking:', error);
+    logError('Error creating booking', error, {
+      endpoint: '/api/v1/campgrounds/:id/bookings',
+      userId: req.user?._id,
+      campgroundId: req.params.id,
+      body: req.body,
+    });
     res.status(400).json({ error: error.message || 'Failed to create booking' });
   }
 };
@@ -253,7 +267,11 @@ module.exports.createCheckoutSession = async (req, res) => {
       sessionUrl: session.url,
     });
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    logError('Error creating checkout session', error, {
+      endpoint: '/api/v1/campgrounds/:id/checkout',
+      userId: req.user?._id,
+      campgroundId: req.params.id,
+    });
     res.status(500).json({ error: 'Failed to create checkout session' });
   }
 };
@@ -267,16 +285,23 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     const userAgent = req.get('User-Agent') || 'unknown';
     const referer = req.get('Referer') || 'unknown';
 
-    console.log(`[${timestamp}] Payment success endpoint called for session_id: ${session_id}`);
-    console.log(
-      `Request details - IP: ${requestIP}, User-Agent: ${userAgent}, Referer: ${referer}`
-    );
+    logInfo('Payment success endpoint called', {
+      sessionId: session_id,
+      timestamp,
+      endpoint: '/api/v1/bookings/payment-success',
+    });
+    logDebug('Payment success request details', {
+      sessionId: session_id,
+      requestIP,
+      userAgent,
+      referer,
+    });
 
     // Retrieve the session to verify payment
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
     if (session.payment_status !== 'paid') {
-      console.log(`[${timestamp}] Payment not completed for session_id: ${session_id}`);
+      logWarn('Payment not completed for session', { sessionId: session_id, timestamp });
       return res.status(400).json({ error: 'Payment not completed' });
     }
 
@@ -286,9 +311,12 @@ module.exports.handlePaymentSuccess = async (req, res) => {
 
     // Verify the user matches
     if (userId !== req.user._id.toString()) {
-      console.log(
-        `[${timestamp}] User mismatch for session_id: ${session_id}. Expected: ${userId}, Got: ${req.user._id.toString()}`
-      );
+      logError('User mismatch for payment session', {
+        sessionId: session_id,
+        expectedUserId: userId,
+        actualUserId: req.user._id.toString(),
+        timestamp,
+      });
       return res.status(403).json({ error: 'User mismatch' });
     }
 
@@ -307,11 +335,18 @@ module.exports.handlePaymentSuccess = async (req, res) => {
       const bookingCreatedAt = booking.createdAt.toISOString();
       const timeSinceCreation = new Date() - booking.createdAt;
 
-      console.log(`[${timestamp}] Duplicate booking detected for session_id: ${session_id}`);
-      console.log(`Original booking created at: ${bookingCreatedAt} (${timeSinceCreation}ms ago)`);
-      console.log(
-        `Booking with session ID ${session_id} already exists. Returning existing booking.`
-      );
+      logWarn('Duplicate booking detected', {
+        sessionId: session_id,
+        timestamp,
+      });
+      logDebug('Original booking details', {
+        sessionId: session_id,
+        bookingCreatedAt,
+        timeSinceCreation,
+      });
+      logInfo('Booking with session ID already exists, returning existing booking', {
+        sessionId: session_id,
+      });
 
       // Return the existing booking
       // Prepare response for existing booking
@@ -351,7 +386,10 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     }
 
     // Create the booking if it doesn't exist
-    console.log(`[${timestamp}] Creating new booking for session_id: ${session_id}`);
+    logInfo('Creating new booking', {
+      sessionId: session_id,
+      timestamp,
+    });
     const startTime = Date.now();
 
     booking = new Booking({
@@ -369,13 +407,20 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     });
 
     await booking.save();
-    console.log(`[${timestamp}] Booking saved to database with _id: ${booking._id}`);
+    logInfo('Booking saved to database', {
+      sessionId: session_id,
+      bookingId: booking._id,
+      timestamp,
+    });
 
     // Update campground with booking
     const campground = await Campground.findById(id);
     campground.bookings.push(booking._id);
     await campground.save();
-    console.log(`[${timestamp}] Campground updated with booking reference`);
+    logInfo('Campground updated with booking reference', {
+      sessionId: session_id,
+      timestamp,
+    });
 
     // If a specific campsite was booked, update its booked dates
     if (campsiteId) {
@@ -391,18 +436,28 @@ module.exports.handlePaymentSuccess = async (req, res) => {
         });
 
         await campsite.save();
-        console.log(`[${timestamp}] Campsite updated with booked dates`);
+        logInfo('Campsite updated with booked dates', {
+          sessionId: session_id,
+          timestamp,
+        });
       }
     }
 
     // Update user with booking
     req.user.bookings.push(booking._id);
     await req.user.save();
-    console.log(`[${timestamp}] User updated with booking reference`);
+    logInfo('User updated with booking reference', {
+      sessionId: session_id,
+      timestamp,
+    });
 
     const endTime = Date.now();
     const processingTime = endTime - startTime;
-    console.log(`[${timestamp}] Booking creation process completed in ${processingTime}ms`);
+    logInfo('Booking creation process completed', {
+      sessionId: session_id,
+      processingTime,
+      timestamp,
+    });
 
     // Prepare response
     const responseData = {
@@ -439,14 +494,20 @@ module.exports.handlePaymentSuccess = async (req, res) => {
           };
         }
       } catch (err) {
-        console.error(`[${timestamp}] Error fetching campsite data for response:`, err);
+        logError('Error fetching campsite data for response', err, {
+          sessionId: session_id,
+          timestamp,
+        });
         // Continue without campsite data if there's an error
       }
     }
 
     res.json(responseData);
   } catch (error) {
-    console.error('Error handling payment success:', error);
+    logError('Error handling payment success', error, {
+      sessionId: session_id,
+      endpoint: '/api/v1/bookings/payment-success',
+    });
     res.status(500).json({ error: 'Failed to process payment confirmation' });
   }
 };

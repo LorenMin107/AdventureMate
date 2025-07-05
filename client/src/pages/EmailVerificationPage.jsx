@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import apiClient from '../utils/api';
+import { logInfo } from '../utils/logger';
 import './EmailVerificationPage.css';
 
 const EmailVerificationPage = () => {
@@ -16,30 +17,33 @@ const EmailVerificationPage = () => {
   // Verify email token on component mount
   useEffect(() => {
     const verifyEmail = async () => {
-      console.log('EmailVerificationPage mounted');
-      console.log('Token from URL:', token);
+      logInfo('EmailVerificationPage mounted');
+      logInfo('Token from URL', { token });
 
       if (!token) {
-        console.log('No token found in URL');
+        logInfo('No token found in URL');
         setStatus('error');
         setMessage('No verification token provided. Please check your email link.');
         return;
       }
 
       try {
-        console.log('Sending verification request to server');
+        logInfo('Sending verification request to server');
         // Send the token as-is to the server
-        console.log('Token to send:', token);
+        logInfo('Token to send', { token });
         const response = await apiClient.get(`/auth/verify-email?token=${token}`);
-        console.log('Verification response:', response.data);
+        logInfo('Verification response', response.data);
         setStatus('success');
         setMessage(response.data.message);
         setUser(response.data.user);
       } catch (error) {
-        console.log('Verification error:', error);
-        console.log('Error response:', error.response?.data);
+        logInfo('Verification error', error);
+        logInfo('Error response', error.response?.data);
         setStatus('error');
-        setMessage(error.response?.data?.message || 'Failed to verify email. The token may be invalid or expired.');
+        setMessage(
+          error.response?.data?.message ||
+            'Failed to verify email. The token may be invalid or expired.'
+        );
       }
     };
 
@@ -57,7 +61,10 @@ const EmailVerificationPage = () => {
       setResendMessage(response.data.message);
     } catch (error) {
       setResendStatus('error');
-      setResendMessage(error.response?.data?.message || 'Failed to resend verification email. Please try again later.');
+      setResendMessage(
+        error.response?.data?.message ||
+          'Failed to resend verification email. Please try again later.'
+      );
     }
   };
 
@@ -85,8 +92,12 @@ const EmailVerificationPage = () => {
               </div>
             )}
             <div className="action-buttons">
-              <Link to="/login" className="btn btn-primary">Login</Link>
-              <Link to="/" className="btn btn-secondary">Go to Homepage</Link>
+              <Link to="/login" className="btn btn-primary">
+                Login
+              </Link>
+              <Link to="/" className="btn btn-secondary">
+                Go to Homepage
+              </Link>
             </div>
           </div>
         )}
@@ -100,8 +111,8 @@ const EmailVerificationPage = () => {
               <p>Need a new verification email?</p>
 
               {resendStatus === 'idle' && (
-                <button 
-                  onClick={handleResendVerification} 
+                <button
+                  onClick={handleResendVerification}
                   className="btn btn-primary"
                   disabled={resendStatus === 'loading'}
                 >
@@ -126,18 +137,19 @@ const EmailVerificationPage = () => {
               {resendStatus === 'error' && (
                 <div className="resend-error">
                   <p>{resendMessage}</p>
-                  <button 
-                    onClick={handleResendVerification} 
-                    className="btn btn-primary"
-                  >
+                  <button onClick={handleResendVerification} className="btn btn-primary">
                     Try Again
                   </button>
                 </div>
               )}
             </div>
             <div className="action-buttons">
-              <Link to="/login" className="btn btn-secondary">Back to Login</Link>
-              <Link to="/" className="btn btn-secondary">Go to Homepage</Link>
+              <Link to="/login" className="btn btn-secondary">
+                Back to Login
+              </Link>
+              <Link to="/" className="btn btn-secondary">
+                Go to Homepage
+              </Link>
             </div>
           </div>
         )}

@@ -3,11 +3,12 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './BookingDetail.css';
 
 /**
  * BookingDetail component displays detailed information about a booking
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.initialBooking - Initial booking data (optional)
  * @returns {JSX.Element} Booking detail component
@@ -43,7 +44,7 @@ const BookingDetail = ({ initialBooking = null }) => {
         setBooking(data.booking);
         setError(null);
       } catch (err) {
-        console.error('Error fetching booking:', err);
+        logError('Error fetching booking', err);
         setError('Failed to load booking details. Please try again later.');
       } finally {
         setLoading(false);
@@ -74,9 +75,7 @@ const BookingDetail = ({ initialBooking = null }) => {
   }
 
   // Check if user is authorized to view this booking
-  const isAuthorized = 
-    currentUser && 
-    (currentUser._id === booking.user._id || currentUser.isAdmin);
+  const isAuthorized = currentUser && (currentUser._id === booking.user._id || currentUser.isAdmin);
 
   if (!isAuthorized) {
     return (
@@ -101,14 +100,9 @@ const BookingDetail = ({ initialBooking = null }) => {
         <div className="booking-detail-header">
           <div className="booking-detail-image">
             {campground.images && campground.images.length > 0 ? (
-              <img 
-                src={campground.images[0].url} 
-                alt={campground.title} 
-              />
+              <img src={campground.images[0].url} alt={campground.title} />
             ) : (
-              <div className="booking-detail-no-image">
-                No image available
-              </div>
+              <div className="booking-detail-no-image">No image available</div>
             )}
           </div>
 
@@ -121,9 +115,7 @@ const BookingDetail = ({ initialBooking = null }) => {
             <div className="booking-detail-campsite-info">
               <h4>Campsite: {campsite.name}</h4>
               {campsite.price && (
-                <p className="booking-detail-campsite-price">
-                  ${campsite.price} per night
-                </p>
+                <p className="booking-detail-campsite-price">${campsite.price} per night</p>
               )}
               {campsite.capacity && (
                 <p className="booking-detail-campsite-capacity">
@@ -199,7 +191,9 @@ const BookingDetail = ({ initialBooking = null }) => {
             </div>
             <div className="booking-detail-section-content">
               <div className="booking-detail-info-item">
-                <span className="booking-detail-label">${(totalPrice / totalDays).toFixed(2)} × {totalDays} nights</span>
+                <span className="booking-detail-label">
+                  ${(totalPrice / totalDays).toFixed(2)} × {totalDays} nights
+                </span>
                 <span className="booking-detail-value">${totalPrice.toFixed(2)}</span>
               </div>
 
@@ -220,16 +214,16 @@ const BookingDetail = ({ initialBooking = null }) => {
               Back to Bookings
             </Link>
 
-            <Link 
-              to={`/campgrounds/${campground._id}`} 
+            <Link
+              to={`/campgrounds/${campground._id}`}
               className="booking-detail-campground-button"
             >
               View Campground
             </Link>
 
             {campsite && (campsite._id || typeof campsite === 'string') && (
-              <Link 
-                to={`/campsites/${campsite._id || campsite}`} 
+              <Link
+                to={`/campsites/${campsite._id || campsite}`}
                 className="booking-detail-campsite-button"
               >
                 View Campsite
@@ -243,7 +237,7 @@ const BookingDetail = ({ initialBooking = null }) => {
 };
 
 BookingDetail.propTypes = {
-  initialBooking: PropTypes.object
+  initialBooking: PropTypes.object,
 };
 
 export default BookingDetail;

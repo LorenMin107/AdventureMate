@@ -1,7 +1,8 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const mongoose = require('mongoose');
 const User = require('./models/user');
 const Owner = require('./models/owner');
+const { logError, logInfo, logDebug } = require('./utils/logger');
 
 // Base URL for API requests
 const API_BASE_URL = 'http://localhost:3001/api/v1';
@@ -14,7 +15,7 @@ const ADMIN_PASSWORD = 'password123';
 const TEST_USER = {
   username: `testuser_${Date.now()}`,
   email: `test_${Date.now()}@example.com`,
-  password: 'password123'
+  password: 'password123',
 };
 
 // Global variables to store test data
@@ -30,20 +31,20 @@ async function testOwnerManagementAPI() {
     // Connect to MongoDB
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myancamp');
-      console.log('Connected to MongoDB');
+      logInfo('Connected to MongoDB');
     }
 
-    console.log('Testing Owner Management API...\n');
+    logInfo('Testing Owner Management API...');
 
     // Step 1: Login as admin
-    console.log('1. Logging in as admin...');
+    logInfo('1. Logging in as admin...');
     const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         username: ADMIN_USERNAME,
-        password: ADMIN_PASSWORD
-      })
+        password: ADMIN_PASSWORD,
+      }),
     });
 
     if (!loginResponse.ok) {
@@ -52,57 +53,60 @@ async function testOwnerManagementAPI() {
 
     const loginData = await loginResponse.json();
     adminToken = loginData.accessToken;
-    console.log('✓ Admin login successful');
+    logInfo('✓ Admin login successful');
 
     // Step 2: Create a test user directly in the database
-    console.log('\n2. Creating test user...');
+    logInfo('2. Creating test user...');
     const testUser = new User({
       username: TEST_USER.username,
-      email: TEST_USER.email
+      email: TEST_USER.email,
     });
     await testUser.setPassword(TEST_USER.password);
     await testUser.save();
     testUserId = testUser._id;
-    console.log(`✓ Test user created: ${testUser.username} (${testUserId})`);
+    logInfo('✓ Test user created', { username: testUser.username, userId: testUserId });
 
     // Step 3: Make the user an owner using the API
-    console.log('\n3. Making user an owner via API...');
-    const toggleOwnerResponse = await fetch(`${API_BASE_URL}/admin/users/${testUserId}/toggle-owner`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`
-      },
-      body: JSON.stringify({ isOwner: true })
-    });
+    logInfo('3. Making user an owner via API...');
+    const toggleOwnerResponse = await fetch(
+      `${API_BASE_URL}/admin/users/${testUserId}/toggle-owner`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({ isOwner: true }),
+      }
+    );
 
     if (!toggleOwnerResponse.ok) {
       throw new Error(`Failed to make user an owner: ${toggleOwnerResponse.status}`);
     }
 
     const toggleOwnerData = await toggleOwnerResponse.json();
-    console.log('✓ User promoted to owner');
-    console.log(`Owner status: ${toggleOwnerData.user.isOwner}`);
+    logInfo('✓ User promoted to owner');
+    logInfo('Owner status updated', { isOwner: toggleOwnerData.user.isOwner });
 
     // Step 4: Verify owner profile exists
-    console.log('\n4. Verifying owner profile...');
+    logInfo('4. Verifying owner profile...');
     const ownerProfile = await Owner.findOne({ user: testUserId });
     if (ownerProfile) {
       ownerId = ownerProfile._id;
-      console.log('✓ Owner profile found');
-      console.log(`Business name: ${ownerProfile.businessName}`);
-      console.log(`Verification status: ${ownerProfile.verificationStatus}`);
-      console.log(`Is active: ${ownerProfile.isActive}`);
+      logInfo('✓ Owner profile found');
+      logInfo('Owner profile details', { businessName: ownerProfile.businessName });
+      logInfo('Owner verification status', { verificationStatus: ownerProfile.verificationStatus });
+      logInfo('Owner active status', { isActive: ownerProfile.isActive });
     } else {
-      console.log('❌ Owner profile not found');
+      logError('❌ Owner profile not found');
     }
 
     // Step 5: Get owner details via API
-    console.log('\n5. Getting owner details via API...');
+    logInfo('5. Getting owner details via API...');
     const ownerDetailsResponse = await fetch(`${API_BASE_URL}/admin/owners/${ownerId}`, {
       headers: {
-        'Authorization': `Bearer ${adminToken}`
-      }
+        Authorization: `Bearer ${adminToken}`,
+      },
     });
 
     if (!ownerDetailsResponse.ok) {
@@ -110,18 +114,18 @@ async function testOwnerManagementAPI() {
     }
 
     const ownerDetails = await ownerDetailsResponse.json();
-    console.log('✓ Owner details retrieved successfully');
-    console.log(`Business name: ${ownerDetails.owner.businessName}`);
+    logInfo('✓ Owner details retrieved successfully');
+    logInfo('Owner details', { businessName: ownerDetails.owner.businessName });
 
     // Step 6: Suspend owner via API
-    console.log('\n6. Suspending owner via API...');
+    logInfo('6. Suspending owner via API...');
     const suspendOwnerResponse = await fetch(`${API_BASE_URL}/admin/owners/${ownerId}/suspend`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`
+        Authorization: `Bearer ${adminToken}`,
       },
-      body: JSON.stringify({ reason: 'Testing owner suspension' })
+      body: JSON.stringify({ reason: 'Testing owner suspension' }),
     });
 
     if (!suspendOwnerResponse.ok) {
@@ -129,39 +133,42 @@ async function testOwnerManagementAPI() {
     }
 
     const suspendOwnerData = await suspendOwnerResponse.json();
-    console.log('✓ Owner suspended successfully');
-    console.log(`Verification status: ${suspendOwnerData.owner.verificationStatus}`);
-    console.log(`Is active: ${suspendOwnerData.owner.isActive}`);
+    logInfo('✓ Owner suspended successfully');
+    logInfo('Owner verification status after suspension', { verificationStatus: suspendOwnerData.owner.verificationStatus });
+    logInfo('Owner active status after suspension', { isActive: suspendOwnerData.owner.isActive });
 
     // Step 7: Reactivate owner via API
-    console.log('\n7. Reactivating owner via API...');
-    const reactivateOwnerResponse = await fetch(`${API_BASE_URL}/admin/owners/${ownerId}/reactivate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`
-      },
-      body: JSON.stringify({ notes: 'Testing owner reactivation' })
-    });
+    logInfo('7. Reactivating owner via API...');
+    const reactivateOwnerResponse = await fetch(
+      `${API_BASE_URL}/admin/owners/${ownerId}/reactivate`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({ notes: 'Testing owner reactivation' }),
+      }
+    );
 
     if (!reactivateOwnerResponse.ok) {
       throw new Error(`Failed to reactivate owner: ${reactivateOwnerResponse.status}`);
     }
 
     const reactivateOwnerData = await reactivateOwnerResponse.json();
-    console.log('✓ Owner reactivated successfully');
-    console.log(`Verification status: ${reactivateOwnerData.owner.verificationStatus}`);
-    console.log(`Is active: ${reactivateOwnerData.owner.isActive}`);
+    logInfo('✓ Owner reactivated successfully');
+    logInfo('Owner verification status after reactivation', { verificationStatus: reactivateOwnerData.owner.verificationStatus });
+    logInfo('Owner active status after reactivation', { isActive: reactivateOwnerData.owner.isActive });
 
     // Step 8: Revoke owner status via API
-    console.log('\n8. Revoking owner status via API...');
+    logInfo('8. Revoking owner status via API...');
     const revokeOwnerResponse = await fetch(`${API_BASE_URL}/admin/owners/${ownerId}/revoke`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`
+        Authorization: `Bearer ${adminToken}`,
       },
-      body: JSON.stringify({ reason: 'Testing owner revocation' })
+      body: JSON.stringify({ reason: 'Testing owner revocation' }),
     });
 
     if (!revokeOwnerResponse.ok) {
@@ -169,26 +176,25 @@ async function testOwnerManagementAPI() {
     }
 
     const revokeOwnerData = await revokeOwnerResponse.json();
-    console.log('✓ Owner status revoked successfully');
-    console.log(`User owner status: ${revokeOwnerData.user.isOwner}`);
+    logInfo('✓ Owner status revoked successfully');
+    logInfo('User owner status after revocation', { isOwner: revokeOwnerData.user.isOwner });
 
-    console.log('\n✅ All owner management API tests passed!');
+    logInfo('✅ All owner management API tests passed!');
 
     // Cleanup
-    console.log('\n9. Cleaning up test data...');
+    logInfo('9. Cleaning up test data...');
     await User.findByIdAndDelete(testUserId);
     if (ownerId) {
       await Owner.findByIdAndDelete(ownerId);
     }
-    console.log('✓ Test data cleaned up');
-
+    logInfo('✓ Test data cleaned up');
   } catch (error) {
-    console.error('❌ Test failed:', error);
+    logError('❌ Test failed', error);
   } finally {
     // Close connection if we opened it
     if (mongoose.connection.readyState === 1) {
       await mongoose.connection.close();
-      console.log('MongoDB connection closed');
+      logInfo('MongoDB connection closed');
     }
   }
 }

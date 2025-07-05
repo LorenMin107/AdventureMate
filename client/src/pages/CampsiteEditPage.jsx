@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CampsiteForm from '../components/CampsiteForm';
+import { logError } from '../utils/logger';
 import './CampsiteNewPage.css'; // Reuse the same CSS
 
 /**
@@ -43,9 +44,10 @@ const CampsiteEditPage = () => {
 
         // Fetch the parent campground to verify ownership
         if (campsiteData.campground) {
-          const campgroundId = typeof campsiteData.campground === 'object' 
-            ? campsiteData.campground._id 
-            : campsiteData.campground;
+          const campgroundId =
+            typeof campsiteData.campground === 'object'
+              ? campsiteData.campground._id
+              : campsiteData.campground;
 
           const campgroundResponse = await fetch(`/api/v1/campgrounds/${campgroundId}`);
 
@@ -56,9 +58,10 @@ const CampsiteEditPage = () => {
           const campgroundData = await campgroundResponse.json();
 
           // Check if the response is in the standardized format
-          const campgroundInfo = campgroundData.status && campgroundData.data 
-            ? campgroundData.data.campground 
-            : campgroundData.campground;
+          const campgroundInfo =
+            campgroundData.status && campgroundData.data
+              ? campgroundData.data.campground
+              : campgroundData.campground;
 
           if (!campgroundInfo) {
             throw new Error('Campground data not found in response');
@@ -67,7 +70,7 @@ const CampsiteEditPage = () => {
           setCampground(campgroundInfo);
         }
       } catch (err) {
-        console.error('Error fetching data:', err);
+        logError('Error fetching data', err);
         setError('Failed to load campsite data. Please try again later.');
       } finally {
         setLoadingData(false);
@@ -78,11 +81,12 @@ const CampsiteEditPage = () => {
   }, [id]);
 
   // Check if user is the owner of the campground
-  const isOwner = currentUser && campground && (
-    currentUser.isAdmin || 
-    (campground.owner && currentUser._id === campground.owner._id) || 
-    (campground.author && currentUser._id === campground.author._id)
-  );
+  const isOwner =
+    currentUser &&
+    campground &&
+    (currentUser.isAdmin ||
+      (campground.owner && currentUser._id === campground.owner._id) ||
+      (campground.author && currentUser._id === campground.author._id));
 
   // Redirect if not the owner
   useEffect(() => {
@@ -104,7 +108,9 @@ const CampsiteEditPage = () => {
   }
 
   if (!isOwner) {
-    return <div className="unauthorized-container">You don't have permission to edit this campsite.</div>;
+    return (
+      <div className="unauthorized-container">You don't have permission to edit this campsite.</div>
+    );
   }
 
   if (!campsite || !campground) {
@@ -115,14 +121,12 @@ const CampsiteEditPage = () => {
     <div className="campsite-new-page">
       <div className="page-header">
         <h1>Edit Campsite</h1>
-        <p>Update the information for {campsite.name} in {campground.title}</p>
+        <p>
+          Update the information for {campsite.name} in {campground.title}
+        </p>
       </div>
 
-      <CampsiteForm 
-        campgroundId={campground._id}
-        campsite={campsite}
-        isEditing={true} 
-      />
+      <CampsiteForm campgroundId={campground._id} campsite={campsite} isEditing={true} />
     </div>
   );
 };

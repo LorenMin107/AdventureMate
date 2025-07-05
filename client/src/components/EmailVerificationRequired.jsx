@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logError } from '../utils/logger';
 import './EmailVerificationRequired.css';
 
 /**
@@ -27,7 +28,10 @@ const EmailVerificationRequired = () => {
       setResendMessage(response.data.message);
     } catch (error) {
       setResendStatus('error');
-      setResendMessage(error.response?.data?.message || 'Failed to resend verification email. Please try again later.');
+      setResendMessage(
+        error.response?.data?.message ||
+          'Failed to resend verification email. Please try again later.'
+      );
     }
   };
 
@@ -38,7 +42,7 @@ const EmailVerificationRequired = () => {
       await logout();
       navigate('/login');
     } catch (error) {
-      console.error('Logout failed:', error);
+      logError('Logout failed', error);
       setLogoutStatus('idle');
     }
   };
@@ -51,20 +55,18 @@ const EmailVerificationRequired = () => {
           <div className="warning-icon">!</div>
           <h2>Please Verify Your Email</h2>
           <p>
-            We've sent a verification email to <strong>{currentUser?.email}</strong>.
-            Please check your inbox and click the verification link to activate your account.
+            We've sent a verification email to <strong>{currentUser?.email}</strong>. Please check
+            your inbox and click the verification link to activate your account.
           </p>
-          <p>
-            You need to verify your email address before you can access this content.
-          </p>
+          <p>You need to verify your email address before you can access this content.</p>
         </div>
 
         <div className="resend-section">
           <p>Didn't receive the email?</p>
 
           {resendStatus === 'idle' && (
-            <button 
-              onClick={handleResendVerification} 
+            <button
+              onClick={handleResendVerification}
               className="btn btn-primary"
               disabled={resendStatus === 'loading'}
             >
@@ -89,10 +91,7 @@ const EmailVerificationRequired = () => {
           {resendStatus === 'error' && (
             <div className="resend-error">
               <p>{resendMessage}</p>
-              <button 
-                onClick={handleResendVerification} 
-                className="btn btn-primary"
-              >
+              <button onClick={handleResendVerification} className="btn btn-primary">
                 Try Again
               </button>
             </div>
@@ -100,9 +99,11 @@ const EmailVerificationRequired = () => {
         </div>
 
         <div className="action-buttons">
-          <Link to="/" className="btn btn-secondary">Go to Homepage</Link>
-          <button 
-            onClick={handleLogout} 
+          <Link to="/" className="btn btn-secondary">
+            Go to Homepage
+          </Link>
+          <button
+            onClick={handleLogout}
             className="btn btn-secondary"
             disabled={logoutStatus === 'loading'}
           >

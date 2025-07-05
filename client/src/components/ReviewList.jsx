@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import StarRating from './StarRating';
 import apiClient from '../utils/api';
+import { logError, logInfo } from '../utils/logger';
 import './ReviewList.css';
 
 /**
  * ReviewList component displays a list of reviews for a campground
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.campgroundId - ID of the campground
  * @param {Array} props.initialReviews - Initial reviews data (optional)
@@ -36,7 +37,7 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
         setReviews(data.reviews || []);
         setError(null);
       } catch (err) {
-        console.error('Error fetching reviews:', err);
+        logError('Error fetching reviews', err);
         setError('Failed to load reviews. Please try again later.');
       } finally {
         setLoading(false);
@@ -55,14 +56,14 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
       await apiClient.delete(`/campgrounds/${campgroundId}/reviews/${reviewId}`);
 
       // Update local state
-      setReviews(reviews.filter(review => review._id !== reviewId));
+      setReviews(reviews.filter((review) => review._id !== reviewId));
 
       // Notify parent component
       if (onReviewDeleted) {
         onReviewDeleted(reviewId);
       }
     } catch (err) {
-      console.error('Error deleting review:', err);
+      logError('Error deleting review', err);
       alert('Failed to delete review. Please try again later.');
     }
   };
@@ -75,7 +76,7 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
     return <div className="review-list-error">{error}</div>;
   }
 
-  if (reviews.length === 0) {
+  if (!reviews || reviews.length === 0) {
     return <div className="review-list-empty">No reviews yet. Be the first to leave a review!</div>;
   }
 
@@ -83,22 +84,31 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
     <div className="review-list">
       <h3 className="review-list-title">Reviews ({reviews.length})</h3>
 
-      {reviews.map(review => {
-        const canDelete = 
-          currentUser && 
-          (currentUser._id === review.author._id || currentUser.isAdmin);
+      {reviews.map((review) => {
+        // Handle cases where author might be null or missing
+        const author = review.author || {};
+        const canDelete = currentUser && (currentUser._id === author._id || currentUser.isAdmin);
+
+        // Log review data for debugging
+        logInfo('Rendering review', {
+          reviewId: review._id,
+          authorId: author._id,
+          authorUsername: author.username,
+          rating: review.rating,
+          hasBody: !!review.body,
+        });
 
         return (
           <div key={review._id} id={`review-${review._id}`} className="review-item">
             <div className="review-header">
-              <span className="review-author">{review.author.username}</span>
+              <span className="review-author">{author.username || 'Unknown User'}</span>
               <StarRating rating={review.rating} />
             </div>
 
             <p className="review-body">{review.body}</p>
 
             {canDelete && (
-              <button 
+              <button
                 onClick={() => handleDeleteReview(review._id)}
                 className="review-delete-button"
                 aria-label="Delete review"
@@ -116,7 +126,7 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
 ReviewList.propTypes = {
   campgroundId: PropTypes.string.isRequired,
   initialReviews: PropTypes.array,
-  onReviewDeleted: PropTypes.func
+  onReviewDeleted: PropTypes.func,
 };
 
 export default ReviewList;

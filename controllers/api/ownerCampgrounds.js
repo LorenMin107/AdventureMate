@@ -7,6 +7,7 @@ const ExpressError = require('../../utils/ExpressError');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const config = require('../../config');
 const { cloudinary } = require('../../cloudinary');
+const { logError, logInfo, logDebug } = require('../../utils/logger');
 
 const geocoder = mbxGeocoding({ accessToken: config.mapbox.token });
 
@@ -21,12 +22,12 @@ const getOwnerCampgrounds = async (req, res) => {
 
     // Build query
     const query = { owner: req.user._id };
-    
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
-        { location: { $regex: search, $options: 'i' } }
+        { location: { $regex: search, $options: 'i' } },
       ];
     }
 
@@ -47,22 +48,24 @@ const getOwnerCampgrounds = async (req, res) => {
             $match: {
               campground: campground._id,
               status: 'confirmed',
-              paid: true
-            }
+              paid: true,
+            },
           },
           {
             $group: {
               _id: null,
               totalBookings: { $sum: 1 },
-              totalRevenue: { $sum: '$totalPrice' }
-            }
-          }
+              totalRevenue: { $sum: '$totalPrice' },
+            },
+          },
         ]);
 
         const stats = bookingStats[0] || { totalBookings: 0, totalRevenue: 0 };
-        const averageRating = campground.reviews.length > 0 
-          ? campground.reviews.reduce((sum, review) => sum + review.rating, 0) / campground.reviews.length
-          : 0;
+        const averageRating =
+          campground.reviews.length > 0
+            ? campground.reviews.reduce((sum, review) => sum + review.rating, 0) /
+              campground.reviews.length
+            : 0;
 
         return {
           ...campground.toObject(),
@@ -70,8 +73,8 @@ const getOwnerCampgrounds = async (req, res) => {
             ...stats,
             averageRating: Math.round(averageRating * 10) / 10,
             totalReviews: campground.reviews.length,
-            totalCampsites: campground.campsites.length
-          }
+            totalCampsites: campground.campsites.length,
+          },
         };
       })
     );
@@ -82,14 +85,18 @@ const getOwnerCampgrounds = async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    console.error('Error fetching owner campgrounds:', error);
+    logError('Error fetching owner campgrounds', error, { 
+      endpoint: '/api/owners/campgrounds',
+      userId: req.user?._id,
+      query: req.query 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch campgrounds'
+      message: 'Failed to fetch campgrounds',
     });
   }
 };
@@ -113,7 +120,7 @@ const createCampground = async (req, res) => {
     if (!geoData.body.features || geoData.body.features.length === 0) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Invalid location. Please provide a valid address.'
+        message: 'Invalid location. Please provide a valid address.',
       });
     }
 
@@ -125,7 +132,7 @@ const createCampground = async (req, res) => {
       geometry: geoData.body.features[0].geometry,
       author: req.user._id, // For backward compatibility
       owner: req.user._id,
-      images: req.files ? req.files.map(f => ({ url: f.path, filename: f.filename })) : []
+      images: req.files ? req.files.map((f) => ({ url: f.path, filename: f.filename })) : [],
     });
 
     await campground.save();
@@ -138,13 +145,17 @@ const createCampground = async (req, res) => {
 
     res.status(201).json({
       message: 'Campground created successfully',
-      campground
+      campground,
     });
   } catch (error) {
-    console.error('Error creating campground:', error);
+    logError('Error creating campground', error, { 
+      endpoint: '/api/owners/campgrounds',
+      userId: req.user?._id,
+      body: { title: req.body.title, location: req.body.location } 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to create campground'
+      message: 'Failed to create campground',
     });
   }
 };
@@ -157,19 +168,19 @@ const getOwnerCampground = async (req, res) => {
   try {
     const campground = await Campground.findOne({
       _id: req.params.id,
-      owner: req.user._id
+      owner: req.user._id,
     })
-    .populate('campsites')
-    .populate({
-      path: 'reviews',
-      populate: { path: 'author', select: 'username' }
-    })
-    .populate('bookings');
+      .populate('campsites')
+      .populate({
+        path: 'reviews',
+        populate: { path: 'author', select: 'username' },
+      })
+      .populate('bookings');
 
     if (!campground) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Campground not found or you do not have permission to access it'
+        message: 'Campground not found or you do not have permission to access it',
       });
     }
 
@@ -177,46 +188,52 @@ const getOwnerCampground = async (req, res) => {
     const bookingStats = await Booking.aggregate([
       {
         $match: {
-          campground: campground._id
-        }
+          campground: campground._id,
+        },
       },
       {
         $group: {
           _id: '$status',
           count: { $sum: 1 },
-          revenue: { $sum: '$totalPrice' }
-        }
-      }
+          revenue: { $sum: '$totalPrice' },
+        },
+      },
     ]);
 
     // Get recent bookings
     const recentBookings = await Booking.find({
-      campground: campground._id
+      campground: campground._id,
     })
-    .populate('user', 'username email')
-    .sort({ createdAt: -1 })
-    .limit(5);
+      .populate('user', 'username email')
+      .sort({ createdAt: -1 })
+      .limit(5);
 
     const stats = {
       totalBookings: bookingStats.reduce((sum, stat) => sum + stat.count, 0),
       totalRevenue: bookingStats.reduce((sum, stat) => sum + stat.revenue, 0),
       statusBreakdown: bookingStats,
-      averageRating: campground.reviews.length > 0 
-        ? campground.reviews.reduce((sum, review) => sum + review.rating, 0) / campground.reviews.length
-        : 0,
-      totalReviews: campground.reviews.length
+      averageRating:
+        campground.reviews.length > 0
+          ? campground.reviews.reduce((sum, review) => sum + review.rating, 0) /
+            campground.reviews.length
+          : 0,
+      totalReviews: campground.reviews.length,
     };
 
     res.json({
       campground,
       stats,
-      recentBookings
+      recentBookings,
     });
   } catch (error) {
-    console.error('Error fetching campground:', error);
+    logError('Error fetching campground', error, { 
+      endpoint: '/api/owners/campgrounds/:id',
+      userId: req.user?._id,
+      campgroundId: req.params.id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch campground'
+      message: 'Failed to fetch campground',
     });
   }
 };
@@ -228,23 +245,23 @@ const getOwnerCampground = async (req, res) => {
 const updateCampground = async (req, res) => {
   try {
     const { title, description, location, deleteImages } = req.body;
-    
+
     const campground = await Campground.findOne({
       _id: req.params.id,
-      owner: req.user._id
+      owner: req.user._id,
     });
 
     if (!campground) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Campground not found or you do not have permission to access it'
+        message: 'Campground not found or you do not have permission to access it',
       });
     }
 
     // Update basic fields
     if (title) campground.title = title;
     if (description) campground.description = description;
-    
+
     // Update location and geocode if changed
     if (location && location !== campground.location) {
       const geoData = await geocoder
@@ -262,7 +279,7 @@ const updateCampground = async (req, res) => {
 
     // Add new images
     if (req.files && req.files.length > 0) {
-      const newImages = req.files.map(f => ({ url: f.path, filename: f.filename }));
+      const newImages = req.files.map((f) => ({ url: f.path, filename: f.filename }));
       campground.images.push(...newImages);
     }
 
@@ -271,22 +288,24 @@ const updateCampground = async (req, res) => {
       for (let filename of deleteImages) {
         await cloudinary.uploader.destroy(filename);
       }
-      campground.images = campground.images.filter(
-        img => !deleteImages.includes(img.filename)
-      );
+      campground.images = campground.images.filter((img) => !deleteImages.includes(img.filename));
     }
 
     await campground.save();
 
     res.json({
       message: 'Campground updated successfully',
-      campground
+      campground,
     });
   } catch (error) {
-    console.error('Error updating campground:', error);
+    logError('Error updating campground', error, { 
+      endpoint: '/api/owners/campgrounds/:id',
+      userId: req.user?._id,
+      campgroundId: req.params.id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to update campground'
+      message: 'Failed to update campground',
     });
   }
 };
@@ -299,13 +318,13 @@ const deleteCampground = async (req, res) => {
   try {
     const campground = await Campground.findOne({
       _id: req.params.id,
-      owner: req.user._id
+      owner: req.user._id,
     });
 
     if (!campground) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Campground not found or you do not have permission to access it'
+        message: 'Campground not found or you do not have permission to access it',
       });
     }
 
@@ -313,13 +332,14 @@ const deleteCampground = async (req, res) => {
     const activeBookings = await Booking.countDocuments({
       campground: campground._id,
       status: { $in: ['pending', 'confirmed'] },
-      endDate: { $gte: new Date() }
+      endDate: { $gte: new Date() },
     });
 
     if (activeBookings > 0) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Cannot delete campground with active bookings. Please cancel or complete all bookings first.'
+        message:
+          'Cannot delete campground with active bookings. Please cancel or complete all bookings first.',
       });
     }
 
@@ -340,13 +360,17 @@ const deleteCampground = async (req, res) => {
     await Campground.findByIdAndDelete(campground._id);
 
     res.json({
-      message: 'Campground deleted successfully'
+      message: 'Campground deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting campground:', error);
+    logError('Error deleting campground', error, { 
+      endpoint: '/api/owners/campgrounds/:id',
+      userId: req.user?._id,
+      campgroundId: req.params.id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to delete campground'
+      message: 'Failed to delete campground',
     });
   }
 };
@@ -363,19 +387,19 @@ const getCampgroundBookings = async (req, res) => {
     // Verify ownership
     const campground = await Campground.findOne({
       _id: req.params.id,
-      owner: req.user._id
+      owner: req.user._id,
     });
 
     if (!campground) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Campground not found or you do not have permission to access it'
+        message: 'Campground not found or you do not have permission to access it',
       });
     }
 
     // Build query
     const query = { campground: campground._id };
-    
+
     if (status) {
       query.status = status;
     }
@@ -401,14 +425,18 @@ const getCampgroundBookings = async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    console.error('Error fetching campground bookings:', error);
+    logError('Error fetching campground bookings', error, { 
+      endpoint: '/api/owners/campgrounds/:id/bookings',
+      userId: req.user?._id,
+      campgroundId: req.params.id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch bookings'
+      message: 'Failed to fetch bookings',
     });
   }
 };
@@ -425,25 +453,25 @@ const updateBookingStatus = async (req, res) => {
     // Verify ownership
     const campground = await Campground.findOne({
       _id: campgroundId,
-      owner: req.user._id
+      owner: req.user._id,
     });
 
     if (!campground) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Campground not found or you do not have permission to access it'
+        message: 'Campground not found or you do not have permission to access it',
       });
     }
 
     const booking = await Booking.findOne({
       _id: bookingId,
-      campground: campgroundId
+      campground: campgroundId,
     }).populate('user', 'username email');
 
     if (!booking) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Booking not found'
+        message: 'Booking not found',
       });
     }
 
@@ -452,13 +480,18 @@ const updateBookingStatus = async (req, res) => {
 
     res.json({
       message: 'Booking status updated successfully',
-      booking
+      booking,
     });
   } catch (error) {
-    console.error('Error updating booking status:', error);
+    logError('Error updating booking status', error, { 
+      endpoint: '/api/owners/campgrounds/:campgroundId/bookings/:bookingId',
+      userId: req.user?._id,
+      campgroundId: req.params.campgroundId,
+      bookingId: req.params.bookingId 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to update booking status'
+      message: 'Failed to update booking status',
     });
   }
 };
@@ -470,5 +503,5 @@ module.exports = {
   updateCampground,
   deleteCampground,
   getCampgroundBookings,
-  updateBookingStatus
+  updateBookingStatus,
 };

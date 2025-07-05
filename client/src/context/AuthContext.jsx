@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import authService from '../services/AuthService';
+import { logInfo, logError } from '../utils/logger';
 
 // Create the context
 const AuthContext = createContext();
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }) => {
 
         setError(null);
       } catch (err) {
-        console.error('Error checking auth status:', err);
+        logError('Error checking auth status', err);
         setError('Failed to authenticate user');
       } finally {
         setLoading(false);
@@ -96,7 +97,7 @@ export const AuthProvider = ({ children }) => {
     // Listen for storage events to detect changes in other tabs
     const handleStorageChange = (event) => {
       if (event.key === 'auth_status_updated') {
-        console.log('Auth status updated in another tab, refreshing');
+        logInfo('Auth status updated in another tab, refreshing');
 
         // Add a small delay to prevent rapid successive calls
         setTimeout(() => {
@@ -171,7 +172,7 @@ export const AuthProvider = ({ children }) => {
       setRequiresTwoFactor(false);
     } catch (err) {
       setError('Failed to logout');
-      console.error('Logout error:', err);
+      logError('Logout error', err);
     } finally {
       setLoading(false);
     }
@@ -209,7 +210,7 @@ export const AuthProvider = ({ children }) => {
     try {
       return await authService.refreshAccessToken();
     } catch (err) {
-      console.error('Error refreshing token:', err);
+      logError('Error refreshing token', err);
       // If token refresh fails, log the user out
       await logout();
       throw err;

@@ -16,6 +16,7 @@ const {
   validatePasswordStrength,
   createPasswordChangeAuditLog,
 } = require('../../utils/passwordUtils');
+const { logError, logInfo, logWarn } = require('../../utils/logger');
 
 module.exports.register = async (req, res) => {
   try {
@@ -29,8 +30,13 @@ module.exports.register = async (req, res) => {
       });
     }
 
-    const user = new User({ email, username, phone });
-    const registeredUser = await User.register(user, password);
+    // Hash the password
+    const { hashPassword } = require('../../utils/passwordUtils');
+    const hashedPassword = await hashPassword(password);
+
+    const user = new User({ email, username, phone, password: hashedPassword });
+    await user.save();
+    const registeredUser = user;
 
     try {
       // Generate email verification token
@@ -42,7 +48,10 @@ module.exports.register = async (req, res) => {
       // Send verification email
       await sendVerificationEmail(registeredUser, verificationUrl);
     } catch (emailError) {
-      console.error('Error sending verification email:', emailError);
+      logError('Error sending verification email', emailError, {
+        userId: registeredUser._id,
+        email: registeredUser.email,
+      });
       // Continue with registration even if email fails
     }
 
@@ -61,7 +70,10 @@ module.exports.register = async (req, res) => {
         'Registration successful. Please check your email to verify your account before logging in.',
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    logError('Registration error', error, {
+      endpoint: '/api/v1/users/register',
+      body: { email: req.body.email, username: req.body.username },
+    });
     res.status(400).json({ error: error.message || 'Registration failed' });
   }
 };
@@ -147,7 +159,10 @@ module.exports.getUser = async (req, res) => {
             };
           }
         } catch (err) {
-          console.error('Error fetching campground data for review:', err);
+          logError('Error fetching campground data for review', err, {
+            userId: req.user?._id,
+            reviewId: review._id,
+          });
         }
       }
     }
@@ -170,7 +185,10 @@ module.exports.getUser = async (req, res) => {
             };
           }
         } catch (err) {
-          console.error('Error fetching campground data for booking:', err);
+          logError('Error fetching campground data for booking', err, {
+            userId: req.user?._id,
+            bookingId: booking._id,
+          });
         }
       }
 
@@ -191,7 +209,10 @@ module.exports.getUser = async (req, res) => {
             };
           }
         } catch (err) {
-          console.error('Error fetching campsite data:', err);
+          logError('Error fetching campsite data', err, {
+            userId: req.user?._id,
+            bookingId: booking._id,
+          });
         }
       }
     }
@@ -215,7 +236,10 @@ module.exports.getUser = async (req, res) => {
       emailVerified: user.isEmailVerified,
     });
   } catch (error) {
-    console.error('Error fetching user:', error);
+    logError('Error fetching user', error, {
+      userId: req.user?._id,
+      endpoint: '/api/v1/users/profile',
+    });
     res.status(500).json({ error: 'Failed to fetch user data' });
   }
 };
@@ -293,7 +317,10 @@ module.exports.updateProfile = async (req, res) => {
             };
           }
         } catch (err) {
-          console.error('Error fetching campground data:', err);
+          logError('Error fetching campground data', err, {
+            userId: req.user?._id,
+            reviewId: review._id,
+          });
         }
       }
 
@@ -314,7 +341,10 @@ module.exports.updateProfile = async (req, res) => {
             };
           }
         } catch (err) {
-          console.error('Error fetching campsite data:', err);
+          logError('Error fetching campsite data', err, {
+            userId: req.user?._id,
+            bookingId: booking._id,
+          });
         }
       }
     }
@@ -339,7 +369,10 @@ module.exports.updateProfile = async (req, res) => {
       message: 'Profile updated successfully',
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    logError('Error updating profile', error, {
+      userId: req.user?._id,
+      endpoint: '/api/v1/users/profile',
+    });
     res.status(400).json({ error: error.message || 'Failed to update profile' });
   }
 };
@@ -374,7 +407,10 @@ module.exports.submitContact = async (req, res) => {
       message: 'Contact message submitted successfully',
     });
   } catch (error) {
-    console.error('Error submitting contact:', error);
+    logError('Error submitting contact', error, {
+      userId: req.user?._id,
+      endpoint: '/api/v1/users/contact',
+    });
     res.status(400).json({ error: error.message || 'Failed to submit contact message' });
   }
 };
@@ -449,7 +485,10 @@ module.exports.getUserReviews = async (req, res) => {
             }
           }
         } catch (err) {
-          console.error('Error fetching campground data for review:', err);
+          logError('Error fetching campground data for review', err, {
+            userId: req.user?._id,
+            reviewId: review._id,
+          });
         }
       }
     }
@@ -469,7 +508,10 @@ module.exports.getUserReviews = async (req, res) => {
       count: userReviews.length,
     });
   } catch (error) {
-    console.error('Error fetching user reviews:', error);
+    logError('Error fetching user reviews', error, {
+      userId: req.user?._id,
+      endpoint: '/api/v1/users/reviews',
+    });
     res.status(500).json({ error: 'Failed to fetch reviews' });
   }
 };
@@ -493,7 +535,9 @@ module.exports.requestPasswordReset = async (req, res) => {
     // For security reasons, don't reveal if the email exists or not
     // Always return a success message even if the email doesn't exist
     if (!user) {
-      console.log(`Password reset requested for non-existent email: ${email}`);
+      logInfo('Password reset requested for non-existent email', {
+        email,
+      });
       return res.json({
         message: 'If your email is registered, you will receive a password reset link shortly.',
       });
@@ -512,7 +556,10 @@ module.exports.requestPasswordReset = async (req, res) => {
       message: 'If your email is registered, you will receive a password reset link shortly.',
     });
   } catch (error) {
-    console.error('Error requesting password reset:', error);
+    logError('Error requesting password reset', error, {
+      email,
+      endpoint: '/api/v1/users/request-password-reset',
+    });
     res.status(500).json({ error: 'Failed to process password reset request' });
   }
 };
@@ -566,7 +613,9 @@ module.exports.resetPassword = async (req, res) => {
     user.passwordHistory.push(passwordChangeEvent);
 
     // Log the audit entry creation
-    console.log('Password change audit log created for user:', user._id);
+    logInfo('Password change audit log created', {
+      userId: user._id,
+    });
 
     // Save the user with both password change and audit log in a single operation
     await user.save();
@@ -578,7 +627,9 @@ module.exports.resetPassword = async (req, res) => {
       message: 'Password has been reset successfully. You can now log in with your new password.',
     });
   } catch (error) {
-    console.error('Error resetting password:', error);
+    logError('Error resetting password', error, {
+      endpoint: '/api/v1/users/reset-password',
+    });
 
     // Provide more specific error messages for token validation issues
     if (

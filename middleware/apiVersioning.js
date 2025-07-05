@@ -1,4 +1,4 @@
-const logger = require('../utils/logger').child('api-versioning');
+const { logWarn, logInfo, logDebug } = require('../utils/logger');
 
 /**
  * Middleware to add deprecation notice to response headers
@@ -9,11 +9,7 @@ const logger = require('../utils/logger').child('api-versioning');
  * @returns {Function} Express middleware
  */
 const deprecateEndpoint = (options = {}) => {
-  const {
-    message = 'This endpoint is deprecated',
-    version = 'v2',
-    alternativeUrl
-  } = options;
+  const { message = 'This endpoint is deprecated', version = 'v2', alternativeUrl } = options;
 
   const deprecationMessage = alternativeUrl
     ? `${message}. Please use ${alternativeUrl} instead.`
@@ -24,19 +20,19 @@ const deprecateEndpoint = (options = {}) => {
     res.set('X-API-Deprecated', 'true');
     res.set('X-API-Deprecation-Message', deprecationMessage);
     res.set('X-API-Deprecation-Version', version);
-    
+
     if (alternativeUrl) {
       res.set('X-API-Alternative-URL', alternativeUrl);
     }
 
     // Log deprecation warning
-    logger.warn(`Deprecated endpoint accessed: ${req.method} ${req.originalUrl}`, {
+    logWarn(`Deprecated endpoint accessed: ${req.method} ${req.originalUrl}`, {
       method: req.method,
       url: req.originalUrl,
       ip: req.ip,
       userId: req.user ? req.user._id : 'unauthenticated',
       deprecationMessage,
-      alternativeUrl
+      alternativeUrl,
     });
 
     next();
@@ -55,12 +51,13 @@ const versionRoutes = (options = {}) => {
   return (req, res, next) => {
     // Extract version from URL path
     const urlParts = req.originalUrl.split('/');
-    const versionIndex = urlParts.findIndex(part => part === 'api') + 1;
-    
+    const versionIndex = urlParts.findIndex((part) => part === 'api') + 1;
+
     // If version is specified in URL, use it; otherwise use default
-    const version = urlParts[versionIndex] && urlParts[versionIndex].startsWith('v')
-      ? urlParts[versionIndex]
-      : defaultVersion;
+    const version =
+      urlParts[versionIndex] && urlParts[versionIndex].startsWith('v')
+        ? urlParts[versionIndex]
+        : defaultVersion;
 
     // Add version to request object for use in controllers
     req.apiVersion = version;
@@ -74,5 +71,5 @@ const versionRoutes = (options = {}) => {
 
 module.exports = {
   deprecateEndpoint,
-  versionRoutes
+  versionRoutes,
 };

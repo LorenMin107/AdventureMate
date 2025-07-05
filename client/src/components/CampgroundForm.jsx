@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../utils/api';
 import './CampgroundForm.css';
+import { logInfo, logError } from '../utils/logger';
 
 /**
  * CampgroundForm component for creating and editing campgrounds
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.campground - Existing campground data for editing (optional)
  * @param {boolean} props.isEditing - Whether the form is for editing (true) or creating (false)
@@ -17,7 +18,7 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
   const [formData, setFormData] = useState({
     title: '',
     location: '',
-    description: ''
+    description: '',
   });
 
   const [images, setImages] = useState([]);
@@ -35,7 +36,7 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
       setFormData({
         title: campground.title || '',
         location: campground.location || '',
-        description: campground.description || ''
+        description: campground.description || '',
       });
 
       if (campground.images && campground.images.length > 0) {
@@ -47,16 +48,16 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Clear validation error for this field
     if (validationErrors[name]) {
-      setValidationErrors(prev => ({
+      setValidationErrors((prev) => ({
         ...prev,
-        [name]: null
+        [name]: null,
       }));
     }
   };
@@ -64,28 +65,28 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
   // Handle image file selection
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages(prev => [...prev, ...files]);
+    setImages((prev) => [...prev, ...files]);
 
     // Create preview URLs for the selected images
-    const newPreviews = files.map(file => URL.createObjectURL(file));
-    setImagePreviews(prev => [...prev, ...newPreviews]);
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
   };
 
   // Remove a selected image
   const removeSelectedImage = (index) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    setImages((prev) => prev.filter((_, i) => i !== index));
 
     // Revoke the object URL to avoid memory leaks
     URL.revokeObjectURL(imagePreviews[index]);
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Toggle an existing image for deletion
   const toggleImageForDeletion = (filename) => {
     if (imagesToDelete.includes(filename)) {
-      setImagesToDelete(prev => prev.filter(name => name !== filename));
+      setImagesToDelete((prev) => prev.filter((name) => name !== filename));
     } else {
-      setImagesToDelete(prev => [...prev, filename]);
+      setImagesToDelete((prev) => [...prev, filename]);
     }
   };
 
@@ -111,9 +112,12 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
     }
 
     // If editing and all existing images are marked for deletion and no new images
-    if (isEditing && existingImages.length > 0 && 
-        imagesToDelete.length === existingImages.length && 
-        images.length === 0) {
+    if (
+      isEditing &&
+      existingImages.length > 0 &&
+      imagesToDelete.length === existingImages.length &&
+      images.length === 0
+    ) {
       errors.images = 'At least one image is required';
     }
 
@@ -142,40 +146,39 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
       formDataToSend.append('campground[description]', formData.description);
 
       // Add images to form data
-      images.forEach(image => {
+      images.forEach((image) => {
         formDataToSend.append('image', image);
       });
 
       // Add images to delete if editing
       if (isEditing && imagesToDelete.length > 0) {
-        imagesToDelete.forEach(filename => {
+        imagesToDelete.forEach((filename) => {
           formDataToSend.append('deleteImages[]', filename);
         });
       }
 
       // Determine URL and method based on whether we're creating or editing
       // Don't include /api/v1 in the URL as it's already in the baseURL of apiClient
-      const url = isEditing 
-        ? `/campgrounds/${campground?._id}` 
-        : '/campgrounds';
+      const url = isEditing ? `/campgrounds/${campground?._id}` : '/campgrounds';
 
       const method = isEditing ? 'PUT' : 'POST';
 
       // Send the request using apiClient
-      const response = method === 'POST'
-        ? await apiClient.post(url, formDataToSend, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          })
-        : await apiClient.put(url, formDataToSend, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
+      const response =
+        method === 'POST'
+          ? await apiClient.post(url, formDataToSend, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            })
+          : await apiClient.put(url, formDataToSend, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
 
       // With apiClient, the response is already parsed and in response.data
-      console.log('Response from API:', response);
+      logInfo('Response from API:', response);
 
       // Check if the response is in the new standardized format
       const responseData = response.data;
@@ -189,28 +192,32 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
         campgroundData = responseData.campground;
       } else {
         // If we can't find the campground data, use a default ID
-        console.log('Campground data not found in response, using default');
+        logInfo('Campground data not found in response, using default');
         campgroundData = { _id: 'list' };
       }
 
-      console.log('Campground data:', campgroundData);
+      logInfo('Campground data:', campgroundData);
 
       // Navigate to the campground detail page
       navigate(`/campgrounds/${campgroundData._id}`);
     } catch (err) {
-      console.error('Error saving campground:', err);
+      logError('Error saving campground:', err);
 
       // Check if this is an axios error with a response
       if (err.response && err.response.data) {
         const responseData = err.response.data;
-        console.log('Error response data:', responseData);
+        logInfo('Error response data:', responseData);
 
         // Handle standardized API error response
         if (responseData.status === 'error') {
-          if (responseData.error && typeof responseData.error === 'object' && responseData.error.errors) {
+          if (
+            responseData.error &&
+            typeof responseData.error === 'object' &&
+            responseData.error.errors
+          ) {
             // Handle field-specific validation errors
             const fieldErrors = {};
-            responseData.error.errors.forEach(err => {
+            responseData.error.errors.forEach((err) => {
               const fieldName = err.field.replace('campground.', '');
               fieldErrors[fieldName] = err.message;
             });
@@ -222,7 +229,9 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
           }
         } else {
           // Handle non-standardized error response
-          setError(responseData.error || responseData.message || err.message || 'Failed to save campground');
+          setError(
+            responseData.error || responseData.message || err.message || 'Failed to save campground'
+          );
         }
       } else {
         // Handle generic error
@@ -237,11 +246,7 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
     <div className="campground-form-container">
       <h2>{isEditing ? 'Edit Campground' : 'Create New Campground'}</h2>
 
-      {error && (
-        <div className="form-error-message">
-          {error}
-        </div>
-      )}
+      {error && <div className="form-error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="campground-form">
         <div className="form-group">
@@ -276,7 +281,6 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
           )}
         </div>
 
-
         <div className="form-group">
           <label htmlFor="description">Description</label>
           <textarea
@@ -302,13 +306,13 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
               <p>Current Images:</p>
               <div className="image-preview-container">
                 {existingImages.map((image, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`image-preview ${imagesToDelete.includes(image.filename) ? 'marked-for-deletion' : ''}`}
                   >
                     <img src={image.url} alt={`Campground ${index + 1}`} />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="remove-image-button"
                       onClick={() => toggleImageForDeletion(image.filename)}
                     >
@@ -342,8 +346,8 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
               {imagePreviews.map((preview, index) => (
                 <div key={index} className="image-preview">
                   <img src={preview} alt={`Preview ${index + 1}`} />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="remove-image-button"
                     onClick={() => removeSelectedImage(index)}
                   >
@@ -360,19 +364,15 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
         </div>
 
         <div className="form-actions">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="cancel-button"
             onClick={() => navigate(-1)}
             disabled={loading}
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
-            className="submit-button"
-            disabled={loading}
-          >
+          <button type="submit" className="submit-button" disabled={loading}>
             {loading ? 'Saving...' : isEditing ? 'Update Campground' : 'Create Campground'}
           </button>
         </div>

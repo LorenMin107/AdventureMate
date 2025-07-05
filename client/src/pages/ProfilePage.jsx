@@ -3,6 +3,7 @@ import { useUser } from '../context/UserContext';
 import TwoFactorSetup from '../components/TwoFactorSetup';
 import BookingList from '../components/BookingList';
 import UserReviewList from '../components/UserReviewList';
+import { logError } from '../utils/logger';
 import './ProfilePage.css';
 
 /**
@@ -47,7 +48,7 @@ const ProfilePage = () => {
         setUpdateSuccess(false);
       }, 3000);
     } catch (err) {
-      console.error('Error updating profile:', err);
+      logError('Error updating profile', err);
       setUpdateError('Failed to update profile. Please try again.');
     }
   };
@@ -84,37 +85,35 @@ const ProfilePage = () => {
         <div className="profile-avatar">
           {userDetails.username ? userDetails.username.charAt(0).toUpperCase() : 'U'}
         </div>
-        <h1 className="profile-page-title">
-          {userDetails.username}'s Profile
-        </h1>
+        <h1 className="profile-page-title">{userDetails.username}'s Profile</h1>
       </div>
 
       <div className="profile-container">
         <div className="profile-sidebar">
           <nav className="profile-nav">
             <ul className="profile-nav-list">
-              <li 
+              <li
                 className={`profile-nav-item ${activeSection === 'personal' ? 'active' : ''}`}
                 onClick={() => setActiveSection('personal')}
               >
                 <span className="profile-nav-icon">👤</span>
                 <span>Personal Info</span>
               </li>
-              <li 
+              <li
                 className={`profile-nav-item ${activeSection === 'security' ? 'active' : ''}`}
                 onClick={() => setActiveSection('security')}
               >
                 <span className="profile-nav-icon">🔒</span>
                 <span>Security</span>
               </li>
-              <li 
+              <li
                 className={`profile-nav-item ${activeSection === 'bookings' ? 'active' : ''}`}
                 onClick={() => setActiveSection('bookings')}
               >
                 <span className="profile-nav-icon">🏕️</span>
                 <span>Bookings</span>
               </li>
-              <li 
+              <li
                 className={`profile-nav-item ${activeSection === 'reviews' ? 'active' : ''}`}
                 onClick={() => setActiveSection('reviews')}
               >
@@ -126,9 +125,7 @@ const ProfilePage = () => {
         </div>
 
         <div className="profile-content">
-          {updateError && (
-            <div className="profile-update-error">{updateError}</div>
-          )}
+          {updateError && <div className="profile-update-error">{updateError}</div>}
 
           {updateSuccess && (
             <div className="profile-update-success">Profile updated successfully!</div>
@@ -165,9 +162,11 @@ const ProfilePage = () => {
                       </div>
 
                       <div className="profile-actions">
-                        <button type="submit" className="save-button">Save</button>
-                        <button 
-                          type="button" 
+                        <button type="submit" className="save-button">
+                          Save
+                        </button>
+                        <button
+                          type="button"
                           className="cancel-button"
                           onClick={() => {
                             setIsEditing(false);
@@ -187,10 +186,7 @@ const ProfilePage = () => {
                       </div>
 
                       <div className="profile-actions">
-                        <button 
-                          className="edit-button"
-                          onClick={() => setIsEditing(true)}
-                        >
+                        <button className="edit-button" onClick={() => setIsEditing(true)}>
                           {userDetails.phone ? 'Update Phone Number' : 'Add Phone Number'}
                         </button>
                       </div>

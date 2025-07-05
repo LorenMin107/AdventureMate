@@ -1,5 +1,6 @@
 import apiClient from '../utils/api';
 import { jwtDecode } from 'jwt-decode';
+import { logError, logInfo } from '../utils/logger';
 
 // Constants for authentication state management
 const AUTH_CACHE_KEY = 'auth_status_cache';
@@ -61,7 +62,7 @@ class AuthService {
 
     // Only broadcast if there's an actual change in authentication status
     if (hasChanged) {
-      console.log('Auth status changed, broadcasting to other tabs');
+      logInfo('Auth status changed, broadcasting to other tabs');
       localStorage.setItem(AUTH_STATUS_UPDATED_KEY, Date.now().toString());
     }
   }
@@ -99,7 +100,7 @@ class AuthService {
         lastCallTimestamp &&
         now - parseInt(lastCallTimestamp) < DEBOUNCE_INTERVAL
       ) {
-        console.log('Auth status check debounced, skipping');
+        logInfo('Auth status check debounced, skipping');
         return this.getCachedAuth();
       }
 
@@ -113,12 +114,12 @@ class AuthService {
 
       // If we have a valid cache and not forcing a check, use it
       if (!forceCheck && cachedAuth) {
-        console.log('Using cached auth status');
+        logInfo('Using cached auth status');
         return cachedAuth;
       }
 
       // No valid cache or forcing a check, make the API call
-      console.log('Making API call to check auth status');
+      logInfo('Making API call to check auth status');
 
       // Using the v1 API endpoint for JWT-based authentication
       const response = await apiClient.get('/auth/status');
@@ -136,7 +137,7 @@ class AuthService {
         requiresTwoFactor: data.requiresTwoFactor || false,
       };
     } catch (err) {
-      console.error('Error checking auth status:', err);
+      logError('Error checking auth status', err);
       throw err;
     }
   }
@@ -188,7 +189,7 @@ class AuthService {
 
       return data.user;
     } catch (err) {
-      console.error('Error logging in:', err);
+      logError('Error logging in', err);
       throw err;
     }
   }
@@ -240,7 +241,7 @@ class AuthService {
 
       return data.user;
     } catch (err) {
-      console.error('Error verifying 2FA token:', err);
+      logError('Error verifying 2FA token', err);
       throw err;
     }
   }
@@ -274,7 +275,7 @@ class AuthService {
       // Clear the cache and broadcast a message to other tabs
       this.updateAuthCache(null, false);
     } catch (err) {
-      console.error('Error logging out:', err);
+      logError('Error logging out', err);
       // Still clear tokens even if the API call fails
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
@@ -297,7 +298,7 @@ class AuthService {
       const data = response.data;
       return data.user;
     } catch (err) {
-      console.error('Error registering user:', err);
+      logError('Error registering user', err);
       throw err;
     }
   }
@@ -338,7 +339,7 @@ class AuthService {
             throw new Error('No access token returned');
           }
         } catch (err) {
-          console.error('Error refreshing token:', err);
+          logError('Error refreshing token', err);
           // If token refresh fails, log the user out
           await this.logout();
           reject(err);
@@ -349,7 +350,7 @@ class AuthService {
 
       return this.refreshPromise;
     } catch (err) {
-      console.error('Error refreshing token:', err);
+      logError('Error refreshing token', err);
       // If token refresh fails, log the user out
       await this.logout();
       throw err;
@@ -380,17 +381,17 @@ class AuthService {
       // Calculate time until refresh (5 minutes before expiry or half the token lifetime)
       const timeUntilRefresh = Math.max(0, expiresAt - now - TOKEN_REFRESH_THRESHOLD);
 
-      console.log(`Scheduling token refresh in ${timeUntilRefresh / 1000} seconds`);
+      logInfo(`Scheduling token refresh in ${timeUntilRefresh / 1000} seconds`);
 
       // Schedule the refresh
       this.refreshTimeout = setTimeout(() => {
-        console.log('Refreshing token...');
+        logInfo('Refreshing token...');
         this.refreshAccessToken().catch((err) => {
-          console.error('Failed to refresh token:', err);
+          logError('Failed to refresh token:', err);
         });
       }, timeUntilRefresh);
     } catch (err) {
-      console.error('Error scheduling token refresh:', err);
+      logError('Error scheduling token refresh', err);
     }
   }
 
@@ -404,7 +405,7 @@ class AuthService {
       const response = await apiClient.post('/auth/forgot-password', { email });
       return response.data.message;
     } catch (err) {
-      console.error('Error requesting password reset:', err);
+      logError('Error requesting password reset', err);
       throw err;
     }
   }
@@ -423,7 +424,7 @@ class AuthService {
       });
       return response.data.message;
     } catch (err) {
-      console.error('Error resetting password:', err);
+      logError('Error resetting password', err);
       throw err;
     }
   }
@@ -459,7 +460,7 @@ class AuthService {
 
       return data.user;
     } catch (err) {
-      console.error('Error logging in with Google:', err);
+      logError('Error logging in with Google', err);
       throw err;
     }
   }
@@ -495,7 +496,7 @@ class AuthService {
 
       return data.user;
     } catch (err) {
-      console.error('Error logging in with Facebook:', err);
+      logError('Error logging in with Facebook', err);
       throw err;
     }
   }
@@ -537,7 +538,7 @@ class AuthService {
       const currentTime = Date.now() / 1000;
       return decodedToken.exp > currentTime;
     } catch (err) {
-      console.error('Error validating token:', err);
+      logError('Error validating token', err);
       return false;
     }
   }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import useOwners from '../hooks/useOwners';
+import { logError } from '../utils/logger';
 import './OwnerCampgroundsPage.css';
 
 /**
@@ -19,22 +20,27 @@ const OwnerCampgroundsPage = () => {
     page: 1,
     limit: 10,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   });
   const [sort, setSort] = useState({
     field: 'title',
-    order: 'asc'
+    order: 'asc',
   });
 
   // Initialize the delete mutation
   const deleteCampgroundMutation = useDeleteCampground();
 
   // Fetch owner's campgrounds
-  const { data: campgroundsData, isLoading, error: fetchError, refetch } = useOwnerCampgrounds({
+  const {
+    data: campgroundsData,
+    isLoading,
+    error: fetchError,
+    refetch,
+  } = useOwnerCampgrounds({
     page: pagination.page,
     limit: pagination.limit,
     sortField: sort.field,
-    sortOrder: sort.order
+    sortOrder: sort.order,
   });
 
   useEffect(() => {
@@ -68,7 +74,9 @@ const OwnerCampgroundsPage = () => {
   };
 
   const handleDelete = async (id, title) => {
-    if (!window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+    if (
+      !window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)
+    ) {
       return;
     }
 
@@ -77,10 +85,10 @@ const OwnerCampgroundsPage = () => {
       await deleteCampgroundMutation.mutateAsync(id);
 
       showMessage('Campground deleted successfully', 'success');
-      setCampgrounds(campgrounds.filter(campground => campground._id !== id));
+      setCampgrounds(campgrounds.filter((campground) => campground._id !== id));
       refetch();
     } catch (err) {
-      console.error('Error deleting campground:', err);
+      logError('Error deleting campground', err);
       showMessage('Failed to delete campground. Please try again later.', 'error');
     }
   };
@@ -107,10 +115,7 @@ const OwnerCampgroundsPage = () => {
       <div className="owner-error">
         <h4>Error Loading Campgrounds</h4>
         <p>{error}</p>
-        <button 
-          onClick={() => refetch()} 
-          className="owner-btn owner-btn-primary"
-        >
+        <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
           Retry
         </button>
       </div>
@@ -131,9 +136,11 @@ const OwnerCampgroundsPage = () => {
               <span>➕</span>
               Add New Campground
             </Link>
-            <select 
-              value={pagination.limit} 
-              onChange={(e) => setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })}
+            <select
+              value={pagination.limit}
+              onChange={(e) =>
+                setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })
+              }
               className="owner-select"
             >
               <option value="5">5 per page</option>
@@ -162,7 +169,7 @@ const OwnerCampgroundsPage = () => {
               <table className="owner-table">
                 <thead>
                   <tr>
-                    <th 
+                    <th
                       className={`sortable ${sort.field === 'title' ? `sorted-${sort.order}` : ''}`}
                       onClick={() => handleSortChange('title')}
                     >
@@ -171,7 +178,7 @@ const OwnerCampgroundsPage = () => {
                         {sort.field === 'title' ? (sort.order === 'asc' ? '↑' : '↓') : '↕'}
                       </span>
                     </th>
-                    <th 
+                    <th
                       className={`sortable ${sort.field === 'location' ? `sorted-${sort.order}` : ''}`}
                       onClick={() => handleSortChange('location')}
                     >
@@ -189,7 +196,7 @@ const OwnerCampgroundsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {campgrounds.map(campground => (
+                  {campgrounds.map((campground) => (
                     <tr key={campground._id}>
                       <td>
                         <div className="campground-title">
@@ -201,9 +208,7 @@ const OwnerCampgroundsPage = () => {
                       </td>
                       <td>{campground.location}</td>
                       <td>
-                        <span className="count-badge">
-                          {campground.campsites?.length || 0}
-                        </span>
+                        <span className="count-badge">{campground.campsites?.length || 0}</span>
                       </td>
                       <td>
                         <div className="reviews-info">
@@ -214,41 +219,41 @@ const OwnerCampgroundsPage = () => {
                         </div>
                       </td>
                       <td>
-                        <span className="count-badge">
-                          {campground.bookings?.length || 0}
-                        </span>
+                        <span className="count-badge">{campground.bookings?.length || 0}</span>
                       </td>
                       <td>
-                        <span className={`status-badge ${campground.isActive ? 'status-active' : 'status-inactive'}`}>
+                        <span
+                          className={`status-badge ${campground.isActive ? 'status-active' : 'status-inactive'}`}
+                        >
                           {campground.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
                       <td>{formatDate(campground.createdAt)}</td>
                       <td className="actions-cell">
                         <div className="action-buttons">
-                          <Link 
-                            to={`/campgrounds/${campground._id}`} 
+                          <Link
+                            to={`/campgrounds/${campground._id}`}
                             className="owner-btn owner-btn-secondary owner-btn-sm"
                             target="_blank"
                             title="View public page"
                           >
                             👁️
                           </Link>
-                          <Link 
-                            to={`/owner/campgrounds/${campground._id}`} 
+                          <Link
+                            to={`/owner/campgrounds/${campground._id}`}
                             className="owner-btn owner-btn-outline owner-btn-sm"
                             title="Manage campground"
                           >
                             ⚙️
                           </Link>
-                          <Link 
-                            to={`/owner/campgrounds/${campground._id}/edit`} 
+                          <Link
+                            to={`/owner/campgrounds/${campground._id}/edit`}
                             className="owner-btn owner-btn-primary owner-btn-sm"
                             title="Edit campground"
                           >
                             ✏️
                           </Link>
-                          <button 
+                          <button
                             onClick={() => handleDelete(campground._id, campground.title)}
                             className="owner-btn owner-btn-danger owner-btn-sm"
                             title="Delete campground"
@@ -267,15 +272,15 @@ const OwnerCampgroundsPage = () => {
           {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="owner-pagination">
-              <button 
-                onClick={() => handlePageChange(1)} 
+              <button
+                onClick={() => handlePageChange(1)}
                 disabled={pagination.page === 1}
                 className="owner-btn owner-btn-outline"
               >
                 First
               </button>
-              <button 
-                onClick={() => handlePageChange(pagination.page - 1)} 
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
                 className="owner-btn owner-btn-outline"
               >
@@ -283,19 +288,19 @@ const OwnerCampgroundsPage = () => {
               </button>
 
               <span className="pagination-info">
-                Page {pagination.page} of {pagination.totalPages} 
-                ({pagination.total} total campgrounds)
+                Page {pagination.page} of {pagination.totalPages}({pagination.total} total
+                campgrounds)
               </span>
 
-              <button 
-                onClick={() => handlePageChange(pagination.page + 1)} 
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page >= pagination.totalPages}
                 className="owner-btn owner-btn-outline"
               >
                 Next
               </button>
-              <button 
-                onClick={() => handlePageChange(pagination.totalPages)} 
+              <button
+                onClick={() => handlePageChange(pagination.totalPages)}
                 disabled={pagination.page >= pagination.totalPages}
                 className="owner-btn owner-btn-outline"
               >

@@ -4,11 +4,12 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ErrorMessage from './ErrorMessage';
 import LoadingSpinner from './LoadingSpinner';
+import { logError } from '../../utils/logger';
 import './FormStyles.css';
 
 /**
  * Form component that provides React Hook Form context to its children
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.schema - Yup validation schema
  * @param {Object} props.defaultValues - Default values for the form
@@ -42,10 +43,10 @@ const Form = ({
     mode: 'onChange', // Validate on change for real-time feedback
   });
 
-  const { 
-    handleSubmit, 
+  const {
+    handleSubmit,
     formState: { isSubmitting, isValid, errors },
-    reset
+    reset,
   } = formMethods;
 
   // Handle form submission with error handling
@@ -69,34 +70,34 @@ const Form = ({
     } catch (error) {
       // Show error message
       setFormError(error.message || 'An error occurred. Please try again.');
-      console.error('Form submission error:', error);
+      logError('Form submission error', error);
     }
   };
 
   return (
     <FormProvider {...formMethods}>
-      <form 
-        className={`form-container ${className}`} 
+      <form
+        className={`form-container ${className}`}
         onSubmit={handleSubmit(handleFormSubmit)}
         noValidate // Disable browser validation in favor of Yup
         {...rest}
       >
         {/* Display form-level error message if any */}
         {formError && (
-          <ErrorMessage 
-            message={formError} 
-            type="error" 
-            dismissible 
+          <ErrorMessage
+            message={formError}
+            type="error"
+            dismissible
             onDismiss={() => setFormError('')}
           />
         )}
 
         {/* Display form-level success message if any */}
         {formSuccess && (
-          <ErrorMessage 
-            message={formSuccess} 
-            type="success" 
-            dismissible 
+          <ErrorMessage
+            message={formSuccess}
+            type="success"
+            dismissible
             onDismiss={() => setFormSuccess('')}
           />
         )}
@@ -104,16 +105,16 @@ const Form = ({
         {children}
 
         {showSubmitButton && (
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={`form-submit ${isSubmitting ? 'form-submit-with-spinner' : ''}`}
             disabled={isSubmitting}
           >
             {isSubmitting && (
-              <LoadingSpinner 
-                size="small" 
-                color="white" 
-                className="form-submit-spinner" 
+              <LoadingSpinner
+                size="small"
+                color="white"
+                className="form-submit-spinner"
                 label="Submitting..."
               />
             )}

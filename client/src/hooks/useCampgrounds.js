@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../utils/api';
+import { logInfo } from '../utils/logger';
 
 /**
  * Custom hook for campground-related API calls
@@ -16,7 +17,7 @@ const useCampgrounds = () => {
         const { data } = await apiClient.get('/campgrounds');
         // Check if the response is in the new standardized format
         if (data.status && data.data) {
-          console.log('Received standardized API response:', data);
+          logInfo('Received standardized API response', data);
           return data.data; // Extract the actual data from the standardized response
         }
         return data;
@@ -33,7 +34,7 @@ const useCampgrounds = () => {
         const { data } = await apiClient.get(`/campgrounds/${id}`);
         // Check if the response is in the new standardized format
         if (data.status && data.data) {
-          console.log(`Received standardized API response for campground ${id}:`, data);
+          logInfo(`Received standardized API response for campground ${id}`, data);
           return data.data; // Extract the actual data from the standardized response
         }
         return data;
@@ -50,7 +51,7 @@ const useCampgrounds = () => {
         const { data } = await apiClient.post('/campgrounds', newCampground);
         // Check if the response is in the new standardized format
         if (data.status && data.data) {
-          console.log('Received standardized API response for create campground:', data);
+          logInfo('Received standardized API response for create campground', data);
           return data.data; // Extract the actual data from the standardized response
         }
         return data;
@@ -69,7 +70,7 @@ const useCampgrounds = () => {
         const { data } = await apiClient.put(`/campgrounds/${id}`, campground);
         // Check if the response is in the new standardized format
         if (data.status && data.data) {
-          console.log(`Received standardized API response for update campground ${id}:`, data);
+          logInfo(`Received standardized API response for update campground ${id}`, data);
           return data.data; // Extract the actual data from the standardized response
         }
         return data;
@@ -88,7 +89,7 @@ const useCampgrounds = () => {
       mutationFn: async (id) => {
         const { data } = await apiClient.delete(`/campgrounds/${id}`);
         // For delete operations, we just need to return the ID regardless of response format
-        console.log(`Deleted campground ${id}, response:`, data);
+        logInfo(`Deleted campground ${id}`, data);
         return id;
       },
       onSuccess: () => {

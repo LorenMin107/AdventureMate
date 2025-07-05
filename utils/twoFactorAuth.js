@@ -1,6 +1,7 @@
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 const crypto = require('crypto');
+const { logError, logInfo, logDebug } = require('./logger');
 
 /**
  * Utility functions for two-factor authentication
@@ -19,12 +20,12 @@ const generateSecret = (username, issuer = TWO_FACTOR_ISSUER) => {
   const secret = speakeasy.generateSecret({
     length: TWO_FACTOR_SECRET_LENGTH,
     name: `${issuer}:${username}`,
-    issuer: issuer
+    issuer: issuer,
   });
 
   return {
     base32: secret.base32,
-    otpauth_url: secret.otpauth_url
+    otpauth_url: secret.otpauth_url,
   };
 };
 
@@ -41,18 +42,22 @@ const generateQRCode = async (otpauthUrl) => {
       margin: 4, // Margin around the QR code
       color: {
         dark: '#000000', // Black dots
-        light: '#ffffff' // White background
+        light: '#ffffff', // White background
       },
-      width: TWO_FACTOR_QR_CODE_WIDTH // Use the width from environment variable
+      width: TWO_FACTOR_QR_CODE_WIDTH, // Use the width from environment variable
     };
 
     const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl, options);
-    console.log('Generated QR code data URL length:', qrCodeDataUrl.length);
-    console.log('QR code data URL starts with:', qrCodeDataUrl.substring(0, 30) + '...');
+    logDebug('Generated QR code data URL', { 
+      length: qrCodeDataUrl.length 
+    });
+    logDebug('QR code data URL preview', { 
+      preview: qrCodeDataUrl.substring(0, 30) + '...' 
+    });
 
     return qrCodeDataUrl;
   } catch (error) {
-    console.error('Error generating QR code:', error);
+    logError('Error generating QR code', error);
     throw new Error('Failed to generate QR code');
   }
 };
@@ -70,12 +75,12 @@ const verifyToken = (token, secret) => {
       secret: secret,
       encoding: 'base32',
       token: token,
-      window: 1
+      window: 1,
     });
 
     return verified;
   } catch (error) {
-    console.error('Error verifying token:', error);
+    logError('Error verifying token', error);
     return false;
   }
 };
@@ -105,10 +110,10 @@ const generateBackupCodes = (count = 10) => {
  * @returns {Array<Object>} Array of backup code objects ready for storage
  */
 const prepareBackupCodesForStorage = (codes) => {
-  return codes.map(code => ({
+  return codes.map((code) => ({
     code: code,
     isUsed: false,
-    usedAt: null
+    usedAt: null,
   }));
 };
 
@@ -123,7 +128,7 @@ const verifyBackupCode = (providedCode, storedCodes) => {
   const normalizedCode = providedCode.replace(/-/g, '').toUpperCase();
 
   // Find the matching code
-  const codeIndex = storedCodes.findIndex(codeObj => {
+  const codeIndex = storedCodes.findIndex((codeObj) => {
     // Normalize the stored code
     const storedNormalized = codeObj.code.replace(/-/g, '').toUpperCase();
     return storedNormalized === normalizedCode && !codeObj.isUsed;
@@ -151,7 +156,7 @@ const markBackupCodeAsUsed = (storedCodes, index) => {
   updatedCodes[index] = {
     ...updatedCodes[index],
     isUsed: true,
-    usedAt: new Date()
+    usedAt: new Date(),
   };
 
   return updatedCodes;
@@ -164,5 +169,5 @@ module.exports = {
   generateBackupCodes,
   prepareBackupCodesForStorage,
   verifyBackupCode,
-  markBackupCodeAsUsed
+  markBackupCodeAsUsed,
 };

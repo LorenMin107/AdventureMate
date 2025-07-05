@@ -1,12 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { Map, Marker, NavigationControl, Popup } from 'react-map-gl';
 import { useTheme } from '../../context/ThemeContext';
+import { logError, logInfo } from '../../utils/logger';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './CampgroundMap.css';
 
 /**
  * CampgroundMap component displays a map with a marker for a single campground
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.geometry - Campground geometry object with coordinates
  * @param {string} props.title - Campground title
@@ -19,7 +20,7 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
   const [viewState, setViewState] = useState({
     longitude: geometry?.coordinates[0] || 0,
     latitude: geometry?.coordinates[1] || 0,
-    zoom: zoom
+    zoom: zoom,
   });
 
   const [showPopup, setShowPopup] = useState(false);
@@ -28,10 +29,10 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
   // Update viewState when geometry changes
   useEffect(() => {
     if (geometry && geometry.coordinates) {
-      setViewState(prev => ({
+      setViewState((prev) => ({
         ...prev,
         longitude: geometry.coordinates[0],
-        latitude: geometry.coordinates[1]
+        latitude: geometry.coordinates[1],
       }));
 
       // Also resize the map when geometry changes
@@ -99,7 +100,7 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
           resizeObserver.observe(container.parentElement);
         }
       } catch (e) {
-        console.error('ResizeObserver not supported, falling back to MutationObserver:', e);
+        logError('ResizeObserver not supported, falling back to MutationObserver', e);
 
         // Fallback to MutationObserver if ResizeObserver is not supported
         const mutationObserver = new MutationObserver(() => {
@@ -111,10 +112,10 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
         // Observe the parent element for changes
         const parentElement = mapRef.current.getContainer().parentElement;
         if (parentElement) {
-          mutationObserver.observe(parentElement, { 
-            attributes: true, 
-            childList: true, 
-            subtree: true 
+          mutationObserver.observe(parentElement, {
+            attributes: true,
+            childList: true,
+            subtree: true,
           });
         }
       }
@@ -129,7 +130,7 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
           const width = container.offsetWidth;
 
           // Log dimensions for debugging
-          console.log(`Map container dimensions: ${width}x${height}`);
+          logInfo('Map container dimensions', `${width}x${height}`);
 
           // Apply a small style change and revert it to trigger a repaint
           container.style.opacity = '0.99';
@@ -169,7 +170,7 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
               map.resize();
             }
           } catch (e) {
-            console.error('Error cleaning up map:', e);
+            logError('Error cleaning up map', e);
           }
         }
       };
@@ -236,7 +237,7 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
 
       // Create an array of timeouts at different intervals
       // This ensures we catch any layout shifts that might happen at different times
-      const timeouts = [100, 300, 600, 1000, 1500, 2000, 3000].map(delay => 
+      const timeouts = [100, 300, 600, 1000, 1500, 2000, 3000].map((delay) =>
         setTimeout(() => {
           if (mapRef.current) {
             map.resize();
@@ -257,7 +258,7 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
 
       // Clean up all timeouts
       return () => {
-        timeouts.forEach(timeout => clearTimeout(timeout));
+        timeouts.forEach((timeout) => clearTimeout(timeout));
       };
     }
   }, [renderMap]);
@@ -366,7 +367,7 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
   // This fixes issues where the map container sometimes takes up unnecessary space
   // Additional CSS properties like margin-bottom: 0 and box-sizing: border-box
   // help prevent weird spacing when viewing from the campgrounds page
-  // 
+  //
   // Multiple resize triggers have been added to ensure the map displays correctly:
   // 1. After component mount with a delay to ensure container is properly sized
   // 2. A second resize with a longer delay to catch any layout shifts
@@ -396,10 +397,12 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
         <Map
           ref={mapRef}
           {...viewState}
-          onMove={evt => setViewState(evt.viewState)}
-          mapStyle={theme === 'dark' 
-            ? "mapbox://styles/mapbox/dark-v11" 
-            : "mapbox://styles/mapbox/outdoors-v12"}
+          onMove={(evt) => setViewState(evt.viewState)}
+          mapStyle={
+            theme === 'dark'
+              ? 'mapbox://styles/mapbox/dark-v11'
+              : 'mapbox://styles/mapbox/outdoors-v12'
+          }
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
           attributionControl={true}
           reuseMaps

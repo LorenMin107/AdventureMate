@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import { logError } from '../utils/logger';
 import './RegisterForm.css';
 
 /**
@@ -14,13 +15,13 @@ const RegisterForm = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    phone: ''
+    phone: '',
   });
   const [formError, setFormError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState({
     score: 0,
     message: 'Password is too weak',
-    color: '#dc3545'
+    color: '#dc3545',
   });
   const { register, error, loading } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
@@ -32,7 +33,7 @@ const RegisterForm = () => {
       setPasswordStrength({
         score: 0,
         message: 'Password is too weak',
-        color: '#dc3545'
+        color: '#dc3545',
       });
       return;
     }
@@ -90,9 +91,9 @@ const RegisterForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -157,7 +158,9 @@ const RegisterForm = () => {
       // Check if email is verified
       if (user && !user.isEmailVerified) {
         // Redirect to email verification page with a message
-        addSuccessMessage('Registration successful! Please check your email to verify your account.');
+        addSuccessMessage(
+          'Registration successful! Please check your email to verify your account.'
+        );
         navigate('/verify-email-required');
       } else {
         // This case is unlikely but handled for completeness
@@ -166,7 +169,7 @@ const RegisterForm = () => {
       }
     } catch (err) {
       // Error is already handled by the AuthContext
-      console.error('Registration error:', err);
+      logError('Registration error', err);
       addErrorMessage(err.message || 'Registration failed. Please try again.');
     }
   };
@@ -179,11 +182,7 @@ const RegisterForm = () => {
 
       <h2>Sign up for MyanCamp</h2>
 
-      {(formError || error) && (
-        <div className="error-message">
-          {formError || error}
-        </div>
-      )}
+      {(formError || error) && <div className="error-message">{formError || error}</div>}
 
       <form onSubmit={handleSubmit} className="register-form">
         <div className="form-group">
@@ -244,11 +243,11 @@ const RegisterForm = () => {
           {formData.password && (
             <div className="password-strength">
               <div className="password-strength-bar">
-                <div 
-                  className="password-strength-progress" 
-                  style={{ 
+                <div
+                  className="password-strength-progress"
+                  style={{
                     width: `${(passwordStrength.score / 5) * 100}%`,
-                    backgroundColor: passwordStrength.color 
+                    backgroundColor: passwordStrength.color,
                   }}
                 ></div>
               </div>
@@ -261,11 +260,21 @@ const RegisterForm = () => {
           <div className="password-requirements">
             <p>Password must:</p>
             <ul>
-              <li className={formData.password.length >= 8 ? 'met' : ''}>Be at least 8 characters long</li>
-              <li className={/[A-Z]/.test(formData.password) ? 'met' : ''}>Include at least one uppercase letter</li>
-              <li className={/[a-z]/.test(formData.password) ? 'met' : ''}>Include at least one lowercase letter</li>
-              <li className={/\d/.test(formData.password) ? 'met' : ''}>Include at least one number</li>
-              <li className={/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? 'met' : ''}>Include at least one special character</li>
+              <li className={formData.password.length >= 8 ? 'met' : ''}>
+                Be at least 8 characters long
+              </li>
+              <li className={/[A-Z]/.test(formData.password) ? 'met' : ''}>
+                Include at least one uppercase letter
+              </li>
+              <li className={/[a-z]/.test(formData.password) ? 'met' : ''}>
+                Include at least one lowercase letter
+              </li>
+              <li className={/\d/.test(formData.password) ? 'met' : ''}>
+                Include at least one number
+              </li>
+              <li className={/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? 'met' : ''}>
+                Include at least one special character
+              </li>
             </ul>
           </div>
         </div>
@@ -284,9 +293,9 @@ const RegisterForm = () => {
           />
         </div>
 
-        <button 
-          type="submit" 
-          className="register-button" 
+        <button
+          type="submit"
+          className="register-button"
           disabled={loading || (formData.password && passwordStrength.score < 3)}
         >
           {loading ? 'Creating Account...' : 'Sign up'}

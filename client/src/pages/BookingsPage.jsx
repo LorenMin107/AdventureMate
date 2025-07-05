@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import BookingList from '../components/BookingList';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './BookingsPage.css';
 
 /**
@@ -26,7 +27,7 @@ const BookingsPage = () => {
         const data = response.data;
         setBookings(data.bookings || []);
       } catch (err) {
-        console.error('Error fetching bookings:', err);
+        logError('Error fetching bookings', err);
         setError('Failed to load bookings. Please try again later.');
       } finally {
         setLoading(false);

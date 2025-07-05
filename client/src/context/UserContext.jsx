@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import apiClient from '../utils/api';
+import { logInfo, logDebug, logError } from '../utils/logger';
 
 // Create the context
 const UserContext = createContext();
@@ -48,7 +49,7 @@ export const UserProvider = ({ children }) => {
       const response = await apiClient.get('/users/profile');
       setUserDetails(response.data.user);
     } catch (err) {
-      console.error('Error fetching user details:', err);
+      logError('Error fetching user details', err);
       setError(err.response?.data?.message || err.message || 'Failed to fetch user details');
     } finally {
       setLoading(false);
@@ -109,26 +110,26 @@ export const UserProvider = ({ children }) => {
     setError(null);
 
     try {
-      console.log('Making API request to initiate 2FA setup...');
-      console.log('Authentication status:', isAuthenticated);
-      console.log('Current user:', currentUser);
+      logInfo('Making API request to initiate 2FA setup...');
+      logDebug('Authentication status', isAuthenticated);
+      logDebug('Current user', currentUser);
 
       const response = await apiClient.post('/2fa/setup');
 
-      console.log('API response status:', response.status);
-      console.log('API response data:', { 
-        qrCode: response.data.qrCode ? 'QR code data present' : 'No QR code data', 
+      logDebug('API response status', response.status);
+      logDebug('API response data', {
+        qrCode: response.data.qrCode ? 'QR code data present' : 'No QR code data',
         secret: response.data.secret ? 'Secret present' : 'No secret',
-        setupCompleted: response.data.setupCompleted
+        setupCompleted: response.data.setupCompleted,
       });
 
       return {
         qrCode: response.data.qrCode,
         secret: response.data.secret,
-        setupCompleted: response.data.setupCompleted
+        setupCompleted: response.data.setupCompleted,
       };
     } catch (err) {
-      console.error('Error in initiate2FASetup:', err);
+      logError('Error in initiate2FASetup', err);
       setError(err.response?.data?.message || err.message || 'Failed to initiate 2FA setup');
       throw err;
     }
@@ -151,7 +152,7 @@ export const UserProvider = ({ children }) => {
 
       return {
         backupCodes: response.data.backupCodes,
-        setupCompleted: response.data.setupCompleted
+        setupCompleted: response.data.setupCompleted,
       };
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to verify 2FA setup');
@@ -181,7 +182,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-
   // Context value
   const value = {
     userDetails,
@@ -194,12 +194,8 @@ export const UserProvider = ({ children }) => {
     verify2FASetup,
     disable2FA,
     hasBookings: userDetails?.bookings?.length > 0,
-    hasReviews: userDetails?.reviews?.length > 0
+    hasReviews: userDetails?.reviews?.length > 0,
   };
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };

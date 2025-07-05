@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { logError } from '../utils/logger';
 import './CampgroundCard.css';
 
 /**
  * CampgroundCard component displays a card with campground information
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.campground - Campground data
  */
@@ -37,15 +38,15 @@ const CampgroundCard = ({ campground }) => {
         }
 
         // Filter available campsites
-        const availableCampsites = campsitesData.filter(campsite => campsite.availability);
+        const availableCampsites = campsitesData.filter((campsite) => campsite.availability);
 
         // Calculate the starting price from available campsites
         if (availableCampsites.length > 0) {
-          const minPrice = Math.min(...availableCampsites.map(campsite => campsite.price));
+          const minPrice = Math.min(...availableCampsites.map((campsite) => campsite.price));
           setStartingPrice(minPrice);
         }
       } catch (err) {
-        console.error('Error fetching campsites:', err);
+        logError('Error fetching campsites', err);
       } finally {
         setLoading(false);
       }
@@ -55,14 +56,14 @@ const CampgroundCard = ({ campground }) => {
   }, [_id]);
 
   // Get the first image or use a placeholder
-  const imageUrl = images && images.length > 0 
-    ? images[0].url 
-    : 'https://via.placeholder.com/300x200?text=No+Image+Available';
+  const imageUrl =
+    images && images.length > 0
+      ? images[0].url
+      : 'https://via.placeholder.com/300x200?text=No+Image+Available';
 
   // Truncate description if it's too long
-  const truncatedDescription = description && description.length > 100
-    ? `${description.substring(0, 100)}...`
-    : description;
+  const truncatedDescription =
+    description && description.length > 100 ? `${description.substring(0, 100)}...` : description;
 
   return (
     <div className="campground-card">
@@ -85,8 +86,8 @@ const CampgroundCard = ({ campground }) => {
               <span className="loading-price">Loading price...</span>
             ) : startingPrice > 0 ? (
               <>
-                <span className="from-text">From </span>
-                ${startingPrice}<span className="price-unit">/night</span>
+                <span className="from-text">From </span>${startingPrice}
+                <span className="price-unit">/night</span>
               </>
             ) : (
               <span className="no-price">Contact for pricing</span>

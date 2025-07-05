@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CampgroundForm from '../components/CampgroundForm';
+import { logError } from '../utils/logger';
 import './CampgroundNewPage.css'; // Reuse the same CSS
 
 /**
@@ -27,9 +28,10 @@ const CampgroundEditPage = () => {
         if (!response.ok) {
           const errorData = await response.json();
           // Check if the error response is in the new standardized format
-          const errorMessage = errorData.status === 'error' 
-            ? errorData.error || errorData.message 
-            : `Failed to fetch campground: ${response.status}`;
+          const errorMessage =
+            errorData.status === 'error'
+              ? errorData.error || errorData.message
+              : `Failed to fetch campground: ${response.status}`;
           throw new Error(errorMessage);
         }
 
@@ -52,7 +54,7 @@ const CampgroundEditPage = () => {
           setUnauthorized(true);
         }
       } catch (err) {
-        console.error('Error fetching campground:', err);
+        logError('Error fetching campground', err);
         setError('Failed to load campground. Please try again later.');
       } finally {
         setLoading(false);
@@ -69,9 +71,7 @@ const CampgroundEditPage = () => {
   if (loading) {
     return (
       <div className="campground-new-page">
-        <div className="loading-container">
-          Loading campground data...
-        </div>
+        <div className="loading-container">Loading campground data...</div>
       </div>
     );
   }
@@ -109,12 +109,7 @@ const CampgroundEditPage = () => {
         <p>Update the information for {campground?.title}</p>
       </div>
 
-      {campground && (
-        <CampgroundForm 
-          isEditing={true} 
-          campground={campground}
-        />
-      )}
+      {campground && <CampgroundForm isEditing={true} campground={campground} />}
     </div>
   );
 };

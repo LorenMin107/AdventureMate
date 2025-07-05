@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
+import { logError } from '../../utils/logger';
 import './AdminBookingDetail.css';
 
 /**
@@ -45,7 +46,7 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
         setBooking(data.booking);
         setError(null);
       } catch (err) {
-        console.error('Error fetching booking:', err);
+        logError('Error fetching booking', err);
         setError('Failed to load booking details. Please try again later.');
       } finally {
         setLoading(false);

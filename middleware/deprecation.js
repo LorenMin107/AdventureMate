@@ -4,6 +4,7 @@
  */
 const DeprecationLog = require('../models/deprecationLog');
 const ConversionLog = require('../models/conversionLog');
+const { logError, logInfo, logDebug, logWarn } = require('../utils/logger');
 
 /**
  * Add deprecation notice to response headers
@@ -19,7 +20,7 @@ const deprecateEndpoint = (options = {}) => {
     message: 'This endpoint is deprecated and will be removed in a future version',
     version: 'v2',
     alternativeUrl: null,
-    sunsetDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) // 180 days from now
+    sunsetDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000), // 180 days from now
   };
 
   const opts = { ...defaultOptions, ...options };
@@ -40,7 +41,7 @@ const deprecateEndpoint = (options = {}) => {
 
     // Add deprecation message to response
     const originalSend = res.send;
-    res.send = function(body) {
+    res.send = function (body) {
       // If the response is JSON, add deprecation warning
       if (res.get('Content-Type')?.includes('application/json')) {
         try {
@@ -58,8 +59,8 @@ const deprecateEndpoint = (options = {}) => {
               message: opts.message,
               version: opts.version,
               alternativeUrl: opts.alternativeUrl,
-              sunsetDate: opts.sunsetDate?.toISOString()
-            }
+              sunsetDate: opts.sunsetDate?.toISOString(),
+            },
           };
 
           // Convert back to string if the original body was a string
@@ -69,7 +70,10 @@ const deprecateEndpoint = (options = {}) => {
             body = data;
           }
         } catch (error) {
-          console.error('Error adding deprecation warning to response:', error);
+          logError('Error adding deprecation warning to response', error, {
+            endpoint: req.originalUrl,
+            method: req.method,
+          });
         }
       }
 
@@ -98,15 +102,24 @@ const logDeprecationUsage = (req, options) => {
     userAgent: req.get('User-Agent'),
     userId: req.user?._id,
     deprecationVersion: options.version,
-    alternativeUrl: options.alternativeUrl
+    alternativeUrl: options.alternativeUrl,
   };
 
   // Log to console for debugging
-  console.log('DEPRECATION USAGE:', JSON.stringify(logData));
+  logInfo('Deprecation usage logged', {
+    endpoint: logData.endpoint,
+    method: logData.method,
+    userId: logData.userId,
+    deprecationVersion: logData.deprecationVersion,
+  });
 
   // Store in database
-  DeprecationLog.create(logData)
-    .catch(err => console.error('Error logging deprecation usage:', err));
+  DeprecationLog.create(logData).catch((err) =>
+    logError('Error logging deprecation usage', err, {
+      endpoint: logData.endpoint,
+      method: logData.method,
+    })
+  );
 };
 
 /**
@@ -135,7 +148,7 @@ const convertSessionToJWT = () => {
 
         // Add conversion notice to response
         const originalSend = res.send;
-        res.send = function(body) {
+        res.send = function (body) {
           // If the response is JSON, add conversion notice
           if (res.get('Content-Type')?.includes('application/json')) {
             try {
@@ -150,11 +163,12 @@ const convertSessionToJWT = () => {
               data = {
                 ...data,
                 authConversion: {
-                  message: 'Session-based authentication is deprecated. Please use the provided JWT tokens for future requests.',
+                  message:
+                    'Session-based authentication is deprecated. Please use the provided JWT tokens for future requests.',
                   accessToken,
                   refreshToken: refreshToken.token,
-                  expiresAt: refreshToken.expiresAt
-                }
+                  expiresAt: refreshToken.expiresAt,
+                },
               };
 
               // Convert back to string if the original body was a string
@@ -164,7 +178,10 @@ const convertSessionToJWT = () => {
                 body = data;
               }
             } catch (error) {
-              console.error('Error adding auth conversion notice to response:', error);
+              logError('Error adding auth conversion notice to response', error, {
+                endpoint: req.originalUrl,
+                method: req.method,
+              });
             }
           }
 
@@ -175,7 +192,11 @@ const convertSessionToJWT = () => {
         // Log successful conversion for tracking
         logSessionConversion(req, true);
       } catch (error) {
-        console.error('Error converting session to JWT:', error);
+        logError('Error converting session to JWT', error, {
+          endpoint: req.originalUrl,
+          method: req.method,
+          userId: req.user?._id,
+        });
         // Log failed conversion for tracking
         logSessionConversion(req, false, error.message);
       }
@@ -200,22 +221,34 @@ const logSessionConversion = (req, successful = true, error = null) => {
     userAgent: req.get('User-Agent'),
     userId: req.user?._id,
     successful,
-    error
+    error,
   };
 
   // Log to console for debugging
-  console.log('SESSION CONVERSION:', JSON.stringify(logData));
+  logInfo('Session conversion logged', {
+    endpoint: logData.endpoint,
+    method: logData.method,
+    userId: logData.userId,
+    successful: logData.successful,
+  });
 
   // Store in database
   if (logData.userId) {
-    ConversionLog.create(logData)
-      .catch(err => console.error('Error logging session conversion:', err));
+    ConversionLog.create(logData).catch((err) =>
+      logError('Error logging session conversion', err, {
+        endpoint: logData.endpoint,
+        method: logData.method,
+      })
+    );
   } else {
-    console.warn('Cannot log session conversion: No user ID provided');
+    logWarn('Cannot log session conversion: No user ID provided', {
+      endpoint: logData.endpoint,
+      method: logData.method,
+    });
   }
 };
 
 module.exports = {
   deprecateEndpoint,
-  convertSessionToJWT
+  convertSessionToJWT,
 };

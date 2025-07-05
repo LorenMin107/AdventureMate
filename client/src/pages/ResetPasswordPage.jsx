@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { logError } from '../utils/logger';
 import './ResetPasswordPage.css';
 
 /**
@@ -16,13 +17,15 @@ const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [status, setStatus] = useState(token ? 'idle' : 'error'); // idle, loading, success, error
-  const [message, setMessage] = useState(token ? '' : 'No reset token provided. Please check your email link.');
+  const [message, setMessage] = useState(
+    token ? '' : 'No reset token provided. Please check your email link.'
+  );
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState({
     score: 0,
     message: 'Password is too weak',
-    color: '#dc3545'
+    color: '#dc3545',
   });
 
   // Check password strength
@@ -31,7 +34,7 @@ const ResetPasswordPage = () => {
       setPasswordStrength({
         score: 0,
         message: 'Password is too weak',
-        color: '#dc3545'
+        color: '#dc3545',
       });
       return;
     }
@@ -134,7 +137,7 @@ const ResetPasswordPage = () => {
         navigate('/login');
       }, 3000);
     } catch (error) {
-      console.error('Error resetting password:', error);
+      logError('Error resetting password', error);
       setStatus('error');
       setMessage(error.message || 'Failed to reset password. The token may be invalid or expired.');
     }
@@ -166,15 +169,18 @@ const ResetPasswordPage = () => {
                 {password && (
                   <div className="password-strength">
                     <div className="password-strength-bar">
-                      <div 
-                        className="password-strength-progress" 
-                        style={{ 
+                      <div
+                        className="password-strength-progress"
+                        style={{
                           width: `${(passwordStrength.score / 5) * 100}%`,
-                          backgroundColor: passwordStrength.color 
+                          backgroundColor: passwordStrength.color,
                         }}
                       ></div>
                     </div>
-                    <div className="password-strength-text" style={{ color: passwordStrength.color }}>
+                    <div
+                      className="password-strength-text"
+                      style={{ color: passwordStrength.color }}
+                    >
                       {passwordStrength.message}
                     </div>
                   </div>
@@ -183,11 +189,21 @@ const ResetPasswordPage = () => {
                 <div className="password-requirements">
                   <p>Password must:</p>
                   <ul>
-                    <li className={password.length >= 8 ? 'met' : ''}>Be at least 8 characters long</li>
-                    <li className={/[A-Z]/.test(password) ? 'met' : ''}>Include at least one uppercase letter</li>
-                    <li className={/[a-z]/.test(password) ? 'met' : ''}>Include at least one lowercase letter</li>
-                    <li className={/\d/.test(password) ? 'met' : ''}>Include at least one number</li>
-                    <li className={/[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'met' : ''}>Include at least one special character</li>
+                    <li className={password.length >= 8 ? 'met' : ''}>
+                      Be at least 8 characters long
+                    </li>
+                    <li className={/[A-Z]/.test(password) ? 'met' : ''}>
+                      Include at least one uppercase letter
+                    </li>
+                    <li className={/[a-z]/.test(password) ? 'met' : ''}>
+                      Include at least one lowercase letter
+                    </li>
+                    <li className={/\d/.test(password) ? 'met' : ''}>
+                      Include at least one number
+                    </li>
+                    <li className={/[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'met' : ''}>
+                      Include at least one special character
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -202,11 +218,13 @@ const ResetPasswordPage = () => {
                   placeholder="Confirm your new password"
                   className={confirmPasswordError ? 'input-error' : ''}
                 />
-                {confirmPasswordError && <div className="error-message">{confirmPasswordError}</div>}
+                {confirmPasswordError && (
+                  <div className="error-message">{confirmPasswordError}</div>
+                )}
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary"
                 disabled={status === 'loading' || authLoading || passwordStrength.score < 3}
               >
@@ -230,8 +248,12 @@ const ResetPasswordPage = () => {
             <p>{message}</p>
             <p>You will be redirected to the login page in a few seconds.</p>
             <div className="action-buttons">
-              <Link to="/login" className="btn btn-primary">Login Now</Link>
-              <Link to="/" className="btn btn-secondary">Go to Homepage</Link>
+              <Link to="/login" className="btn btn-primary">
+                Login Now
+              </Link>
+              <Link to="/" className="btn btn-secondary">
+                Go to Homepage
+              </Link>
             </div>
           </div>
         )}
@@ -242,8 +264,12 @@ const ResetPasswordPage = () => {
             <h2>Password Reset Failed</h2>
             <p>{message}</p>
             <div className="action-buttons">
-              <Link to="/forgot-password" className="btn btn-primary">Request New Reset Link</Link>
-              <Link to="/login" className="btn btn-secondary">Back to Login</Link>
+              <Link to="/forgot-password" className="btn btn-primary">
+                Request New Reset Link
+              </Link>
+              <Link to="/login" className="btn btn-secondary">
+                Back to Login
+              </Link>
             </div>
           </div>
         )}

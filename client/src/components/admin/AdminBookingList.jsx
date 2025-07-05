@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
+import { logError } from '../../utils/logger';
 import './AdminBookingList.css';
 
 /**
@@ -57,7 +58,7 @@ const AdminBookingList = ({ initialBookings = [] }) => {
         setTotalPages(data.pagination?.totalPages || 1);
         setError(null);
       } catch (err) {
-        console.error('Error fetching bookings:', err);
+        logError('Error fetching bookings', err);
         // Improved error handling for axios errors
         const errorMessage =
           err.response?.data?.message ||

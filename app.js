@@ -15,6 +15,9 @@ const { setFlashMessages, readFlashMessages } = require('./middleware/flashMessa
 const swaggerUi = require('swagger-ui-express'); // for API documentation
 const swaggerDocument = require('./docs/swagger.json'); // swagger documentation
 
+// Import logging system
+const { requestLogger, logInfo, logError, logDebug } = require('./utils/logger');
+
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
 const userRoutes = require('./routes/users');
@@ -31,26 +34,27 @@ const ApiResponse = require('./utils/ApiResponse'); // import the ApiResponse cl
 (async () => {
   try {
     await mongoose.connect(config.db.url);
-    console.log('Database connected to:', config.db.url);
+    logInfo('Database connected successfully', { url: config.db.url });
   } catch (err) {
-    console.error('MongoDB Atlas connection error:', err.message);
+    logError('MongoDB Atlas connection error', err, { url: config.db.url });
 
     // In development, try to connect to local MongoDB if Atlas connection fails
     if (!config.server.isProduction) {
       try {
         const localMongoUrl = 'mongodb://localhost:27017/myan-camp';
-        console.log('Attempting to connect to local MongoDB...');
+        logInfo('Attempting to connect to local MongoDB', { url: localMongoUrl });
         await mongoose.connect(localMongoUrl);
-        console.log('Connected to local MongoDB:', localMongoUrl);
+        logInfo('Connected to local MongoDB', { url: localMongoUrl });
       } catch (localErr) {
-        console.error('Local MongoDB connection also failed:', localErr.message);
-        console.error(
-          'Please ensure MongoDB is running locally or check your Atlas connection string'
-        );
+        logError('Local MongoDB connection also failed', localErr, {
+          atlasError: err.message,
+          localError: localErr.message,
+        });
+        logError('Please ensure MongoDB is running locally or check your Atlas connection string');
       }
     } else {
       // In production, exit the application if database connection fails
-      console.error('Exiting application due to database connection failure');
+      logError('Exiting application due to database connection failure');
       process.exit(1);
     }
   }
@@ -97,7 +101,11 @@ app.use(
 );
 
 app.post('/csp-violation-report-endpoint', express.json(), (req, res) => {
-  console.log('CSP Violation:', req.body);
+  logSecurity('CSP Violation detected', {
+    body: req.body,
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+  });
   res.status(204).end();
 });
 
@@ -122,9 +130,12 @@ const { apiLimiter } = require('./middleware/rateLimiter');
 // Apply rate limiting to all API routes
 app.use('/api', apiLimiter);
 
+// Apply request logging middleware to all routes
+app.use(requestLogger);
+
 // Apply JWT authentication middleware to all API routes
 // This middleware doesn't block requests without a JWT token, it just sets req.user if a token is provided
-console.log('Applying JWT authentication middleware to all API routes');
+logInfo('Applying JWT authentication middleware to all API routes');
 app.use('/api', authenticateJWT);
 
 // Apply versioning middleware to all API routes
@@ -199,14 +210,15 @@ const startServer = (port) => {
   return new Promise((resolve, reject) => {
     const server = app
       .listen(port, () => {
-        console.log(`Serving on Port ${port}...`);
+        logInfo('Server started successfully', { port });
         resolve(server);
       })
       .on('error', (err) => {
         if (err.code === 'EADDRINUSE') {
-          console.log(`Port ${port} is already in use, trying another port...`);
+          logWarn(`Port ${port} is already in use, trying another port`, { port });
           reject(err);
         } else {
+          logError('Failed to start server', err, { port });
           reject(err);
         }
       });
@@ -227,13 +239,16 @@ const tryStartServer = async (initialPort, maxAttempts = 5) => {
         attempts++;
         currentPort++;
       } else {
-        console.error('Failed to start server:', err);
+        logError('Failed to start server', err, { port: currentPort });
         process.exit(1);
       }
     }
   }
 
-  console.error(`Could not find an available port after ${maxAttempts} attempts.`);
+  logError(`Could not find an available port after ${maxAttempts} attempts`, null, {
+    initialPort,
+    maxAttempts,
+  });
   process.exit(1);
 };
 

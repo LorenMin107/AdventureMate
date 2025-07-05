@@ -1,5 +1,6 @@
 const ApiResponse = require('../utils/ApiResponse');
 const AuditLog = require('../models/auditLog');
+const { logError, logInfo, logDebug } = require('../utils/logger');
 
 /**
  * Permission middleware for role-based access control
@@ -14,21 +15,17 @@ const AuditLog = require('../models/auditLog');
 const hasRole = (roles) => {
   return (req, res, next) => {
     if (!req.user) {
-      return ApiResponse.error(
-        'Unauthorized', 
-        'Authentication required', 
-        401
-      ).send(res);
+      return ApiResponse.error('Unauthorized', 'Authentication required', 401).send(res);
     }
 
     // Check if user has any of the specified roles
     const userRoles = getUserRoles(req.user);
-    const hasRequiredRole = roles.some(role => userRoles.includes(role));
+    const hasRequiredRole = roles.some((role) => userRoles.includes(role));
 
     if (!hasRequiredRole) {
       return ApiResponse.error(
-        'Forbidden', 
-        'You do not have permission to access this resource', 
+        'Forbidden',
+        'You do not have permission to access this resource',
         403
       ).send(res);
     }
@@ -45,21 +42,17 @@ const hasRole = (roles) => {
 const hasAllRoles = (roles) => {
   return (req, res, next) => {
     if (!req.user) {
-      return ApiResponse.error(
-        'Unauthorized', 
-        'Authentication required', 
-        401
-      ).send(res);
+      return ApiResponse.error('Unauthorized', 'Authentication required', 401).send(res);
     }
 
     // Check if user has all of the specified roles
     const userRoles = getUserRoles(req.user);
-    const hasAllRequiredRoles = roles.every(role => userRoles.includes(role));
+    const hasAllRequiredRoles = roles.every((role) => userRoles.includes(role));
 
     if (!hasAllRequiredRoles) {
       return ApiResponse.error(
-        'Forbidden', 
-        'You do not have permission to access this resource', 
+        'Forbidden',
+        'You do not have permission to access this resource',
         403
       ).send(res);
     }
@@ -76,19 +69,15 @@ const hasAllRoles = (roles) => {
 const hasPermission = (permission) => {
   return (req, res, next) => {
     if (!req.user) {
-      return ApiResponse.error(
-        'Unauthorized', 
-        'Authentication required', 
-        401
-      ).send(res);
+      return ApiResponse.error('Unauthorized', 'Authentication required', 401).send(res);
     }
 
     // Check if user has the specified permission
     const userPermissions = getUserPermissions(req.user);
     if (!userPermissions.includes(permission)) {
       return ApiResponse.error(
-        'Forbidden', 
-        'You do not have permission to access this resource', 
+        'Forbidden',
+        'You do not have permission to access this resource',
         403
       ).send(res);
     }
@@ -105,11 +94,7 @@ const hasPermission = (permission) => {
 const isResourceOwnerOrAdmin = (getResourceOwnerId) => {
   return async (req, res, next) => {
     if (!req.user) {
-      return ApiResponse.error(
-        'Unauthorized', 
-        'Authentication required', 
-        401
-      ).send(res);
+      return ApiResponse.error('Unauthorized', 'Authentication required', 401).send(res);
     }
 
     // If user is admin, allow access
@@ -128,15 +113,19 @@ const isResourceOwnerOrAdmin = (getResourceOwnerId) => {
 
       // User is not the owner or admin
       return ApiResponse.error(
-        'Forbidden', 
-        'You do not have permission to access this resource', 
+        'Forbidden',
+        'You do not have permission to access this resource',
         403
       ).send(res);
     } catch (error) {
-      console.error('Error checking resource ownership:', error);
+      logError('Error checking resource ownership', error, {
+        endpoint: req.originalUrl,
+        userId: req.user?._id,
+        method: req.method,
+      });
       return ApiResponse.error(
-        'Server Error', 
-        'An error occurred while checking permissions', 
+        'Server Error',
+        'An error occurred while checking permissions',
         500
       ).send(res);
     }
@@ -165,14 +154,14 @@ const auditLog = (action, resource, options = {}) => {
       ipAddress: req.ip || req.connection.remoteAddress,
       userAgent: req.headers['user-agent'],
       timestamp: new Date(),
-      details: options.details || {}
+      details: options.details || {},
     };
 
     // Add request-specific details
     if (options.includeBody && req.body) {
       // Filter out sensitive fields
       const filteredBody = { ...req.body };
-      ['password', 'token', 'accessToken', 'refreshToken'].forEach(field => {
+      ['password', 'token', 'accessToken', 'refreshToken'].forEach((field) => {
         if (filteredBody[field]) {
           filteredBody[field] = '[REDACTED]';
         }
@@ -185,8 +174,12 @@ const auditLog = (action, resource, options = {}) => {
     }
 
     // Store audit log entry
-    storeAuditLog(auditEntry)
-      .catch(error => console.error('Error storing audit log:', error));
+    storeAuditLog(auditEntry).catch((error) =>
+      logError('Error storing audit log', error, {
+        auditEntry: auditEntry.action + ':' + auditEntry.resource,
+        userId: auditEntry.user,
+      })
+    );
 
     // Continue with the request
     next();
@@ -223,7 +216,12 @@ const getUserPermissions = (user) => {
   // Basic user permissions
   if (user.isEmailVerified) {
     permissions.push('create:review', 'update:own_review', 'delete:own_review');
-    permissions.push('create:booking', 'read:own_booking', 'update:own_booking', 'cancel:own_booking');
+    permissions.push(
+      'create:booking',
+      'read:own_booking',
+      'update:own_booking',
+      'cancel:own_booking'
+    );
   }
 
   // Owner permissions
@@ -254,12 +252,21 @@ const getUserPermissions = (user) => {
 const storeAuditLog = async (auditEntry) => {
   try {
     // Log to console for debugging
-    console.log('AUDIT LOG:', JSON.stringify(auditEntry));
+    logInfo('Audit log entry created', {
+      action: auditEntry.action,
+      resource: auditEntry.resource,
+      userId: auditEntry.user,
+      ipAddress: auditEntry.ipAddress,
+    });
 
     // Store in database
     await AuditLog.createLog(auditEntry);
   } catch (error) {
-    console.error('Error storing audit log:', error);
+    logError('Error storing audit log', error, {
+      action: auditEntry.action,
+      resource: auditEntry.resource,
+      userId: auditEntry.user,
+    });
   }
 };
 
@@ -270,5 +277,5 @@ module.exports = {
   isResourceOwnerOrAdmin,
   auditLog,
   getUserRoles,
-  getUserPermissions
+  getUserPermissions,
 };

@@ -5,11 +5,12 @@ import { useAuth } from '../context/AuthContext';
 import { Form, DateRangePicker, ErrorMessage, Select, Input } from './forms';
 import { bookingSchema } from '../utils/validationSchemas';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './BookingForm.css';
 
 /**
  * BookingForm component for creating a new booking
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.campground - Campground data
  * @returns {JSX.Element} Booking form component
@@ -50,12 +51,11 @@ const BookingForm = ({ campground }) => {
       const data = response.data;
 
       // Check if the response is in the standardized format
-      const campsitesData = data.status === 'success' && data.data 
-        ? data.data.campsites 
-        : data.campsites;
+      const campsitesData =
+        data.status === 'success' && data.data ? data.data.campsites : data.campsites;
 
       // Filter out unavailable campsites
-      const availableCampsites = campsitesData.filter(campsite => {
+      const availableCampsites = campsitesData.filter((campsite) => {
         // If dates are selected, check if the campsite has any booked dates that overlap
         if (startDate && endDate) {
           // The backend should already filter out unavailable campsites based on dates
@@ -71,7 +71,7 @@ const BookingForm = ({ campground }) => {
 
       // Calculate starting price from available campsites
       if (availableCampsites.length > 0) {
-        const minPrice = Math.min(...availableCampsites.map(campsite => campsite.price));
+        const minPrice = Math.min(...availableCampsites.map((campsite) => campsite.price));
         setStartingPrice(minPrice);
       } else {
         // If no available campsites, set starting price to 0
@@ -80,9 +80,9 @@ const BookingForm = ({ campground }) => {
 
       // Extract booked dates from all campsites to disable them in the date picker
       const allBookedDates = [];
-      campsitesData.forEach(campsite => {
+      campsitesData.forEach((campsite) => {
         if (campsite.bookedDates && campsite.bookedDates.length > 0) {
-          campsite.bookedDates.forEach(booking => {
+          campsite.bookedDates.forEach((booking) => {
             // Generate all dates between start and end date
             const start = new Date(booking.startDate);
             const end = new Date(booking.endDate);
@@ -99,8 +99,10 @@ const BookingForm = ({ campground }) => {
       // Update the excludeDates state with all booked dates
       setExcludeDates(allBookedDates);
     } catch (err) {
-      console.error('Error fetching campsites:', err);
-      setApiError('Failed to load campsites. You can still book the campground without selecting a specific campsite.');
+      logError('Error fetching campsites', err);
+      setApiError(
+        'Failed to load campsites. You can still book the campground without selecting a specific campsite.'
+      );
     } finally {
       setLoadingCampsites(false);
     }
@@ -127,12 +129,12 @@ const BookingForm = ({ campground }) => {
     startDate: '',
     endDate: '',
     guests: 1,
-    campsiteId: ''
+    campsiteId: '',
   };
 
   // Handle campsite selection
   const handleCampsiteChange = (campsiteId) => {
-    const selected = campsites.find(campsite => campsite._id === campsiteId);
+    const selected = campsites.find((campsite) => campsite._id === campsiteId);
     setSelectedCampsite(selected);
   };
 
@@ -144,32 +146,31 @@ const BookingForm = ({ campground }) => {
     try {
       setApiError(null);
 
-      const response = await apiClient.post(`/bookings/${campground._id}/book`, { 
-        startDate: data.startDate, 
+      const response = await apiClient.post(`/bookings/${campground._id}/book`, {
+        startDate: data.startDate,
         endDate: data.endDate,
         campsiteId: selectedCampsite ? selectedCampsite._id : null,
-        guests: parseInt(data.guests || guests, 10)
+        guests: parseInt(data.guests || guests, 10),
       });
 
       const responseData = response.data;
 
       // Check if the response is in the new standardized format
-      const bookingData = responseData.status && responseData.data 
-        ? responseData.data 
-        : responseData;
+      const bookingData =
+        responseData.status && responseData.data ? responseData.data : responseData;
 
       // Navigate to checkout page with booking data
-      navigate('/bookings/checkout', { 
-        state: { 
+      navigate('/bookings/checkout', {
+        state: {
           booking: bookingData.booking,
           campground: bookingData.campground,
-          campsite: selectedCampsite
-        } 
+          campsite: selectedCampsite,
+        },
       });
 
       return bookingData; // Return data to trigger success handling
     } catch (err) {
-      console.error('Error creating booking:', err);
+      logError('Error creating booking', err);
       // Set API-specific error
       setApiError(err.message || 'Failed to create booking. Please try again later.');
       // Re-throw to let Form component handle it
@@ -224,11 +225,11 @@ const BookingForm = ({ campground }) => {
             <Select
               name="campsiteId"
               label="Select a Campsite (Optional)"
-              options={campsites.map(campsite => ({
+              options={campsites.map((campsite) => ({
                 value: campsite._id,
-                label: `${campsite.name} - $${campsite.price}/night - Capacity: ${campsite.capacity}`
+                label: `${campsite.name} - $${campsite.price}/night - Capacity: ${campsite.capacity}`,
               }))}
-              onChange={e => handleCampsiteChange(e.target.value)}
+              onChange={(e) => handleCampsiteChange(e.target.value)}
               placeholder="Choose a specific campsite"
               className="booking-form-campsite-field"
             />
@@ -260,7 +261,7 @@ const BookingForm = ({ campground }) => {
             min="1"
             max={selectedCampsite ? selectedCampsite.capacity : 10}
             defaultValue={1}
-            onChange={e => setGuests(parseInt(e.target.value, 10))}
+            onChange={(e) => setGuests(parseInt(e.target.value, 10))}
             className="booking-form-guests-field"
           />
         </div>
@@ -276,8 +277,8 @@ const BookingForm = ({ campground }) => {
 BookingForm.propTypes = {
   campground: PropTypes.shape({
     _id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired
-  }).isRequired
+    title: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default BookingForm;

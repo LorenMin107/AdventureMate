@@ -8,6 +8,7 @@ const ExpressError = require('../../utils/ExpressError');
 const { generateToken, revokeAllUserTokens } = require('../../utils/jwtUtils');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { logError, logInfo, logDebug } = require('../../utils/logger');
 
 /**
  * Register a new owner
@@ -30,7 +31,7 @@ const registerOwner = async (req, res) => {
       businessEmail,
       bankingInfo,
       settings,
-      verificationStatus = 'pending'
+      verificationStatus = 'pending',
     } = req.body;
 
     // Determine the user ID - if userId is provided and user is admin, use that
@@ -50,7 +51,7 @@ const registerOwner = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'User not found'
+        message: 'User not found',
       });
     }
 
@@ -59,7 +60,7 @@ const registerOwner = async (req, res) => {
     if (existingOwner) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'User is already registered as an owner'
+        message: 'User is already registered as an owner',
       });
     }
 
@@ -77,13 +78,13 @@ const registerOwner = async (req, res) => {
           businessPhone: application.businessPhone,
           businessEmail: application.businessEmail,
           bankingInfo: application.bankingInfo,
-          verificationDocuments: application.documents.map(doc => ({
+          verificationDocuments: application.documents.map((doc) => ({
             type: doc.type,
             filename: doc.filename,
             url: doc.url,
             uploadedAt: doc.uploadedAt,
-            status: 'approved'
-          }))
+            status: 'approved',
+          })),
         };
       }
     }
@@ -98,7 +99,8 @@ const registerOwner = async (req, res) => {
       user: targetUserId,
       businessName: businessName || applicationData.businessName,
       businessType: businessType || applicationData.businessType,
-      businessRegistrationNumber: businessRegistrationNumber || applicationData.businessRegistrationNumber,
+      businessRegistrationNumber:
+        businessRegistrationNumber || applicationData.businessRegistrationNumber,
       taxId: taxId || applicationData.taxId,
       businessAddress: businessAddress || applicationData.businessAddress,
       businessPhone: businessPhone || applicationData.businessPhone,
@@ -108,7 +110,7 @@ const registerOwner = async (req, res) => {
       verificationStatus: finalVerificationStatus,
       verifiedAt: finalVerificationStatus === 'verified' ? new Date() : undefined,
       verifiedBy: finalVerificationStatus === 'verified' ? req.user._id : undefined,
-      verificationDocuments: applicationData.verificationDocuments || []
+      verificationDocuments: applicationData.verificationDocuments || [],
     });
 
     await owner.save();
@@ -127,7 +129,7 @@ const registerOwner = async (req, res) => {
       await OwnerApplication.findByIdAndUpdate(applicationId, {
         status: 'approved',
         reviewedBy: req.user._id,
-        reviewedAt: new Date()
+        reviewedAt: new Date(),
       });
     }
 
@@ -136,7 +138,8 @@ const registerOwner = async (req, res) => {
     if (isAdminRegistration) {
       responseMessage = 'Owner registration successful.';
     } else {
-      responseMessage = 'Your owner application has been submitted and is pending review. You will be notified once it is approved.';
+      responseMessage =
+        'Your owner application has been submitted and is pending review. You will be notified once it is approved.';
     }
 
     res.status(201).json({
@@ -149,15 +152,19 @@ const registerOwner = async (req, res) => {
         user: {
           id: user._id,
           username: user.username,
-          email: user.email
-        }
-      }
+          email: user.email,
+        },
+      },
     });
   } catch (error) {
-    console.error('Error registering owner:', error);
+    logError('Error registering owner', error, { 
+      endpoint: '/api/owners/register',
+      userId: req.user?._id,
+      targetUserId: req.body.userId 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to register owner'
+      message: 'Failed to register owner',
     });
   }
 };
@@ -175,7 +182,7 @@ const getOwnerProfile = async (req, res) => {
     if (!owner) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Owner profile not found'
+        message: 'Owner profile not found',
       });
     }
 
@@ -186,17 +193,21 @@ const getOwnerProfile = async (req, res) => {
         verificationToken: undefined,
         bankingInfo: {
           ...owner.bankingInfo,
-          accountNumber: owner.bankingInfo.accountNumber ? 
-            '*'.repeat(owner.bankingInfo.accountNumber.length - 4) + 
-            owner.bankingInfo.accountNumber.slice(-4) : undefined
-        }
-      }
+          accountNumber: owner.bankingInfo.accountNumber
+            ? '*'.repeat(owner.bankingInfo.accountNumber.length - 4) +
+              owner.bankingInfo.accountNumber.slice(-4)
+            : undefined,
+        },
+      },
     });
   } catch (error) {
-    console.error('Error fetching owner profile:', error);
+    logError('Error fetching owner profile', error, { 
+      endpoint: '/api/owners/profile',
+      userId: req.user?._id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch owner profile'
+      message: 'Failed to fetch owner profile',
     });
   }
 };
@@ -216,14 +227,14 @@ const updateOwnerProfile = async (req, res) => {
       businessPhone,
       businessEmail,
       bankingInfo,
-      settings
+      settings,
     } = req.body;
 
     const owner = await Owner.findOne({ user: req.user._id });
     if (!owner) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Owner profile not found'
+        message: 'Owner profile not found',
       });
     }
 
@@ -247,17 +258,21 @@ const updateOwnerProfile = async (req, res) => {
         verificationToken: undefined,
         bankingInfo: {
           ...owner.bankingInfo,
-          accountNumber: owner.bankingInfo.accountNumber ? 
-            '*'.repeat(owner.bankingInfo.accountNumber.length - 4) + 
-            owner.bankingInfo.accountNumber.slice(-4) : undefined
-        }
-      }
+          accountNumber: owner.bankingInfo.accountNumber
+            ? '*'.repeat(owner.bankingInfo.accountNumber.length - 4) +
+              owner.bankingInfo.accountNumber.slice(-4)
+            : undefined,
+        },
+      },
     });
   } catch (error) {
-    console.error('Error updating owner profile:', error);
+    logError('Error updating owner profile', error, { 
+      endpoint: '/api/owners/profile',
+      userId: req.user?._id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to update owner profile'
+      message: 'Failed to update owner profile',
     });
   }
 };
@@ -273,7 +288,7 @@ const uploadVerificationDocuments = async (req, res) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'No files uploaded'
+        message: 'No files uploaded',
       });
     }
 
@@ -281,18 +296,18 @@ const uploadVerificationDocuments = async (req, res) => {
     if (!owner) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Owner profile not found'
+        message: 'Owner profile not found',
       });
     }
 
     // Add documents to owner
-    const documents = req.files.map(file => ({
+    const documents = req.files.map((file) => ({
       type: type || 'other',
       filename: file.filename,
       url: file.path,
       description,
       uploadedAt: new Date(),
-      status: 'pending'
+      status: 'pending',
     }));
 
     owner.verificationDocuments.push(...documents);
@@ -306,18 +321,21 @@ const uploadVerificationDocuments = async (req, res) => {
 
     res.json({
       message: 'Documents uploaded successfully',
-      documents: documents.map(doc => ({
+      documents: documents.map((doc) => ({
         type: doc.type,
         filename: doc.filename,
         uploadedAt: doc.uploadedAt,
-        status: doc.status
-      }))
+        status: doc.status,
+      })),
     });
   } catch (error) {
-    console.error('Error uploading verification documents:', error);
+    logError('Error uploading verification documents', error, { 
+      endpoint: '/api/owners/verification-documents',
+      userId: req.user?._id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to upload verification documents'
+      message: 'Failed to upload verification documents',
     });
   }
 };
@@ -328,24 +346,26 @@ const uploadVerificationDocuments = async (req, res) => {
  */
 const getOwnerDashboard = async (req, res) => {
   try {
-    const owner = await Owner.findOne({ user: req.user._id })
-      .populate('campgrounds', 'title location images');
+    const owner = await Owner.findOne({ user: req.user._id }).populate(
+      'campgrounds',
+      'title location images'
+    );
 
     if (!owner) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Owner profile not found'
+        message: 'Owner profile not found',
       });
     }
 
     // Get recent bookings
     const recentBookings = await Booking.find({
-      campground: { $in: owner.campgrounds }
+      campground: { $in: owner.campgrounds },
     })
-    .populate('user', 'username email')
-    .populate('campground', 'title')
-    .sort({ createdAt: -1 })
-    .limit(10);
+      .populate('user', 'username email')
+      .populate('campground', 'title')
+      .sort({ createdAt: -1 })
+      .limit(10);
 
     // Get booking statistics for the last 30 days
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -353,8 +373,8 @@ const getOwnerDashboard = async (req, res) => {
       {
         $match: {
           campground: { $in: owner.campgrounds },
-          createdAt: { $gte: thirtyDaysAgo }
-        }
+          createdAt: { $gte: thirtyDaysAgo },
+        },
       },
       {
         $group: {
@@ -362,13 +382,13 @@ const getOwnerDashboard = async (req, res) => {
           totalBookings: { $sum: 1 },
           totalRevenue: { $sum: '$totalPrice' },
           confirmedBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
           },
           pendingBookings: {
-            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
-          }
-        }
-      }
+            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
+          },
+        },
+      },
     ]);
 
     // Get average rating
@@ -378,33 +398,33 @@ const getOwnerDashboard = async (req, res) => {
           from: 'campgrounds',
           localField: 'campground',
           foreignField: '_id',
-          as: 'campgroundData'
-        }
+          as: 'campgroundData',
+        },
       },
       {
         $match: {
-          'campgroundData._id': { $in: owner.campgrounds }
-        }
+          'campgroundData._id': { $in: owner.campgrounds },
+        },
       },
       {
         $group: {
           _id: null,
           averageRating: { $avg: '$rating' },
-          totalReviews: { $sum: 1 }
-        }
-      }
+          totalReviews: { $sum: 1 },
+        },
+      },
     ]);
 
     const stats = bookingStats[0] || {
       totalBookings: 0,
       totalRevenue: 0,
       confirmedBookings: 0,
-      pendingBookings: 0
+      pendingBookings: 0,
     };
 
     const ratings = ratingStats[0] || {
       averageRating: 0,
-      totalReviews: 0
+      totalReviews: 0,
     };
 
     res.json({
@@ -413,21 +433,24 @@ const getOwnerDashboard = async (req, res) => {
         businessName: owner.businessName,
         verificationStatus: owner.verificationStatus,
         verificationStatusDisplay: owner.verificationStatusDisplay,
-        totalCampgrounds: owner.campgrounds.length
+        totalCampgrounds: owner.campgrounds.length,
       },
       stats: {
         ...stats,
         averageRating: Math.round(ratings.averageRating * 10) / 10,
-        totalReviews: ratings.totalReviews
+        totalReviews: ratings.totalReviews,
       },
       recentBookings,
-      campgrounds: owner.campgrounds
+      campgrounds: owner.campgrounds,
     });
   } catch (error) {
-    console.error('Error fetching owner dashboard:', error);
+    logError('Error fetching owner dashboard', error, { 
+      endpoint: '/api/owners/dashboard',
+      userId: req.user?._id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch dashboard data'
+      message: 'Failed to fetch dashboard data',
     });
   }
 };
@@ -444,7 +467,7 @@ const getOwnerAnalytics = async (req, res) => {
     if (!owner) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Owner profile not found'
+        message: 'Owner profile not found',
       });
     }
 
@@ -454,8 +477,8 @@ const getOwnerAnalytics = async (req, res) => {
       dateFilter = {
         createdAt: {
           $gte: new Date(startDate),
-          $lte: new Date(endDate)
-        }
+          $lte: new Date(endDate),
+        },
       };
     } else {
       const days = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 365;
@@ -470,23 +493,23 @@ const getOwnerAnalytics = async (req, res) => {
           campground: { $in: owner.campgrounds },
           status: 'confirmed',
           paid: true,
-          ...dateFilter
-        }
+          ...dateFilter,
+        },
       },
       {
         $group: {
           _id: {
             year: { $year: '$createdAt' },
             month: { $month: '$createdAt' },
-            day: { $dayOfMonth: '$createdAt' }
+            day: { $dayOfMonth: '$createdAt' },
           },
           revenue: { $sum: '$totalPrice' },
-          bookings: { $sum: 1 }
-        }
+          bookings: { $sum: 1 },
+        },
       },
       {
-        $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 }
-      }
+        $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 },
+      },
     ]);
 
     // Booking status distribution
@@ -494,15 +517,15 @@ const getOwnerAnalytics = async (req, res) => {
       {
         $match: {
           campground: { $in: owner.campgrounds },
-          ...dateFilter
-        }
+          ...dateFilter,
+        },
       },
       {
         $group: {
           _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     // Campground performance
@@ -512,38 +535,38 @@ const getOwnerAnalytics = async (req, res) => {
           campground: { $in: owner.campgrounds },
           status: 'confirmed',
           paid: true,
-          ...dateFilter
-        }
+          ...dateFilter,
+        },
       },
       {
         $group: {
           _id: '$campground',
           revenue: { $sum: '$totalPrice' },
-          bookings: { $sum: 1 }
-        }
+          bookings: { $sum: 1 },
+        },
       },
       {
         $lookup: {
           from: 'campgrounds',
           localField: '_id',
           foreignField: '_id',
-          as: 'campground'
-        }
+          as: 'campground',
+        },
       },
       {
-        $unwind: '$campground'
+        $unwind: '$campground',
       },
       {
         $project: {
           campgroundId: '$_id',
           campgroundName: '$campground.title',
           revenue: 1,
-          bookings: 1
-        }
+          bookings: 1,
+        },
       },
       {
-        $sort: { revenue: -1 }
-      }
+        $sort: { revenue: -1 },
+      },
     ]);
 
     res.json({
@@ -551,14 +574,18 @@ const getOwnerAnalytics = async (req, res) => {
       analytics: {
         revenue: revenueAnalytics,
         bookingStatus: bookingStatusStats,
-        campgroundPerformance
-      }
+        campgroundPerformance,
+      },
     });
   } catch (error) {
-    console.error('Error fetching owner analytics:', error);
+    logError('Error fetching owner analytics', error, { 
+      endpoint: '/api/owners/analytics',
+      userId: req.user?._id,
+      query: req.query 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch analytics data'
+      message: 'Failed to fetch analytics data',
     });
   }
 };
@@ -575,13 +602,13 @@ const getOwnerBookings = async (req, res) => {
     if (!owner) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'Owner profile not found'
+        message: 'Owner profile not found',
       });
     }
 
     // Build query
     const query = {
-      campground: { $in: owner.campgrounds }
+      campground: { $in: owner.campgrounds },
     };
 
     if (status) {
@@ -610,14 +637,18 @@ const getOwnerBookings = async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
-    console.error('Error fetching owner bookings:', error);
+    logError('Error fetching owner bookings', error, { 
+      endpoint: '/api/owners/bookings',
+      userId: req.user?._id,
+      query: req.query 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch bookings'
+      message: 'Failed to fetch bookings',
     });
   }
 };
@@ -639,7 +670,7 @@ const applyToBeOwner = async (req, res) => {
       bankingInfo,
       applicationReason,
       experience,
-      expectedProperties
+      expectedProperties,
     } = req.body;
 
     // Check if user already has an application
@@ -647,7 +678,7 @@ const applyToBeOwner = async (req, res) => {
     if (existingApplication) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'You already have a pending owner application'
+        message: 'You already have a pending owner application',
       });
     }
 
@@ -656,7 +687,7 @@ const applyToBeOwner = async (req, res) => {
     if (existingOwner) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'User is already registered as an owner'
+        message: 'User is already registered as an owner',
       });
     }
 
@@ -674,26 +705,30 @@ const applyToBeOwner = async (req, res) => {
       applicationReason,
       experience,
       expectedProperties,
-      status: 'pending'
+      status: 'pending',
     });
 
     await application.save();
 
     res.status(201).json({
-      message: 'Owner application submitted successfully. You will be notified once it is reviewed.',
+      message:
+        'Owner application submitted successfully. You will be notified once it is reviewed.',
       application: {
         id: application._id,
         businessName: application.businessName,
         status: application.status,
         statusDisplay: application.statusDisplay,
-        createdAt: application.createdAt
-      }
+        createdAt: application.createdAt,
+      },
     });
   } catch (error) {
-    console.error('Error submitting owner application:', error);
+    logError('Error submitting owner application', error, { 
+      endpoint: '/api/owners/apply',
+      userId: req.user?._id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to submit owner application'
+      message: 'Failed to submit owner application',
     });
   }
 };
@@ -711,18 +746,21 @@ const getOwnerApplication = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'No owner application found'
+        message: 'No owner application found',
       });
     }
 
     res.json({
-      application: application.toObject()
+      application: application.toObject(),
     });
   } catch (error) {
-    console.error('Error fetching owner application:', error);
+    logError('Error fetching owner application', error, { 
+      endpoint: '/api/owners/application',
+      userId: req.user?._id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to fetch owner application'
+      message: 'Failed to fetch owner application',
     });
   }
 };
@@ -737,7 +775,7 @@ const updateOwnerApplication = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'No owner application found'
+        message: 'No owner application found',
       });
     }
 
@@ -745,7 +783,7 @@ const updateOwnerApplication = async (req, res) => {
     if (!application.canBeModified()) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Application cannot be modified in its current status'
+        message: 'Application cannot be modified in its current status',
       });
     }
 
@@ -760,15 +798,17 @@ const updateOwnerApplication = async (req, res) => {
       bankingInfo,
       applicationReason,
       experience,
-      expectedProperties
+      expectedProperties,
     } = req.body;
 
     // Update fields
     if (businessName) application.businessName = businessName;
     if (businessType) application.businessType = businessType;
-    if (businessRegistrationNumber) application.businessRegistrationNumber = businessRegistrationNumber;
+    if (businessRegistrationNumber)
+      application.businessRegistrationNumber = businessRegistrationNumber;
     if (taxId) application.taxId = taxId;
-    if (businessAddress) application.businessAddress = { ...application.businessAddress, ...businessAddress };
+    if (businessAddress)
+      application.businessAddress = { ...application.businessAddress, ...businessAddress };
     if (businessPhone) application.businessPhone = businessPhone;
     if (businessEmail) application.businessEmail = businessEmail;
     if (bankingInfo) application.bankingInfo = { ...application.bankingInfo, ...bankingInfo };
@@ -780,13 +820,16 @@ const updateOwnerApplication = async (req, res) => {
 
     res.json({
       message: 'Application updated successfully',
-      application: application.toObject()
+      application: application.toObject(),
     });
   } catch (error) {
-    console.error('Error updating owner application:', error);
+    logError('Error updating owner application', error, { 
+      endpoint: '/api/owners/application',
+      userId: req.user?._id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to update owner application'
+      message: 'Failed to update owner application',
     });
   }
 };
@@ -802,7 +845,7 @@ const uploadApplicationDocuments = async (req, res) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'No files uploaded'
+        message: 'No files uploaded',
       });
     }
 
@@ -810,7 +853,7 @@ const uploadApplicationDocuments = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         error: 'Not Found',
-        message: 'No owner application found'
+        message: 'No owner application found',
       });
     }
 
@@ -818,16 +861,16 @@ const uploadApplicationDocuments = async (req, res) => {
     if (!application.canBeModified()) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Documents cannot be uploaded for application in current status'
+        message: 'Documents cannot be uploaded for application in current status',
       });
     }
 
     // Add documents to application
-    const documents = req.files.map(file => ({
+    const documents = req.files.map((file) => ({
       type: type || 'other',
       filename: file.filename,
       url: file.path,
-      uploadedAt: new Date()
+      uploadedAt: new Date(),
     }));
 
     application.documents.push(...documents);
@@ -841,17 +884,20 @@ const uploadApplicationDocuments = async (req, res) => {
 
     res.json({
       message: 'Documents uploaded successfully',
-      documents: documents.map(doc => ({
+      documents: documents.map((doc) => ({
         type: doc.type,
         filename: doc.filename,
-        uploadedAt: doc.uploadedAt
-      }))
+        uploadedAt: doc.uploadedAt,
+      })),
     });
   } catch (error) {
-    console.error('Error uploading application documents:', error);
+    logError('Error uploading application documents', error, { 
+      endpoint: '/api/owners/application/documents',
+      userId: req.user?._id 
+    });
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to upload documents'
+      message: 'Failed to upload documents',
     });
   }
 };
@@ -867,5 +913,5 @@ module.exports = {
   applyToBeOwner,
   getOwnerApplication,
   updateOwnerApplication,
-  uploadApplicationDocuments
+  uploadApplicationDocuments,
 };

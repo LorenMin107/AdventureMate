@@ -8,6 +8,7 @@ const {
   verifyBackupCode,
   markBackupCodeAsUsed,
 } = require('../../utils/twoFactorAuth');
+const { logError, logInfo, logDebug, logWarn } = require('../../utils/logger');
 
 /**
  * Controller for two-factor authentication operations
@@ -20,21 +21,31 @@ const {
  */
 exports.initiate2FASetup = async (req, res) => {
   try {
-    console.log('Initiating 2FA setup for user:', req.user ? req.user._id : 'No user');
+    logInfo('Initiating 2FA setup', { 
+      userId: req.user?._id,
+      endpoint: '/api/v1/2fa/setup' 
+    });
 
     // Ensure user is authenticated
     if (!req.user) {
-      console.log('User not authenticated');
+      logWarn('2FA setup attempted without authentication', { 
+      endpoint: '/api/v1/2fa/setup' 
+    });
       return res.status(401).json({ error: 'Authentication required' });
     }
 
     // Check if 2FA is already enabled
     if (req.user.isTwoFactorEnabled) {
-      console.log('2FA already enabled for user:', req.user._id);
+      logInfo('2FA already enabled', { 
+      userId: req.user._id 
+    });
       return res.status(400).json({ error: '2FA is already enabled for this account' });
     }
 
-    console.log('Generating secret for user:', req.user.username);
+    logDebug('Generating 2FA secret', { 
+      userId: req.user._id,
+      username: req.user.username 
+    });
     // Generate a new secret
     const secret = generateSecret(req.user.username);
 
@@ -42,14 +53,22 @@ exports.initiate2FASetup = async (req, res) => {
     req.user.twoFactorSecret = secret.base32;
     req.user.twoFactorSetupCompleted = false;
     await req.user.save();
-    console.log('Secret saved for user:', req.user._id);
+    logDebug('2FA secret saved', { 
+      userId: req.user._id 
+    });
 
     // Generate QR code
-    console.log('Generating QR code');
+    logDebug('Generating 2FA QR code', { 
+      userId: req.user._id 
+    });
     const qrCode = await generateQRCode(secret.otpauth_url);
-    console.log('QR code generated successfully');
+    logDebug('2FA QR code generated successfully', { 
+      userId: req.user._id 
+    });
 
-    console.log('Sending 2FA setup response');
+    logDebug('Sending 2FA setup response', { 
+      userId: req.user._id 
+    });
     res.json({
       message: 'Two-factor authentication setup initiated',
       qrCode,
@@ -57,7 +76,10 @@ exports.initiate2FASetup = async (req, res) => {
       setupCompleted: false,
     });
   } catch (error) {
-    console.error('Error initiating 2FA setup:', error);
+    logError('Error initiating 2FA setup', error, { 
+      userId: req.user?._id,
+      endpoint: '/api/v1/2fa/setup' 
+    });
     res.status(500).json({ error: 'Failed to initiate 2FA setup: ' + error.message });
   }
 };
@@ -109,7 +131,10 @@ exports.verify2FASetup = async (req, res) => {
       setupCompleted: true,
     });
   } catch (error) {
-    console.error('Error verifying 2FA setup:', error);
+    logError('Error verifying 2FA setup', error, { 
+      userId: req.user?._id,
+      endpoint: '/api/v1/2fa/verify-setup' 
+    });
     res.status(500).json({ error: 'Failed to verify 2FA setup' });
   }
 };
@@ -151,7 +176,10 @@ exports.disable2FA = async (req, res) => {
       message: 'Two-factor authentication disabled successfully',
     });
   } catch (error) {
-    console.error('Error disabling 2FA:', error);
+    logError('Error disabling 2FA', error, { 
+      userId: req.user?._id,
+      endpoint: '/api/v1/2fa/disable' 
+    });
     res.status(500).json({ error: 'Failed to disable 2FA' });
   }
 };
@@ -223,7 +251,10 @@ exports.verify2FALogin = async (req, res) => {
       expiresAt: refreshToken.expiresAt,
     });
   } catch (error) {
-    console.error('Error verifying 2FA login:', error);
+    logError('Error verifying 2FA login', error, { 
+      userId: req.user?._id,
+      endpoint: '/api/v1/2fa/verify-login' 
+    });
     res.status(500).json({ error: 'Failed to verify 2FA login' });
   }
 };

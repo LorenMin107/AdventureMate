@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './BookingList.css';
 
 /**
  * BookingList component displays a list of bookings for the current user
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.initialBookings - Initial bookings data (optional)
  * @returns {JSX.Element} Booking list component
@@ -42,9 +43,12 @@ const BookingList = ({ initialBookings = [] }) => {
         setBookings(data.bookings || []);
         setError(null);
       } catch (err) {
-        console.error('Error fetching bookings:', err);
+        logError('Error fetching bookings', err);
         // Improved error handling for axios errors
-        const errorMessage = err.response?.data?.message || err.message || 'Failed to load bookings. Please try again later.';
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          'Failed to load bookings. Please try again later.';
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -105,29 +109,24 @@ const BookingList = ({ initialBookings = [] }) => {
             </tr>
           </thead>
           <tbody>
-            {bookings.map(booking => (
+            {bookings.map((booking) => (
               <tr key={booking._id} className="booking-list-item">
                 <td className="booking-list-campground">
-                  {booking.campground && booking.campground.title ? 
-                    booking.campground.title : 
-                    'Campground name not available'}
+                  {booking.campground && booking.campground.title
+                    ? booking.campground.title
+                    : 'Campground name not available'}
                 </td>
                 <td className="booking-list-campsite">
-                  {booking.campsite && booking.campsite.name ? 
-                    booking.campsite.name : 
-                    'No specific campsite'}
+                  {booking.campsite && booking.campsite.name
+                    ? booking.campsite.name
+                    : 'No specific campsite'}
                 </td>
                 <td>{formatDate(booking.startDate)}</td>
                 <td>{formatDate(booking.endDate)}</td>
                 <td>{booking.totalDays}</td>
-                <td className="booking-list-price">
-                  ${booking.totalPrice.toFixed(2)}
-                </td>
+                <td className="booking-list-price">${booking.totalPrice.toFixed(2)}</td>
                 <td>
-                  <Link 
-                    to={`/bookings/${booking._id}`} 
-                    className="booking-list-view-button"
-                  >
+                  <Link to={`/bookings/${booking._id}`} className="booking-list-view-button">
                     View Details
                   </Link>
                 </td>
@@ -141,7 +140,7 @@ const BookingList = ({ initialBookings = [] }) => {
 };
 
 BookingList.propTypes = {
-  initialBookings: PropTypes.array
+  initialBookings: PropTypes.array,
 };
 
 export default BookingList;

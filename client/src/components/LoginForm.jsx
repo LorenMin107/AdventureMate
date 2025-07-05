@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import TwoFactorVerification from './TwoFactorVerification';
+import { logError } from '../utils/logger';
 import './LoginForm.css';
 
 /**
@@ -48,7 +49,7 @@ const LoginForm = () => {
       navigate('/'); // Redirect to home page after successful login
     } catch (err) {
       // Error is already handled by the AuthContext
-      console.error('Login error:', err);
+      logError('Login error', err);
       addErrorMessage(err.message || 'Login failed. Please try again.');
     }
   };
@@ -75,11 +76,7 @@ const LoginForm = () => {
 
       <h2>Log in to your account</h2>
 
-      {(formError || error) && (
-        <div className="error-message">
-          {formError || error}
-        </div>
-      )}
+      {(formError || error) && <div className="error-message">{formError || error}</div>}
 
       <form onSubmit={handleSubmit} className="login-form">
         <div className="form-group">

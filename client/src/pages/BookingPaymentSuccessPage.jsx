@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
+import { logError, logInfo } from '../utils/logger';
 import './BookingPaymentSuccessPage.css';
 
 /**
@@ -28,7 +29,7 @@ const BookingPaymentSuccessPage = () => {
     const processPayment = async () => {
       // Skip if already processed or missing parameters
       if (paymentProcessed.current) {
-        console.log('Payment already processed, skipping duplicate API call');
+        logInfo('Payment already processed, skipping duplicate API call');
         return;
       }
 
@@ -40,19 +41,22 @@ const BookingPaymentSuccessPage = () => {
 
       // Mark as processed immediately to prevent concurrent calls
       paymentProcessed.current = true;
-      console.log(`Processing payment for session_id: ${sessionId} at ${new Date().toISOString()}`);
+      logInfo('Processing payment', { sessionId, timestamp: new Date().toISOString() });
 
       try {
         // Call API to process the payment and create the booking using apiClient
-        const response = await apiClient.get(`/bookings/${campgroundId}/success?session_id=${sessionId}`);
+        const response = await apiClient.get(
+          `/bookings/${campgroundId}/success?session_id=${sessionId}`
+        );
 
         // With apiClient, the response data is already parsed
         const data = response.data;
         setBookingDetails(data.booking);
-        console.log(`Payment processing completed successfully at ${new Date().toISOString()}`);
-
+        logInfo('Payment processing completed successfully', {
+          timestamp: new Date().toISOString(),
+        });
       } catch (err) {
-        console.error('Error processing payment:', err);
+        logError('Error processing payment', err);
         setError(err.message || 'Failed to process payment. Please contact support.');
         // Reset the flag if there was an error, allowing retry
         paymentProcessed.current = false;
@@ -100,7 +104,7 @@ const BookingPaymentSuccessPage = () => {
         <div className="booking-payment-success-error">
           <h2>Payment Error</h2>
           <p>{error}</p>
-          <button 
+          <button
             className="booking-payment-success-button"
             onClick={() => navigate('/campgrounds')}
           >
@@ -139,35 +143,41 @@ const BookingPaymentSuccessPage = () => {
                   {bookingDetails.campsite.description && (
                     <div className="booking-payment-success-item">
                       <span className="label">Description:</span>
-                      <span className="value description">{bookingDetails.campsite.description}</span>
+                      <span className="value description">
+                        {bookingDetails.campsite.description}
+                      </span>
                     </div>
                   )}
 
                   {bookingDetails.campsite.capacity && (
                     <div className="booking-payment-success-item">
                       <span className="label">Capacity:</span>
-                      <span className="value">{bookingDetails.campsite.capacity} {bookingDetails.campsite.capacity === 1 ? 'person' : 'people'}</span>
+                      <span className="value">
+                        {bookingDetails.campsite.capacity}{' '}
+                        {bookingDetails.campsite.capacity === 1 ? 'person' : 'people'}
+                      </span>
                     </div>
                   )}
 
-                  {bookingDetails.campsite.features && bookingDetails.campsite.features.length > 0 && (
-                    <div className="booking-payment-success-item features-item">
-                      <span className="label">Features:</span>
-                      <div className="value features-list">
-                        <ul>
-                          {bookingDetails.campsite.features.map((feature, index) => (
-                            <li key={index}>{feature}</li>
-                          ))}
-                        </ul>
+                  {bookingDetails.campsite.features &&
+                    bookingDetails.campsite.features.length > 0 && (
+                      <div className="booking-payment-success-item features-item">
+                        <span className="label">Features:</span>
+                        <div className="value features-list">
+                          <ul>
+                            {bookingDetails.campsite.features.map((feature, index) => (
+                              <li key={index}>{feature}</li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {bookingDetails.campsite.images && bookingDetails.campsite.images.length > 0 && (
                     <div className="booking-payment-success-campsite-image">
-                      <img 
-                        src={bookingDetails.campsite.images[0].url} 
-                        alt={bookingDetails.campsite.name} 
+                      <img
+                        src={bookingDetails.campsite.images[0].url}
+                        alt={bookingDetails.campsite.name}
                       />
                     </div>
                   )}
@@ -178,12 +188,16 @@ const BookingPaymentSuccessPage = () => {
 
               <div className="booking-payment-success-item">
                 <span className="label">Check-in:</span>
-                <span className="value">{new Date(bookingDetails.startDate).toLocaleDateString()}</span>
+                <span className="value">
+                  {new Date(bookingDetails.startDate).toLocaleDateString()}
+                </span>
               </div>
 
               <div className="booking-payment-success-item">
                 <span className="label">Check-out:</span>
-                <span className="value">{new Date(bookingDetails.endDate).toLocaleDateString()}</span>
+                <span className="value">
+                  {new Date(bookingDetails.endDate).toLocaleDateString()}
+                </span>
               </div>
 
               <div className="booking-payment-success-item">
@@ -200,10 +214,7 @@ const BookingPaymentSuccessPage = () => {
         )}
 
         <div className="booking-payment-success-actions">
-          <button 
-            className="booking-payment-success-button"
-            onClick={handleViewBookings}
-          >
+          <button className="booking-payment-success-button" onClick={handleViewBookings}>
             View My Bookings
           </button>
         </div>

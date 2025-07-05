@@ -7,6 +7,7 @@ const Review = require('../../models/review');
 const mongoose = require('mongoose');
 const { revokeAllUserTokens } = require('../../utils/jwtUtils');
 const ApiResponse = require('../../utils/ApiResponse');
+const { logError } = require('../../utils/logger');
 
 module.exports.getDashboardStats = async (req, res) => {
   try {
@@ -50,7 +51,10 @@ module.exports.getDashboardStats = async (req, res) => {
 
     return ApiResponse.success(data, 'Dashboard statistics retrieved successfully').send(res);
   } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
+    logError('Error fetching dashboard stats', error, {
+      endpoint: '/api/v1/admin/dashboard',
+      userId: req.user?._id,
+    });
     return ApiResponse.error('Failed to fetch dashboard statistics', error.message, 500).send(res);
   }
 };
@@ -122,7 +126,11 @@ module.exports.getBookings = async (req, res) => {
 
     return ApiResponse.success(data, 'Bookings retrieved successfully').send(res);
   } catch (error) {
-    console.error('Error fetching bookings:', error);
+    logError('Error fetching bookings', error, {
+      endpoint: '/api/v1/admin/bookings',
+      userId: req.user?._id,
+      query: req.query,
+    });
     return ApiResponse.error('Failed to fetch bookings', error.message, 500).send(res);
   }
 };
@@ -187,7 +195,11 @@ module.exports.getAllUsers = async (req, res) => {
 
     return ApiResponse.success(data, 'Users retrieved successfully').send(res);
   } catch (error) {
-    console.error('Error fetching users:', error);
+    logError('Error fetching users', error, {
+      endpoint: '/api/v1/admin/users',
+      userId: req.user?._id,
+      query: req.query,
+    });
     return ApiResponse.error('Failed to fetch users', error.message, 500).send(res);
   }
 };
@@ -257,7 +269,11 @@ module.exports.getUserDetails = async (req, res) => {
 
     return ApiResponse.success({ user: userObj }, 'User details retrieved successfully').send(res);
   } catch (error) {
-    console.error('Error fetching user details:', error);
+    logError('Error fetching user details', error, {
+      endpoint: '/api/v1/admin/users/:id',
+      userId: req.user?._id,
+      targetUserId: req.params.id,
+    });
     return ApiResponse.error('Failed to fetch user details', error.message, 500).send(res);
   }
 };
@@ -302,7 +318,12 @@ module.exports.toggleUserAdmin = async (req, res) => {
       `User ${isAdmin ? 'granted' : 'removed'} admin privileges successfully`
     ).send(res);
   } catch (error) {
-    console.error('Error toggling user admin status:', error);
+    logError('Error toggling user admin status', error, {
+      endpoint: '/api/v1/admin/users/:id/admin',
+      userId: req.user?._id,
+      targetUserId: req.params.id,
+      isAdmin,
+    });
     return ApiResponse.error('Failed to update user admin status', error.message, 500).send(res);
   }
 };
@@ -393,7 +414,12 @@ module.exports.toggleUserOwner = async (req, res) => {
       `User ${isOwner ? 'granted' : 'removed'} owner privileges successfully`
     ).send(res);
   } catch (error) {
-    console.error('Error toggling user owner status:', error);
+    logError('Error toggling user owner status', error, {
+      endpoint: '/api/v1/admin/users/:id/owner',
+      userId: req.user?._id,
+      targetUserId: req.params.id,
+      isOwner,
+    });
     return ApiResponse.error('Failed to update user owner status', error.message, 500).send(res);
   }
 };
@@ -426,7 +452,11 @@ module.exports.cancelBooking = async (req, res) => {
 
     return ApiResponse.success({ bookingId: id }, 'Booking canceled successfully').send(res);
   } catch (error) {
-    console.error('Error canceling booking:', error);
+    logError('Error canceling booking', error, {
+      endpoint: '/api/v1/admin/bookings/:id/cancel',
+      userId: req.user?._id,
+      bookingId: req.params.id,
+    });
     return ApiResponse.error('Failed to cancel booking', error.message, 500).send(res);
   }
 };
@@ -469,7 +499,11 @@ module.exports.getOwnerApplications = async (req, res) => {
 
     return ApiResponse.success(data, 'Owner applications retrieved successfully').send(res);
   } catch (error) {
-    console.error('Error fetching owner applications:', error);
+    logError('Error fetching owner applications', error, {
+      endpoint: '/api/v1/admin/owner-applications',
+      userId: req.user?._id,
+      query: req.query,
+    });
     return ApiResponse.error('Failed to fetch owner applications', error.message, 500).send(res);
   }
 };
@@ -496,7 +530,11 @@ module.exports.getOwnerApplicationDetails = async (req, res) => {
       'Owner application details retrieved successfully'
     ).send(res);
   } catch (error) {
-    console.error('Error fetching owner application details:', error);
+    logError('Error fetching owner application details', error, {
+      endpoint: '/api/v1/admin/owner-applications/:id',
+      userId: req.user?._id,
+      applicationId: req.params.id,
+    });
     return ApiResponse.error('Failed to fetch owner application details', error.message, 500).send(
       res
     );
@@ -570,7 +608,11 @@ module.exports.approveOwnerApplication = async (req, res) => {
 
     return ApiResponse.success(data, 'Owner application approved successfully').send(res);
   } catch (error) {
-    console.error('Error approving owner application:', error);
+    logError('Error approving owner application', error, { 
+      endpoint: '/api/v1/admin/owner-applications/:id/approve',
+      userId: req.user?._id,
+      applicationId: req.params.id 
+    });
     return ApiResponse.error('Failed to approve owner application', error.message, 500).send(res);
   }
 };
@@ -612,7 +654,11 @@ module.exports.rejectOwnerApplication = async (req, res) => {
       res
     );
   } catch (error) {
-    console.error('Error rejecting owner application:', error);
+    logError('Error rejecting owner application', error, { 
+      endpoint: '/api/v1/admin/owner-applications/:id/reject',
+      userId: req.user?._id,
+      applicationId: req.params.id 
+    });
     return ApiResponse.error('Failed to reject owner application', error.message, 500).send(res);
   }
 };
@@ -651,7 +697,11 @@ module.exports.updateApplicationReview = async (req, res) => {
       res
     );
   } catch (error) {
-    console.error('Error updating application review:', error);
+    logError('Error updating application review', error, { 
+      endpoint: '/api/v1/admin/owner-applications/:id/review',
+      userId: req.user?._id,
+      applicationId: req.params.id 
+    });
     return ApiResponse.error('Failed to update application review', error.message, 500).send(res);
   }
 };
@@ -701,7 +751,11 @@ module.exports.getAllOwners = async (req, res) => {
 
     return ApiResponse.success(data, 'Owners retrieved successfully').send(res);
   } catch (error) {
-    console.error('Error fetching owners:', error);
+    logError('Error fetching owners', error, { 
+      endpoint: '/api/v1/admin/owners',
+      userId: req.user?._id,
+      query: req.query 
+    });
     return ApiResponse.error('Failed to fetch owners', error.message, 500).send(res);
   }
 };
@@ -770,7 +824,11 @@ module.exports.getOwnerDetails = async (req, res) => {
 
     return ApiResponse.success(data, 'Owner details retrieved successfully').send(res);
   } catch (error) {
-    console.error('Error fetching owner details:', error);
+    logError('Error fetching owner details', error, { 
+      endpoint: '/api/v1/admin/owners/:id',
+      userId: req.user?._id,
+      ownerId: req.params.id 
+    });
     return ApiResponse.error('Failed to fetch owner details', error.message, 500).send(res);
   }
 };
@@ -822,7 +880,11 @@ module.exports.suspendOwner = async (req, res) => {
 
     return ApiResponse.success({ owner }, 'Owner suspended successfully').send(res);
   } catch (error) {
-    console.error('Error suspending owner:', error);
+    logError('Error suspending owner', error, { 
+      endpoint: '/api/v1/admin/owners/:id/suspend',
+      userId: req.user?._id,
+      ownerId: req.params.id 
+    });
     return ApiResponse.error('Failed to suspend owner', error.message, 500).send(res);
   }
 };
@@ -866,7 +928,11 @@ module.exports.reactivateOwner = async (req, res) => {
 
     return ApiResponse.success({ owner }, 'Owner reactivated successfully').send(res);
   } catch (error) {
-    console.error('Error reactivating owner:', error);
+    logError('Error reactivating owner', error, { 
+      endpoint: '/api/v1/admin/owners/:id/reactivate',
+      userId: req.user?._id,
+      ownerId: req.params.id 
+    });
     return ApiResponse.error('Failed to reactivate owner', error.message, 500).send(res);
   }
 };
@@ -911,7 +977,11 @@ module.exports.verifyOwner = async (req, res) => {
 
     return ApiResponse.success({ owner }, 'Owner verified successfully').send(res);
   } catch (error) {
-    console.error('Error verifying owner:', error);
+    logError('Error verifying owner', error, { 
+      endpoint: '/api/v1/admin/owners/:id/verify',
+      userId: req.user?._id,
+      ownerId: req.params.id 
+    });
     return ApiResponse.error('Failed to verify owner', error.message, 500).send(res);
   }
 };
@@ -962,7 +1032,11 @@ module.exports.revokeOwnerStatus = async (req, res) => {
 
     return ApiResponse.success({ owner }, 'Owner status revoked successfully').send(res);
   } catch (error) {
-    console.error('Error revoking owner status:', error);
+    logError('Error revoking owner status', error, { 
+      endpoint: '/api/v1/admin/owners/:id/revoke',
+      userId: req.user?._id,
+      ownerId: req.params.id 
+    });
     return ApiResponse.error('Failed to revoke owner status', error.message, 500).send(res);
   }
 };

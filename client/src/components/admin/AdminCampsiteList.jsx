@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
+import { logError } from '../../utils/logger';
 import './AdminCampsiteList.css';
 
 /**
@@ -45,7 +46,7 @@ const AdminCampsiteList = () => {
           setSelectedCampground(campgroundsList[0]._id);
         }
       } catch (err) {
-        console.error('Error fetching campgrounds:', err);
+        logError('Error fetching campgrounds', err);
         // Don't set error state here, as we'll still try to fetch campsites
       }
     };
@@ -103,7 +104,7 @@ const AdminCampsiteList = () => {
 
         setError(null);
       } catch (err) {
-        console.error('Error fetching campsites:', err);
+        logError('Error fetching campsites', err);
         setError('Failed to load campsites. Please try again later.');
       } finally {
         setLoading(false);
@@ -145,7 +146,7 @@ const AdminCampsiteList = () => {
       // Update the campsites list
       setCampsites(campsites.filter((campsite) => campsite._id !== id));
     } catch (err) {
-      console.error('Error deleting campsite:', err);
+      logError('Error deleting campsite', err);
       alert('Failed to delete campsite. Please try again later.');
     }
   };

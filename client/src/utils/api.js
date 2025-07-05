@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logInfo, logError } from './logger';
 
 // Create a base API instance with common configuration
 const api = axios.create({
@@ -51,15 +52,15 @@ api.interceptors.response.use(
 
         // Calculate exponential backoff delay: 2^retry * 1000ms + random jitter
         const delay = Math.pow(2, originalRequest._retryCount) * 1000 + Math.random() * 1000;
-        console.log(`Rate limit exceeded. Retrying after ${Math.round(delay / 1000)} seconds...`);
+        logInfo(`Rate limit exceeded. Retrying after ${Math.round(delay / 1000)} seconds...`);
 
         // Wait for the calculated delay
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
 
         // Retry the request
         return axios(originalRequest);
       } else {
-        console.error('Rate limit exceeded. Maximum retries reached.');
+        logError('Rate limit exceeded. Maximum retries reached.');
         // Store the current URL to redirect back after login
         if (window.location.pathname !== '/login') {
           sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
@@ -76,7 +77,7 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
           const refreshResponse = await axios.post('/api/v1/auth/refresh-token', {
-            token: refreshToken
+            token: refreshToken,
           });
 
           if (refreshResponse.data && refreshResponse.data.accessToken) {
@@ -92,7 +93,7 @@ api.interceptors.response.use(
         }
 
         // If refresh token is missing or refresh fails, redirect to login
-        console.error('Authentication expired. Please log in again.');
+        logError('Authentication expired. Please log in again.');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         // Store the current URL to redirect back after login
@@ -101,7 +102,7 @@ api.interceptors.response.use(
         }
         window.location.href = '/login';
       } catch (refreshError) {
-        console.error('Failed to refresh authentication token:', refreshError);
+        logError('Failed to refresh authentication token', refreshError);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         // Store the current URL to redirect back after login
@@ -113,15 +114,15 @@ api.interceptors.response.use(
     }
 
     if (response && response.status === 404) {
-      console.error('Resource not found.');
+      logError('Resource not found.');
     }
 
     if (response && response.status >= 500) {
-      console.error('Server error. Please try again later.');
+      logError('Server error. Please try again later.');
     }
 
     if (!response) {
-      console.error('Network error. Please check your connection.');
+      logError('Network error. Please check your connection.');
     }
 
     return Promise.reject(error);
@@ -153,7 +154,7 @@ const apiClient = {
   // DELETE request
   delete: async (url, config = {}) => {
     return api.delete(url, config);
-  }
+  },
 };
 
 export default apiClient;

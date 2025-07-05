@@ -4,6 +4,7 @@ const User = require("../../models/user");
 const { cloudinary } = require("../../cloudinary");
 const ApiResponse = require("../../utils/ApiResponse");
 const ExpressError = require("../../utils/ExpressError");
+const { logError, logInfo, logWarn, logDebug } = require('../../utils/logger');
 
 // Get all campsites for a campground
 module.exports.index = async (req, res) => {
@@ -37,7 +38,10 @@ module.exports.index = async (req, res) => {
       "Campsites retrieved successfully"
     ).send(res);
   } catch (error) {
-    console.error("Failed to fetch campsites:", error);
+    logError("Failed to fetch campsites", error, { 
+      endpoint: "/api/v1/campsites",
+      userId: req.user?._id 
+    });
     return ApiResponse.error(
       "Failed to fetch campsites",
       "An error occurred while retrieving campsites",
@@ -98,7 +102,11 @@ module.exports.createCampsite = async (req, res) => {
       201
     ).send(res);
   } catch (error) {
-    console.error("Error creating campsite:", error);
+    logError("Error creating campsite", error, { 
+      endpoint: "/api/v1/campsites",
+      userId: req.user?._id,
+      campgroundId: req.params.campgroundId 
+    });
     return ApiResponse.error(
       error.message || "Failed to create campsite",
       "An error occurred while creating the campsite",
@@ -127,7 +135,11 @@ module.exports.showCampsite = async (req, res) => {
       "Campsite retrieved successfully"
     ).send(res);
   } catch (error) {
-    console.error("Error fetching campsite:", error);
+    logError("Error fetching campsite", error, { 
+      endpoint: "/api/v1/campsites/:id",
+      userId: req.user?._id,
+      campsiteId: req.params.id 
+    });
     return ApiResponse.error(
       "Failed to fetch campsite",
       "An error occurred while retrieving the campsite",
@@ -216,7 +228,11 @@ module.exports.updateCampsite = async (req, res) => {
       "Campsite updated successfully"
     ).send(res);
   } catch (error) {
-    console.error("Error updating campsite:", error);
+    logError("Error updating campsite", error, { 
+      endpoint: "/api/v1/campsites/:id",
+      userId: req.user?._id,
+      campsiteId: req.params.id 
+    });
     return ApiResponse.error(
       error.message || "Failed to update campsite",
       "An error occurred while updating the campsite",
@@ -289,7 +305,11 @@ module.exports.deleteCampsite = async (req, res) => {
       "Campsite deleted successfully"
     ).send(res);
   } catch (error) {
-    console.error("Error deleting campsite:", error);
+    logError("Error deleting campsite", error, { 
+      endpoint: "/api/v1/campsites/:id",
+      userId: req.user?._id,
+      campsiteId: req.params.id 
+    });
     return ApiResponse.error(
       "Failed to delete campsite",
       "An error occurred while deleting the campsite",

@@ -1,27 +1,26 @@
-const Campground = require("../../models/campground");
-const { cloudinary } = require("../../cloudinary");
-const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
-const config = require("../../config");
+const Campground = require('../../models/campground');
+const { cloudinary } = require('../../cloudinary');
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const config = require('../../config');
 const geocoder = mbxGeocoding({ accessToken: config.mapbox.token });
-const ApiResponse = require("../../utils/ApiResponse");
-const { 
-  asyncHandler, 
-  notFoundError, 
-  validationError, 
-  serverError 
-} = require("../../utils/errorHandler");
-const logger = require("../../utils/logger").child("api:campgrounds");
+const ApiResponse = require('../../utils/ApiResponse');
+const {
+  asyncHandler,
+  notFoundError,
+  validationError,
+  serverError,
+} = require('../../utils/errorHandler');
+const { logInfo, logWarn, logError } = require('../../utils/logger');
 
 module.exports.index = asyncHandler(async (req, res) => {
   const campgrounds = await Campground.find({});
-  const locations = await Campground.distinct("location");
+  const locations = await Campground.distinct('location');
 
-  logger.info("Retrieved all campgrounds", { count: campgrounds.length });
+  logInfo('Retrieved all campgrounds', { count: campgrounds.length });
 
-  return ApiResponse.success(
-    { campgrounds, locations },
-    "Campgrounds retrieved successfully"
-  ).send(res);
+  return ApiResponse.success({ campgrounds, locations }, 'Campgrounds retrieved successfully').send(
+    res
+  );
 });
 
 module.exports.createCampground = asyncHandler(async (req, res) => {
@@ -33,8 +32,10 @@ module.exports.createCampground = asyncHandler(async (req, res) => {
     .send();
 
   if (!geoData.body.features.length) {
-    logger.warn("Invalid location provided", { location: req.body.campground.location });
-    throw validationError("Invalid location", { location: "Could not geocode the provided location" });
+    logWarn('Invalid location provided', { location: req.body.campground.location });
+    throw validationError('Invalid location', {
+      location: 'Could not geocode the provided location',
+    });
   }
 
   const campground = new Campground({
@@ -42,7 +43,7 @@ module.exports.createCampground = asyncHandler(async (req, res) => {
     location: req.body.campground.location,
     description: req.body.campground.description,
     geometry: geoData.body.features[0].geometry,
-    author: req.user._id
+    author: req.user._id,
   });
 
   if (req.files) {
@@ -51,55 +52,48 @@ module.exports.createCampground = asyncHandler(async (req, res) => {
 
   await campground.save();
 
-  logger.info("Created new campground", { 
-    campgroundId: campground._id, 
+  logInfo('Created new campground', {
+    campgroundId: campground._id,
     title: campground.title,
-    userId: req.user._id
+    userId: req.user._id,
   });
 
-  return ApiResponse.success(
-    { campground },
-    "Campground created successfully",
-    201
-  ).send(res);
+  return ApiResponse.success({ campground }, 'Campground created successfully', 201).send(res);
 });
 
 module.exports.showCampground = asyncHandler(async (req, res) => {
   const campground = await Campground.findById(req.params.id)
-    .populate({ path: "reviews", populate: { path: "author" } })
-    .populate("author");
+    .populate({ path: 'reviews', populate: { path: 'author' } })
+    .populate('author');
 
   if (!campground) {
-    logger.warn("Campground not found", { campgroundId: req.params.id });
-    throw notFoundError("Campground", req.params.id);
+    logWarn('Campground not found', { campgroundId: req.params.id });
+    throw notFoundError('Campground', req.params.id);
   }
 
-  logger.info("Retrieved campground details", { 
+  logInfo('Retrieved campground details', {
     campgroundId: campground._id,
-    title: campground.title
+    title: campground.title,
   });
 
-  return ApiResponse.success(
-    { campground },
-    "Campground retrieved successfully"
-  ).send(res);
+  return ApiResponse.success({ campground }, 'Campground retrieved successfully').send(res);
 });
 
 module.exports.searchCampgrounds = asyncHandler(async (req, res) => {
   const { search } = req.query;
 
   if (!search || search.trim() === '') {
-    logger.warn("Empty search term provided");
-    throw validationError("Search term is required");
+    logWarn('Empty search term provided');
+    throw validationError('Search term is required');
   }
 
   const campgrounds = await Campground.find({
-    title: { $regex: new RegExp(search, "i") },
+    title: { $regex: new RegExp(search, 'i') },
   });
 
-  logger.info("Performed campground search", { 
-    searchTerm: search, 
-    resultsCount: campgrounds.length 
+  logInfo('Performed campground search', {
+    searchTerm: search,
+    resultsCount: campgrounds.length,
   });
 
   return ApiResponse.success(
@@ -113,8 +107,8 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
 
   // Validate campground data
   if (!req.body.campground) {
-    logger.warn("Missing campground data in update request");
-    throw validationError("Campground data is required");
+    logWarn('Missing campground data in update request');
+    throw validationError('Campground data is required');
   }
 
   // Get geocoding data if location is provided
@@ -129,11 +123,13 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
         .send();
 
       if (!geoData.body.features.length) {
-        logger.warn("Invalid location provided for update", { 
+        logWarn('Invalid location provided for update', {
           location: req.body.campground.location,
-          campgroundId: id
+          campgroundId: id,
         });
-        throw validationError("Invalid location", { location: "Could not geocode the provided location" });
+        throw validationError('Invalid location', {
+          location: 'Could not geocode the provided location',
+        });
       }
 
       geometry = geoData.body.features[0].geometry;
@@ -142,12 +138,12 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
         // Re-throw validation errors
         throw error;
       }
-      logger.error("Geocoding error during campground update", { 
+      logError('Geocoding error during campground update', {
         error,
         location: req.body.campground.location,
-        campgroundId: id
+        campgroundId: id,
       });
-      throw serverError("Error processing location data");
+      throw serverError('Error processing location data');
     }
   }
 
@@ -155,7 +151,7 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
   const updateData = {
     title: req.body.campground.title,
     location: req.body.campground.location,
-    description: req.body.campground.description
+    description: req.body.campground.description,
   };
 
   if (geometry) {
@@ -163,24 +159,23 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
   }
 
   // Find and update the campground
-  const campground = await Campground.findByIdAndUpdate(
-    id, 
-    updateData, 
-    { new: true, runValidators: true }
-  );
+  const campground = await Campground.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+  });
 
   if (!campground) {
-    logger.warn("Campground not found during update", { campgroundId: id });
-    throw notFoundError("Campground", id);
+    logger.warn('Campground not found during update', { campgroundId: id });
+    throw notFoundError('Campground', id);
   }
 
   // Add new images if any
   if (req.files && req.files.length > 0) {
     const imgs = req.files.map((f) => ({ url: f.path, filename: f.filename }));
     campground.images.push(...imgs);
-    logger.info("Added new images to campground", { 
-      campgroundId: id, 
-      imageCount: req.files.length 
+    logInfo('Added new images to campground', {
+      campgroundId: id,
+      imageCount: req.files.length,
     });
   }
 
@@ -192,20 +187,20 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
         await cloudinary.uploader.destroy(filename);
       }
       // Remove from campground
-      await campground.updateOne({ 
-        $pull: { images: { filename: { $in: req.body.deleteImages } } } 
+      await campground.updateOne({
+        $pull: { images: { filename: { $in: req.body.deleteImages } } },
       });
 
-      logger.info("Deleted images from campground", { 
-        campgroundId: id, 
+      logInfo('Deleted images from campground', {
+        campgroundId: id,
         deletedCount: req.body.deleteImages.length,
-        imageIds: req.body.deleteImages
+        imageIds: req.body.deleteImages,
       });
     } catch (error) {
-      logger.error("Error deleting images from cloudinary", { 
+      logError('Error deleting images from cloudinary', {
         error,
         campgroundId: id,
-        imageIds: req.body.deleteImages
+        imageIds: req.body.deleteImages,
       });
       // Continue with the update even if image deletion fails
     }
@@ -213,16 +208,13 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
 
   await campground.save();
 
-  logger.info("Updated campground", { 
+  logInfo('Updated campground', {
     campgroundId: id,
     title: campground.title,
-    userId: req.user._id
+    userId: req.user._id,
   });
 
-  return ApiResponse.success(
-    { campground },
-    "Campground updated successfully"
-  ).send(res);
+  return ApiResponse.success({ campground }, 'Campground updated successfully').send(res);
 });
 
 module.exports.deleteCampground = asyncHandler(async (req, res) => {
@@ -230,16 +222,16 @@ module.exports.deleteCampground = asyncHandler(async (req, res) => {
   const campground = await Campground.findById(id);
 
   if (!campground) {
-    logger.warn("Campground not found during delete attempt", { campgroundId: id });
-    throw notFoundError("Campground", id);
+    logWarn('Campground not found during delete attempt', { campgroundId: id });
+    throw notFoundError('Campground', id);
   }
 
   // Log the delete operation
-  logger.info("Deleting campground", { 
-    campgroundId: id, 
+  logInfo('Deleting campground', {
+    campgroundId: id,
     title: campground.title,
     userId: req.user._id,
-    imageCount: campground.images.length
+    imageCount: campground.images.length,
   });
 
   // Delete images from cloudinary
@@ -248,14 +240,14 @@ module.exports.deleteCampground = asyncHandler(async (req, res) => {
       for (let image of campground.images) {
         await cloudinary.uploader.destroy(image.filename);
       }
-      logger.info("Deleted campground images from cloudinary", { 
-        campgroundId: id, 
-        imageCount: campground.images.length 
+      logInfo('Deleted campground images from cloudinary', {
+        campgroundId: id,
+        imageCount: campground.images.length,
       });
     } catch (error) {
-      logger.error("Error deleting campground images from cloudinary", { 
+      logError('Error deleting campground images from cloudinary', {
         error,
-        campgroundId: id
+        campgroundId: id,
       });
       // Continue with deletion even if image deletion fails
     }
@@ -263,10 +255,7 @@ module.exports.deleteCampground = asyncHandler(async (req, res) => {
 
   await Campground.findByIdAndDelete(id);
 
-  logger.info("Campground deleted successfully", { campgroundId: id });
+  logInfo('Campground deleted successfully', { campgroundId: id });
 
-  return ApiResponse.success(
-    null,
-    "Campground deleted successfully"
-  ).send(res);
+  return ApiResponse.success(null, 'Campground deleted successfully').send(res);
 });

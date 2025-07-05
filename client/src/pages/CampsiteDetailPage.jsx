@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import { Form, DateRangePicker, ErrorMessage, Input } from '../components/forms';
 import { bookingSchema } from '../utils/validationSchemas';
+import { logError } from '../utils/logger';
 import 'react-datepicker/dist/react-datepicker.css';
 import './CampsiteDetailPage.css';
 
@@ -45,9 +46,10 @@ const CampsiteDetailPage = () => {
 
         // Fetch the parent campground
         if (campsiteData.campground) {
-          const campgroundId = typeof campsiteData.campground === 'object' 
-            ? campsiteData.campground._id 
-            : campsiteData.campground;
+          const campgroundId =
+            typeof campsiteData.campground === 'object'
+              ? campsiteData.campground._id
+              : campsiteData.campground;
 
           const campgroundResponse = await apiClient.get(`/campgrounds/${campgroundId}`);
 
@@ -55,9 +57,10 @@ const CampsiteDetailPage = () => {
           const campgroundData = campgroundResponse.data;
 
           // Check if the response is in the standardized format
-          const campgroundInfo = campgroundData.status && campgroundData.data 
-            ? campgroundData.data.campground 
-            : campgroundData.campground;
+          const campgroundInfo =
+            campgroundData.status && campgroundData.data
+              ? campgroundData.data.campground
+              : campgroundData.campground;
 
           if (!campgroundInfo) {
             throw new Error('Campground data not found in response');
@@ -66,7 +69,7 @@ const CampsiteDetailPage = () => {
           setCampground(campgroundInfo);
         }
       } catch (err) {
-        console.error('Error fetching campsite:', err);
+        logError('Error fetching campsite', err);
         setError('Failed to load campsite. Please try again later.');
       } finally {
         setLoading(false);
@@ -77,11 +80,12 @@ const CampsiteDetailPage = () => {
   }, [id]);
 
   // Check if user is the owner of the campground
-  const isOwner = currentUser && campground && (
-    currentUser.isAdmin || 
-    (campground.owner && currentUser._id === campground.owner._id) || 
-    (campground.author && currentUser._id === campground.author._id)
-  );
+  const isOwner =
+    currentUser &&
+    campground &&
+    (currentUser.isAdmin ||
+      (campground.owner && currentUser._id === campground.owner._id) ||
+      (campground.author && currentUser._id === campground.author._id));
 
   // Calculate tomorrow's date for min attribute
   const tomorrow = new Date();
@@ -91,7 +95,7 @@ const CampsiteDetailPage = () => {
   const defaultValues = {
     startDate: '',
     endDate: '',
-    guests: 1
+    guests: 1,
   };
 
   // Handle booking form submission
@@ -103,35 +107,38 @@ const CampsiteDetailPage = () => {
     try {
       setApiError(null);
 
-      const response = await apiClient.post(`/bookings/${campground._id}/book`, { 
-        startDate: data.startDate, 
+      const response = await apiClient.post(`/bookings/${campground._id}/book`, {
+        startDate: data.startDate,
         endDate: data.endDate,
         campsiteId: id, // Use the current campsite ID
-        guests: parseInt(data.guests || guests, 10)
+        guests: parseInt(data.guests || guests, 10),
       });
 
       // With apiClient, the response is already parsed and in response.data
       const responseData = response.data;
 
       // Check if the response is in the standardized format
-      const bookingData = responseData.status && responseData.data 
-        ? responseData.data 
-        : responseData;
+      const bookingData =
+        responseData.status && responseData.data ? responseData.data : responseData;
 
       // Navigate to checkout page with booking data
-      navigate('/bookings/checkout', { 
-        state: { 
+      navigate('/bookings/checkout', {
+        state: {
           booking: bookingData.booking,
           campground: bookingData.campground,
-          campsite: campsite
-        } 
+          campsite: campsite,
+        },
       });
 
       return bookingData; // Return data to trigger success handling
     } catch (err) {
-      console.error('Error creating booking:', err);
+      logError('Error creating booking', err);
       // Set API-specific error with improved error handling for axios errors
-      const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to create booking. Please try again later.';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        'Failed to create booking. Please try again later.';
       setApiError(errorMessage);
       // Re-throw to let Form component handle it
       throw new Error(errorMessage);
@@ -169,7 +176,10 @@ const CampsiteDetailPage = () => {
             <Link to={`/campsites/${id}/edit`} className="edit-button">
               Edit
             </Link>
-            <button onClick={() => navigate(`/campgrounds/${campground._id}`)} className="back-button">
+            <button
+              onClick={() => navigate(`/campgrounds/${campground._id}`)}
+              className="back-button"
+            >
               Back to Campground
             </button>
           </div>
@@ -181,16 +191,16 @@ const CampsiteDetailPage = () => {
           {images && images.length > 0 ? (
             <>
               <div className="main-image">
-                <img 
-                  src={images[activeImageIndex].url} 
-                  alt={`${name} - Image ${activeImageIndex + 1}`} 
+                <img
+                  src={images[activeImageIndex].url}
+                  alt={`${name} - Image ${activeImageIndex + 1}`}
                 />
               </div>
 
               {images.length > 1 && (
                 <div className="image-thumbnails">
                   {images.map((image, index) => (
-                    <div 
+                    <div
                       key={index}
                       className={`thumbnail ${index === activeImageIndex ? 'active' : ''}`}
                       onClick={() => setActiveImageIndex(index)}
@@ -221,7 +231,9 @@ const CampsiteDetailPage = () => {
             <div className="features-list">
               {features && features.length > 0 ? (
                 features.map((feature, index) => (
-                  <span key={index} className="feature-tag">{feature}</span>
+                  <span key={index} className="feature-tag">
+                    {feature}
+                  </span>
                 ))
               ) : (
                 <p>No specific features listed</p>
@@ -237,7 +249,9 @@ const CampsiteDetailPage = () => {
             </div>
             <div className="detail-item">
               <span className="detail-label">Capacity:</span>
-              <span className="detail-value">{capacity} {capacity === 1 ? 'person' : 'people'}</span>
+              <span className="detail-value">
+                {capacity} {capacity === 1 ? 'person' : 'people'}
+              </span>
             </div>
             <div className="detail-item">
               <span className="detail-label">Availability:</span>
@@ -294,7 +308,7 @@ const CampsiteDetailPage = () => {
                             min="1"
                             max={campsite.capacity || 10}
                             defaultValue={1}
-                            onChange={e => setGuests(parseInt(e.target.value, 10))}
+                            onChange={(e) => setGuests(parseInt(e.target.value, 10))}
                             className="booking-form-guests-field"
                           />
                         </div>
@@ -303,8 +317,8 @@ const CampsiteDetailPage = () => {
                           <p>Price: ${price} per night</p>
                         </div>
 
-                        <button 
-                          type="button" 
+                        <button
+                          type="button"
                           className="cancel-booking-button"
                           onClick={() => setShowBookingForm(false)}
                         >
@@ -313,10 +327,7 @@ const CampsiteDetailPage = () => {
                       </Form>
                     </div>
                   ) : (
-                    <button 
-                      className="book-button"
-                      onClick={() => setShowBookingForm(true)}
-                    >
+                    <button className="book-button" onClick={() => setShowBookingForm(true)}>
                       Book Now
                     </button>
                   )

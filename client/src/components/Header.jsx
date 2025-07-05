@@ -1,5 +1,6 @@
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { logError } from '../utils/logger';
 import './Header.css';
 
 const Header = () => {
@@ -15,7 +16,7 @@ const Header = () => {
     try {
       await logout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      logError('Logout failed', error);
     }
   };
 
@@ -28,22 +29,18 @@ const Header = () => {
         <nav className="nav">
           <ul className="nav-list">
             <li className="nav-item">
-              <NavLink 
-                to="/" 
-                className={({ isActive }) => 
-                  isActive ? "nav-link active" : "nav-link"
-                }
+              <NavLink
+                to="/"
+                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                 end
               >
                 Home
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink 
-                to="/campgrounds" 
-                className={({ isActive }) => 
-                  isActive ? "nav-link active" : "nav-link"
-                }
+              <NavLink
+                to="/campgrounds"
+                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
               >
                 Campgrounds
               </NavLink>
@@ -53,22 +50,18 @@ const Header = () => {
                 {showAuthenticatedLinks ? (
                   <>
                     <li className="nav-item">
-                      <NavLink 
-                        to="/profile" 
-                        className={({ isActive }) => 
-                          isActive ? "nav-link active" : "nav-link"
-                        }
+                      <NavLink
+                        to="/profile"
+                        className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                       >
                         Profile
                       </NavLink>
                     </li>
                     {!currentUser?.isAdmin && (
                       <li className="nav-item">
-                        <NavLink 
-                          to="/bookings" 
-                          className={({ isActive }) => 
-                            isActive ? "nav-link active" : "nav-link"
-                          }
+                        <NavLink
+                          to="/bookings"
+                          className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                         >
                           My Bookings
                         </NavLink>
@@ -76,11 +69,9 @@ const Header = () => {
                     )}
                     {currentUser?.isAdmin && (
                       <li className="nav-item">
-                        <NavLink 
-                          to="/admin" 
-                          className={({ isActive }) => 
-                            isActive ? "nav-link active" : "nav-link"
-                          }
+                        <NavLink
+                          to="/admin"
+                          className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                         >
                           Admin
                         </NavLink>
@@ -88,11 +79,9 @@ const Header = () => {
                     )}
                     {currentUser?.isOwner && (
                       <li className="nav-item">
-                        <NavLink 
-                          to="/owner" 
-                          className={({ isActive }) => 
-                            isActive ? "nav-link active" : "nav-link"
-                          }
+                        <NavLink
+                          to="/owner"
+                          className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                         >
                           Owner Dashboard
                         </NavLink>
@@ -106,11 +95,9 @@ const Header = () => {
                   </>
                 ) : (
                   <li className="nav-item">
-                    <NavLink 
-                      to="/verify-email-required" 
-                      className={({ isActive }) => 
-                        isActive ? "nav-link active" : "nav-link"
-                      }
+                    <NavLink
+                      to="/verify-email-required"
+                      className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                     >
                       Verify Email
                     </NavLink>
@@ -120,21 +107,17 @@ const Header = () => {
             ) : (
               <>
                 <li className="nav-item">
-                  <NavLink 
-                    to="/login" 
-                    className={({ isActive }) => 
-                      isActive ? "nav-link active" : "nav-link"
-                    }
+                  <NavLink
+                    to="/login"
+                    className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                   >
                     Login
                   </NavLink>
                 </li>
                 <li className="nav-item">
-                  <NavLink 
-                    to="/register" 
-                    className={({ isActive }) => 
-                      isActive ? "nav-link active" : "nav-link"
-                    }
+                  <NavLink
+                    to="/register"
+                    className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                   >
                     Register
                   </NavLink>

@@ -5,10 +5,11 @@ import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import StarRating from './StarRating';
 import './ReviewList.css';
+import { logError } from '../utils/logger';
 
 /**
  * UserReviewList component displays a list of reviews created by the user
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.initialReviews - Initial reviews data (optional)
  * @returns {JSX.Element} User review list component
@@ -43,9 +44,12 @@ const UserReviewList = ({ initialReviews = [] }) => {
         setReviews(data.reviews || []);
         setError(null);
       } catch (err) {
-        console.error('Error fetching user reviews:', err);
+        logError('Error fetching user reviews', err);
         // Improved error handling for axios errors
-        const errorMessage = err.response?.data?.message || err.message || 'Failed to load reviews. Please try again later.';
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          'Failed to load reviews. Please try again later.';
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -62,7 +66,7 @@ const UserReviewList = ({ initialReviews = [] }) => {
 
     // If campgroundId is not provided, we can't delete the review
     if (!campgroundId) {
-      console.error('Cannot delete review: campground ID is missing');
+      logError('Cannot delete review: campground ID is missing');
       alert('Cannot delete this review because the campground information is missing.');
       return;
     }
@@ -72,11 +76,14 @@ const UserReviewList = ({ initialReviews = [] }) => {
       await apiClient.delete(`/campgrounds/${campgroundId}/reviews/${reviewId}`);
 
       // Update local state
-      setReviews(reviews.filter(review => review._id !== reviewId));
+      setReviews(reviews.filter((review) => review._id !== reviewId));
     } catch (err) {
-      console.error('Error deleting review:', err);
+      logError('Error deleting review', err);
       // Improved error handling for axios errors
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to delete review. Please try again later.';
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to delete review. Please try again later.';
       alert(errorMessage);
     }
   };
@@ -112,11 +119,14 @@ const UserReviewList = ({ initialReviews = [] }) => {
     <div className="review-list">
       <h2 className="review-list-title">{currentUser.username}'s Reviews</h2>
 
-      {reviews.map(review => (
+      {reviews.map((review) => (
         <div key={review._id} className="review-item">
           <div className="review-header">
             {review.campground && review.campground._id ? (
-              <Link to={`/campgrounds/${review.campground._id}#review-${review._id}`} className="review-campground">
+              <Link
+                to={`/campgrounds/${review.campground._id}#review-${review._id}`}
+                className="review-campground"
+              >
                 {review.campground.title || 'Unknown Campground'}
               </Link>
             ) : (
@@ -130,8 +140,10 @@ const UserReviewList = ({ initialReviews = [] }) => {
             {new Date(parseInt(review._id.substring(0, 8), 16) * 1000).toLocaleDateString()}
           </p>
 
-          <button 
-            onClick={() => handleDeleteReview(review._id, review.campground ? review.campground._id : null)}
+          <button
+            onClick={() =>
+              handleDeleteReview(review._id, review.campground ? review.campground._id : null)
+            }
             className="review-delete-button"
             aria-label="Delete review"
           >
@@ -144,7 +156,7 @@ const UserReviewList = ({ initialReviews = [] }) => {
 };
 
 UserReviewList.propTypes = {
-  initialReviews: PropTypes.array
+  initialReviews: PropTypes.array,
 };
 
 export default UserReviewList;

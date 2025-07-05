@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import { logError } from '../utils/logger';
 import './TwoFactorVerification.css';
 
 /**
@@ -30,7 +31,7 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
       addSuccessMessage('Two-factor authentication successful! Welcome back.');
       navigate('/'); // Redirect to home page after successful login
     } catch (err) {
-      console.error('2FA verification error:', err);
+      logError('2FA verification error', err);
       addErrorMessage(err.message || 'Verification failed. Please try again.');
     }
   };
@@ -46,11 +47,7 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
         Enter the verification code from your authenticator app.
       </p>
 
-      {(formError || error) && (
-        <div className="error-message">
-          {formError || error}
-        </div>
-      )}
+      {(formError || error) && <div className="error-message">{formError || error}</div>}
 
       <form onSubmit={handleSubmit} className="verification-form">
         <div className="form-group">
@@ -72,12 +69,7 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
         </button>
 
         {onCancel && (
-          <button
-            type="button"
-            className="cancel-button"
-            onClick={onCancel}
-            disabled={loading}
-          >
+          <button type="button" className="cancel-button" onClick={onCancel} disabled={loading}>
             Cancel
           </button>
         )}

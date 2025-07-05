@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './BookingCheckoutPage.css';
 
 /**
@@ -40,7 +41,7 @@ const BookingCheckoutPage = () => {
         totalDays: bookingData.totalDays,
         totalPrice: bookingData.totalPrice,
         campsiteId: campsiteData?.id || null,
-        guests: bookingData.guests || 1
+        guests: bookingData.guests || 1,
       });
 
       const data = response.data;
@@ -48,7 +49,7 @@ const BookingCheckoutPage = () => {
       // Redirect to Stripe checkout
       window.location.href = data.sessionUrl;
     } catch (err) {
-      console.error('Error creating checkout session:', err);
+      logError('Error creating checkout session', err);
 
       // Handle axios error responses
       if (err.response && err.response.data) {
@@ -81,7 +82,9 @@ const BookingCheckoutPage = () => {
           {campsiteData && (
             <div className="booking-checkout-page-campsite">
               <h4>Campsite: {campsiteData.name}</h4>
-              {campsiteData.description && <p className="description">{campsiteData.description}</p>}
+              {campsiteData.description && (
+                <p className="description">{campsiteData.description}</p>
+              )}
               {campsiteData.features && campsiteData.features.length > 0 && (
                 <div className="features">
                   <p className="features-title">Features:</p>
@@ -92,7 +95,10 @@ const BookingCheckoutPage = () => {
                   </ul>
                 </div>
               )}
-              <p className="capacity">Capacity: {campsiteData.capacity || 1} {campsiteData.capacity === 1 ? 'person' : 'people'}</p>
+              <p className="capacity">
+                Capacity: {campsiteData.capacity || 1}{' '}
+                {campsiteData.capacity === 1 ? 'person' : 'people'}
+              </p>
             </div>
           )}
         </div>
@@ -100,12 +106,16 @@ const BookingCheckoutPage = () => {
         <div className="booking-checkout-page-details">
           <div className="detail-item">
             <span className="detail-label">Check-in:</span>
-            <span className="detail-value">{new Date(bookingData.startDate).toLocaleDateString()}</span>
+            <span className="detail-value">
+              {new Date(bookingData.startDate).toLocaleDateString()}
+            </span>
           </div>
 
           <div className="detail-item">
             <span className="detail-label">Check-out:</span>
-            <span className="detail-value">{new Date(bookingData.endDate).toLocaleDateString()}</span>
+            <span className="detail-value">
+              {new Date(bookingData.endDate).toLocaleDateString()}
+            </span>
           </div>
 
           <div className="detail-item">
@@ -115,7 +125,9 @@ const BookingCheckoutPage = () => {
 
           <div className="detail-item">
             <span className="detail-label">Price per night:</span>
-            <span className="detail-value">${campsiteData ? campsiteData.price : (bookingData.pricePerNight || 0)}</span>
+            <span className="detail-value">
+              ${campsiteData ? campsiteData.price : bookingData.pricePerNight || 0}
+            </span>
           </div>
 
           {bookingData.guests && bookingData.guests > 1 && (
@@ -132,21 +144,17 @@ const BookingCheckoutPage = () => {
         </div>
       </div>
 
-      {error && (
-        <div className="booking-checkout-page-error">
-          {error}
-        </div>
-      )}
+      {error && <div className="booking-checkout-page-error">{error}</div>}
 
       <div className="booking-checkout-page-actions">
-        <button 
+        <button
           className="booking-checkout-page-button cancel"
           onClick={() => navigate(`/campgrounds/${campgroundData.id}`)}
         >
           Cancel
         </button>
 
-        <button 
+        <button
           className="booking-checkout-page-button checkout"
           onClick={handleCheckout}
           disabled={loading}

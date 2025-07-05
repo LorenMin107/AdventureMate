@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import useOwners from '../hooks/useOwners';
+import { logError } from '../utils/logger';
 import './OwnerRegisterPage.css';
 
 /**
@@ -27,7 +28,7 @@ const OwnerRegisterPage = () => {
       city: '',
       state: '',
       zipCode: '',
-      country: 'Myanmar'
+      country: 'Myanmar',
     },
     businessPhone: '',
     businessEmail: currentUser?.email || '',
@@ -36,7 +37,7 @@ const OwnerRegisterPage = () => {
       bankName: '',
       accountNumber: '',
       routingNumber: '',
-      swiftCode: ''
+      swiftCode: '',
     },
     settings: {
       autoApproveBookings: false,
@@ -45,8 +46,8 @@ const OwnerRegisterPage = () => {
       minimumStay: 1,
       maximumStay: 30,
       checkInTime: '15:00',
-      checkOutTime: '11:00'
-    }
+      checkOutTime: '11:00',
+    },
   });
 
   const [errors, setErrors] = useState({});
@@ -58,23 +59,23 @@ const OwnerRegisterPage = () => {
 
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent],
-          [child]: type === 'checkbox' ? checked : value
-        }
+          [child]: type === 'checkbox' ? checked : value,
+        },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value
+        [name]: type === 'checkbox' ? checked : value,
       }));
     }
 
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
@@ -114,10 +115,12 @@ const OwnerRegisterPage = () => {
 
       case 3: // Banking Information (optional but validate if provided)
         if (formData.bankingInfo.accountNumber && !formData.bankingInfo.accountHolderName.trim()) {
-          newErrors['bankingInfo.accountHolderName'] = 'Account holder name is required when account number is provided';
+          newErrors['bankingInfo.accountHolderName'] =
+            'Account holder name is required when account number is provided';
         }
         if (formData.bankingInfo.accountNumber && !formData.bankingInfo.bankName.trim()) {
-          newErrors['bankingInfo.bankName'] = 'Bank name is required when account number is provided';
+          newErrors['bankingInfo.bankName'] =
+            'Bank name is required when account number is provided';
         }
         break;
 
@@ -131,12 +134,12 @@ const OwnerRegisterPage = () => {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
     }
   };
 
   const handlePrevious = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   const handleSubmit = async (e) => {
@@ -151,7 +154,8 @@ const OwnerRegisterPage = () => {
 
       // Show the message from the server or a default success message
       addSuccessMessage(
-        response.message || 'Owner registration successful! Please check your email for verification instructions.'
+        response.message ||
+          'Owner registration successful! Please check your email for verification instructions.'
       );
 
       // Redirect based on verification status
@@ -163,10 +167,8 @@ const OwnerRegisterPage = () => {
         navigate('/owner/verification');
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      addErrorMessage(
-        error.response?.data?.message || 'Registration failed. Please try again.'
-      );
+      logError('Registration error', error);
+      addErrorMessage(error.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 
@@ -245,7 +247,9 @@ const OwnerRegisterPage = () => {
                   className={errors.businessPhone ? 'error' : ''}
                   placeholder="+95 xxx xxx xxxx"
                 />
-                {errors.businessPhone && <span className="error-message">{errors.businessPhone}</span>}
+                {errors.businessPhone && (
+                  <span className="error-message">{errors.businessPhone}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -259,7 +263,9 @@ const OwnerRegisterPage = () => {
                   className={errors.businessEmail ? 'error' : ''}
                   placeholder="business@example.com"
                 />
-                {errors.businessEmail && <span className="error-message">{errors.businessEmail}</span>}
+                {errors.businessEmail && (
+                  <span className="error-message">{errors.businessEmail}</span>
+                )}
               </div>
             </div>
           </div>
@@ -281,7 +287,9 @@ const OwnerRegisterPage = () => {
                 className={errors['businessAddress.street'] ? 'error' : ''}
                 placeholder="Enter street address"
               />
-              {errors['businessAddress.street'] && <span className="error-message">{errors['businessAddress.street']}</span>}
+              {errors['businessAddress.street'] && (
+                <span className="error-message">{errors['businessAddress.street']}</span>
+              )}
             </div>
 
             <div className="form-row">
@@ -296,7 +304,9 @@ const OwnerRegisterPage = () => {
                   className={errors['businessAddress.city'] ? 'error' : ''}
                   placeholder="City"
                 />
-                {errors['businessAddress.city'] && <span className="error-message">{errors['businessAddress.city']}</span>}
+                {errors['businessAddress.city'] && (
+                  <span className="error-message">{errors['businessAddress.city']}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -310,7 +320,9 @@ const OwnerRegisterPage = () => {
                   className={errors['businessAddress.state'] ? 'error' : ''}
                   placeholder="State or Region"
                 />
-                {errors['businessAddress.state'] && <span className="error-message">{errors['businessAddress.state']}</span>}
+                {errors['businessAddress.state'] && (
+                  <span className="error-message">{errors['businessAddress.state']}</span>
+                )}
               </div>
             </div>
 
@@ -326,7 +338,9 @@ const OwnerRegisterPage = () => {
                   className={errors['businessAddress.zipCode'] ? 'error' : ''}
                   placeholder="ZIP Code"
                 />
-                {errors['businessAddress.zipCode'] && <span className="error-message">{errors['businessAddress.zipCode']}</span>}
+                {errors['businessAddress.zipCode'] && (
+                  <span className="error-message">{errors['businessAddress.zipCode']}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -353,7 +367,8 @@ const OwnerRegisterPage = () => {
           <div className="form-step">
             <h3>Banking Information</h3>
             <p className="step-description">
-              Banking information is optional but required for receiving payments. You can add this later in your profile settings.
+              Banking information is optional but required for receiving payments. You can add this
+              later in your profile settings.
             </p>
 
             <div className="form-group">
@@ -367,7 +382,9 @@ const OwnerRegisterPage = () => {
                 className={errors['bankingInfo.accountHolderName'] ? 'error' : ''}
                 placeholder="Full name as on bank account"
               />
-              {errors['bankingInfo.accountHolderName'] && <span className="error-message">{errors['bankingInfo.accountHolderName']}</span>}
+              {errors['bankingInfo.accountHolderName'] && (
+                <span className="error-message">{errors['bankingInfo.accountHolderName']}</span>
+              )}
             </div>
 
             <div className="form-row">
@@ -382,7 +399,9 @@ const OwnerRegisterPage = () => {
                   className={errors['bankingInfo.bankName'] ? 'error' : ''}
                   placeholder="Bank name"
                 />
-                {errors['bankingInfo.bankName'] && <span className="error-message">{errors['bankingInfo.bankName']}</span>}
+                {errors['bankingInfo.bankName'] && (
+                  <span className="error-message">{errors['bankingInfo.bankName']}</span>
+                )}
               </div>
 
               <div className="form-group">
@@ -542,15 +561,21 @@ const OwnerRegisterPage = () => {
         <div className="register-container">
           <div className="register-header">
             <h1>Become a Campground Owner</h1>
-            <p>Join MyanCamp as a verified campground owner and start earning from your property.</p>
+            <p>
+              Join MyanCamp as a verified campground owner and start earning from your property.
+            </p>
           </div>
 
           <div className="auth-required-message">
             <h2>Create an Account or Sign In</h2>
             <p>You need to have an account to register as a campground owner.</p>
             <div className="auth-buttons">
-              <Link to="/register" className="btn btn-primary">Create Account</Link>
-              <Link to="/login" className="btn btn-secondary">Sign In</Link>
+              <Link to="/register" className="btn btn-primary">
+                Create Account
+              </Link>
+              <Link to="/login" className="btn btn-secondary">
+                Sign In
+              </Link>
             </div>
           </div>
 
@@ -574,7 +599,7 @@ const OwnerRegisterPage = () => {
 
         <div className="progress-bar">
           <div className="progress-steps">
-            {[1, 2, 3, 4].map(step => (
+            {[1, 2, 3, 4].map((step) => (
               <div
                 key={step}
                 className={`progress-step ${step <= currentStep ? 'active' : ''} ${step < currentStep ? 'completed' : ''}`}
@@ -590,8 +615,8 @@ const OwnerRegisterPage = () => {
             ))}
           </div>
           <div className="progress-line">
-            <div 
-              className="progress-fill" 
+            <div
+              className="progress-fill"
               style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
             ></div>
           </div>
@@ -602,21 +627,13 @@ const OwnerRegisterPage = () => {
 
           <div className="form-actions">
             {currentStep > 1 && (
-              <button
-                type="button"
-                onClick={handlePrevious}
-                className="btn btn-secondary"
-              >
+              <button type="button" onClick={handlePrevious} className="btn btn-secondary">
                 Previous
               </button>
             )}
 
             {currentStep < totalSteps ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="btn btn-primary"
-              >
+              <button type="button" onClick={handleNext} className="btn btn-primary">
                 Next
               </button>
             ) : (

@@ -5,19 +5,22 @@ const Review = require('./models/review');
 const User = require('./models/user');
 const Booking = require('./models/booking');
 const config = require('./config');
+const { logDebug, logWarn } = require('./utils/logger');
 
 // API version of isLoggedIn middleware that returns JSON instead of redirecting
 // Uses JWT-based authentication
 module.exports.isLoggedInApi = (req, res, next) => {
-  console.log('isLoggedInApi middleware called');
-  console.log('req.user:', req.user ? req.user._id : 'No user');
+  logDebug('isLoggedInApi middleware called', {
+    userId: req.user?._id,
+    isAuthenticated: !!req.user,
+  });
 
   if (!req.user) {
-    console.log('User not authenticated, returning 401');
+    logWarn('User not authenticated, returning 401');
     return res.status(401).json({ error: 'You must be logged in to access this resource' });
   }
 
-  console.log('User authenticated, continuing to next middleware');
+  logDebug('User authenticated, continuing to next middleware', { userId: req.user._id });
   next();
 };
 
@@ -91,7 +94,7 @@ module.exports.validateBookingDates = async (req, res, next) => {
         return res.redirect(`/campgrounds/${req.params.id}`);
       }
     } catch (err) {
-      console.error('Error checking campsite availability:', err);
+      logError('Error checking campsite availability', err);
       req.flash('error', 'Failed to check campsite availability.');
       return res.redirect(`/campgrounds/${req.params.id}`);
     }
@@ -132,7 +135,7 @@ module.exports.validateBookingDatesApi = async (req, res, next) => {
         });
       }
     } catch (err) {
-      console.error('Error checking campsite availability:', err);
+      logError('Error checking campsite availability', err);
       return res.status(500).json({ error: 'Failed to check campsite availability' });
     }
   }
@@ -174,14 +177,16 @@ module.exports.validateReviewApi = (req, res, next) => {
 // API version of isAdmin middleware that returns JSON instead of redirecting
 // Uses JWT-based authentication
 module.exports.isAdminApi = (req, res, next) => {
-  console.log('isAdminApi middleware called');
-  console.log('req.user:', req.user ? `${req.user._id} (isAdmin: ${req.user.isAdmin})` : 'No user');
+  logDebug('isAdminApi middleware called', {
+    userId: req.user?._id,
+    isAdmin: req.user?.isAdmin,
+  });
 
   if (req.user && req.user.isAdmin) {
-    console.log('User is admin, continuing to next middleware');
+    logDebug('User is admin, continuing to next middleware', { userId: req.user._id });
     next();
   } else {
-    console.log('User is not admin, returning 403');
+    logWarn('User is not admin, returning 403', { userId: req.user?._id });
     return res.status(403).json({ error: 'You do not have permission to perform this action' });
   }
 };

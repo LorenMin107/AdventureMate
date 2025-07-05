@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const config = require('../config');
 const EmailVerificationToken = require('../models/emailVerificationToken');
+const { logError, logInfo, logDebug } = require('./logger');
 
 // Default expiration time for email verification tokens
 const EMAIL_VERIFICATION_TOKEN_EXPIRY = '24h'; // 24 hours
@@ -20,20 +21,32 @@ const generateRandomToken = () => {
  * @param {string} expiresIn - Token expiration time (default: 24h)
  * @returns {Promise<Object>} Email verification token object
  */
-const generateEmailVerificationToken = async (user, req, expiresIn = EMAIL_VERIFICATION_TOKEN_EXPIRY) => {
-  console.log('Generating email verification token for user:', user._id);
+const generateEmailVerificationToken = async (
+  user,
+  req,
+  expiresIn = EMAIL_VERIFICATION_TOKEN_EXPIRY
+) => {
+  logInfo('Generating email verification token', { 
+      userId: user._id 
+    });
 
   // Generate a random token
   const tokenString = generateRandomToken();
-  console.log('Generated token string:', tokenString);
+  logDebug('Generated token string', { 
+      tokenLength: tokenString.length 
+    });
 
   // Calculate expiration date
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 24); // 24 hours from now
-  console.log('Token expires at:', expiresAt);
+  logDebug('Token expiration set', { 
+      expiresAt: expiresAt.toISOString() 
+    });
 
   // Invalidate all existing tokens for this user
-  console.log('Invalidating existing tokens for user:', user._id);
+  logInfo('Invalidating existing tokens', { 
+      userId: user._id 
+    });
   await EmailVerificationToken.invalidateAllUserTokens(user._id);
 
   // Create a new email verification token
@@ -43,17 +56,17 @@ const generateEmailVerificationToken = async (user, req, expiresIn = EMAIL_VERIF
     token: tokenString,
     expiresAt,
     ipAddress: req.ip || req.connection.remoteAddress,
-    userAgent: req.headers['user-agent']
+    userAgent: req.headers['user-agent'],
   });
 
   // Save the email verification token to the database
-  console.log('Saving token to database');
+  logDebug('Saving token to database');
   await verificationToken.save();
-  console.log('Token saved to database');
+  logInfo('Token saved to database');
 
   return {
     token: tokenString,
-    expiresAt
+    expiresAt,
   };
 };
 
@@ -63,15 +76,20 @@ const generateEmailVerificationToken = async (user, req, expiresIn = EMAIL_VERIF
  * @returns {Promise<Object|null>} Email verification token document or null if not found
  */
 const findUsedToken = async (token) => {
-  console.log('Checking if token has been used:', token);
+  logDebug('Checking if token has been used', { 
+      tokenLength: token.length 
+    });
 
   const usedToken = await EmailVerificationToken.findOne({
     token,
-    isUsed: true
+    isUsed: true,
   });
 
   if (usedToken) {
-    console.log('Token found but has been used:', usedToken);
+    logInfo('Token found but has been used', { 
+      tokenId: usedToken._id,
+      userId: usedToken.user 
+    });
   }
 
   return usedToken;
@@ -84,7 +102,9 @@ const findUsedToken = async (token) => {
  * @throws {Error} If token is invalid
  */
 const verifyEmailToken = async (token) => {
-  console.log('Verifying email token:', token);
+  logDebug('Verifying email token', { 
+      tokenLength: token.length 
+    });
 
   const verificationToken = await EmailVerificationToken.findValidToken(token);
 
@@ -93,15 +113,20 @@ const verifyEmailToken = async (token) => {
     const usedToken = await findUsedToken(token);
 
     if (usedToken) {
-      console.log('Token has already been used');
-      throw new Error('This verification link has already been used. Your email may already be verified.');
+      logInfo('Token has already been used');
+      throw new Error(
+        'This verification link has already been used. Your email may already be verified.'
+      );
     }
 
-    console.log('Token not found or invalid');
+    logInfo('Token not found or invalid');
     throw new Error('Invalid or expired verification token');
   }
 
-  console.log('Token found and valid:', verificationToken);
+  logInfo('Token found and valid', { 
+      tokenId: verificationToken._id,
+      userId: verificationToken.user 
+    });
   return verificationToken;
 };
 
@@ -128,20 +153,30 @@ const markEmailTokenAsUsed = async (token) => {
  * @returns {string} Verification URL
  */
 const generateVerificationUrl = (token, baseUrl = config.server.clientUrl) => {
-  console.log('Generating verification URL');
-  console.log('Base URL from config:', config.server.clientUrl);
-  console.log('Base URL parameter:', baseUrl);
+  logDebug('Generating verification URL');
+  logDebug('Base URL from config', { 
+      clientUrl: config.server.clientUrl 
+    });
+  logDebug('Base URL parameter', { 
+      baseUrl 
+    });
 
   // Ensure baseUrl is never undefined
   const safeBaseUrl = baseUrl || 'http://localhost:5173';
-  console.log('Safe base URL:', safeBaseUrl);
+  logDebug('Safe base URL', { 
+      safeBaseUrl 
+    });
 
   // Ensure token is properly encoded in the URL
   const encodedToken = encodeURIComponent(token);
-  console.log('Encoded token:', encodedToken);
+  logDebug('Encoded token', { 
+      encodedToken 
+    });
 
   const verificationUrl = `${safeBaseUrl}/verify-email?token=${encodedToken}`;
-  console.log('Generated verification URL:', verificationUrl);
+  logInfo('Generated verification URL', { 
+      verificationUrl 
+    });
 
   return verificationUrl;
 };
@@ -152,5 +187,5 @@ module.exports = {
   markEmailTokenAsUsed,
   generateVerificationUrl,
   findUsedToken,
-  EMAIL_VERIFICATION_TOKEN_EXPIRY
+  EMAIL_VERIFICATION_TOKEN_EXPIRY,
 };

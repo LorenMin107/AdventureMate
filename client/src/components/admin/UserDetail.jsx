@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
+import { logError } from '../../utils/logger';
 import './UserDetail.css';
 
 /**
@@ -30,7 +31,7 @@ const UserDetail = () => {
         setUser(data.user);
         setError(null);
       } catch (err) {
-        console.error('Error fetching user details:', err);
+        logError('Error fetching user details', err);
         setError(
           err.response?.data?.message || 'Failed to load user details. Please try again later.'
         );
@@ -63,7 +64,7 @@ const UserDetail = () => {
       const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
       setUser(data.user);
     } catch (err) {
-      console.error('Error updating user:', err);
+      logError('Error updating user', err);
       alert(err.response?.data?.message || 'Failed to update user. Please try again later.');
     }
   };
@@ -87,7 +88,7 @@ const UserDetail = () => {
       const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
       setUser(data.user);
     } catch (err) {
-      console.error('Error updating user:', err);
+      logError('Error updating user', err);
       alert(err.response?.data?.message || 'Failed to update user. Please try again later.');
     }
   };
@@ -106,7 +107,7 @@ const UserDetail = () => {
         bookings: user.bookings.filter((booking) => booking._id !== bookingId),
       });
     } catch (err) {
-      console.error('Error canceling booking:', err);
+      logError('Error canceling booking', err);
       alert(err.response?.data?.message || 'Failed to cancel booking. Please try again later.');
     }
   };

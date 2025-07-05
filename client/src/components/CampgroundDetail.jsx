@@ -5,6 +5,7 @@ import ReviewList from './ReviewList';
 import ReviewForm from './ReviewForm';
 import BookingForm from './BookingForm';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './CampgroundDetail.css';
 
 /**
@@ -33,7 +34,7 @@ const CampgroundDetail = () => {
         }
         setError(null);
       } catch (err) {
-        console.error('Error fetching campground:', err);
+        logError('Error fetching campground', err);
         setError('Failed to load campground details. Please try again later.');
       } finally {
         setLoading(false);
@@ -55,7 +56,7 @@ const CampgroundDetail = () => {
 
       navigate('/campgrounds');
     } catch (err) {
-      console.error('Error deleting campground:', err);
+      logError('Error deleting campground', err);
       alert('Failed to delete campground. Please try again later.');
     }
   };
@@ -65,7 +66,7 @@ const CampgroundDetail = () => {
   };
 
   const handleReviewDeleted = (reviewId) => {
-    setReviews(reviews.filter(review => review._id !== reviewId));
+    setReviews(reviews.filter((review) => review._id !== reviewId));
   };
 
   if (loading) {
@@ -80,23 +81,17 @@ const CampgroundDetail = () => {
     return <div className="campground-detail-not-found">Campground not found</div>;
   }
 
-  const { 
-    title, 
-    location, 
-    description, 
-    price, 
-    images, 
-    author
-  } = campground;
+  const { title, location, description, price, images, author } = campground;
 
   const isAuthor = currentUser && author && currentUser._id === author._id;
   const isAdmin = currentUser && currentUser.isAdmin;
   const canModify = isAuthor || isAdmin;
 
   // Get the active image or use a placeholder
-  const activeImage = images && images.length > 0 
-    ? images[activeImageIndex].url 
-    : 'https://via.placeholder.com/800x600?text=No+Image+Available';
+  const activeImage =
+    images && images.length > 0
+      ? images[activeImageIndex].url
+      : 'https://via.placeholder.com/800x600?text=No+Image+Available';
 
   return (
     <div className="campground-detail">
@@ -114,7 +109,7 @@ const CampgroundDetail = () => {
           {images && images.length > 1 && (
             <div className="campground-detail-thumbnails">
               {images.map((image, index) => (
-                <div 
+                <div
                   key={index}
                   className={`thumbnail ${index === activeImageIndex ? 'active' : ''}`}
                   onClick={() => setActiveImageIndex(index)}
@@ -138,7 +133,10 @@ const CampgroundDetail = () => {
 
           <div className="campground-detail-booking">
             <div className="campground-detail-price">
-              <h3>${price}<span>/night</span></h3>
+              <h3>
+                ${price}
+                <span>/night</span>
+              </h3>
             </div>
 
             <BookingForm campground={campground} />
@@ -159,15 +157,12 @@ const CampgroundDetail = () => {
 
       <div className="campground-detail-reviews">
         <h2>Reviews</h2>
-        <ReviewList 
-          campgroundId={id} 
-          initialReviews={reviews} 
-          onReviewDeleted={handleReviewDeleted} 
+        <ReviewList
+          campgroundId={id}
+          initialReviews={reviews}
+          onReviewDeleted={handleReviewDeleted}
         />
-        <ReviewForm 
-          campgroundId={id} 
-          onReviewSubmitted={handleReviewSubmitted} 
-        />
+        <ReviewForm campgroundId={id} onReviewSubmitted={handleReviewSubmitted} />
       </div>
     </div>
   );

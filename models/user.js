@@ -1,149 +1,157 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const passportLocalMongoose = require("passport-local-mongoose");
 
-const UserSchema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true, // unique already creates an index
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  phone: {
-    type: String,
-    required: true,
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  // New field to identify campground owners
-  isOwner: {
-    type: Boolean,
-    default: false,
-  },
-  // Email verification fields
-  isEmailVerified: {
-    type: Boolean,
-    default: false,
-  },
-  emailVerifiedAt: {
-    type: Date,
-  },
-  // Social login fields
-  googleId: {
-    type: String,
-    sparse: true,
-    unique: true,
-  },
-  facebookId: {
-    type: String,
-    sparse: true,
-    unique: true,
-  },
-  profile: {
-    name: {
+const UserSchema = new Schema(
+  {
+    username: {
       type: String,
+      required: true,
+      unique: true, // unique already creates an index
     },
-    picture: {
+    email: {
       type: String,
+      required: true,
+      unique: true,
     },
-  },
-  // Account security fields
-  failedLoginAttempts: {
-    type: Number,
-    default: 0,
-  },
-  accountLocked: {
-    type: Boolean,
-    default: false,
-  },
-  lockUntil: {
-    type: Date,
-    default: null,
-  },
-  lastLoginAt: {
-    type: Date,
-  },
-  lastLoginIP: {
-    type: String,
-  },
-  // Password history for audit logging
-  passwordHistory: [{
-    date: {
-      type: Date,
-      default: Date.now
-    },
-    ipAddress: {
-      type: String
-    },
-    userAgent: {
-      type: String
-    },
-    reason: {
+    phone: {
       type: String,
-      enum: ['reset', 'change', 'initial'],
-      default: 'change'
-    }
-  }],
-  // Two-factor authentication fields
-  isTwoFactorEnabled: {
-    type: Boolean,
-    default: false,
-  },
-  twoFactorSecret: {
-    type: String,
-    default: null,
-  },
-  twoFactorSetupCompleted: {
-    type: Boolean,
-    default: false,
-  },
-  backupCodes: [{
-    code: {
-      type: String,
+      required: true,
     },
-    isUsed: {
+    // Add password field for JWT authentication
+    password: {
+      type: String,
+      required: true,
+    },
+    isAdmin: {
       type: Boolean,
       default: false,
     },
-    usedAt: {
+    // New field to identify campground owners
+    isOwner: {
+      type: Boolean,
+      default: false,
+    },
+    // Email verification fields
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerifiedAt: {
+      type: Date,
+    },
+    // Social login fields
+    googleId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    facebookId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    profile: {
+      name: {
+        type: String,
+      },
+      picture: {
+        type: String,
+      },
+    },
+    // Account security fields
+    failedLoginAttempts: {
+      type: Number,
+      default: 0,
+    },
+    accountLocked: {
+      type: Boolean,
+      default: false,
+    },
+    lockUntil: {
       type: Date,
       default: null,
-    }
-  }],
-  // References to owned campgrounds
-  ownedCampgrounds: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Campground",
     },
-  ],
-  bookings: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Booking",
+    lastLoginAt: {
+      type: Date,
     },
-  ],
-  reviews: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Review",
+    lastLoginIP: {
+      type: String,
     },
-  ],
-  contacts: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Contact",
+    // Password history for audit logging
+    passwordHistory: [
+      {
+        date: {
+          type: Date,
+          default: Date.now,
+        },
+        ipAddress: {
+          type: String,
+        },
+        userAgent: {
+          type: String,
+        },
+        reason: {
+          type: String,
+          enum: ['reset', 'change', 'initial'],
+          default: 'change',
+        },
+      },
+    ],
+    // Two-factor authentication fields
+    isTwoFactorEnabled: {
+      type: Boolean,
+      default: false,
     },
-  ],
-}, { timestamps: true }); // Add timestamps option
+    twoFactorSecret: {
+      type: String,
+      default: null,
+    },
+    twoFactorSetupCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    backupCodes: [
+      {
+        code: {
+          type: String,
+        },
+        isUsed: {
+          type: Boolean,
+          default: false,
+        },
+        usedAt: {
+          type: Date,
+          default: null,
+        },
+      },
+    ],
+    // References to owned campgrounds
+    ownedCampgrounds: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Campground',
+      },
+    ],
+    bookings: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Booking',
+      },
+    ],
+    reviews: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Review',
+      },
+    ],
+    contacts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Contact',
+      },
+    ],
+  },
+  { timestamps: true }
+); // Add timestamps option
 
-// add the passport-local-mongoose plugin to the UserSchema to hash and salt the password and save the user to the database
-UserSchema.plugin(passportLocalMongoose);
-
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model('User', UserSchema);

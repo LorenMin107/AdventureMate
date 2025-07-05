@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CampsiteForm from '../components/CampsiteForm';
+import { logError } from '../utils/logger';
 import './CampsiteNewPage.css';
 
 /**
@@ -40,7 +41,7 @@ const CampsiteNewPage = () => {
 
         setCampground(campgroundData);
       } catch (err) {
-        console.error('Error fetching campground:', err);
+        logError('Error fetching campground', err);
         setError('Failed to load campground. Please try again later.');
       } finally {
         setLoadingCampground(false);
@@ -51,11 +52,12 @@ const CampsiteNewPage = () => {
   }, [campgroundId]);
 
   // Check if user is the owner of the campground
-  const isOwner = currentUser && campground && (
-    currentUser.isAdmin || 
-    (campground.owner && currentUser._id === campground.owner._id) || 
-    (campground.author && currentUser._id === campground.author._id)
-  );
+  const isOwner =
+    currentUser &&
+    campground &&
+    (currentUser.isAdmin ||
+      (campground.owner && currentUser._id === campground.owner._id) ||
+      (campground.author && currentUser._id === campground.author._id));
 
   // Redirect if not the owner
   useEffect(() => {
@@ -77,7 +79,11 @@ const CampsiteNewPage = () => {
   }
 
   if (!isOwner) {
-    return <div className="unauthorized-container">You don't have permission to add campsites to this campground.</div>;
+    return (
+      <div className="unauthorized-container">
+        You don't have permission to add campsites to this campground.
+      </div>
+    );
   }
 
   return (
@@ -87,10 +93,7 @@ const CampsiteNewPage = () => {
         <p>Add a new campsite to {campground.title}</p>
       </div>
 
-      <CampsiteForm 
-        campgroundId={campgroundId} 
-        isEditing={false} 
-      />
+      <CampsiteForm campgroundId={campgroundId} isEditing={false} />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BookingForm from '../components/BookingForm';
+import { logError } from '../utils/logger';
 import './BookingFormPage.css';
 
 /**
@@ -25,9 +26,10 @@ const BookingFormPage = () => {
         if (!response.ok) {
           const errorData = await response.json();
           // Check if the error response is in the new standardized format
-          const errorMessage = errorData.status === 'error' 
-            ? errorData.error || errorData.message 
-            : `Failed to fetch campground: ${response.status}`;
+          const errorMessage =
+            errorData.status === 'error'
+              ? errorData.error || errorData.message
+              : `Failed to fetch campground: ${response.status}`;
           throw new Error(errorMessage);
         }
 
@@ -42,7 +44,7 @@ const BookingFormPage = () => {
 
         setCampground(campgroundData);
       } catch (err) {
-        console.error('Error fetching campground:', err);
+        logError('Error fetching campground', err);
         setError('Failed to load campground details. Please try again later.');
       } finally {
         setLoading(false);
@@ -75,15 +77,15 @@ const BookingFormPage = () => {
         }
 
         // Filter available campsites
-        const availableCampsites = campsitesData.filter(campsite => campsite.availability);
+        const availableCampsites = campsitesData.filter((campsite) => campsite.availability);
 
         // Calculate the starting price from available campsites
         if (availableCampsites.length > 0) {
-          const minPrice = Math.min(...availableCampsites.map(campsite => campsite.price));
+          const minPrice = Math.min(...availableCampsites.map((campsite) => campsite.price));
           setStartingPrice(minPrice);
         }
       } catch (err) {
-        console.error('Error fetching campsites:', err);
+        logError('Error fetching campsites', err);
       } finally {
         setLoadingCampsites(false);
       }
@@ -121,7 +123,9 @@ const BookingFormPage = () => {
           {loadingCampsites ? (
             <span className="loading-price">Loading price...</span>
           ) : startingPrice > 0 ? (
-            <>Starting from <span className="price-amount">${startingPrice}</span> per night</>
+            <>
+              Starting from <span className="price-amount">${startingPrice}</span> per night
+            </>
           ) : (
             <span className="no-price">Contact for pricing</span>
           )}

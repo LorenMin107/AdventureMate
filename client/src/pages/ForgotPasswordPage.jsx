@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { logError } from '../utils/logger';
 import './ForgotPasswordPage.css';
 
 /**
@@ -39,9 +40,12 @@ const ForgotPasswordPage = () => {
       // Use the requestPasswordReset method from AuthContext
       const responseMessage = await requestPasswordReset(email);
       setStatus('success');
-      setMessage(responseMessage || 'If your email is registered, you will receive a password reset link shortly.');
+      setMessage(
+        responseMessage ||
+          'If your email is registered, you will receive a password reset link shortly.'
+      );
     } catch (error) {
-      console.error('Error requesting password reset:', error);
+      logError('Error requesting password reset', error);
       setStatus('error');
       // For security reasons, don't reveal if the email exists or not
       setMessage('If your email is registered, you will receive a password reset link shortly.');
@@ -71,8 +75,8 @@ const ForgotPasswordPage = () => {
                 {emailError && <div className="error-message">{emailError}</div>}
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary"
                 disabled={status === 'loading' || authLoading}
               >
@@ -100,8 +104,12 @@ const ForgotPasswordPage = () => {
             <p>{message}</p>
             <p>Please check your email inbox and spam folder for the password reset link.</p>
             <div className="action-buttons">
-              <Link to="/login" className="btn btn-primary">Back to Login</Link>
-              <Link to="/" className="btn btn-secondary">Go to Homepage</Link>
+              <Link to="/login" className="btn btn-primary">
+                Back to Login
+              </Link>
+              <Link to="/" className="btn btn-secondary">
+                Go to Homepage
+              </Link>
             </div>
           </div>
         )}
@@ -112,13 +120,12 @@ const ForgotPasswordPage = () => {
             <h2>Something Went Wrong</h2>
             <p>{message}</p>
             <div className="action-buttons">
-              <button 
-                onClick={() => setStatus('idle')} 
-                className="btn btn-primary"
-              >
+              <button onClick={() => setStatus('idle')} className="btn btn-primary">
                 Try Again
               </button>
-              <Link to="/login" className="btn btn-secondary">Back to Login</Link>
+              <Link to="/login" className="btn btn-secondary">
+                Back to Login
+              </Link>
             </div>
           </div>
         )}

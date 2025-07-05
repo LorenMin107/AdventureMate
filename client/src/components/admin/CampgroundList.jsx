@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
+import { logError, logInfo } from '../../utils/logger';
 import './CampgroundList.css';
 
 /**
  * CampgroundList component displays a paginated list of campgrounds for administrators
- * 
+ *
  * @returns {JSX.Element} Campground list component
  */
 const CampgroundList = () => {
@@ -18,11 +19,11 @@ const CampgroundList = () => {
     page: 1,
     limit: 10,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   });
   const [sort, setSort] = useState({
     field: 'title',
-    order: 'asc'
+    order: 'asc',
   });
 
   useEffect(() => {
@@ -36,7 +37,7 @@ const CampgroundList = () => {
           page: pagination.page,
           limit: pagination.limit,
           sortField: sortField,
-          sortOrder: sort.order
+          sortOrder: sort.order,
         });
 
         const response = await apiClient.get(`/campgrounds?${queryParams}`);
@@ -50,7 +51,7 @@ const CampgroundList = () => {
         setSort(responseData.sort || sort);
         setError(null);
       } catch (err) {
-        console.error('Error fetching campgrounds:', err);
+        logError('Error fetching campgrounds', err);
         setError('Failed to load campgrounds. Please try again later.');
       } finally {
         setLoading(false);
@@ -74,24 +75,30 @@ const CampgroundList = () => {
   };
 
   const handleDelete = async (id, title) => {
-    if (!window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
+    if (
+      !window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)
+    ) {
       return;
     }
 
     try {
       const response = await apiClient.delete(`/campgrounds/${id}`);
-      console.log('Delete response:', response.data);
+      logInfo('Delete response', response.data);
 
       // Update the campgrounds list
-      setCampgrounds(campgrounds.filter(campground => campground._id !== id));
+      setCampgrounds(campgrounds.filter((campground) => campground._id !== id));
     } catch (err) {
-      console.error('Error deleting campground:', err);
+      logError('Error deleting campground', err);
       alert('Failed to delete campground. Please try again later.');
     }
   };
 
   if (!currentUser?.isAdmin) {
-    return <div className="campground-list-unauthorized">You do not have permission to access this page.</div>;
+    return (
+      <div className="campground-list-unauthorized">
+        You do not have permission to access this page.
+      </div>
+    );
   }
 
   if (loading) {
@@ -110,9 +117,11 @@ const CampgroundList = () => {
           <Link to="/campgrounds/new" className="campground-list-add-button">
             Add New Campground
           </Link>
-          <select 
-            value={pagination.limit} 
-            onChange={(e) => setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })}
+          <select
+            value={pagination.limit}
+            onChange={(e) =>
+              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })
+            }
             className="campground-list-limit"
           >
             <option value="5">5 per page</option>
@@ -127,21 +136,19 @@ const CampgroundList = () => {
         <table className="campground-list-table">
           <thead>
             <tr>
-              <th 
+              <th
                 className={`sortable ${sort.field === 'title' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('title')}
               >
                 Title
               </th>
-              <th 
+              <th
                 className={`sortable ${sort.field === 'location' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('location')}
               >
                 Location
               </th>
-              <th>
-                Pricing
-              </th>
+              <th>Pricing</th>
               <th>Author</th>
               <th>Reviews</th>
               <th>Bookings</th>
@@ -149,7 +156,7 @@ const CampgroundList = () => {
             </tr>
           </thead>
           <tbody>
-            {campgrounds.map(campground => (
+            {campgrounds.map((campground) => (
               <tr key={campground._id}>
                 <td>{campground.title}</td>
                 <td>{campground.location}</td>
@@ -158,19 +165,19 @@ const CampgroundList = () => {
                 <td>{campground.reviews?.length || 0}</td>
                 <td>{campground.bookings?.length || 0}</td>
                 <td className="campground-list-actions-cell">
-                  <Link 
-                    to={`/campgrounds/${campground._id}`} 
+                  <Link
+                    to={`/campgrounds/${campground._id}`}
                     className="campground-list-view-button"
                   >
                     View
                   </Link>
-                  <Link 
-                    to={`/campgrounds/${campground._id}/edit`} 
+                  <Link
+                    to={`/campgrounds/${campground._id}/edit`}
                     className="campground-list-edit-button"
                   >
                     Edit
                   </Link>
-                  <button 
+                  <button
                     onClick={() => handleDelete(campground._id, campground.title)}
                     className="campground-list-delete-button"
                   >
@@ -185,15 +192,15 @@ const CampgroundList = () => {
 
       {pagination.totalPages > 1 && (
         <div className="campground-list-pagination">
-          <button 
-            onClick={() => handlePageChange(1)} 
+          <button
+            onClick={() => handlePageChange(1)}
             disabled={pagination.page === 1}
             className="pagination-button"
           >
             First
           </button>
-          <button 
-            onClick={() => handlePageChange(pagination.page - 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
             className="pagination-button"
           >
@@ -202,15 +209,15 @@ const CampgroundList = () => {
           <span className="pagination-info">
             Page {pagination.page} of {pagination.totalPages}
           </span>
-          <button 
-            onClick={() => handlePageChange(pagination.page + 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >
             Next
           </button>
-          <button 
-            onClick={() => handlePageChange(pagination.totalPages)} 
+          <button
+            onClick={() => handlePageChange(pagination.totalPages)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >

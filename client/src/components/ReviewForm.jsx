@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import StarRating from './StarRating';
 import apiClient from '../utils/api';
+import { logError } from '../utils/logger';
 import './ReviewForm.css';
 
 /**
  * ReviewForm component for submitting new reviews
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.campgroundId - ID of the campground being reviewed
  * @param {function} props.onReviewSubmitted - Callback function when a review is successfully submitted
@@ -42,7 +43,10 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
       setSubmitting(true);
       setError(null);
 
-      const response = await apiClient.post(`/campgrounds/${campgroundId}/reviews`, { rating, body });
+      const response = await apiClient.post(`/campgrounds/${campgroundId}/reviews`, {
+        rating,
+        body,
+      });
       const data = response.data;
 
       // Reset form
@@ -54,7 +58,7 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
         onReviewSubmitted(data.review);
       }
     } catch (err) {
-      console.error('Error submitting review:', err);
+      logError('Error submitting review', err);
       setError(err.message || 'Failed to submit review. Please try again later.');
     } finally {
       setSubmitting(false);
@@ -73,20 +77,12 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
     <div className="review-form">
       <h3 className="review-form-title">Leave a Review</h3>
 
-      {error && (
-        <div className="review-form-error">
-          {error}
-        </div>
-      )}
+      {error && <div className="review-form-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="review-form-rating">
           <label>Rating:</label>
-          <StarRating 
-            rating={rating} 
-            editable={true} 
-            onChange={setRating} 
-          />
+          <StarRating rating={rating} editable={true} onChange={setRating} />
         </div>
 
         <div className="review-form-body">
@@ -101,11 +97,7 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
           />
         </div>
 
-        <button 
-          type="submit" 
-          className="review-form-submit"
-          disabled={submitting}
-        >
+        <button type="submit" className="review-form-submit" disabled={submitting}>
           {submitting ? 'Submitting...' : 'Submit Review'}
         </button>
       </form>
@@ -115,7 +107,7 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
 
 ReviewForm.propTypes = {
   campgroundId: PropTypes.string.isRequired,
-  onReviewSubmitted: PropTypes.func
+  onReviewSubmitted: PropTypes.func,
 };
 
 export default ReviewForm;

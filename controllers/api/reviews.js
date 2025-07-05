@@ -1,6 +1,7 @@
 const Campground = require("../../models/campground");
 const Review = require("../../models/review");
 const User = require("../../models/user");
+const { logError, logInfo, logWarn, logDebug } = require('../../utils/logger');
 
 module.exports.createReview = async (req, res) => {
   try {
@@ -33,7 +34,11 @@ module.exports.createReview = async (req, res) => {
       message: "Review created successfully" 
     });
   } catch (error) {
-    console.error("Error creating review:", error);
+    logError("Error creating review", error, { 
+      endpoint: "/api/v1/campgrounds/:id/reviews",
+      userId: req.user?._id,
+      campgroundId: req.params.id 
+    });
     res.status(400).json({ error: error.message || "Failed to create review" });
   }
 };
@@ -52,7 +57,10 @@ module.exports.getReviews = async (req, res) => {
 
     res.json({ reviews: campground.reviews });
   } catch (error) {
-    console.error("Error fetching reviews:", error);
+    logError("Error fetching reviews", error, { 
+      endpoint: "/api/v1/campgrounds/:id/reviews",
+      campgroundId: req.params.id 
+    });
     res.status(500).json({ error: "Failed to fetch reviews" });
   }
 };
@@ -84,7 +92,11 @@ module.exports.deleteReview = async (req, res) => {
 
     res.json({ message: "Review deleted successfully" });
   } catch (error) {
-    console.error("Error deleting review:", error);
+    logError("Error deleting review", error, { 
+      endpoint: "/api/v1/reviews/:id",
+      userId: req.user?._id,
+      reviewId: req.params.id 
+    });
     res.status(500).json({ error: "Failed to delete review" });
   }
 };

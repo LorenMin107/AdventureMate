@@ -1,4 +1,16 @@
 const User = require('../../models/user');
+const Owner = require('../../models/owner');
+const OwnerApplication = require('../../models/ownerApplication');
+const EmailVerificationToken = require('../../models/emailVerificationToken');
+const { logError, logInfo, logDebug } = require('../../utils/logger');
+const {
+  comparePassword,
+  validatePasswordStrength,
+  generatePasswordResetToken,
+  verifyPasswordResetToken,
+  markPasswordResetTokenAsUsed,
+  generatePasswordResetUrl,
+} = require('../../utils/passwordUtils');
 const {
   generateAccessToken,
   generateRefreshToken,
@@ -7,22 +19,15 @@ const {
   revokeAllUserTokens,
   blacklistAccessToken,
 } = require('../../utils/jwtUtils');
-const { validatePasswordStrength } = require('../../utils/passwordUtils');
 const {
-  verifyEmailToken,
-  markEmailTokenAsUsed,
   generateEmailVerificationToken,
   generateVerificationUrl,
+  verifyEmailToken,
+  markEmailTokenAsUsed,
   findUsedToken,
 } = require('../../utils/emailUtils');
-const {
-  generatePasswordResetToken,
-  generatePasswordResetUrl,
-  verifyPasswordResetToken,
-  markPasswordResetTokenAsUsed,
-} = require('../../utils/passwordUtils');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../../utils/emailService');
-const { asyncHandler } = require('../../utils/errorHandler');
+const asyncHandler = require('../../utils/catchAsync');
 const axios = require('axios');
 const crypto = require('crypto');
 
@@ -51,9 +56,14 @@ module.exports.register = asyncHandler(async (req, res) => {
     });
   }
 
+  // Hash the password
+  const { hashPassword } = require('../../utils/passwordUtils');
+  const hashedPassword = await hashPassword(password);
+
   // Create and register the new user
-  const user = new User({ email, username, phone });
-  const registeredUser = await User.register(user, password);
+  const user = new User({ email, username, phone, password: hashedPassword });
+  await user.save();
+  const registeredUser = user;
 
   try {
     // Generate email verification token
@@ -65,7 +75,10 @@ module.exports.register = asyncHandler(async (req, res) => {
     // Send verification email
     await sendVerificationEmail(registeredUser, verificationUrl);
   } catch (emailError) {
-    console.error('Error sending verification email:', emailError);
+    logError('Error sending verification email', emailError, {
+      userId: registeredUser._id,
+      email: registeredUser.email,
+    });
     // Continue with registration even if email fails
   }
 
@@ -99,9 +112,9 @@ module.exports.login = asyncHandler(async (req, res) => {
     });
   }
 
-  // Authenticate the user using passport-local-mongoose
-  const isValid = await user.authenticate(password);
-  if (!isValid.user) {
+  // Verify the password
+  const isValid = await comparePassword(password, user.password);
+  if (!isValid) {
     return res.status(401).json({
       error: 'Invalid credentials',
       message: 'Username or password is incorrect',
@@ -116,7 +129,10 @@ module.exports.login = asyncHandler(async (req, res) => {
       const verificationUrl = generateVerificationUrl(verificationToken.token);
       await sendVerificationEmail(user, verificationUrl);
     } catch (error) {
-      console.error('Error sending verification email:', error);
+      logError('Error sending verification email', error, {
+        userId: user._id,
+        email: user.email,
+      });
       // Continue with login even if email fails
     }
 
@@ -202,7 +218,7 @@ module.exports.refreshToken = asyncHandler(async (req, res) => {
 
     // Revoke the old refresh token (token rotation for security)
     await refreshTokenDoc.revoke();
-    console.log(`Refresh token rotated for user ${user._id}`);
+    logInfo('Refresh token rotated', { userId: user._id });
 
     // Generate a new access token
     const accessToken = generateAccessToken(user);
@@ -244,14 +260,14 @@ module.exports.logout = asyncHandler(async (req, res) => {
     // Blacklist the current access token if available
     if (req.accessToken && req.user) {
       await blacklistAccessToken(req.accessToken, req.user, req, 'logout');
-      console.log(`Access token blacklisted for user ${req.user._id} during logout`);
+      logInfo('Access token blacklisted during logout', { userId: req.user._id });
     }
 
     res.json({
       message: 'Logged out successfully',
     });
   } catch (error) {
-    console.error('Error during logout:', error);
+    logError('Error during logout', error, { userId: req.user?._id });
     // Still return success even if blacklisting fails
     res.json({
       message: 'Logged out successfully',
@@ -278,16 +294,14 @@ module.exports.logoutAll = asyncHandler(async (req, res) => {
     // Blacklist the current access token if available
     if (req.accessToken) {
       await blacklistAccessToken(req.accessToken, req.user, req, 'logout_all');
-      console.log(
-        `Access token blacklisted for user ${req.user._id} during logout from all devices`
-      );
+      logInfo('Access token blacklisted during logout from all devices', { userId: req.user._id });
     }
 
     res.json({
       message: 'Logged out from all devices successfully',
     });
   } catch (error) {
-    console.error('Error during logout from all devices:', error);
+    logError('Error during logout from all devices', error, { userId: req.user?._id });
     // Still return success even if blacklisting fails
     res.json({
       message: 'Logged out from all devices successfully',
@@ -300,14 +314,12 @@ module.exports.logoutAll = asyncHandler(async (req, res) => {
  * Marks the user's email as verified
  */
 module.exports.verifyEmail = asyncHandler(async (req, res) => {
-  console.log('Verify email endpoint called');
-  console.log('Request query:', req.query);
+  logDebug('Verify email endpoint called', { query: req.query });
 
   const { token } = req.query;
-  console.log('Token from query:', token);
 
   if (!token) {
-    console.log('No token provided in request');
+    logWarn('Email verification attempted without token');
     return res.status(400).json({
       error: 'Bad Request',
       message: 'Verification token is required',
@@ -316,25 +328,25 @@ module.exports.verifyEmail = asyncHandler(async (req, res) => {
 
   try {
     // Verify the token
-    console.log('Calling verifyEmailToken with token:', token);
+    logDebug('Verifying email token', { token: token.substring(0, 10) + '...' });
     const verificationToken = await verifyEmailToken(token);
-    console.log('Token verified successfully');
+    logDebug('Token verified successfully');
 
     // Get the user
-    console.log('Finding user with ID:', verificationToken.user);
+    logDebug('Finding user for verification', { userId: verificationToken.user });
     const user = await User.findById(verificationToken.user);
     if (!user) {
-      console.log('User not found with ID:', verificationToken.user);
+      logWarn('User not found for email verification', { userId: verificationToken.user });
       return res.status(404).json({
         error: 'Not Found',
         message: 'User not found',
       });
     }
-    console.log('User found:', user.username);
+    logDebug('User found for email verification', { userId: user._id, username: user.username });
 
     // Check if email is already verified
     if (user.isEmailVerified) {
-      console.log('Email already verified for user:', user.username);
+      logInfo('Email already verified', { userId: user._id, username: user.username });
 
       // Set a cookie to indicate that email verification was successful
       // This will be used to bypass rate limiting for the login endpoint
@@ -357,18 +369,18 @@ module.exports.verifyEmail = asyncHandler(async (req, res) => {
     }
 
     // Mark the user's email as verified
-    console.log('Marking user email as verified');
+    logInfo('Marking user email as verified', { userId: user._id });
     user.isEmailVerified = true;
     user.emailVerifiedAt = new Date();
     await user.save();
-    console.log('User updated with verified email');
+    logInfo('User updated with verified email', { userId: user._id });
 
     // Mark the token as used
-    console.log('Marking token as used');
+    logDebug('Marking token as used');
     await markEmailTokenAsUsed(token);
-    console.log('Token marked as used');
+    logDebug('Token marked as used');
 
-    console.log('Email verification successful');
+    logInfo('Email verification successful', { userId: user._id });
 
     // Set a cookie to indicate that email verification was successful
     // This will be used to bypass rate limiting for the login endpoint
@@ -389,11 +401,11 @@ module.exports.verifyEmail = asyncHandler(async (req, res) => {
       },
     });
   } catch (error) {
-    console.log('Error verifying email:', error.message);
+    logError('Error verifying email', error, { token: token.substring(0, 10) + '...' });
 
     // Check if this is a "token already used" error
     if (error.message.includes('already been used')) {
-      console.log('Token has been used, checking if we can find the associated user');
+      logDebug('Token has been used, checking if we can find the associated user');
 
       try {
         // Try to find the used token
@@ -404,7 +416,10 @@ module.exports.verifyEmail = asyncHandler(async (req, res) => {
           const user = await User.findById(usedToken.user);
 
           if (user && user.isEmailVerified) {
-            console.log('Found user with already verified email:', user.username);
+            logInfo('Found user with already verified email', {
+              userId: user._id,
+              username: user.username,
+            });
 
             // Set a cookie to indicate that email verification was successful
             // This will be used to bypass rate limiting for the login endpoint
@@ -427,7 +442,7 @@ module.exports.verifyEmail = asyncHandler(async (req, res) => {
           }
         }
       } catch (innerError) {
-        console.log('Error while checking used token:', innerError);
+        logError('Error while checking used token', innerError);
         // Continue to the default error response
       }
     }
@@ -473,7 +488,7 @@ module.exports.resendVerificationEmail = asyncHandler(async (req, res) => {
       message: 'Verification email sent successfully',
     });
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    logError('Error sending verification email', error, { userId: req.user._id });
     return res.status(500).json({
       error: 'Server Error',
       message: 'Failed to send verification email',
@@ -502,7 +517,7 @@ module.exports.requestPasswordReset = asyncHandler(async (req, res) => {
   // For security reasons, don't reveal if the email exists or not
   // Always return a success message even if the email doesn't exist
   if (!user) {
-    console.log(`Password reset requested for non-existent email: ${email}`);
+    logInfo('Password reset requested for non-existent email', { email });
     return res.json({
       message: 'If your email is registered, you will receive a password reset link shortly.',
     });
@@ -656,11 +671,16 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
       // Generate a random password for the user
       const randomPassword = crypto.randomBytes(16).toString('hex');
 
+      // Hash the random password
+      const { hashPassword } = require('../../utils/passwordUtils');
+      const hashedPassword = await hashPassword(randomPassword);
+
       // Create a new user
       user = new User({
         username: email.split('@')[0] + '_' + Date.now().toString().slice(-4),
         email,
         googleId,
+        password: hashedPassword,
         isEmailVerified: true, // Google accounts have verified emails
         emailVerifiedAt: new Date(),
         profile: {
@@ -669,8 +689,8 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
         },
       });
 
-      // Register the user with the random password
-      await User.register(user, randomPassword);
+      // Save the user
+      await user.save();
     }
 
     // Generate tokens
@@ -692,7 +712,10 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Google OAuth error:', error.response?.data || error.message);
+    logError('Google OAuth error', error, {
+      responseData: error.response?.data,
+      message: error.message,
+    });
     return res.status(400).json({
       error: 'OAuth Error',
       message: 'Failed to authenticate with Google',
@@ -793,11 +816,15 @@ module.exports.facebookAuth = asyncHandler(async (req, res) => {
       // Generate a random password for the user
       const randomPassword = crypto.randomBytes(16).toString('hex');
 
+      // Hash the random password
+      const hashedPassword = await hashPassword(randomPassword);
+
       // Create a new user
       user = new User({
         username: (email ? email.split('@')[0] : 'fb_user') + '_' + Date.now().toString().slice(-4),
         email: email || `fb_${facebookId}@placeholder.com`, // Some Facebook users might not have an email
         facebookId,
+        password: hashedPassword,
         isEmailVerified: !!email, // Only mark as verified if email is provided
         emailVerifiedAt: email ? new Date() : undefined,
         profile: {
@@ -806,8 +833,8 @@ module.exports.facebookAuth = asyncHandler(async (req, res) => {
         },
       });
 
-      // Register the user with the random password
-      await User.register(user, randomPassword);
+      // Save the user
+      await user.save();
     }
 
     // Generate tokens
@@ -829,7 +856,10 @@ module.exports.facebookAuth = asyncHandler(async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Facebook OAuth error:', error.response?.data || error.message);
+    logError('Facebook OAuth error', error, {
+      responseData: error.response?.data,
+      message: error.message,
+    });
     return res.status(400).json({
       error: 'OAuth Error',
       message: 'Failed to authenticate with Facebook',

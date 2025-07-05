@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./models/user');
 const Owner = require('./models/owner');
+const { logError, logInfo, logDebug } = require('./utils/logger');
 
 // Test script to verify admin functionality
 async function testAdminFunctionality() {
@@ -8,43 +9,43 @@ async function testAdminFunctionality() {
     // Connect to MongoDB (using the same connection as the main app)
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myancamp');
-      console.log('Connected to MongoDB');
+      logInfo('Connected to MongoDB');
     }
 
-    console.log('Testing Admin Functionality...\n');
+    logInfo('Testing Admin Functionality...');
 
     // Test 1: Create test users
-    console.log('1. Creating test users...');
+    logInfo('1. Creating test users...');
     const testUser = new User({
       username: 'testuser_' + Date.now(),
       email: 'test_' + Date.now() + '@example.com',
       phone: '+1234567890',
       isAdmin: false,
-      isOwner: false
+      isOwner: false,
     });
     await testUser.save();
-    console.log('✓ Test user created:', testUser.username);
+    logInfo('✓ Test user created', { username: testUser.username });
 
     const adminUser = new User({
       username: 'admin_' + Date.now(),
       email: 'admin_' + Date.now() + '@example.com',
       phone: '+1234567891',
       isAdmin: true,
-      isOwner: false
+      isOwner: false,
     });
     await adminUser.save();
-    console.log('✓ Admin user created:', adminUser.username);
+    logInfo('✓ Admin user created', { username: adminUser.username });
 
     // Test 2: Test user promotion to admin
-    console.log('\n2. Testing user promotion to admin...');
+    logInfo('2. Testing user promotion to admin...');
     testUser.isAdmin = true;
     await testUser.save();
-    console.log('✓ User promoted to admin');
-    console.log('Admin status:', testUser.isAdmin);
+    logInfo('✓ User promoted to admin');
+    logInfo('Admin status', { isAdmin: testUser.isAdmin });
 
     // Test 3: Test user promotion to owner
-    console.log('\n3. Testing user promotion to owner...');
-    
+    logInfo('3. Testing user promotion to owner...');
+
     // Check if owner profile already exists
     let existingOwner = await Owner.findOne({ user: testUser._id });
     if (!existingOwner) {
@@ -58,42 +59,44 @@ async function testAdminFunctionality() {
           city: 'Not provided',
           state: 'Not provided',
           zipCode: 'Not provided',
-          country: 'Myanmar'
+          country: 'Myanmar',
         },
         businessPhone: testUser.phone || 'Not provided',
         businessEmail: testUser.email,
         verificationStatus: 'verified',
         verifiedAt: new Date(),
         verifiedBy: adminUser._id,
-        verificationNotes: [{
-          note: 'Owner status granted directly by admin',
-          addedBy: adminUser._id,
-          type: 'admin_note'
-        }]
+        verificationNotes: [
+          {
+            note: 'Owner status granted directly by admin',
+            addedBy: adminUser._id,
+            type: 'admin_note',
+          },
+        ],
       });
       await owner.save();
-      console.log('✓ Owner profile created:', owner._id);
+      logInfo('✓ Owner profile created', { ownerId: owner._id });
     }
 
     testUser.isOwner = true;
     await testUser.save();
-    console.log('✓ User promoted to owner');
-    console.log('Owner status:', testUser.isOwner);
+    logInfo('✓ User promoted to owner');
+    logInfo('Owner status', { isOwner: testUser.isOwner });
 
     // Test 4: Verify owner profile exists and is active
-    console.log('\n4. Verifying owner profile...');
+    logInfo('4. Verifying owner profile...');
     const ownerProfile = await Owner.findOne({ user: testUser._id });
     if (ownerProfile) {
-      console.log('✓ Owner profile found');
-      console.log('Business name:', ownerProfile.businessName);
-      console.log('Verification status:', ownerProfile.verificationStatus);
-      console.log('Is active:', ownerProfile.isActive);
+      logInfo('✓ Owner profile found');
+      logInfo('Owner profile business name', { businessName: ownerProfile.businessName });
+      logInfo('Owner verification status', { verificationStatus: ownerProfile.verificationStatus });
+      logInfo('Owner active status', { isActive: ownerProfile.isActive });
     } else {
-      console.log('❌ Owner profile not found');
+      logError('❌ Owner profile not found');
     }
 
     // Test 5: Test owner status removal
-    console.log('\n5. Testing owner status removal...');
+    logInfo('5. Testing owner status removal...');
     if (ownerProfile) {
       ownerProfile.isActive = false;
       ownerProfile.verificationStatus = 'suspended';
@@ -103,35 +106,34 @@ async function testAdminFunctionality() {
       ownerProfile.verificationNotes.push({
         note: 'Owner status removed by admin',
         addedBy: adminUser._id,
-        type: 'admin_note'
+        type: 'admin_note',
       });
       await ownerProfile.save();
-      console.log('✓ Owner profile deactivated');
+      logInfo('✓ Owner profile deactivated');
     }
 
     testUser.isOwner = false;
     await testUser.save();
-    console.log('✓ User owner status removed');
-    console.log('Owner status:', testUser.isOwner);
+    logInfo('✓ User owner status removed');
+    logInfo('Owner status after removal', { isOwner: testUser.isOwner });
 
-    console.log('\n✅ All admin functionality tests passed!');
+    logInfo('✅ All admin functionality tests passed!');
 
     // Cleanup
-    console.log('\n6. Cleaning up test data...');
+    logInfo('6. Cleaning up test data...');
     await User.findByIdAndDelete(testUser._id);
     await User.findByIdAndDelete(adminUser._id);
     if (ownerProfile) {
       await Owner.findByIdAndDelete(ownerProfile._id);
     }
-    console.log('✓ Test data cleaned up');
-
+    logInfo('✓ Test data cleaned up');
   } catch (error) {
-    console.error('❌ Test failed:', error);
+    logError('❌ Test failed', error);
   } finally {
     // Close connection if we opened it
     if (mongoose.connection.readyState === 1) {
       await mongoose.connection.close();
-      console.log('MongoDB connection closed');
+      logInfo('MongoDB connection closed');
     }
   }
 }
