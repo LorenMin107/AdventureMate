@@ -16,7 +16,14 @@ const swaggerUi = require('swagger-ui-express'); // for API documentation
 const swaggerDocument = require('./docs/swagger.json'); // swagger documentation
 
 // Import logging system
-const { requestLogger, logInfo, logError, logDebug } = require('./utils/logger');
+const {
+  requestLogger,
+  logInfo,
+  logError,
+  logWarn,
+  logDebug,
+  logSecurity,
+} = require('./utils/logger');
 
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');

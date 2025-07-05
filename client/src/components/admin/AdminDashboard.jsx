@@ -15,6 +15,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [recentBookings, setRecentBookings] = useState([]);
   const [recentUsers, setRecentUsers] = useState([]);
+  const [recentApplications, setRecentApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
       setStats(data.stats);
       setRecentBookings(data.recentBookings || []);
       setRecentUsers(data.recentUsers || []);
+      setRecentApplications(data.recentApplications || []);
       setError(null);
       setLastRefreshed(new Date());
     } catch (err) {
@@ -141,6 +143,22 @@ const AdminDashboard = () => {
             View Campgrounds
           </Link>
         </div>
+
+        <div className="admin-stat-card">
+          <h3>Owner Applications</h3>
+          <div className="admin-stat-value">{stats?.totalApplications || 0}</div>
+          <div className="admin-stat-breakdown">
+            <span className="stat-breakdown-item pending">
+              {stats?.pendingApplications || 0} Pending
+            </span>
+            <span className="stat-breakdown-item reviewing">
+              {stats?.underReviewApplications || 0} Reviewing
+            </span>
+          </div>
+          <Link to="/admin/owner-applications" className="admin-stat-link">
+            Manage Applications
+          </Link>
+        </div>
       </div>
 
       <div className="admin-dashboard-recent">
@@ -204,6 +222,47 @@ const AdminDashboard = () => {
           )}
           <Link to="/admin/users" className="admin-view-all-link">
             View All Users
+          </Link>
+        </div>
+
+        <div className="admin-recent-section">
+          <h2>Recent Owner Applications</h2>
+          {recentApplications.length > 0 ? (
+            <div className="admin-recent-list">
+              {recentApplications.map((application) => (
+                <div key={application._id} className="admin-recent-item">
+                  <div className="admin-recent-item-header">
+                    <span className="admin-recent-item-title">{application.businessName}</span>
+                    <span className={`admin-recent-item-status ${application.status}`}>
+                      {application.status === 'pending'
+                        ? 'Pending'
+                        : application.status === 'under_review'
+                          ? 'Under Review'
+                          : application.status === 'approved'
+                            ? 'Approved'
+                            : 'Rejected'}
+                    </span>
+                  </div>
+                  <div className="admin-recent-item-details">
+                    <span>
+                      Applicant: {application.user ? application.user.username : 'Unknown user'}
+                    </span>
+                    <span>Applied: {new Date(application.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <Link
+                    to={`/admin/owner-applications/${application._id}`}
+                    className="admin-recent-item-link"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="admin-no-data">No recent applications</p>
+          )}
+          <Link to="/admin/owner-applications" className="admin-view-all-link">
+            View All Applications
           </Link>
         </div>
       </div>

@@ -21,6 +21,7 @@ async function testOwnerApplication() {
       username: 'testuser_' + Date.now(),
       email: 'test_' + Date.now() + '@example.com',
       phone: '+1234567890',
+      password: 'testpassword123',
       isAdmin: false,
       isOwner: false,
     });
@@ -56,7 +57,9 @@ async function testOwnerApplication() {
     logInfo('3. Testing application methods...');
     logInfo('Application can be modified', { canBeModified: application.canBeModified() });
     logInfo('Application status display', { statusDisplay: application.statusDisplay });
-    logInfo('Application full business address', { fullBusinessAddress: application.fullBusinessAddress });
+    logInfo('Application full business address', {
+      fullBusinessAddress: application.fullBusinessAddress,
+    });
 
     // Test 4: Create an admin user
     logInfo('4. Creating admin user...');
@@ -64,6 +67,7 @@ async function testOwnerApplication() {
       username: 'admin_' + Date.now(),
       email: 'admin_' + Date.now() + '@example.com',
       phone: '+1234567891',
+      password: 'adminpassword123',
       isAdmin: true,
       isOwner: false,
     });
@@ -110,7 +114,9 @@ async function testOwnerApplication() {
     // Test 8: Test owner methods
     logInfo('7. Testing owner methods...');
     logInfo('Owner can manage campgrounds', { canManageCampgrounds: owner.canManageCampgrounds() });
-    logInfo('Owner verification status display', { verificationStatusDisplay: owner.verificationStatusDisplay });
+    logInfo('Owner verification status display', {
+      verificationStatusDisplay: owner.verificationStatusDisplay,
+    });
 
     logInfo('✅ All tests passed! Owner application system is working correctly.');
 

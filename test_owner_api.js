@@ -9,7 +9,7 @@ const API_BASE_URL = 'http://localhost:3001/api/v1';
 
 // Test admin credentials
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'password123';
+const ADMIN_PASSWORD = 'asdf!';
 
 // Test user data
 const TEST_USER = {
@@ -57,11 +57,16 @@ async function testOwnerManagementAPI() {
 
     // Step 2: Create a test user directly in the database
     logInfo('2. Creating test user...');
+    const { hashPassword } = require('./utils/passwordUtils');
+    const hashedPassword = await hashPassword(TEST_USER.password);
+
     const testUser = new User({
       username: TEST_USER.username,
       email: TEST_USER.email,
+      phone: '+1234567890',
+      password: hashedPassword,
+      isEmailVerified: true,
     });
-    await testUser.setPassword(TEST_USER.password);
     await testUser.save();
     testUserId = testUser._id;
     logInfo('✓ Test user created', { username: testUser.username, userId: testUserId });
@@ -134,7 +139,9 @@ async function testOwnerManagementAPI() {
 
     const suspendOwnerData = await suspendOwnerResponse.json();
     logInfo('✓ Owner suspended successfully');
-    logInfo('Owner verification status after suspension', { verificationStatus: suspendOwnerData.owner.verificationStatus });
+    logInfo('Owner verification status after suspension', {
+      verificationStatus: suspendOwnerData.owner.verificationStatus,
+    });
     logInfo('Owner active status after suspension', { isActive: suspendOwnerData.owner.isActive });
 
     // Step 7: Reactivate owner via API
@@ -157,8 +164,12 @@ async function testOwnerManagementAPI() {
 
     const reactivateOwnerData = await reactivateOwnerResponse.json();
     logInfo('✓ Owner reactivated successfully');
-    logInfo('Owner verification status after reactivation', { verificationStatus: reactivateOwnerData.owner.verificationStatus });
-    logInfo('Owner active status after reactivation', { isActive: reactivateOwnerData.owner.isActive });
+    logInfo('Owner verification status after reactivation', {
+      verificationStatus: reactivateOwnerData.owner.verificationStatus,
+    });
+    logInfo('Owner active status after reactivation', {
+      isActive: reactivateOwnerData.owner.isActive,
+    });
 
     // Step 8: Revoke owner status via API
     logInfo('8. Revoking owner status via API...');

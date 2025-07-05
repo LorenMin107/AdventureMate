@@ -8,7 +8,22 @@ import apiClient from '../utils/api';
 const useOwners = () => {
   const queryClient = useQueryClient();
 
-  // Register as an owner
+  // Apply to become an owner
+  const useApplyToBeOwner = () => {
+    return useMutation({
+      mutationFn: async (applicationData) => {
+        const { data } = await apiClient.post('/owners/apply', applicationData);
+        return data;
+      },
+      onSuccess: () => {
+        // Invalidate auth queries to refresh user data
+        queryClient.invalidateQueries({ queryKey: ['auth'] });
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+      },
+    });
+  };
+
+  // Register as an owner (for admin use)
   const useRegisterOwner = () => {
     return useMutation({
       mutationFn: async (ownerData) => {
@@ -53,7 +68,7 @@ const useOwners = () => {
     return useMutation({
       mutationFn: async ({ files, type, description }) => {
         const formData = new FormData();
-        files.forEach(file => {
+        files.forEach((file) => {
           formData.append('documents', file);
         });
         formData.append('type', type);
@@ -137,7 +152,7 @@ const useOwners = () => {
     return useMutation({
       mutationFn: async (campgroundData) => {
         const formData = new FormData();
-        
+
         // Add text fields
         Object.entries(campgroundData).forEach(([key, value]) => {
           if (key !== 'images') {
@@ -147,7 +162,7 @@ const useOwners = () => {
 
         // Add images
         if (campgroundData.images) {
-          campgroundData.images.forEach(image => {
+          campgroundData.images.forEach((image) => {
             formData.append('images', image);
           });
         }
@@ -171,7 +186,7 @@ const useOwners = () => {
     return useMutation({
       mutationFn: async ({ id, campgroundData }) => {
         const formData = new FormData();
-        
+
         // Add text fields
         Object.entries(campgroundData).forEach(([key, value]) => {
           if (key !== 'images' && key !== 'deleteImages') {
@@ -181,14 +196,14 @@ const useOwners = () => {
 
         // Add new images
         if (campgroundData.images) {
-          campgroundData.images.forEach(image => {
+          campgroundData.images.forEach((image) => {
             formData.append('images', image);
           });
         }
 
         // Add images to delete
         if (campgroundData.deleteImages) {
-          campgroundData.deleteImages.forEach(filename => {
+          campgroundData.deleteImages.forEach((filename) => {
             formData.append('deleteImages', filename);
           });
         }
@@ -245,7 +260,9 @@ const useOwners = () => {
     return useQuery({
       queryKey: ['owner', 'campground', campgroundId, 'bookings', filters],
       queryFn: async () => {
-        const { data } = await apiClient.get(`/owners/campgrounds/${campgroundId}/bookings?${queryParams}`);
+        const { data } = await apiClient.get(
+          `/owners/campgrounds/${campgroundId}/bookings?${queryParams}`
+        );
         return data;
       },
       enabled: !!campgroundId,
@@ -257,18 +274,24 @@ const useOwners = () => {
   const useUpdateBookingStatus = () => {
     return useMutation({
       mutationFn: async ({ campgroundId, bookingId, status }) => {
-        const { data } = await apiClient.patch(`/owners/campgrounds/${campgroundId}/bookings/${bookingId}`, { status });
+        const { data } = await apiClient.patch(
+          `/owners/campgrounds/${campgroundId}/bookings/${bookingId}`,
+          { status }
+        );
         return data;
       },
       onSuccess: (_, variables) => {
         queryClient.invalidateQueries({ queryKey: ['owner', 'bookings'] });
-        queryClient.invalidateQueries({ queryKey: ['owner', 'campground', variables.campgroundId, 'bookings'] });
+        queryClient.invalidateQueries({
+          queryKey: ['owner', 'campground', variables.campgroundId, 'bookings'],
+        });
         queryClient.invalidateQueries({ queryKey: ['owner', 'dashboard'] });
       },
     });
   };
 
   return {
+    useApplyToBeOwner,
     useRegisterOwner,
     useOwnerProfile,
     useUpdateOwnerProfile,

@@ -20,6 +20,16 @@ module.exports.getDashboardStats = async (req, res) => {
     // Count total campsites
     const totalCampsites = await mongoose.model('Campsite').countDocuments();
 
+    // Count owner applications by status
+    const pendingApplications = await OwnerApplication.countDocuments({ status: 'pending' });
+    const underReviewApplications = await OwnerApplication.countDocuments({
+      status: 'under_review',
+    });
+    const approvedApplications = await OwnerApplication.countDocuments({ status: 'approved' });
+    const rejectedApplications = await OwnerApplication.countDocuments({ status: 'rejected' });
+    const totalApplications =
+      pendingApplications + underReviewApplications + approvedApplications + rejectedApplications;
+
     // Get recent bookings - only show bookings that are not cancelled
     // For admin users, show all recent bookings regardless of ownership
     const recentBookings = await Booking.find({
@@ -37,6 +47,13 @@ module.exports.getDashboardStats = async (req, res) => {
       .limit(5)
       .select('username email createdAt');
 
+    // Get recent owner applications
+    const recentApplications = await OwnerApplication.find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('user', 'username email')
+      .select('businessName status createdAt');
+
     const data = {
       stats: {
         totalUsers,
@@ -44,9 +61,15 @@ module.exports.getDashboardStats = async (req, res) => {
         totalCampgrounds,
         totalCampsites,
         totalReviews,
+        totalApplications,
+        pendingApplications,
+        underReviewApplications,
+        approvedApplications,
+        rejectedApplications,
       },
       recentBookings,
       recentUsers,
+      recentApplications,
     };
 
     return ApiResponse.success(data, 'Dashboard statistics retrieved successfully').send(res);
@@ -608,10 +631,10 @@ module.exports.approveOwnerApplication = async (req, res) => {
 
     return ApiResponse.success(data, 'Owner application approved successfully').send(res);
   } catch (error) {
-    logError('Error approving owner application', error, { 
+    logError('Error approving owner application', error, {
       endpoint: '/api/v1/admin/owner-applications/:id/approve',
       userId: req.user?._id,
-      applicationId: req.params.id 
+      applicationId: req.params.id,
     });
     return ApiResponse.error('Failed to approve owner application', error.message, 500).send(res);
   }
@@ -654,10 +677,10 @@ module.exports.rejectOwnerApplication = async (req, res) => {
       res
     );
   } catch (error) {
-    logError('Error rejecting owner application', error, { 
+    logError('Error rejecting owner application', error, {
       endpoint: '/api/v1/admin/owner-applications/:id/reject',
       userId: req.user?._id,
-      applicationId: req.params.id 
+      applicationId: req.params.id,
     });
     return ApiResponse.error('Failed to reject owner application', error.message, 500).send(res);
   }
@@ -697,10 +720,10 @@ module.exports.updateApplicationReview = async (req, res) => {
       res
     );
   } catch (error) {
-    logError('Error updating application review', error, { 
+    logError('Error updating application review', error, {
       endpoint: '/api/v1/admin/owner-applications/:id/review',
       userId: req.user?._id,
-      applicationId: req.params.id 
+      applicationId: req.params.id,
     });
     return ApiResponse.error('Failed to update application review', error.message, 500).send(res);
   }
@@ -751,10 +774,10 @@ module.exports.getAllOwners = async (req, res) => {
 
     return ApiResponse.success(data, 'Owners retrieved successfully').send(res);
   } catch (error) {
-    logError('Error fetching owners', error, { 
+    logError('Error fetching owners', error, {
       endpoint: '/api/v1/admin/owners',
       userId: req.user?._id,
-      query: req.query 
+      query: req.query,
     });
     return ApiResponse.error('Failed to fetch owners', error.message, 500).send(res);
   }
@@ -824,10 +847,10 @@ module.exports.getOwnerDetails = async (req, res) => {
 
     return ApiResponse.success(data, 'Owner details retrieved successfully').send(res);
   } catch (error) {
-    logError('Error fetching owner details', error, { 
+    logError('Error fetching owner details', error, {
       endpoint: '/api/v1/admin/owners/:id',
       userId: req.user?._id,
-      ownerId: req.params.id 
+      ownerId: req.params.id,
     });
     return ApiResponse.error('Failed to fetch owner details', error.message, 500).send(res);
   }
@@ -880,10 +903,10 @@ module.exports.suspendOwner = async (req, res) => {
 
     return ApiResponse.success({ owner }, 'Owner suspended successfully').send(res);
   } catch (error) {
-    logError('Error suspending owner', error, { 
+    logError('Error suspending owner', error, {
       endpoint: '/api/v1/admin/owners/:id/suspend',
       userId: req.user?._id,
-      ownerId: req.params.id 
+      ownerId: req.params.id,
     });
     return ApiResponse.error('Failed to suspend owner', error.message, 500).send(res);
   }
@@ -928,10 +951,10 @@ module.exports.reactivateOwner = async (req, res) => {
 
     return ApiResponse.success({ owner }, 'Owner reactivated successfully').send(res);
   } catch (error) {
-    logError('Error reactivating owner', error, { 
+    logError('Error reactivating owner', error, {
       endpoint: '/api/v1/admin/owners/:id/reactivate',
       userId: req.user?._id,
-      ownerId: req.params.id 
+      ownerId: req.params.id,
     });
     return ApiResponse.error('Failed to reactivate owner', error.message, 500).send(res);
   }
@@ -977,10 +1000,10 @@ module.exports.verifyOwner = async (req, res) => {
 
     return ApiResponse.success({ owner }, 'Owner verified successfully').send(res);
   } catch (error) {
-    logError('Error verifying owner', error, { 
+    logError('Error verifying owner', error, {
       endpoint: '/api/v1/admin/owners/:id/verify',
       userId: req.user?._id,
-      ownerId: req.params.id 
+      ownerId: req.params.id,
     });
     return ApiResponse.error('Failed to verify owner', error.message, 500).send(res);
   }
@@ -1032,10 +1055,10 @@ module.exports.revokeOwnerStatus = async (req, res) => {
 
     return ApiResponse.success({ owner }, 'Owner status revoked successfully').send(res);
   } catch (error) {
-    logError('Error revoking owner status', error, { 
+    logError('Error revoking owner status', error, {
       endpoint: '/api/v1/admin/owners/:id/revoke',
       userId: req.user?._id,
-      ownerId: req.params.id 
+      ownerId: req.params.id,
     });
     return ApiResponse.error('Failed to revoke owner status', error.message, 500).send(res);
   }

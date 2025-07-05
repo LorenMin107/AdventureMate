@@ -41,6 +41,8 @@ const CampgroundList = lazy(() => import('../components/admin/CampgroundList'));
 const AdminCampsiteList = lazy(() => import('../components/admin/AdminCampsiteList'));
 const AdminBookingList = lazy(() => import('../components/admin/AdminBookingList'));
 const AdminBookingDetail = lazy(() => import('../components/admin/AdminBookingDetail'));
+const OwnerApplicationList = lazy(() => import('../components/admin/OwnerApplicationList'));
+const OwnerApplicationDetail = lazy(() => import('../components/admin/OwnerApplicationDetail'));
 
 // Owner components
 const OwnerLayout = lazy(() => import('../components/owner/OwnerLayout'));
@@ -52,7 +54,6 @@ const OwnerProtectedRoute = lazy(() => import('../components/OwnerProtectedRoute
 const OwnerCampgroundsPage = lazy(() => import('../pages/OwnerCampgroundsPage'));
 const OwnerBookingsPage = lazy(() => import('../pages/OwnerBookingsPage'));
 const OwnerAnalyticsPage = lazy(() => import('../pages/OwnerAnalyticsPage'));
-
 
 /**
  * Routes configuration
@@ -363,9 +364,7 @@ const routes = [
               },
               {
                 path: 'verification',
-                element: (
-                  <Navigate to="/owner/verification" replace />
-                ),
+                element: <Navigate to="/owner/verification" replace />,
               },
             ],
           },
@@ -445,6 +444,27 @@ const routes = [
                     element: (
                       <Suspense fallback={<LoadingFallback />}>
                         <AdminBookingDetail />
+                      </Suspense>
+                    ),
+                  },
+                ],
+              },
+              {
+                path: 'owner-applications',
+                children: [
+                  {
+                    index: true,
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <OwnerApplicationList />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: ':id',
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <OwnerApplicationDetail />
                       </Suspense>
                     ),
                   },

@@ -56,7 +56,7 @@ const registerOwner = async (req, res) => {
     }
 
     // Check if user is already an owner
-    const existingOwner = await Owner.findOne({ user: userId });
+    const existingOwner = await Owner.findOne({ user: targetUserId });
     if (existingOwner) {
       return res.status(400).json({
         error: 'Bad Request',
@@ -157,10 +157,10 @@ const registerOwner = async (req, res) => {
       },
     });
   } catch (error) {
-    logError('Error registering owner', error, { 
+    logError('Error registering owner', error, {
       endpoint: '/api/owners/register',
       userId: req.user?._id,
-      targetUserId: req.body.userId 
+      targetUserId: req.body.userId,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -201,9 +201,9 @@ const getOwnerProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    logError('Error fetching owner profile', error, { 
+    logError('Error fetching owner profile', error, {
       endpoint: '/api/owners/profile',
-      userId: req.user?._id 
+      userId: req.user?._id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -266,9 +266,9 @@ const updateOwnerProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    logError('Error updating owner profile', error, { 
+    logError('Error updating owner profile', error, {
       endpoint: '/api/owners/profile',
-      userId: req.user?._id 
+      userId: req.user?._id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -329,9 +329,9 @@ const uploadVerificationDocuments = async (req, res) => {
       })),
     });
   } catch (error) {
-    logError('Error uploading verification documents', error, { 
+    logError('Error uploading verification documents', error, {
       endpoint: '/api/owners/verification-documents',
-      userId: req.user?._id 
+      userId: req.user?._id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -444,9 +444,9 @@ const getOwnerDashboard = async (req, res) => {
       campgrounds: owner.campgrounds,
     });
   } catch (error) {
-    logError('Error fetching owner dashboard', error, { 
+    logError('Error fetching owner dashboard', error, {
       endpoint: '/api/owners/dashboard',
-      userId: req.user?._id 
+      userId: req.user?._id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -578,10 +578,10 @@ const getOwnerAnalytics = async (req, res) => {
       },
     });
   } catch (error) {
-    logError('Error fetching owner analytics', error, { 
+    logError('Error fetching owner analytics', error, {
       endpoint: '/api/owners/analytics',
       userId: req.user?._id,
-      query: req.query 
+      query: req.query,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -641,10 +641,10 @@ const getOwnerBookings = async (req, res) => {
       },
     });
   } catch (error) {
-    logError('Error fetching owner bookings', error, { 
+    logError('Error fetching owner bookings', error, {
       endpoint: '/api/owners/bookings',
       userId: req.user?._id,
-      query: req.query 
+      query: req.query,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -722,9 +722,9 @@ const applyToBeOwner = async (req, res) => {
       },
     });
   } catch (error) {
-    logError('Error submitting owner application', error, { 
+    logError('Error submitting owner application', error, {
       endpoint: '/api/owners/apply',
-      userId: req.user?._id 
+      userId: req.user?._id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -754,9 +754,9 @@ const getOwnerApplication = async (req, res) => {
       application: application.toObject(),
     });
   } catch (error) {
-    logError('Error fetching owner application', error, { 
+    logError('Error fetching owner application', error, {
       endpoint: '/api/owners/application',
-      userId: req.user?._id 
+      userId: req.user?._id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -823,9 +823,9 @@ const updateOwnerApplication = async (req, res) => {
       application: application.toObject(),
     });
   } catch (error) {
-    logError('Error updating owner application', error, { 
+    logError('Error updating owner application', error, {
       endpoint: '/api/owners/application',
-      userId: req.user?._id 
+      userId: req.user?._id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -891,9 +891,9 @@ const uploadApplicationDocuments = async (req, res) => {
       })),
     });
   } catch (error) {
-    logError('Error uploading application documents', error, { 
+    logError('Error uploading application documents', error, {
       endpoint: '/api/owners/application/documents',
-      userId: req.user?._id 
+      userId: req.user?._id,
     });
     res.status(500).json({
       error: 'Internal Server Error',

@@ -15,8 +15,8 @@ const OwnerRegisterPage = () => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
-  const { useRegisterOwner } = useOwners();
-  const registerOwnerMutation = useRegisterOwner();
+  const { useApplyToBeOwner } = useOwners();
+  const applyToBeOwnerMutation = useApplyToBeOwner();
 
   const [formData, setFormData] = useState({
     businessName: '',
@@ -48,6 +48,7 @@ const OwnerRegisterPage = () => {
       checkInTime: '15:00',
       checkOutTime: '11:00',
     },
+    applicationReason: '', // Added for application reason
   });
 
   const [errors, setErrors] = useState({});
@@ -125,6 +126,9 @@ const OwnerRegisterPage = () => {
         break;
 
       case 4: // Settings (no validation needed, all have defaults)
+        if (!formData.applicationReason.trim()) {
+          newErrors.applicationReason = 'Application reason is required';
+        }
         break;
     }
 
@@ -150,22 +154,16 @@ const OwnerRegisterPage = () => {
     }
 
     try {
-      const response = await registerOwnerMutation.mutateAsync(formData);
+      const response = await applyToBeOwnerMutation.mutateAsync(formData);
 
       // Show the message from the server or a default success message
       addSuccessMessage(
         response.message ||
-          'Owner registration successful! Please check your email for verification instructions.'
+          'Your owner application has been submitted and is pending review. You will be notified once it is approved.'
       );
 
-      // Redirect based on verification status
-      if (response.owner.verificationStatus === 'verified') {
-        // If verified immediately (admin registration), go to owner dashboard
-        navigate('/owner/dashboard');
-      } else {
-        // If pending verification, go to verification page
-        navigate('/owner/verification');
-      }
+      // Redirect to verification page for pending applications
+      navigate('/owner/verification');
     } catch (error) {
       logError('Registration error', error);
       addErrorMessage(error.response?.data?.message || 'Registration failed. Please try again.');
@@ -546,6 +544,21 @@ const OwnerRegisterPage = () => {
                 />
               </div>
             </div>
+
+            <div className="form-group">
+              <label htmlFor="applicationReason">Application Reason *</label>
+              <textarea
+                id="applicationReason"
+                name="applicationReason"
+                value={formData.applicationReason}
+                onChange={handleInputChange}
+                className={errors.applicationReason ? 'error' : ''}
+                placeholder="Please provide a brief explanation for your application."
+              ></textarea>
+              {errors.applicationReason && (
+                <span className="error-message">{errors.applicationReason}</span>
+              )}
+            </div>
           </div>
         );
 
@@ -640,9 +653,9 @@ const OwnerRegisterPage = () => {
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={registerOwnerMutation.isLoading}
+                disabled={applyToBeOwnerMutation.isLoading}
               >
-                {registerOwnerMutation.isLoading ? 'Registering...' : 'Complete Registration'}
+                {applyToBeOwnerMutation.isLoading ? 'Registering...' : 'Complete Registration'}
               </button>
             )}
           </div>

@@ -4,7 +4,7 @@ import './AdminLayout.css';
 
 /**
  * AdminLayout component provides a consistent layout for all admin pages
- * 
+ *
  * @returns {JSX.Element} Admin layout component
  */
 const AdminLayout = () => {
@@ -21,7 +21,9 @@ const AdminLayout = () => {
       <div className="admin-layout-unauthorized">
         <h2>Access Denied</h2>
         <p>You do not have permission to access the admin area.</p>
-        <Link to="/" className="admin-layout-home-link">Return to Home</Link>
+        <Link to="/" className="admin-layout-home-link">
+          Return to Home
+        </Link>
       </div>
     );
   }
@@ -34,38 +36,45 @@ const AdminLayout = () => {
         </div>
 
         <nav className="admin-nav">
-          <Link 
-            to="/admin" 
-            className={`admin-nav-item ${isActive('/admin') && !isActive('/admin/users') && !isActive('/admin/campgrounds') && !isActive('/admin/bookings') ? 'active' : ''}`}
+          <Link
+            to="/admin"
+            className={`admin-nav-item ${isActive('/admin') && !isActive('/admin/users') && !isActive('/admin/campgrounds') && !isActive('/admin/bookings') && !isActive('/admin/owner-applications') ? 'active' : ''}`}
           >
             <span className="admin-nav-icon">📊</span>
             Dashboard
           </Link>
 
-          <Link 
-            to="/admin/users" 
+          <Link
+            to="/admin/users"
             className={`admin-nav-item ${isActive('/admin/users') ? 'active' : ''}`}
           >
             <span className="admin-nav-icon">👤</span>
             Users
           </Link>
 
-          <Link 
-            to="/admin/campgrounds" 
+          <Link
+            to="/admin/campgrounds"
             className={`admin-nav-item ${isActive('/admin/campgrounds') ? 'active' : ''}`}
           >
             <span className="admin-nav-icon">🏕️</span>
             Campgrounds
           </Link>
 
-          <Link 
-            to="/admin/bookings" 
+          <Link
+            to="/admin/bookings"
             className={`admin-nav-item ${isActive('/admin/bookings') ? 'active' : ''}`}
           >
             <span className="admin-nav-icon">📆</span>
             Bookings
           </Link>
 
+          <Link
+            to="/admin/owner-applications"
+            className={`admin-nav-item ${isActive('/admin/owner-applications') ? 'active' : ''}`}
+          >
+            <span className="admin-nav-icon">📋</span>
+            Owner Applications
+          </Link>
         </nav>
       </div>
 

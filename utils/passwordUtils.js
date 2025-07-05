@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const config = require('../config');
 const PasswordResetToken = require('../models/passwordResetToken');
 const User = require('../models/user');
-const { logError, logInfo, logDebug } = require('./logger');
+const { logError, logInfo, logWarn, logDebug } = require('./logger');
 
 // Default expiration time for password reset tokens
 const PASSWORD_RESET_TOKEN_EXPIRY = '1h'; // 1 hour
