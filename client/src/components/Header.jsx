@@ -86,6 +86,18 @@ const Header = () => {
                         </NavLink>
                       </li>
                     )}
+                    {currentUser?.isOwner && (
+                      <li className="nav-item">
+                        <NavLink 
+                          to="/owner" 
+                          className={({ isActive }) => 
+                            isActive ? "nav-link active" : "nav-link"
+                          }
+                        >
+                          Owner Dashboard
+                        </NavLink>
+                      </li>
+                    )}
                     <li className="nav-item">
                       <a href="#" onClick={handleLogout} className="nav-link">
                         Logout

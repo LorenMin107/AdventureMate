@@ -6,6 +6,7 @@ module.exports.createReview = async (req, res) => {
   const campground = await Campground.findById(req.params.id); // find the campground
   const review = new Review(req.body.review); // create a new review
   review.author = req.user._id; // set the review's author to the current user
+  review.campground = campground._id; // set the review's campground to the current campground
   campground.reviews.push(review); // push the review into the campground's reviews array
   await review.save();
   await campground.save();

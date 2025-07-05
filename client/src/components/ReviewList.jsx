@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import StarRating from './StarRating';
+import apiClient from '../utils/api';
 import './ReviewList.css';
 
 /**
@@ -30,13 +31,8 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
     const fetchReviews = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/campgrounds/${campgroundId}/reviews`);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch reviews: ${response.status}`);
-        }
-        
-        const data = await response.json();
+        const response = await apiClient.get(`/campgrounds/${campgroundId}/reviews`);
+        const data = response.data;
         setReviews(data.reviews || []);
         setError(null);
       } catch (err) {
@@ -54,20 +50,13 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
     if (!window.confirm('Are you sure you want to delete this review?')) {
       return;
     }
-    
+
     try {
-      const response = await fetch(`/api/campgrounds/${campgroundId}/reviews/${reviewId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to delete review: ${response.status}`);
-      }
-      
+      await apiClient.delete(`/campgrounds/${campgroundId}/reviews/${reviewId}`);
+
       // Update local state
       setReviews(reviews.filter(review => review._id !== reviewId));
-      
+
       // Notify parent component
       if (onReviewDeleted) {
         onReviewDeleted(reviewId);
@@ -93,21 +82,21 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
   return (
     <div className="review-list">
       <h3 className="review-list-title">Reviews ({reviews.length})</h3>
-      
+
       {reviews.map(review => {
         const canDelete = 
           currentUser && 
           (currentUser._id === review.author._id || currentUser.isAdmin);
-          
+
         return (
-          <div key={review._id} className="review-item">
+          <div key={review._id} id={`review-${review._id}`} className="review-item">
             <div className="review-header">
               <span className="review-author">{review.author.username}</span>
               <StarRating rating={review.rating} />
             </div>
-            
+
             <p className="review-body">{review.body}</p>
-            
+
             {canDelete && (
               <button 
                 onClick={() => handleDeleteReview(review._id)}

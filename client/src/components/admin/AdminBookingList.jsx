@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../utils/api';
 import './AdminBookingList.css';
 
 /**
  * AdminBookingList component displays a list of all bookings for admin users
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.initialBookings - Initial bookings data (optional)
  * @returns {JSX.Element} Admin booking list component
@@ -45,21 +46,24 @@ const AdminBookingList = ({ initialBookings = [] }) => {
 
         // Add status filter to the query if it's not 'all'
         const statusParam = statusFilter !== 'all' ? `&status=${statusFilter}` : '';
-        const response = await fetch(`/api/admin/bookings?page=${page}&limit=${limit}${statusParam}`, {
-          credentials: 'include'
-        });
+        const response = await apiClient.get(
+          `/admin/bookings?page=${page}&limit=${limit}${statusParam}`
+        );
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch bookings: ${response.status}`);
-        }
-
-        const data = await response.json();
+        // Handle the ApiResponse format
+        const responseData = response.data;
+        const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
         setBookings(data.bookings || []);
         setTotalPages(data.pagination?.totalPages || 1);
         setError(null);
       } catch (err) {
         console.error('Error fetching bookings:', err);
-        setError('Failed to load bookings. Please try refreshing the page.');
+        // Improved error handling for axios errors
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          'Failed to load bookings. Please try refreshing the page.';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -69,11 +73,7 @@ const AdminBookingList = ({ initialBookings = [] }) => {
   }, [page]); // Only depend on page changes
 
   if (loading) {
-    return (
-      <div className="admin-booking-list-loading">
-        Loading bookings...
-      </div>
-    );
+    return <div className="admin-booking-list-loading">Loading bookings...</div>;
   }
 
   if (error) {
@@ -105,9 +105,9 @@ const AdminBookingList = ({ initialBookings = [] }) => {
       <div className="admin-booking-list-filters">
         <div className="admin-booking-list-filter-group">
           <label htmlFor="statusFilter">Filter by Status:</label>
-          <select 
-            id="statusFilter" 
-            value={statusFilter} 
+          <select
+            id="statusFilter"
+            value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
               setPage(1); // Reset to first page when filter changes
@@ -138,31 +138,31 @@ const AdminBookingList = ({ initialBookings = [] }) => {
             </tr>
           </thead>
           <tbody>
-            {bookings.map(booking => (
+            {bookings.map((booking) => (
               <tr key={booking._id} className="admin-booking-list-item">
-                <td className="admin-booking-list-id">
-                  {booking._id.substring(0, 8)}...
-                </td>
+                <td className="admin-booking-list-id">{booking._id.substring(0, 8)}...</td>
                 <td className="admin-booking-list-user">
                   {booking.user ? booking.user.username : 'Unknown user'}
                 </td>
                 <td className="admin-booking-list-campground">
-                  {booking.campground ? booking.campground.title : 'Unknown campground'}
+                  {booking.campground ? booking.campground.title : 'Campground'}
                 </td>
                 <td>{formatDate(booking.startDate)}</td>
                 <td>{formatDate(booking.endDate)}</td>
                 <td>{booking.totalDays}</td>
-                <td className="admin-booking-list-price">
-                  ${booking.totalPrice.toFixed(2)}
-                </td>
+                <td className="admin-booking-list-price">${booking.totalPrice.toFixed(2)}</td>
                 <td>
-                  <span className={`admin-booking-list-status admin-booking-list-status-${booking.status || 'pending'}`}>
-                    {booking.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'Pending'}
+                  <span
+                    className={`admin-booking-list-status admin-booking-list-status-${booking.status || 'pending'}`}
+                  >
+                    {booking.status
+                      ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1)
+                      : 'Pending'}
                   </span>
                 </td>
                 <td>
-                  <Link 
-                    to={`/admin/bookings/${booking._id}`} 
+                  <Link
+                    to={`/admin/bookings/${booking._id}`}
                     className="admin-booking-list-view-button"
                   >
                     View Details
@@ -176,8 +176,8 @@ const AdminBookingList = ({ initialBookings = [] }) => {
 
       {/* Pagination Controls */}
       <div className="admin-booking-list-pagination">
-        <button 
-          onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+        <button
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           disabled={page === 1}
           className="admin-booking-list-pagination-button"
         >
@@ -188,8 +188,8 @@ const AdminBookingList = ({ initialBookings = [] }) => {
           Page {page} of {totalPages}
         </span>
 
-        <button 
-          onClick={() => setPage(prev => prev < totalPages ? prev + 1 : prev)}
+        <button
+          onClick={() => setPage((prev) => (prev < totalPages ? prev + 1 : prev))}
           disabled={page >= totalPages}
           className="admin-booking-list-pagination-button"
         >
@@ -201,7 +201,7 @@ const AdminBookingList = ({ initialBookings = [] }) => {
 };
 
 AdminBookingList.propTypes = {
-  initialBookings: PropTypes.array
+  initialBookings: PropTypes.array,
 };
 
 export default AdminBookingList;

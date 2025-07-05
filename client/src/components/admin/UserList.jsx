@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../utils/api';
 import './UserList.css';
 
 /**
  * UserList component displays a paginated list of users for administrators
- * 
+ *
  * @returns {JSX.Element} User list component
  */
 const UserList = () => {
@@ -17,11 +18,11 @@ const UserList = () => {
     page: 1,
     limit: 10,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   });
   const [sort, setSort] = useState({
     field: 'username',
-    order: 'asc'
+    order: 'asc',
   });
 
   useEffect(() => {
@@ -32,25 +33,26 @@ const UserList = () => {
           page: pagination.page,
           limit: pagination.limit,
           sortField: sort.field,
-          sortOrder: sort.order
-        });
-        
-        const response = await fetch(`/api/admin/users?${queryParams}`, {
-          credentials: 'include'
+          sortOrder: sort.order,
         });
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch users: ${response.status}`);
-        }
+        const response = await apiClient.get(`/admin/users?${queryParams}`);
 
-        const data = await response.json();
+        // Handle the ApiResponse format
+        const responseData = response.data;
+        const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
         setUsers(data.users || []);
         setPagination(data.pagination || pagination);
         setSort(data.sort || sort);
         setError(null);
       } catch (err) {
         console.error('Error fetching users:', err);
-        setError('Failed to load users. Please try again later.');
+        // Improved error handling for axios errors
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          'Failed to load users. Please try again later.';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -73,7 +75,9 @@ const UserList = () => {
   };
 
   if (!currentUser?.isAdmin) {
-    return <div className="user-list-unauthorized">You do not have permission to access this page.</div>;
+    return (
+      <div className="user-list-unauthorized">You do not have permission to access this page.</div>
+    );
   }
 
   if (loading) {
@@ -89,9 +93,11 @@ const UserList = () => {
       <div className="user-list-header">
         <h1>User Management</h1>
         <div className="user-list-actions">
-          <select 
-            value={pagination.limit} 
-            onChange={(e) => setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })}
+          <select
+            value={pagination.limit}
+            onChange={(e) =>
+              setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })
+            }
             className="user-list-limit"
           >
             <option value="5">5 per page</option>
@@ -106,20 +112,20 @@ const UserList = () => {
         <table className="user-list-table">
           <thead>
             <tr>
-              <th 
+              <th
                 className={`sortable ${sort.field === 'username' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('username')}
               >
                 Username
               </th>
-              <th 
+              <th
                 className={`sortable ${sort.field === 'email' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('email')}
               >
                 Email
               </th>
               <th>Role</th>
-              <th 
+              <th
                 className={`sortable ${sort.field === 'createdAt' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('createdAt')}
               >
@@ -131,7 +137,7 @@ const UserList = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {users.map((user) => (
               <tr key={user._id}>
                 <td>{user.username}</td>
                 <td>{user.email}</td>
@@ -144,10 +150,7 @@ const UserList = () => {
                 <td>{user.bookings?.length || 0}</td>
                 <td>{user.reviews?.length || 0}</td>
                 <td>
-                  <Link 
-                    to={`/admin/users/${user._id}`} 
-                    className="user-list-view-button"
-                  >
+                  <Link to={`/admin/users/${user._id}`} className="user-list-view-button">
                     View
                   </Link>
                 </td>
@@ -159,15 +162,15 @@ const UserList = () => {
 
       {pagination.totalPages > 1 && (
         <div className="user-list-pagination">
-          <button 
-            onClick={() => handlePageChange(1)} 
+          <button
+            onClick={() => handlePageChange(1)}
             disabled={pagination.page === 1}
             className="pagination-button"
           >
             First
           </button>
-          <button 
-            onClick={() => handlePageChange(pagination.page - 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
             className="pagination-button"
           >
@@ -176,15 +179,15 @@ const UserList = () => {
           <span className="pagination-info">
             Page {pagination.page} of {pagination.totalPages}
           </span>
-          <button 
-            onClick={() => handlePageChange(pagination.page + 1)} 
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >
             Next
           </button>
-          <button 
-            onClick={() => handlePageChange(pagination.totalPages)} 
+          <button
+            onClick={() => handlePageChange(pagination.totalPages)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >

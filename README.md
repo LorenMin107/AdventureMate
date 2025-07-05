@@ -110,6 +110,13 @@ MyanCamp is a comprehensive web application for discovering, booking, and review
    - Username: "admin"
    - Password: "asdf!"
 
+4. (Optional) Update existing reviews and users in the database:
+   ```
+   node scripts/updateReviews.js
+   node scripts/updateUsers.js
+   ```
+   These scripts update existing reviews to ensure they have the correct campground reference, and add creation timestamps to existing users. This is necessary for proper display of campground names and join dates in user profiles.
+
 ### Running the Application
 
 #### Recommended: Run Both Backend and Frontend
@@ -237,6 +244,7 @@ Register or log in to manage campgrounds, make bookings, and leave reviews.
   - **review.js**: User reviews model
   - **contact.js**: Contact form submissions
   - **emailVerificationToken.js**: Email verification
+  - **passwordResetToken.js**: Password reset functionality
   - **refreshToken.js**: JWT refresh tokens
 - **controllers/**: Business logic
   - **api/**: API controllers (JSON responses)
@@ -285,6 +293,8 @@ Register or log in to manage campgrounds, make bookings, and leave reviews.
       - **UserContext.jsx**: User profile data
       - **FlashMessageContext.jsx**: Notifications
       - **ThemeContext.jsx**: Theme preferences
+    - **docs/**: Feature documentation
+      - **password-reset.md**: Password reset flow documentation
     - **hooks/**: Custom React hooks
     - **layouts/**: Page layouts
     - **pages/**: Page components
@@ -332,48 +342,112 @@ Register or log in to manage campgrounds, make bookings, and leave reviews.
 
 ### API Documentation
 
-The application provides a RESTful API for the React frontend. All API endpoints are prefixed with `/api`.
+The application provides a RESTful API for the React frontend. The API is versioned, with all current endpoints prefixed with `/api/v1/`. Legacy endpoints (without the `/v1/` prefix) are deprecated and will be removed in future versions.
+
+#### API Versioning Strategy
+
+MyanCamp uses URL path versioning for its API. This means that the version is specified in the URL path, e.g., `/api/v1/campgrounds`. This approach provides several benefits:
+
+- Clear indication of API version in the URL
+- Easy routing to different controller versions
+- Ability to maintain backward compatibility while developing new features
+
+For more information about the API versioning strategy, see the [API Routes README](routes/api/README.md).
+
+#### Using the apiClient Utility
+
+The frontend uses an `apiClient` utility (based on Axios) to make API calls. This utility handles:
+
+- Adding authentication tokens to requests
+- Error handling and response formatting
+- Automatic token refresh when needed
+- Consistent request/response patterns
+
+Example of using the apiClient:
+
+```javascript
+// Import the apiClient utility
+import apiClient from '../utils/api';
+
+// GET request
+const fetchCampgrounds = async () => {
+  try {
+    const response = await apiClient.get('/campgrounds');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching campgrounds:', error);
+    throw error;
+  }
+};
+
+// POST request with data
+const createReview = async (campgroundId, reviewData) => {
+  try {
+    const response = await apiClient.post(`/campgrounds/${campgroundId}/reviews`, reviewData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating review:', error);
+    throw error;
+  }
+};
+```
 
 #### Authentication Endpoints
 
-- **POST /api/users/register**: Register a new user
-- **POST /api/users/login**: Login a user
-- **POST /api/users/logout**: Logout a user
-- **GET /api/users/status**: Check authentication status
-- **GET /api/users/profile**: Get current user profile
+- **POST /api/v1/users/register**: Register a new user
+- **POST /api/v1/users/login**: Login a user
+- **POST /api/v1/users/logout**: Logout a user
+- **GET /api/v1/users/status**: Check authentication status
+- **GET /api/v1/users/profile**: Get current user profile
 
 #### Campground Endpoints
 
-- **GET /api/campgrounds**: Get all campgrounds
-- **POST /api/campgrounds**: Create a new campground (admin only)
-- **GET /api/campgrounds/search**: Search campgrounds
-- **GET /api/campgrounds/:id**: Get a specific campground
-- **PUT /api/campgrounds/:id**: Update a campground (author or admin only)
-- **DELETE /api/campgrounds/:id**: Delete a campground (author or admin only)
+- **GET /api/v1/campgrounds**: Get all campgrounds
+- **POST /api/v1/campgrounds**: Create a new campground (admin only)
+- **GET /api/v1/campgrounds/search**: Search campgrounds
+- **GET /api/v1/campgrounds/:id**: Get a specific campground
+- **PUT /api/v1/campgrounds/:id**: Update a campground (author or admin only)
+- **DELETE /api/v1/campgrounds/:id**: Delete a campground (author or admin only)
 
 #### Review Endpoints
 
-- **GET /api/campgrounds/:id/reviews**: Get all reviews for a campground
-- **POST /api/campgrounds/:id/reviews**: Create a new review
-- **DELETE /api/campgrounds/:id/reviews/:reviewId**: Delete a review (author or admin only)
+- **GET /api/v1/campgrounds/:id/reviews**: Get all reviews for a campground
+- **POST /api/v1/campgrounds/:id/reviews**: Create a new review
+- **DELETE /api/v1/campgrounds/:id/reviews/:reviewId**: Delete a review (author or admin only)
 
 #### Booking Endpoints
 
-- **GET /api/bookings**: Get all bookings for the current user
-- **GET /api/bookings/:id**: Get a specific booking
-- **POST /api/bookings/:id/book**: Create a booking (initial step)
-- **POST /api/bookings/:id/checkout**: Create a checkout session for payment
-- **GET /api/bookings/:id/success**: Handle successful payment
+- **GET /api/v1/bookings**: Get all bookings for the current user
+- **GET /api/v1/bookings/:id**: Get a specific booking
+- **POST /api/v1/bookings/:id/book**: Create a booking (initial step)
+- **POST /api/v1/bookings/:id/checkout**: Create a checkout session for payment
+- **GET /api/v1/bookings/:id/success**: Handle successful payment
 
 #### Admin Endpoints
 
-- **GET /api/admin/dashboard**: Get dashboard statistics
-- **GET /api/admin/bookings**: Get all bookings (paginated)
-- **DELETE /api/admin/bookings/:id**: Cancel a booking
-- **GET /api/admin/users**: Get all users (paginated)
-- **GET /api/admin/users/:id**: Get user details
+- **GET /api/v1/admin/dashboard**: Get dashboard statistics
+- **GET /api/v1/admin/bookings**: Get all bookings (paginated)
+- **DELETE /api/v1/admin/bookings/:id**: Cancel a booking
+- **GET /api/v1/admin/users**: Get all users (paginated)
+- **GET /api/v1/admin/users/:id**: Get user details
 
 All API endpoints return JSON responses and use appropriate HTTP status codes. Authentication is required for most endpoints, and some endpoints require admin privileges.
+
+#### Making API Calls from Frontend Components
+
+When making API calls from frontend components, always use the `apiClient` utility instead of direct `fetch` calls. This ensures consistent error handling, authentication, and response formatting.
+
+```javascript
+// ❌ Don't use direct fetch calls
+const response = await fetch('/api/v1/campgrounds', {
+  credentials: 'include'
+});
+
+// ✅ Use the apiClient utility
+const response = await apiClient.get('/campgrounds');
+```
+
+Note that when using `apiClient`, you don't need to include the `/api/v1/` prefix in the URL, as it's automatically added by the utility.
 
 ## Authentication and Security
 

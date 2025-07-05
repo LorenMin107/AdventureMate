@@ -76,6 +76,12 @@ CampgroundSchema.virtual("properties.popUpMarkup").get(function () {
   <p>${description.substring(0, 20)}${description.length > 20 ? '...' : ''}</p>`;
 });
 
+// Indexes for better performance
+CampgroundSchema.index({ owner: 1 });
+CampgroundSchema.index({ author: 1 });
+CampgroundSchema.index({ location: 'text' });
+CampgroundSchema.index({ 'geometry.coordinates': '2dsphere' });
+
 CampgroundSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {
     await Review.deleteMany({

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MaskedInput from 'react-text-mask';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import apiClient from '../utils/api';
 import './CampsiteForm.css';
 
 /**
@@ -248,21 +249,33 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
 
       // Determine URL and method based on whether we're creating or editing
       const url = isEditing 
-        ? `/api/v1/campsites/${campsite?._id}` 
-        : `/api/v1/campgrounds/${campgroundId}/campsites`;
+        ? `/campsites/${campsite?._id}` 
+        : `/campgrounds/${campgroundId}/campsites`;
 
       const method = isEditing ? 'PUT' : 'POST';
 
-      // Send the request
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend,
-        credentials: 'include'
-      });
+      // Send the request using apiClient
+      const response = method === 'PUT'
+        ? await apiClient.put(url, formDataToSend)
+        : await apiClient.post(url, formDataToSend);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log('Error response:', errorData);
+      // With apiClient (axios), the response data is already parsed as JSON
+      const data = response.data;
+
+      // Check if the response is in the standardized format
+      const campsiteData = data.status && data.data ? data.data.campsite : data.campsite;
+
+      // Log success
+      console.log('Campsite saved successfully:', campsiteData);
+
+      // Navigate back to the campground detail page
+      navigate(`/campgrounds/${campgroundId}`);
+    } catch (err) {
+      console.error('Error saving campsite:', err);
+
+      // Handle axios error responses
+      if (err.response && err.response.data) {
+        const errorData = err.response.data;
 
         // Check if the response is in the standardized format with field-specific errors
         if (errorData.status === 'error') {
@@ -279,36 +292,16 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
             return;
           } else {
             // Handle general error message
-            throw new Error(errorData.error || errorData.message || 'Failed to save campsite');
+            setError(errorData.error || errorData.message || 'Failed to save campsite');
           }
         } else {
           // Handle legacy error format
-          throw new Error(errorData.error || 'Failed to save campsite');
-        }
-      }
-
-      // Check if the response has content before parsing
-      const contentType = response.headers.get('content-type');
-      let campsiteData;
-
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        // Check if the response is in the standardized format
-        campsiteData = data.status && data.data ? data.data.campsite : data.campsite;
-
-        if (!campsiteData) {
-          throw new Error('Campsite data not found in response');
+          setError(errorData.error || 'Failed to save campsite');
         }
       } else {
-        // If response is not JSON or empty, just proceed without parsing
-        console.log('Response is not JSON or empty, proceeding without parsing');
+        // Handle network errors or other exceptions
+        setError(err.message || 'Failed to save campsite. Please try again later.');
       }
-
-      // Navigate back to the campground detail page
-      navigate(`/campgrounds/${campgroundId}`);
-    } catch (err) {
-      console.error('Error saving campsite:', err);
-      setError(err.message || 'Failed to save campsite. Please try again later.');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../utils/api';
 import './CampgroundList.css';
 
 /**
@@ -38,15 +39,8 @@ const CampgroundList = () => {
           sortOrder: sort.order
         });
 
-        const response = await fetch(`/api/campgrounds?${queryParams}`, {
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch campgrounds: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await apiClient.get(`/campgrounds?${queryParams}`);
+        const data = response.data;
 
         // Check if the response is in the new standardized format
         const responseData = data.status && data.data ? data.data : data;
@@ -85,23 +79,8 @@ const CampgroundList = () => {
     }
 
     try {
-      const response = await fetch(`/api/campgrounds/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete campground: ${response.status}`);
-      }
-
-      // Try to parse the response, but don't worry if it fails
-      try {
-        const data = await response.json();
-        console.log('Delete response:', data);
-      } catch (parseError) {
-        // Ignore JSON parsing errors, as some DELETE endpoints may not return JSON
-        console.log('No JSON response from delete operation');
-      }
+      const response = await apiClient.delete(`/campgrounds/${id}`);
+      console.log('Delete response:', response.data);
 
       // Update the campgrounds list
       setCampgrounds(campgrounds.filter(campground => campground._id !== id));

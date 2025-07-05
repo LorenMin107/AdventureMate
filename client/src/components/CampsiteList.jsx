@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../utils/api';
 import './CampsiteList.css';
 
 /**
@@ -20,13 +21,8 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
     const fetchCampsites = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/v1/campgrounds/${campgroundId}/campsites`);
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch campsites');
-        }
-
-        const data = await response.json();
+        const response = await apiClient.get(`/campgrounds/${campgroundId}/campsites`);
+        const data = response.data;
 
         // Check if the response is in the standardized format
         const campsitesData = data.status && data.data ? data.data.campsites : data.campsites;
@@ -53,14 +49,7 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
     }
 
     try {
-      const response = await fetch(`/api/v1/campsites/${campsiteId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete campsite');
-      }
+      await apiClient.delete(`/campsites/${campsiteId}`);
 
       // Remove the deleted campsite from the state
       setCampsites(prevCampsites => prevCampsites.filter(campsite => campsite._id !== campsiteId));

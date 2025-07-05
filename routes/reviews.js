@@ -3,9 +3,11 @@ const router = express.Router({ mergeParams: true }); // mergeParams: true allow
 
 const reviews = require("../controllers/reviews");
 const catchAsync = require("../utils/catchAsync");
-const { validateReview, isLoggedIn, isReviewAuthor, isAdmin } = require("../middleware");
+const { validateReview } = require("../middleware");
+const { authenticateJWT, requireAuth } = require("../middleware/jwtAuth");
+const { isReviewAuthorJWT } = require("../middleware/webJwtAuth");
 
-router.post("/", isLoggedIn, validateReview, catchAsync(reviews.createReview));
+router.post("/", authenticateJWT, requireAuth, validateReview, catchAsync(reviews.createReview));
 
-router.delete("/:reviewId", isLoggedIn, isReviewAuthor, catchAsync(reviews.deleteReview));
+router.delete("/:reviewId", authenticateJWT, requireAuth, isReviewAuthorJWT, catchAsync(reviews.deleteReview));
 module.exports = router;

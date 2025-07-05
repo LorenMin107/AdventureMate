@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../utils/api';
 import StarRating from './StarRating';
 import './ReviewList.css';
 
@@ -35,20 +36,17 @@ const UserReviewList = ({ initialReviews = [] }) => {
     const fetchUserReviews = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/users/reviews', {
-          credentials: 'include'
-        });
+        const response = await apiClient.get('/users/reviews');
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch reviews: ${response.status}`);
-        }
-
-        const data = await response.json();
+        // With apiClient, the response is already parsed and in response.data
+        const data = response.data;
         setReviews(data.reviews || []);
         setError(null);
       } catch (err) {
         console.error('Error fetching user reviews:', err);
-        setError('Failed to load reviews. Please try again later.');
+        // Improved error handling for axios errors
+        const errorMessage = err.response?.data?.message || err.message || 'Failed to load reviews. Please try again later.';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -70,20 +68,16 @@ const UserReviewList = ({ initialReviews = [] }) => {
     }
 
     try {
-      const response = await fetch(`/api/campgrounds/${campgroundId}/reviews/${reviewId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete review: ${response.status}`);
-      }
+      // Use apiClient.delete which automatically includes the JWT token
+      await apiClient.delete(`/campgrounds/${campgroundId}/reviews/${reviewId}`);
 
       // Update local state
       setReviews(reviews.filter(review => review._id !== reviewId));
     } catch (err) {
       console.error('Error deleting review:', err);
-      alert('Failed to delete review. Please try again later.');
+      // Improved error handling for axios errors
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to delete review. Please try again later.';
+      alert(errorMessage);
     }
   };
 
@@ -121,8 +115,8 @@ const UserReviewList = ({ initialReviews = [] }) => {
       {reviews.map(review => (
         <div key={review._id} className="review-item">
           <div className="review-header">
-            {review.campground ? (
-              <Link to={`/campgrounds/${review.campground._id}`} className="review-campground">
+            {review.campground && review.campground._id ? (
+              <Link to={`/campgrounds/${review.campground._id}#review-${review._id}`} className="review-campground">
                 {review.campground.title || 'Unknown Campground'}
               </Link>
             ) : (
@@ -133,7 +127,7 @@ const UserReviewList = ({ initialReviews = [] }) => {
 
           <p className="review-body">{review.body}</p>
           <p className="review-date">
-            {review._id ? `ID: ${review._id.toString().substring(0, 10)}...` : 'No ID available'}
+            {new Date(parseInt(review._id.substring(0, 8), 16) * 1000).toLocaleDateString()}
           </p>
 
           <button 

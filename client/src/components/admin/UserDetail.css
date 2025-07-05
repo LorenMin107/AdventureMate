@@ -97,6 +97,11 @@
   color: white;
 }
 
+.user-role.owner {
+  background-color: #fd7e14;
+  color: white;
+}
+
 .user-detail-actions {
   display: flex;
   flex-direction: column;
@@ -129,6 +134,51 @@
 
 .user-detail-admin-button.remove:hover {
   background-color: #5a6268;
+}
+
+.user-detail-owner-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.user-detail-owner-button.grant {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.user-detail-owner-button.grant:hover {
+  background-color: #e67211;
+}
+
+.user-detail-owner-button.remove {
+  background-color: #6c757d;
+  color: white;
+}
+
+.user-detail-owner-button.remove:hover {
+  background-color: #5a6268;
+}
+
+.user-status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.user-status.active {
+  background-color: #28a745;
+  color: white;
+}
+
+.user-status.inactive {
+  background-color: #6c757d;
+  color: white;
 }
 
 /* Tabs */
@@ -168,6 +218,14 @@
 }
 
 /* Bookings Tab */
+.user-bookings-note {
+  color: var(--color-breadcrumb-text);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+  transition: color 0.3s ease;
+}
+
 .user-bookings-list {
   display: flex;
   flex-direction: column;
@@ -259,10 +317,11 @@
 }
 
 .user-review-item {
-  background-color: #f9f9f9;
+  background-color: var(--color-card-bg);
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .user-review-header {
@@ -273,7 +332,8 @@
 
 .user-review-campground {
   font-weight: bold;
-  color: #333;
+  color: var(--color-text);
+  transition: color 0.3s ease;
 }
 
 .user-review-rating {
@@ -282,17 +342,21 @@
 
 .star {
   font-size: 1rem;
-  color: #e0e0e0;
+  color: var(--color-border);
   margin-right: 2px;
+  transition: color 0.3s ease;
 }
 
 .star.filled {
-  color: #ffc107;
+  color: var(--color-primary);
+  transition: color 0.3s ease;
 }
 
 .user-review-body {
   margin: 0.5rem 0;
   line-height: 1.5;
+  color: var(--color-text);
+  transition: color 0.3s ease;
 }
 
 .user-review-actions {
@@ -303,25 +367,37 @@
 .user-review-view-button {
   display: inline-block;
   padding: 0.25rem 0.5rem;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
   border-radius: 4px;
   text-decoration: none;
   font-size: 0.875rem;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .user-review-view-button:hover {
-  background-color: #0069d9;
+  background-color: var(--color-button-hover);
   text-decoration: none;
+  color: var(--color-button-text);
+}
+
+.user-review-view-button.disabled {
+  background-color: #6c757d;
   color: white;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.user-review-view-button.disabled:hover {
+  background-color: #6c757d;
 }
 
 .user-no-data {
   text-align: center;
-  color: #6c757d;
+  color: var(--color-breadcrumb-text);
   font-style: italic;
   padding: 1rem;
+  transition: color 0.3s ease;
 }
 
 .user-detail-loading,

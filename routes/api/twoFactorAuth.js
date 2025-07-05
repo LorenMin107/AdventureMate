@@ -1,8 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const twoFactorAuthController = require('../../controllers/api/twoFactorAuth');
-const { isLoggedInApi } = require('../../middleware');
-const catchAsync = require('../../utils/catchAsync');
 
 /**
  * Legacy routes for two-factor authentication
@@ -11,16 +8,35 @@ const catchAsync = require('../../utils/catchAsync');
  */
 
 // Initiate 2FA setup
-router.post('/setup', isLoggedInApi, catchAsync(twoFactorAuthController.initiate2FASetup));
+router.post('/setup', (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/2fa/setup instead.",
+    redirectTo: "/api/v1/2fa/setup"
+  });
+});
 
 // Verify 2FA setup
-router.post('/verify-setup', isLoggedInApi, catchAsync(twoFactorAuthController.verify2FASetup));
+router.post('/verify-setup', (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/2fa/verify-setup instead.",
+    redirectTo: "/api/v1/2fa/verify-setup"
+  });
+});
 
 // Disable 2FA
-router.post('/disable', isLoggedInApi, catchAsync(twoFactorAuthController.disable2FA));
-
+router.post('/disable', (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/2fa/disable instead.",
+    redirectTo: "/api/v1/2fa/disable"
+  });
+});
 
 // Verify 2FA during login
-router.post('/verify-login', catchAsync(twoFactorAuthController.verify2FALogin));
+router.post('/verify-login', (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/2fa/verify-login instead.",
+    redirectTo: "/api/v1/2fa/verify-login"
+  });
+});
 
 module.exports = router;

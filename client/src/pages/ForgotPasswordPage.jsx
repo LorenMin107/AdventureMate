@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import apiClient from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import './ForgotPasswordPage.css';
 
 /**
@@ -8,6 +8,7 @@ import './ForgotPasswordPage.css';
  * Allows users to request a password reset by entering their email address
  */
 const ForgotPasswordPage = () => {
+  const { requestPasswordReset, loading: authLoading, error: authError } = useAuth();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [message, setMessage] = useState('');
@@ -16,28 +17,29 @@ const ForgotPasswordPage = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate email
     if (!email.trim()) {
       setEmailError('Email is required');
       return;
     }
-    
+
     // Simple email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError('Please enter a valid email address');
       return;
     }
-    
+
     setEmailError('');
     setStatus('loading');
     setMessage('');
-    
+
     try {
-      const response = await apiClient.post('/users/forgot-password', { email });
+      // Use the requestPasswordReset method from AuthContext
+      const responseMessage = await requestPasswordReset(email);
       setStatus('success');
-      setMessage(response.data.message || 'If your email is registered, you will receive a password reset link shortly.');
+      setMessage(responseMessage || 'If your email is registered, you will receive a password reset link shortly.');
     } catch (error) {
       console.error('Error requesting password reset:', error);
       setStatus('error');
@@ -50,11 +52,11 @@ const ForgotPasswordPage = () => {
     <div className="forgot-password-page">
       <div className="forgot-password-container">
         <h1>Forgot Password</h1>
-        
+
         {status === 'idle' && (
           <div className="forgot-password-form-container">
             <p>Enter your email address below and we'll send you a link to reset your password.</p>
-            
+
             <form onSubmit={handleSubmit} className="forgot-password-form">
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
@@ -68,29 +70,29 @@ const ForgotPasswordPage = () => {
                 />
                 {emailError && <div className="error-message">{emailError}</div>}
               </div>
-              
+
               <button 
                 type="submit" 
                 className="btn btn-primary"
-                disabled={status === 'loading'}
+                disabled={status === 'loading' || authLoading}
               >
-                {status === 'loading' ? 'Sending...' : 'Send Reset Link'}
+                {status === 'loading' || authLoading ? 'Sending...' : 'Send Reset Link'}
               </button>
             </form>
-            
+
             <div className="forgot-password-links">
               <Link to="/login">Back to Login</Link>
             </div>
           </div>
         )}
-        
+
         {status === 'loading' && (
           <div className="forgot-password-status loading">
             <div className="spinner"></div>
             <p>Sending password reset link...</p>
           </div>
         )}
-        
+
         {status === 'success' && (
           <div className="forgot-password-status success">
             <div className="success-icon">✓</div>
@@ -103,7 +105,7 @@ const ForgotPasswordPage = () => {
             </div>
           </div>
         )}
-        
+
         {status === 'error' && (
           <div className="forgot-password-status error">
             <div className="error-icon">✗</div>

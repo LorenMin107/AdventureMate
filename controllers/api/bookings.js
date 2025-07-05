@@ -1,8 +1,8 @@
-const Campground = require("../../models/campground");
-const Booking = require("../../models/booking");
-const User = require("../../models/user");
-const config = require("../../config");
-const stripe = require("stripe")(config.stripe.secretKey);
+const Campground = require('../../models/campground');
+const Booking = require('../../models/booking');
+const User = require('../../models/user');
+const config = require('../../config');
+const stripe = require('stripe')(config.stripe.secretKey);
 
 function calculateDaysAndPrice(startDate, endDate, pricePerNight) {
   const start = new Date(startDate);
@@ -21,27 +21,26 @@ module.exports.getBookings = async (req, res) => {
       query.status = { $ne: 'cancelled' };
     }
 
-    // If user is not an admin, only show their bookings
-    if (!req.user.isAdmin) {
-      query.user = req.user._id;
-    }
+    // Always filter by the current user's ID, regardless of admin status
+    // This ensures users only see their own bookings
+    query.user = req.user._id;
 
     const bookings = await Booking.find(query)
       .populate({
-        path: "campground",
-        select: "title location images"
+        path: 'campground',
+        select: 'title location images',
       })
       .populate({
-        path: "campsite",
-        select: "name description features price capacity images"
+        path: 'campsite',
+        select: 'name description features price capacity images',
       })
-      .populate("user", "username email")
+      .populate('user', 'username email')
       .sort({ createdAt: -1 });
 
     res.json({ bookings });
   } catch (error) {
-    console.error("Error fetching bookings:", error);
-    res.status(500).json({ error: "Failed to fetch bookings" });
+    console.error('Error fetching bookings:', error);
+    res.status(500).json({ error: 'Failed to fetch bookings' });
   }
 };
 
@@ -50,22 +49,22 @@ module.exports.getBooking = async (req, res) => {
     const { id } = req.params;
     const booking = await Booking.findById(id)
       .populate({
-        path: "campground",
-        select: "title location images"
+        path: 'campground',
+        select: 'title location images',
       })
       .populate({
-        path: "campsite",
-        select: "name description features price capacity images"
+        path: 'campsite',
+        select: 'name description features price capacity images',
       })
-      .populate("user", "username email");
+      .populate('user', 'username email');
 
     if (!booking) {
-      return res.status(404).json({ error: "Booking not found" });
+      return res.status(404).json({ error: 'Booking not found' });
     }
 
     // Check if the booking belongs to the current user or if the user is an admin
     if (booking.user._id.toString() !== req.user._id.toString() && !req.user.isAdmin) {
-      return res.status(403).json({ error: "Not authorized to view this booking" });
+      return res.status(403).json({ error: 'Not authorized to view this booking' });
     }
 
     // If the booking has a Stripe session ID, get the session details
@@ -76,8 +75,8 @@ module.exports.getBooking = async (req, res) => {
 
     res.json({ booking, session });
   } catch (error) {
-    console.error("Error fetching booking:", error);
-    res.status(500).json({ error: "Failed to fetch booking" });
+    console.error('Error fetching booking:', error);
+    res.status(500).json({ error: 'Failed to fetch booking' });
   }
 };
 
@@ -88,7 +87,7 @@ module.exports.createBooking = async (req, res) => {
 
     const campground = await Campground.findById(id);
     if (!campground) {
-      return res.status(404).json({ error: "Campground not found" });
+      return res.status(404).json({ error: 'Campground not found' });
     }
 
     // If a campsite is specified, fetch it and use its price
@@ -101,23 +100,23 @@ module.exports.createBooking = async (req, res) => {
 
     if (campsites.length > 0) {
       // Find the minimum price among available campsites
-      pricePerNight = Math.min(...campsites.map(site => site.price));
+      pricePerNight = Math.min(...campsites.map((site) => site.price));
     }
 
     if (campsiteId) {
       campsite = await require('../../models/campsite').findById(campsiteId);
       if (!campsite) {
-        return res.status(404).json({ error: "Campsite not found" });
+        return res.status(404).json({ error: 'Campsite not found' });
       }
 
       // Verify campsite belongs to this campground
       if (campsite.campground.toString() !== id) {
-        return res.status(400).json({ error: "Campsite does not belong to this campground" });
+        return res.status(400).json({ error: 'Campsite does not belong to this campground' });
       }
 
       // Verify campsite is available
       if (!campsite.availability) {
-        return res.status(400).json({ error: "Campsite is not available for booking" });
+        return res.status(400).json({ error: 'Campsite is not available for booking' });
       }
 
       // Use campsite price
@@ -125,7 +124,9 @@ module.exports.createBooking = async (req, res) => {
 
       // Verify guest count doesn't exceed capacity
       if (guests > campsite.capacity) {
-        return res.status(400).json({ error: `This campsite has a maximum capacity of ${campsite.capacity} guests` });
+        return res
+          .status(400)
+          .json({ error: `This campsite has a maximum capacity of ${campsite.capacity} guests` });
       }
     }
 
@@ -142,7 +143,7 @@ module.exports.createBooking = async (req, res) => {
       totalDays: daysCount,
       totalPrice,
       guests: guests || 1,
-      status: 'pending'
+      status: 'pending',
     };
 
     // Return booking data for client-side checkout
@@ -152,8 +153,8 @@ module.exports.createBooking = async (req, res) => {
         id: campground._id,
         title: campground.title,
         location: campground.location,
-        price: pricePerNight // Use the calculated minimum price
-      }
+        price: pricePerNight, // Use the calculated minimum price
+      },
     };
 
     // Add campsite data if a campsite was selected
@@ -165,14 +166,14 @@ module.exports.createBooking = async (req, res) => {
         features: campsite.features,
         price: campsite.price,
         capacity: campsite.capacity,
-        images: campsite.images
+        images: campsite.images,
       };
     }
 
     res.json(response);
   } catch (error) {
-    console.error("Error creating booking:", error);
-    res.status(400).json({ error: error.message || "Failed to create booking" });
+    console.error('Error creating booking:', error);
+    res.status(400).json({ error: error.message || 'Failed to create booking' });
   }
 };
 
@@ -183,7 +184,7 @@ module.exports.createCheckoutSession = async (req, res) => {
 
     const campground = await Campground.findById(id);
     if (!campground) {
-      return res.status(404).json({ error: "Campground not found" });
+      return res.status(404).json({ error: 'Campground not found' });
     }
 
     // If a campsite is specified, fetch it
@@ -191,35 +192,37 @@ module.exports.createCheckoutSession = async (req, res) => {
     if (campsiteId) {
       campsite = await require('../../models/campsite').findById(campsiteId);
       if (!campsite) {
-        return res.status(404).json({ error: "Campsite not found" });
+        return res.status(404).json({ error: 'Campsite not found' });
       }
 
       // Verify campsite belongs to this campground
       if (campsite.campground.toString() !== id) {
-        return res.status(400).json({ error: "Campsite does not belong to this campground" });
+        return res.status(400).json({ error: 'Campsite does not belong to this campground' });
       }
 
       // Verify campsite is available
       if (!campsite.availability) {
-        return res.status(400).json({ error: "Campsite is not available for booking" });
+        return res.status(400).json({ error: 'Campsite is not available for booking' });
       }
 
       // Verify guest count doesn't exceed capacity
       if (guests > campsite.capacity) {
-        return res.status(400).json({ error: `This campsite has a maximum capacity of ${campsite.capacity} guests` });
+        return res
+          .status(400)
+          .json({ error: `This campsite has a maximum capacity of ${campsite.capacity} guests` });
       }
     }
 
     // Create a Stripe checkout session
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      payment_method_types: ['card'],
       line_items: [
         {
           price_data: {
-            currency: "usd",
+            currency: 'usd',
             product_data: {
-              name: campsite 
-                ? `${campground.title} - ${campsite.name} - ${totalDays} days` 
+              name: campsite
+                ? `${campground.title} - ${campsite.name} - ${totalDays} days`
                 : `${campground.title} - ${totalDays} days`,
               description: campsite
                 ? `Booking for ${totalDays} days at ${campsite.name} in ${campground.title} by ${req.user.username} (${guests} guest${guests !== 1 ? 's' : ''})`
@@ -230,7 +233,7 @@ module.exports.createCheckoutSession = async (req, res) => {
           quantity: 1,
         },
       ],
-      mode: "payment",
+      mode: 'payment',
       success_url: `http://localhost:5173/bookings/payment-success?session_id={CHECKOUT_SESSION_ID}&campground_id=${id}`,
       cancel_url: `http://localhost:5173/campgrounds/${id}`,
       metadata: {
@@ -241,17 +244,17 @@ module.exports.createCheckoutSession = async (req, res) => {
         endDate,
         totalDays,
         totalPrice,
-        guests: guests || 1
+        guests: guests || 1,
       },
     });
 
-    res.json({ 
+    res.json({
       sessionId: session.id,
-      sessionUrl: session.url
+      sessionUrl: session.url,
     });
   } catch (error) {
-    console.error("Error creating checkout session:", error);
-    res.status(500).json({ error: "Failed to create checkout session" });
+    console.error('Error creating checkout session:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
   }
 };
 
@@ -265,34 +268,39 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     const referer = req.get('Referer') || 'unknown';
 
     console.log(`[${timestamp}] Payment success endpoint called for session_id: ${session_id}`);
-    console.log(`Request details - IP: ${requestIP}, User-Agent: ${userAgent}, Referer: ${referer}`);
+    console.log(
+      `Request details - IP: ${requestIP}, User-Agent: ${userAgent}, Referer: ${referer}`
+    );
 
     // Retrieve the session to verify payment
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
-    if (session.payment_status !== "paid") {
+    if (session.payment_status !== 'paid') {
       console.log(`[${timestamp}] Payment not completed for session_id: ${session_id}`);
-      return res.status(400).json({ error: "Payment not completed" });
+      return res.status(400).json({ error: 'Payment not completed' });
     }
 
     // Extract booking details from session metadata
-    const { startDate, endDate, totalDays, totalPrice, userId, campsiteId, guests } = session.metadata;
+    const { startDate, endDate, totalDays, totalPrice, userId, campsiteId, guests } =
+      session.metadata;
 
     // Verify the user matches
     if (userId !== req.user._id.toString()) {
-      console.log(`[${timestamp}] User mismatch for session_id: ${session_id}. Expected: ${userId}, Got: ${req.user._id.toString()}`);
-      return res.status(403).json({ error: "User mismatch" });
+      console.log(
+        `[${timestamp}] User mismatch for session_id: ${session_id}. Expected: ${userId}, Got: ${req.user._id.toString()}`
+      );
+      return res.status(403).json({ error: 'User mismatch' });
     }
 
     // Check if a booking with this session ID already exists
     let booking = await Booking.findOne({ sessionId: session_id })
       .populate({
-        path: "campground",
-        select: "title location images"
+        path: 'campground',
+        select: 'title location images',
       })
       .populate({
-        path: "campsite",
-        select: "name description features price capacity images"
+        path: 'campsite',
+        select: 'name description features price capacity images',
       });
 
     if (booking) {
@@ -301,7 +309,9 @@ module.exports.handlePaymentSuccess = async (req, res) => {
 
       console.log(`[${timestamp}] Duplicate booking detected for session_id: ${session_id}`);
       console.log(`Original booking created at: ${bookingCreatedAt} (${timeSinceCreation}ms ago)`);
-      console.log(`Booking with session ID ${session_id} already exists. Returning existing booking.`);
+      console.log(
+        `Booking with session ID ${session_id} already exists. Returning existing booking.`
+      );
 
       // Return the existing booking
       // Prepare response for existing booking
@@ -319,9 +329,9 @@ module.exports.handlePaymentSuccess = async (req, res) => {
             id: booking.campground._id,
             title: booking.campground.title,
             location: booking.campground.location,
-            images: booking.campground.images
-          }
-        }
+            images: booking.campground.images,
+          },
+        },
       };
 
       // Add campsite data if the booking has a campsite
@@ -333,7 +343,7 @@ module.exports.handlePaymentSuccess = async (req, res) => {
           description: booking.campsite.description,
           features: booking.campsite.features,
           capacity: booking.campsite.capacity,
-          images: booking.campsite.images
+          images: booking.campsite.images,
         };
       }
 
@@ -355,7 +365,7 @@ module.exports.handlePaymentSuccess = async (req, res) => {
       guests: parseInt(guests || 1, 10),
       sessionId: session_id,
       paid: true,
-      status: 'confirmed'
+      status: 'confirmed',
     });
 
     await booking.save();
@@ -377,7 +387,7 @@ module.exports.handlePaymentSuccess = async (req, res) => {
         campsite.bookedDates.push({
           startDate,
           endDate,
-          booking: booking._id
+          booking: booking._id,
         });
 
         await campsite.save();
@@ -397,7 +407,7 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     // Prepare response
     const responseData = {
       success: true,
-      message: "Payment successful and booking confirmed",
+      message: 'Payment successful and booking confirmed',
       booking: {
         id: booking._id,
         startDate,
@@ -407,9 +417,9 @@ module.exports.handlePaymentSuccess = async (req, res) => {
         guests: parseInt(guests || 1, 10),
         campground: {
           id: campground._id,
-          title: campground.title
-        }
-      }
+          title: campground.title,
+        },
+      },
     };
 
     // Add campsite data if a campsite was selected
@@ -425,7 +435,7 @@ module.exports.handlePaymentSuccess = async (req, res) => {
             description: campsite.description,
             features: campsite.features,
             capacity: campsite.capacity,
-            images: campsite.images
+            images: campsite.images,
           };
         }
       } catch (err) {
@@ -436,7 +446,7 @@ module.exports.handlePaymentSuccess = async (req, res) => {
 
     res.json(responseData);
   } catch (error) {
-    console.error("Error handling payment success:", error);
-    res.status(500).json({ error: "Failed to process payment confirmation" });
+    console.error('Error handling payment success:', error);
+    res.status(500).json({ error: 'Failed to process payment confirmation' });
   }
 };

@@ -1,55 +1,85 @@
 const express = require("express");
 const router = express.Router();
-const users = require("../../controllers/api/users");
-const catchAsync = require("../../utils/catchAsync");
-const passport = require("passport");
-const { isLoggedInApi } = require("../../middleware");
-const { checkAccountLockout, handleFailedLogin, resetFailedAttempts, handleRememberMe } = require("../../middleware/accountSecurity");
 
-// Register a new user
-router.post("/register", catchAsync(users.register));
+// Register a new user - handled by auth.js
+router.post("/register", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/auth/register instead.",
+    redirectTo: "/api/v1/auth/register"
+  });
+});
 
-// Login a user
-router.post(
-  "/login",
-  checkAccountLockout,
-  passport.authenticate("local", { failWithError: true }),
-  resetFailedAttempts,
-  handleRememberMe,
-  users.login,
-  // Handle authentication errors
-  (err, req, res, next) => {
-    // Pass to failed login handler
-    handleFailedLogin(req, res, (error) => {
-      if (error) return next(error);
-      return res.status(401).json({ error: "Invalid username or password" });
-    });
-  }
-);
+// Login a user - handled by auth.js
+router.post("/login", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/auth/login instead.",
+    redirectTo: "/api/v1/auth/login"
+  });
+});
 
-// Logout a user
-router.post("/logout", users.logout);
+// Logout a user - handled by auth.js
+router.post("/logout", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/auth/logout instead.",
+    redirectTo: "/api/v1/auth/logout"
+  });
+});
 
-// Check authentication status
-router.get("/status", users.checkAuthStatus);
+// Check authentication status - handled by auth.js
+router.get("/status", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/auth/status instead.",
+    redirectTo: "/api/v1/auth/status"
+  });
+});
 
 // Get current user data
-router.get("/profile", isLoggedInApi, catchAsync(users.getUser));
+router.get("/profile", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/users/profile instead.",
+    redirectTo: "/api/v1/users/profile"
+  });
+});
 
 // Update user profile
-router.put("/profile", isLoggedInApi, catchAsync(users.updateProfile));
+router.put("/profile", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/users/profile instead.",
+    redirectTo: "/api/v1/users/profile"
+  });
+});
 
 // Submit a contact form
-router.post("/contact", isLoggedInApi, catchAsync(users.submitContact));
+router.post("/contact", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/users/contact instead.",
+    redirectTo: "/api/v1/users/contact"
+  });
+});
 
 // Get user reviews
-router.get("/reviews", isLoggedInApi, catchAsync(users.getUserReviews));
+router.get("/reviews", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/users/reviews instead.",
+    redirectTo: "/api/v1/users/reviews"
+  });
+});
 
 // Password reset routes
 // Request a password reset (public route)
-router.post("/forgot-password", catchAsync(users.requestPasswordReset));
+router.post("/forgot-password", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/auth/forgot-password instead.",
+    redirectTo: "/api/v1/auth/forgot-password"
+  });
+});
 
 // Reset password with token (public route)
-router.post("/reset-password", catchAsync(users.resetPassword));
+router.post("/reset-password", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/auth/reset-password instead.",
+    redirectTo: "/api/v1/auth/reset-password"
+  });
+});
 
 module.exports = router;

@@ -8,15 +8,13 @@ MyanCamp uses URL path versioning for its API. This means that the version is sp
 
 ## Current Versions
 
-The API currently has two versions:
+The API currently has one version:
 
-1. **Legacy API** (unversioned): `/api/campgrounds`, `/api/users`, etc.
-   - These endpoints are deprecated and will be removed in a future version.
-   - They return deprecation notices in the response headers.
-
-2. **v1 API**: `/api/v1/campgrounds`, `/api/v1/users`, etc.
+1. **v1 API**: `/api/v1/campgrounds`, `/api/v1/users`, etc.
    - This is the current stable version of the API.
-   - It includes all the functionality of the legacy API, plus new features like campsites.
+   - It includes all the functionality of the application, including features like campsites.
+
+Note: The legacy (unversioned) API endpoints have been removed as part of the JWT migration cleanup.
 
 ## Versioning Headers
 
@@ -31,20 +29,28 @@ For deprecated endpoints, the following additional headers are included:
 - `X-API-Deprecation-Version`: The version when the endpoint will be removed.
 - `X-API-Alternative-URL`: The URL of the alternative endpoint to use.
 
-## Migrating from Legacy API to v1
+## Using the API
 
-To migrate from the legacy API to v1, simply update your API calls to use the v1 URL path. For example:
+All API calls should use the v1 URL path. For example:
 
-- Legacy: `GET /api/campgrounds`
-- v1: `GET /api/v1/campgrounds`
+- `GET /api/v1/campgrounds`
+- `GET /api/v1/users`
+- `POST /api/v1/auth/login`
 
-The response format and parameters remain the same, so no other changes are needed.
+The API is designed to be RESTful and consistent across all endpoints.
 
-## New Features in v1
+## Key Features in v1
 
-The v1 API includes the following new features not available in the legacy API:
+The v1 API includes the following key features:
 
-- **Campsites**: The v1 API includes endpoints for managing campsites within campgrounds.
+- **Campgrounds**: Endpoints for managing campgrounds.
+  - `GET /api/v1/campgrounds`: Get all campgrounds.
+  - `POST /api/v1/campgrounds`: Create a new campground.
+  - `GET /api/v1/campgrounds/:id`: Get a specific campground.
+  - `PUT /api/v1/campgrounds/:id`: Update a campground.
+  - `DELETE /api/v1/campgrounds/:id`: Delete a campground.
+
+- **Campsites**: Endpoints for managing campsites within campgrounds.
   - `GET /api/v1/campgrounds/:campgroundId/campsites`: Get all campsites for a campground.
   - `POST /api/v1/campgrounds/:campgroundId/campsites`: Create a new campsite for a campground.
   - `GET /api/v1/campsites/:id`: Get a specific campsite.
@@ -82,13 +88,9 @@ When an endpoint is deprecated:
 
 Deprecated endpoints will be supported for at least 6 months after deprecation to give clients time to migrate.
 
-## Testing Versioned APIs
+## Testing the API
 
-When testing the API, make sure to test all supported versions. The test suite should include tests for:
-
-- The current stable version (v1)
-- Any deprecated endpoints that are still supported
-- Any new versions in development (e.g., v2)
+When testing the API, make sure to test the current stable version (v1). If new versions are developed in the future (e.g., v2), the test suite should include tests for all supported versions.
 
 ## Documentation
 

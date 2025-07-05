@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import ReviewList from './ReviewList';
 import ReviewForm from './ReviewForm';
 import BookingForm from './BookingForm';
+import apiClient from '../utils/api';
 import './CampgroundDetail.css';
 
 /**
@@ -24,13 +25,8 @@ const CampgroundDetail = () => {
     const fetchCampground = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/campgrounds/${id}`);
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch campground: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await apiClient.get(`/campgrounds/${id}`);
+        const data = response.data;
         setCampground(data.campground);
         if (data.campground && data.campground.reviews) {
           setReviews(data.campground.reviews);
@@ -55,14 +51,7 @@ const CampgroundDetail = () => {
     }
 
     try {
-      const response = await fetch(`/api/campgrounds/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete campground: ${response.status}`);
-      }
+      await apiClient.delete(`/campgrounds/${id}`);
 
       navigate('/campgrounds');
     } catch (err) {

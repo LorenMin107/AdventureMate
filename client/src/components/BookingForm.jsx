@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import { Form, DateRangePicker, ErrorMessage, Select, Input } from './forms';
 import { bookingSchema } from '../utils/validationSchemas';
+import apiClient from '../utils/api';
 import './BookingForm.css';
 
 /**
@@ -44,13 +45,9 @@ const BookingForm = ({ campground }) => {
         url += `?startDate=${startDate}&endDate=${endDate}`;
       }
 
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch campsites');
-      }
-
-      const data = await response.json();
+      // Use apiClient to make the request
+      const response = await apiClient.get(url.replace('/api/v1', ''));
+      const data = response.data;
 
       // Check if the response is in the standardized format
       const campsitesData = data.status === 'success' && data.data 
@@ -147,30 +144,14 @@ const BookingForm = ({ campground }) => {
     try {
       setApiError(null);
 
-      const response = await fetch(`/api/bookings/${campground._id}/book`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ 
-          startDate: data.startDate, 
-          endDate: data.endDate,
-          campsiteId: selectedCampsite ? selectedCampsite._id : null,
-          guests: parseInt(data.guests || guests, 10)
-        }),
+      const response = await apiClient.post(`/bookings/${campground._id}/book`, { 
+        startDate: data.startDate, 
+        endDate: data.endDate,
+        campsiteId: selectedCampsite ? selectedCampsite._id : null,
+        guests: parseInt(data.guests || guests, 10)
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        // Check if the error response is in the new standardized format
-        const errorMessage = errorData.status === 'error' 
-          ? errorData.error || errorData.message 
-          : errorData.error || 'Failed to create booking';
-        throw new Error(errorMessage);
-      }
-
-      const responseData = await response.json();
+      const responseData = response.data;
 
       // Check if the response is in the new standardized format
       const bookingData = responseData.status && responseData.data 

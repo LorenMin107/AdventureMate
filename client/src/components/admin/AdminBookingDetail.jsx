@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../context/AuthContext';
+import apiClient from '../../utils/api';
 import './AdminBookingDetail.css';
 
 /**
  * AdminBookingDetail component displays detailed information about a booking for admin users
- * 
+ *
  * @param {Object} props - Component props
  * @param {Object} props.initialBooking - Initial booking data (optional)
  * @returns {JSX.Element} Admin booking detail component
@@ -37,15 +38,10 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
     const fetchBooking = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/bookings/${id}`, {
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch booking: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await apiClient.get(`/bookings/${id}`);
+        // Handle the ApiResponse format
+        const responseData = response.data;
+        const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
         setBooking(data.booking);
         setError(null);
       } catch (err) {
@@ -85,7 +81,19 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const { campground, campsite, user, startDate, endDate, totalDays, totalPrice, sessionId, createdAt, status, paid } = booking;
+  const {
+    campground,
+    campsite,
+    user,
+    startDate,
+    endDate,
+    totalDays,
+    totalPrice,
+    sessionId,
+    createdAt,
+    status,
+    paid,
+  } = booking;
 
   return (
     <div className="admin-booking-detail">
@@ -96,14 +104,9 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
         <div className="admin-booking-detail-header">
           <div className="admin-booking-detail-image">
             {campground.images && campground.images.length > 0 ? (
-              <img 
-                src={campground.images[0].url} 
-                alt={campground.title} 
-              />
+              <img src={campground.images[0].url} alt={campground.title} />
             ) : (
-              <div className="admin-booking-detail-no-image">
-                No image available
-              </div>
+              <div className="admin-booking-detail-no-image">No image available</div>
             )}
           </div>
 
@@ -115,9 +118,7 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
               <div className="admin-booking-detail-campsite-info">
                 <h4>Campsite: {campsite.name}</h4>
                 {campsite.price && (
-                  <p className="admin-booking-detail-campsite-price">
-                    ${campsite.price} per night
-                  </p>
+                  <p className="admin-booking-detail-campsite-price">${campsite.price} per night</p>
                 )}
                 {campsite.capacity && (
                   <p className="admin-booking-detail-campsite-capacity">
@@ -206,14 +207,18 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
 
               <div className="admin-booking-detail-info-item">
                 <span className="admin-booking-detail-label">Status</span>
-                <span className={`admin-booking-detail-value admin-booking-detail-status admin-booking-detail-status-${status}`}>
+                <span
+                  className={`admin-booking-detail-value admin-booking-detail-status admin-booking-detail-status-${status}`}
+                >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </span>
               </div>
 
               <div className="admin-booking-detail-info-item">
                 <span className="admin-booking-detail-label">Payment Status</span>
-                <span className={`admin-booking-detail-value admin-booking-detail-payment-status ${paid ? 'paid' : 'unpaid'}`}>
+                <span
+                  className={`admin-booking-detail-value admin-booking-detail-payment-status ${paid ? 'paid' : 'unpaid'}`}
+                >
                   {paid ? 'Paid' : 'Unpaid'}
                 </span>
               </div>
@@ -221,7 +226,10 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
               {sessionId && (
                 <div className="admin-booking-detail-info-item transaction-id-item">
                   <span className="admin-booking-detail-label">Transaction ID</span>
-                  <span className="admin-booking-detail-value transaction-id-value" title={sessionId}>
+                  <span
+                    className="admin-booking-detail-value transaction-id-value"
+                    title={sessionId}
+                  >
                     {sessionId}
                   </span>
                 </div>
@@ -236,7 +244,9 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
             </div>
             <div className="admin-booking-detail-section-content">
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">${(totalPrice / totalDays).toFixed(2)} × {totalDays} nights</span>
+                <span className="admin-booking-detail-label">
+                  ${(totalPrice / totalDays).toFixed(2)} × {totalDays} nights
+                </span>
                 <span className="admin-booking-detail-value">${totalPrice.toFixed(2)}</span>
               </div>
 
@@ -257,39 +267,27 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
               Back to Bookings
             </Link>
 
-            <Link 
-              to={`/admin/users/${user._id}`} 
-              className="admin-booking-detail-user-button"
-            >
+            <Link to={`/admin/users/${user._id}`} className="admin-booking-detail-user-button">
               View User
             </Link>
 
-            <Link 
-              to={`/admin/campgrounds`} 
-              className="admin-booking-detail-campground-button"
-            >
+            <Link to={`/admin/campgrounds`} className="admin-booking-detail-campground-button">
               View Campgrounds
             </Link>
 
-            <Link 
-              to={`/admin/campsites`} 
-              className="admin-booking-detail-campsite-button"
-            >
+            <Link to={`/admin/campsites`} className="admin-booking-detail-campsite-button">
               Manage Campsites
             </Link>
 
             {campsite && campsite._id ? (
-              <Link 
-                to={`/campsites/${campsite._id}`} 
+              <Link
+                to={`/campsites/${campsite._id}`}
                 className="admin-booking-detail-campsite-button"
               >
                 View Campsite
               </Link>
             ) : campsite ? (
-              <Link 
-                to={`/campsites/${campsite}`} 
-                className="admin-booking-detail-campsite-button"
-              >
+              <Link to={`/campsites/${campsite}`} className="admin-booking-detail-campsite-button">
                 View Campsite
               </Link>
             ) : null}
@@ -301,7 +299,7 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
 };
 
 AdminBookingDetail.propTypes = {
-  initialBooking: PropTypes.object
+  initialBooking: PropTypes.object,
 };
 
 export default AdminBookingDetail;

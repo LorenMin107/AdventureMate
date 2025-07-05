@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import apiClient from '../utils/api';
 
 // Create the context
 const UserContext = createContext();
@@ -44,19 +45,11 @@ export const UserProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch('/api/users/profile', {
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user details');
-      }
-
-      const data = await response.json();
-      setUserDetails(data.user);
+      const response = await apiClient.get('/users/profile');
+      setUserDetails(response.data.user);
     } catch (err) {
       console.error('Error fetching user details:', err);
-      setError(err.message || 'Failed to fetch user details');
+      setError(err.response?.data?.message || err.message || 'Failed to fetch user details');
     } finally {
       setLoading(false);
     }
@@ -72,24 +65,10 @@ export const UserProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch('/api/users/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({ message })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit contact form');
-      }
-
-      const data = await response.json();
-      return data;
+      const response = await apiClient.post('/users/contact', { message });
+      return response.data;
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to submit contact form');
       throw err;
     } finally {
       setLoading(false);
@@ -107,25 +86,11 @@ export const UserProvider = ({ children }) => {
 
     try {
       // This is a placeholder for a future API endpoint
-      const response = await fetch('/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify(profileData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update profile');
-      }
-
-      const data = await response.json();
-      setUserDetails(data.user);
-      return data.user;
+      const response = await apiClient.put('/users/profile', profileData);
+      setUserDetails(response.data.user);
+      return response.data.user;
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to update profile');
       throw err;
     } finally {
       setLoading(false);
@@ -148,37 +113,23 @@ export const UserProvider = ({ children }) => {
       console.log('Authentication status:', isAuthenticated);
       console.log('Current user:', currentUser);
 
-      const response = await fetch('/api/2fa/setup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
+      const response = await apiClient.post('/2fa/setup');
 
       console.log('API response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error response data:', errorData);
-        throw new Error(errorData.error || 'Failed to initiate 2FA setup');
-      }
-
-      const data = await response.json();
       console.log('API response data:', { 
-        qrCode: data.qrCode ? 'QR code data present' : 'No QR code data', 
-        secret: data.secret ? 'Secret present' : 'No secret',
-        setupCompleted: data.setupCompleted
+        qrCode: response.data.qrCode ? 'QR code data present' : 'No QR code data', 
+        secret: response.data.secret ? 'Secret present' : 'No secret',
+        setupCompleted: response.data.setupCompleted
       });
 
       return {
-        qrCode: data.qrCode,
-        secret: data.secret,
-        setupCompleted: data.setupCompleted
+        qrCode: response.data.qrCode,
+        secret: response.data.secret,
+        setupCompleted: response.data.setupCompleted
       };
     } catch (err) {
       console.error('Error in initiate2FASetup:', err);
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to initiate 2FA setup');
       throw err;
     }
   };
@@ -193,31 +144,17 @@ export const UserProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch('/api/2fa/verify-setup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({ token })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to verify 2FA setup');
-      }
-
-      const data = await response.json();
+      const response = await apiClient.post('/2fa/verify-setup', { token });
 
       // Update user details with 2FA enabled
       await fetchUserDetails();
 
       return {
-        backupCodes: data.backupCodes,
-        setupCompleted: data.setupCompleted
+        backupCodes: response.data.backupCodes,
+        setupCompleted: response.data.setupCompleted
       };
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to verify 2FA setup');
       throw err;
     }
   };
@@ -232,26 +169,14 @@ export const UserProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch('/api/2fa/disable', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({ token })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to disable 2FA');
-      }
+      await apiClient.post('/2fa/disable', { token });
 
       // Update user details with 2FA disabled
       await fetchUserDetails();
 
       return true;
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || 'Failed to disable 2FA');
       throw err;
     }
   };

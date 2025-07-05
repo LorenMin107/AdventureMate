@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../utils/api';
 import './BookingCheckoutPage.css';
 
 /**
@@ -33,34 +34,30 @@ const BookingCheckoutPage = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/bookings/${campgroundData.id}/checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          startDate: bookingData.startDate,
-          endDate: bookingData.endDate,
-          totalDays: bookingData.totalDays,
-          totalPrice: bookingData.totalPrice,
-          campsiteId: campsiteData?.id || null,
-          guests: bookingData.guests || 1
-        }),
+      const response = await apiClient.post(`/bookings/${campgroundData.id}/checkout`, {
+        startDate: bookingData.startDate,
+        endDate: bookingData.endDate,
+        totalDays: bookingData.totalDays,
+        totalPrice: bookingData.totalPrice,
+        campsiteId: campsiteData?.id || null,
+        guests: bookingData.guests || 1
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
-      }
-
-      const data = await response.json();
+      const data = response.data;
 
       // Redirect to Stripe checkout
       window.location.href = data.sessionUrl;
     } catch (err) {
       console.error('Error creating checkout session:', err);
-      setError(err.message || 'Failed to create checkout session. Please try again later.');
+
+      // Handle axios error responses
+      if (err.response && err.response.data) {
+        const errorData = err.response.data;
+        setError(errorData.error || errorData.message || 'Failed to create checkout session');
+      } else {
+        // Handle network errors or other exceptions
+        setError(err.message || 'Failed to create checkout session. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }

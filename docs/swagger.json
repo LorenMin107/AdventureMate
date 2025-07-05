@@ -42,6 +42,2046 @@
     }
   ],
   "paths": {
+    "/admin/dashboard": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get dashboard statistics",
+        "description": "Returns statistics for the admin dashboard",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "userCount": {
+                          "type": "number",
+                          "example": 150
+                        },
+                        "campgroundCount": {
+                          "type": "number",
+                          "example": 45
+                        },
+                        "bookingCount": {
+                          "type": "number",
+                          "example": 230
+                        },
+                        "reviewCount": {
+                          "type": "number",
+                          "example": 180
+                        },
+                        "recentBookings": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Booking"
+                          }
+                        },
+                        "recentUsers": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Dashboard statistics retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/bookings": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get all bookings",
+        "description": "Returns a paginated list of all bookings",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by booking status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["confirmed", "pending", "cancelled", "completed"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "bookings": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Booking"
+                          }
+                        },
+                        "page": {
+                          "type": "number",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "number",
+                          "example": 10
+                        },
+                        "totalPages": {
+                          "type": "number",
+                          "example": 5
+                        },
+                        "totalItems": {
+                          "type": "number",
+                          "example": 45
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Bookings retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/bookings/{id}": {
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Cancel a booking",
+        "description": "Cancels a specific booking by ID",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Booking ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Booking cancelled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "booking": {
+                          "$ref": "#/components/schemas/Booking"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Booking cancelled successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Booking not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get all users",
+        "description": "Returns a paginated list of all users",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term for username or email",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "users": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        },
+                        "page": {
+                          "type": "number",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "number",
+                          "example": 10
+                        },
+                        "totalPages": {
+                          "type": "number",
+                          "example": 5
+                        },
+                        "totalItems": {
+                          "type": "number",
+                          "example": 45
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Users retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{id}": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get user details",
+        "description": "Returns details for a specific user",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User details retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/toggle-admin": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Toggle user admin status",
+        "description": "Toggles the admin status of a specific user",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Admin status toggled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "isAdmin": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User admin status updated successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/toggle-owner": {
+      "patch": {
+        "tags": ["Admin"],
+        "summary": "Toggle user owner status",
+        "description": "Toggles the owner status of a specific user",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Owner status toggled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        },
+                        "isOwner": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User owner status updated successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owner-applications": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get all owner applications",
+        "description": "Returns a list of all owner applications",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by application status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "approved", "rejected", "under_review"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "applications": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/OwnerApplication"
+                          }
+                        },
+                        "page": {
+                          "type": "number",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "number",
+                          "example": 10
+                        },
+                        "totalPages": {
+                          "type": "number",
+                          "example": 2
+                        },
+                        "totalItems": {
+                          "type": "number",
+                          "example": 15
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner applications retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owner-applications/{id}": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get owner application details",
+        "description": "Returns details for a specific owner application",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Application ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "application": {
+                          "$ref": "#/components/schemas/OwnerApplication"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner application details retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Application not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owner-applications/{id}/approve": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Approve owner application",
+        "description": "Approves a specific owner application",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Application ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "example": "Application approved after verification of business documents."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Application approved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "application": {
+                          "$ref": "#/components/schemas/OwnerApplication"
+                        },
+                        "owner": {
+                          "$ref": "#/components/schemas/Owner"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner application approved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Application not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owner-applications/{id}/reject": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Reject owner application",
+        "description": "Rejects a specific owner application",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Application ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "example": "Incomplete documentation provided."
+                  }
+                },
+                "required": ["reason"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Application rejected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "application": {
+                          "$ref": "#/components/schemas/OwnerApplication"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner application rejected successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Application not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owner-applications/{id}/review": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Update application review",
+        "description": "Updates the review status and notes for a specific owner application",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Application ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["pending", "under_review"],
+                    "example": "under_review"
+                  },
+                  "notes": {
+                    "type": "string",
+                    "example": "Requested additional documentation."
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Application review updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "application": {
+                          "$ref": "#/components/schemas/OwnerApplication"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner application review updated successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Application not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owners": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get all owners",
+        "description": "Returns a paginated list of all owners",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by owner status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["active", "suspended", "pending_verification"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "owners": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Owner"
+                          }
+                        },
+                        "page": {
+                          "type": "number",
+                          "example": 1
+                        },
+                        "limit": {
+                          "type": "number",
+                          "example": 10
+                        },
+                        "totalPages": {
+                          "type": "number",
+                          "example": 3
+                        },
+                        "totalItems": {
+                          "type": "number",
+                          "example": 25
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owners retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owners/{id}": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get owner details",
+        "description": "Returns details for a specific owner",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Owner ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "owner": {
+                          "$ref": "#/components/schemas/Owner"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner details retrieved successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owners/{id}/suspend": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Suspend owner",
+        "description": "Suspends a specific owner",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Owner ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "example": "Violation of terms of service."
+                  }
+                },
+                "required": ["reason"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Owner suspended successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "owner": {
+                          "$ref": "#/components/schemas/Owner"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner suspended successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owners/{id}/reactivate": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Reactivate owner",
+        "description": "Reactivates a suspended owner",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Owner ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "example": "Owner has resolved the issues."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Owner reactivated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "owner": {
+                          "$ref": "#/components/schemas/Owner"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner reactivated successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owners/{id}/verify": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Verify owner",
+        "description": "Verifies a pending owner",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Owner ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notes": {
+                    "type": "string",
+                    "example": "All documentation verified."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Owner verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "owner": {
+                          "$ref": "#/components/schemas/Owner"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner verified successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/owners/{id}/revoke": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Revoke owner status",
+        "description": "Revokes owner status from a user",
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Owner ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "example": "Repeated violations of platform policies."
+                  }
+                },
+                "required": ["reason"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Owner status revoked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "owner": {
+                          "$ref": "#/components/schemas/Owner"
+                        },
+                        "user": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Owner status revoked successfully"
+                    },
+                    "error": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Not an admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Owner not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/campgrounds": {
       "get": {
         "tags": ["Campgrounds"],
@@ -667,6 +2707,423 @@
   },
   "components": {
     "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "username": {
+            "type": "string",
+            "example": "johndoe"
+          },
+          "email": {
+            "type": "string",
+            "example": "john@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+1234567890"
+          },
+          "isAdmin": {
+            "type": "boolean",
+            "example": false
+          },
+          "isOwner": {
+            "type": "boolean",
+            "example": false
+          },
+          "isEmailVerified": {
+            "type": "boolean",
+            "example": true
+          },
+          "isTwoFactorEnabled": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-06-23T10:15:18.000Z"
+          }
+        }
+      },
+      "Booking": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2023-07-15"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2023-07-20"
+          },
+          "totalPrice": {
+            "type": "number",
+            "example": 250
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "confirmed", "cancelled", "completed"],
+            "example": "confirmed"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "60d21b4667d0d8992e610c85"
+              },
+              "username": {
+                "type": "string",
+                "example": "johndoe"
+              },
+              "email": {
+                "type": "string",
+                "example": "john@example.com"
+              }
+            }
+          },
+          "campground": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "60d21b4667d0d8992e610c85"
+              },
+              "title": {
+                "type": "string",
+                "example": "Inle Lake Campground"
+              },
+              "location": {
+                "type": "string",
+                "example": "Inle Lake, Shan State, Myanmar"
+              }
+            }
+          },
+          "campsite": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "60d21b4667d0d8992e610c85"
+              },
+              "name": {
+                "type": "string",
+                "example": "Lakeside Tent Spot #3"
+              },
+              "price": {
+                "type": "number",
+                "example": 50
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-06-01T10:15:18.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-06-01T10:15:18.000Z"
+          }
+        }
+      },
+      "Owner": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "60d21b4667d0d8992e610c85"
+              },
+              "username": {
+                "type": "string",
+                "example": "johndoe"
+              },
+              "email": {
+                "type": "string",
+                "example": "john@example.com"
+              }
+            }
+          },
+          "businessName": {
+            "type": "string",
+            "example": "John's Camping Adventures"
+          },
+          "businessType": {
+            "type": "string",
+            "enum": ["individual", "company", "partnership", "non_profit"],
+            "example": "individual"
+          },
+          "businessAddress": {
+            "type": "object",
+            "properties": {
+              "street": {
+                "type": "string",
+                "example": "123 Main St"
+              },
+              "city": {
+                "type": "string",
+                "example": "Yangon"
+              },
+              "state": {
+                "type": "string",
+                "example": "Yangon Region"
+              },
+              "zipCode": {
+                "type": "string",
+                "example": "11181"
+              },
+              "country": {
+                "type": "string",
+                "example": "Myanmar"
+              }
+            }
+          },
+          "businessPhone": {
+            "type": "string",
+            "example": "+95123456789"
+          },
+          "businessEmail": {
+            "type": "string",
+            "example": "business@example.com"
+          },
+          "verificationStatus": {
+            "type": "string",
+            "enum": ["pending", "verified", "suspended", "rejected"],
+            "example": "verified"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-06-15T10:15:18.000Z"
+          },
+          "verifiedBy": {
+            "type": "string",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "suspendedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": null
+          },
+          "suspendedBy": {
+            "type": "string",
+            "example": null
+          },
+          "suspensionReason": {
+            "type": "string",
+            "example": null
+          },
+          "verificationNotes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "note": {
+                  "type": "string",
+                  "example": "All documentation verified."
+                },
+                "addedBy": {
+                  "type": "string",
+                  "example": "60d21b4667d0d8992e610c85"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["admin_note", "system_note", "user_note"],
+                  "example": "admin_note"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2023-06-15T10:15:18.000Z"
+                }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-06-01T10:15:18.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-06-15T10:15:18.000Z"
+          }
+        }
+      },
+      "OwnerApplication": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "example": "60d21b4667d0d8992e610c85"
+              },
+              "username": {
+                "type": "string",
+                "example": "johndoe"
+              },
+              "email": {
+                "type": "string",
+                "example": "john@example.com"
+              }
+            }
+          },
+          "businessName": {
+            "type": "string",
+            "example": "John's Camping Adventures"
+          },
+          "businessType": {
+            "type": "string",
+            "enum": ["individual", "company", "partnership", "non_profit"],
+            "example": "individual"
+          },
+          "businessAddress": {
+            "type": "object",
+            "properties": {
+              "street": {
+                "type": "string",
+                "example": "123 Main St"
+              },
+              "city": {
+                "type": "string",
+                "example": "Yangon"
+              },
+              "state": {
+                "type": "string",
+                "example": "Yangon Region"
+              },
+              "zipCode": {
+                "type": "string",
+                "example": "11181"
+              },
+              "country": {
+                "type": "string",
+                "example": "Myanmar"
+              }
+            }
+          },
+          "businessPhone": {
+            "type": "string",
+            "example": "+95123456789"
+          },
+          "businessEmail": {
+            "type": "string",
+            "example": "business@example.com"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["id", "business_license", "tax_certificate", "other"],
+                  "example": "business_license"
+                },
+                "url": {
+                  "type": "string",
+                  "example": "https://res.cloudinary.com/dlvtzyb7j/image/upload/v1624456518/MyanCamp/documents/license_xyzabc.jpg"
+                },
+                "filename": {
+                  "type": "string",
+                  "example": "MyanCamp/documents/license_xyzabc"
+                },
+                "description": {
+                  "type": "string",
+                  "example": "Business license issued by Yangon City Development Committee"
+                }
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "under_review", "approved", "rejected"],
+            "example": "pending"
+          },
+          "reviewNotes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "note": {
+                  "type": "string",
+                  "example": "Requested additional documentation."
+                },
+                "addedBy": {
+                  "type": "string",
+                  "example": "60d21b4667d0d8992e610c85"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2023-06-10T10:15:18.000Z"
+                }
+              }
+            }
+          },
+          "rejectionReason": {
+            "type": "string",
+            "example": null
+          },
+          "approvedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": null
+          },
+          "approvedBy": {
+            "type": "string",
+            "example": null
+          },
+          "rejectedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": null
+          },
+          "rejectedBy": {
+            "type": "string",
+            "example": null
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-06-01T10:15:18.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-06-10T10:15:18.000Z"
+          }
+        }
+      },
       "Campground": {
         "type": "object",
         "properties": {

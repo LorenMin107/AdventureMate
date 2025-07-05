@@ -42,6 +42,17 @@ const AdminCampsiteList = lazy(() => import('../components/admin/AdminCampsiteLi
 const AdminBookingList = lazy(() => import('../components/admin/AdminBookingList'));
 const AdminBookingDetail = lazy(() => import('../components/admin/AdminBookingDetail'));
 
+// Owner components
+const OwnerLayout = lazy(() => import('../components/owner/OwnerLayout'));
+const OwnerDashboardPage = lazy(() => import('../pages/OwnerDashboardPage'));
+const OwnerRegisterPage = lazy(() => import('../pages/OwnerRegisterPage'));
+const OwnerCreateProfilePage = lazy(() => import('../pages/OwnerCreateProfilePage'));
+const OwnerVerificationPage = lazy(() => import('../pages/OwnerVerificationPage'));
+const OwnerProtectedRoute = lazy(() => import('../components/OwnerProtectedRoute'));
+const OwnerCampgroundsPage = lazy(() => import('../pages/OwnerCampgroundsPage'));
+const OwnerBookingsPage = lazy(() => import('../pages/OwnerBookingsPage'));
+const OwnerAnalyticsPage = lazy(() => import('../pages/OwnerAnalyticsPage'));
+
 
 /**
  * Routes configuration
@@ -221,6 +232,142 @@ const routes = [
                 <CampsiteEditPage />
               </Suspense>
             ),
+          },
+        ],
+      },
+
+      // Owner registration (public route for all users)
+      {
+        path: 'owner/register',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <OwnerRegisterPage />
+          </Suspense>
+        ),
+      },
+
+      // Owner profile creation (for users assigned as owners by admin)
+      {
+        path: 'owner/create-profile',
+        element: (
+          <ProtectedRoute requireEmailVerified={true}>
+            <Suspense fallback={<LoadingFallback />}>
+              <OwnerCreateProfilePage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+
+      // Owner verification page (for users who have applied to be owners)
+      {
+        path: 'owner/verification',
+        element: (
+          <ProtectedRoute requireEmailVerified={true}>
+            <Suspense fallback={<LoadingFallback />}>
+              <OwnerVerificationPage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+
+      // Owner routes (protected)
+      {
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <OwnerProtectedRoute />
+          </Suspense>
+        ),
+        children: [
+          {
+            path: 'owner',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <OwnerLayout />
+              </Suspense>
+            ),
+            children: [
+              {
+                index: true,
+                element: <Navigate to="/owner/dashboard" replace />,
+              },
+              {
+                path: 'dashboard',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <OwnerDashboardPage />
+                  </Suspense>
+                ),
+              },
+              // Owner management pages
+              {
+                path: 'campgrounds',
+                children: [
+                  {
+                    index: true,
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <OwnerCampgroundsPage />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: 'new',
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <CampgroundNewPage />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: ':id',
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <CampgroundDetailPage />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: ':id/edit',
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <CampgroundEditPage />
+                      </Suspense>
+                    ),
+                  },
+                ],
+              },
+              {
+                path: 'bookings',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <OwnerBookingsPage />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'analytics',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <OwnerAnalyticsPage />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'profile',
+                element: (
+                  <div className="owner-page-header">
+                    <h1>Profile Settings</h1>
+                    <p>Manage your owner profile and settings</p>
+                  </div>
+                ),
+              },
+              {
+                path: 'verification',
+                element: (
+                  <Navigate to="/owner/verification" replace />
+                ),
+              },
+            ],
           },
         ],
       },

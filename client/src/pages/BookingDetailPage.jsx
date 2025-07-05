@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BookingDetail from '../components/BookingDetail';
+import apiClient from '../utils/api';
 import './BookingDetailPage.css';
 
 /**
@@ -22,15 +23,8 @@ const BookingDetailPage = () => {
       }
 
       try {
-        const response = await fetch(`/api/bookings/${id}`, {
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch booking: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await apiClient.get(`/bookings/${id}`);
+        const data = response.data;
         setBooking(data.booking);
       } catch (err) {
         console.error('Error fetching booking:', err);

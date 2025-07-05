@@ -1,12 +1,12 @@
 const User = require('../../models/user');
-const { 
-  generateSecret, 
-  generateQRCode, 
-  verifyToken, 
+const {
+  generateSecret,
+  generateQRCode,
+  verifyToken,
   generateBackupCodes,
   prepareBackupCodesForStorage,
   verifyBackupCode,
-  markBackupCodeAsUsed
+  markBackupCodeAsUsed,
 } = require('../../utils/twoFactorAuth');
 
 /**
@@ -54,7 +54,7 @@ exports.initiate2FASetup = async (req, res) => {
       message: 'Two-factor authentication setup initiated',
       qrCode,
       secret: secret.base32, // Only send this in development
-      setupCompleted: false
+      setupCompleted: false,
     });
   } catch (error) {
     console.error('Error initiating 2FA setup:', error);
@@ -106,7 +106,7 @@ exports.verify2FASetup = async (req, res) => {
     res.json({
       message: 'Two-factor authentication enabled successfully',
       backupCodes,
-      setupCompleted: true
+      setupCompleted: true,
     });
   } catch (error) {
     console.error('Error verifying 2FA setup:', error);
@@ -148,14 +148,13 @@ exports.disable2FA = async (req, res) => {
     await req.user.save();
 
     res.json({
-      message: 'Two-factor authentication disabled successfully'
+      message: 'Two-factor authentication disabled successfully',
     });
   } catch (error) {
     console.error('Error disabling 2FA:', error);
     res.status(500).json({ error: 'Failed to disable 2FA' });
   }
 };
-
 
 /**
  * Verify TOTP token during login
@@ -164,18 +163,12 @@ exports.disable2FA = async (req, res) => {
  */
 exports.verify2FALogin = async (req, res) => {
   try {
-    // Get user from session (partially authenticated)
-    const userId = req.session.twoFactorAuth?.userId;
-
-    if (!userId) {
+    // Get user from JWT token (partially authenticated)
+    if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    const user = req.user;
 
     // Check if 2FA is enabled
     if (!user.isTwoFactorEnabled) {
@@ -201,35 +194,33 @@ exports.verify2FALogin = async (req, res) => {
     }
 
     if (!isValid) {
-      return res.status(400).json({ 
-        error: useBackupCode ? 'Invalid backup code' : 'Invalid verification code' 
+      return res.status(400).json({
+        error: useBackupCode ? 'Invalid backup code' : 'Invalid verification code',
       });
     }
 
-    // Complete authentication
-    req.login(user, (err) => {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to complete authentication' });
-      }
+    // Generate final access and refresh tokens
+    const { generateAccessToken, generateRefreshToken } = require('../../utils/jwtUtils');
+    const accessToken = generateAccessToken(user);
+    const refreshToken = await generateRefreshToken(user, req);
 
-      // Clear 2FA session data
-      delete req.session.twoFactorAuth;
+    // Return user data and tokens (excluding sensitive information)
+    const userResponse = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      isAdmin: user.isAdmin || false,
+      isEmailVerified: user.isEmailVerified,
+      isTwoFactorEnabled: user.isTwoFactorEnabled,
+    };
 
-      // Return user data (excluding sensitive information)
-      const userResponse = {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        phone: user.phone,
-        isAdmin: user.isAdmin || false,
-        isEmailVerified: user.isEmailVerified,
-        isTwoFactorEnabled: user.isTwoFactorEnabled
-      };
-
-      res.json({
-        message: 'Two-factor authentication successful',
-        user: userResponse
-      });
+    res.json({
+      message: 'Two-factor authentication successful',
+      user: userResponse,
+      accessToken,
+      refreshToken: refreshToken.token,
+      expiresAt: refreshToken.expiresAt,
     });
   } catch (error) {
     console.error('Error verifying 2FA login:', error);

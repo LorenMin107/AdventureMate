@@ -34,6 +34,25 @@ const UserSchema = new Schema({
   emailVerifiedAt: {
     type: Date,
   },
+  // Social login fields
+  googleId: {
+    type: String,
+    sparse: true,
+    unique: true,
+  },
+  facebookId: {
+    type: String,
+    sparse: true,
+    unique: true,
+  },
+  profile: {
+    name: {
+      type: String,
+    },
+    picture: {
+      type: String,
+    },
+  },
   // Account security fields
   failedLoginAttempts: {
     type: Number,
@@ -122,7 +141,7 @@ const UserSchema = new Schema({
       ref: "Contact",
     },
   ],
-});
+}, { timestamps: true }); // Add timestamps option
 
 // add the passport-local-mongoose plugin to the UserSchema to hash and salt the password and save the user to the database
 UserSchema.plugin(passportLocalMongoose);

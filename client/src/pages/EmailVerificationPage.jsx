@@ -30,7 +30,7 @@ const EmailVerificationPage = () => {
         console.log('Sending verification request to server');
         // Send the token as-is to the server
         console.log('Token to send:', token);
-        const response = await apiClient.get(`/v1/auth/verify-email?token=${token}`);
+        const response = await apiClient.get(`/auth/verify-email?token=${token}`);
         console.log('Verification response:', response.data);
         setStatus('success');
         setMessage(response.data.message);
@@ -52,7 +52,7 @@ const EmailVerificationPage = () => {
     setResendMessage('');
 
     try {
-      const response = await apiClient.post('/v1/auth/resend-verification-email');
+      const response = await apiClient.post('/auth/resend-verification-email');
       setResendStatus('success');
       setResendMessage(response.data.message);
     } catch (error) {

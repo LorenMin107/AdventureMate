@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import apiClient from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import './ResetPasswordPage.css';
 
 /**
@@ -8,6 +8,7 @@ import './ResetPasswordPage.css';
  * Allows users to reset their password using a token received via email
  */
 const ResetPasswordPage = () => {
+  const { resetPassword, loading: authLoading, error: authError } = useAuth();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
@@ -42,16 +43,16 @@ const ResetPasswordPage = () => {
 
     // Length check
     if (password.length >= 8) score += 1;
-    
+
     // Uppercase check
     if (/[A-Z]/.test(password)) score += 1;
-    
+
     // Lowercase check
     if (/[a-z]/.test(password)) score += 1;
-    
+
     // Number check
     if (/\d/.test(password)) score += 1;
-    
+
     // Special character check
     if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 1;
 
@@ -89,10 +90,10 @@ const ResetPasswordPage = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate password
     let isValid = true;
-    
+
     if (!password) {
       setPasswordError('Password is required');
       isValid = false;
@@ -102,7 +103,7 @@ const ResetPasswordPage = () => {
     } else {
       setPasswordError('');
     }
-    
+
     if (!confirmPassword) {
       setConfirmPasswordError('Please confirm your password');
       isValid = false;
@@ -112,21 +113,22 @@ const ResetPasswordPage = () => {
     } else {
       setConfirmPasswordError('');
     }
-    
+
     if (!isValid) return;
-    
+
     setStatus('loading');
     setMessage('');
-    
+
     try {
-      const response = await apiClient.post('/users/reset-password', { token, password });
+      // Use the resetPassword method from AuthContext
+      const responseMessage = await resetPassword(token, password);
       setStatus('success');
-      setMessage(response.data.message || 'Your password has been reset successfully.');
-      
+      setMessage(responseMessage || 'Your password has been reset successfully.');
+
       // Clear form
       setPassword('');
       setConfirmPassword('');
-      
+
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/login');
@@ -134,7 +136,7 @@ const ResetPasswordPage = () => {
     } catch (error) {
       console.error('Error resetting password:', error);
       setStatus('error');
-      setMessage(error.response?.data?.error || 'Failed to reset password. The token may be invalid or expired.');
+      setMessage(error.message || 'Failed to reset password. The token may be invalid or expired.');
     }
   };
 
@@ -142,11 +144,11 @@ const ResetPasswordPage = () => {
     <div className="reset-password-page">
       <div className="reset-password-container">
         <h1>Reset Password</h1>
-        
+
         {status === 'idle' && (
           <div className="reset-password-form-container">
             <p>Enter your new password below.</p>
-            
+
             <form onSubmit={handleSubmit} className="reset-password-form">
               <div className="form-group">
                 <label htmlFor="password">New Password</label>
@@ -159,7 +161,7 @@ const ResetPasswordPage = () => {
                   className={passwordError ? 'input-error' : ''}
                 />
                 {passwordError && <div className="error-message">{passwordError}</div>}
-                
+
                 {/* Password strength indicator */}
                 {password && (
                   <div className="password-strength">
@@ -177,7 +179,7 @@ const ResetPasswordPage = () => {
                     </div>
                   </div>
                 )}
-                
+
                 <div className="password-requirements">
                   <p>Password must:</p>
                   <ul>
@@ -189,7 +191,7 @@ const ResetPasswordPage = () => {
                   </ul>
                 </div>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
                 <input
@@ -202,25 +204,25 @@ const ResetPasswordPage = () => {
                 />
                 {confirmPasswordError && <div className="error-message">{confirmPasswordError}</div>}
               </div>
-              
+
               <button 
                 type="submit" 
                 className="btn btn-primary"
-                disabled={status === 'loading' || passwordStrength.score < 3}
+                disabled={status === 'loading' || authLoading || passwordStrength.score < 3}
               >
-                {status === 'loading' ? 'Resetting...' : 'Reset Password'}
+                {status === 'loading' || authLoading ? 'Resetting...' : 'Reset Password'}
               </button>
             </form>
           </div>
         )}
-        
+
         {status === 'loading' && (
           <div className="reset-password-status loading">
             <div className="spinner"></div>
             <p>Resetting your password...</p>
           </div>
         )}
-        
+
         {status === 'success' && (
           <div className="reset-password-status success">
             <div className="success-icon">✓</div>
@@ -233,7 +235,7 @@ const ResetPasswordPage = () => {
             </div>
           </div>
         )}
-        
+
         {status === 'error' && (
           <div className="reset-password-status error">
             <div className="error-icon">✗</div>

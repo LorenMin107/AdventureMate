@@ -1,36 +1,50 @@
 const express = require("express");
 const router = express.Router();
-const bookings = require("../../controllers/api/bookings");
-const catchAsync = require("../../utils/catchAsync");
-const { isLoggedInApi, validateBookingDatesApi } = require("../../middleware");
 
 // Get all bookings for the current user
-router.get("/", isLoggedInApi, catchAsync(bookings.getBookings));
+router.get("/", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/bookings instead.",
+    redirectTo: "/api/v1/bookings"
+  });
+});
 
 // Get a specific booking
-router.get("/:id", isLoggedInApi, catchAsync(bookings.getBooking));
+router.get("/:id", (req, res) => {
+  const bookingId = req.params.id;
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/bookings/:id instead.",
+    redirectTo: `/api/v1/bookings/${bookingId}`
+  });
+});
 
 // Create a booking (initial step)
-router.post(
-  "/:id/book", 
-  isLoggedInApi, 
-  validateBookingDatesApi, 
-  catchAsync(bookings.createBooking)
-);
+router.post("/:id/book", (req, res) => {
+  const campgroundId = req.params.id;
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/bookings/:id/book instead.",
+    redirectTo: `/api/v1/bookings/${campgroundId}/book`
+  });
+});
 
 // Create a checkout session for payment
-router.post(
-  "/:id/checkout", 
-  isLoggedInApi, 
-  validateBookingDatesApi, 
-  catchAsync(bookings.createCheckoutSession)
-);
+router.post("/:id/checkout", (req, res) => {
+  const campgroundId = req.params.id;
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/bookings/:id/checkout instead.",
+    redirectTo: `/api/v1/bookings/${campgroundId}/checkout`
+  });
+});
 
 // Handle successful payment
-router.get(
-  "/:id/success", 
-  isLoggedInApi, 
-  catchAsync(bookings.handlePaymentSuccess)
-);
+router.get("/:id/success", (req, res) => {
+  const campgroundId = req.params.id;
+  // Forward query parameters
+  const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '';
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/bookings/:id/success instead.",
+    redirectTo: `/api/v1/bookings/${campgroundId}/success${queryString}`
+  });
+});
 
 module.exports = router;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiClient from '../utils/api';
 import './CampgroundForm.css';
 
 /**
@@ -153,88 +154,46 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
       }
 
       // Determine URL and method based on whether we're creating or editing
+      // Don't include /api/v1 in the URL as it's already in the baseURL of apiClient
       const url = isEditing 
-        ? `/api/campgrounds/${campground?._id}` 
-        : '/api/campgrounds';
+        ? `/campgrounds/${campground?._id}` 
+        : '/campgrounds';
 
       const method = isEditing ? 'PUT' : 'POST';
 
-      // Send the request
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend,
-        credentials: 'include'
-      });
+      // Send the request using apiClient
+      const response = method === 'POST'
+        ? await apiClient.post(url, formDataToSend, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+        : await apiClient.put(url, formDataToSend, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log('Error response:', errorData);
+      // With apiClient, the response is already parsed and in response.data
+      console.log('Response from API:', response);
 
-        // Check if the response is in the new standardized format with field-specific errors
-        if (errorData.status === 'error') {
-          console.log('Error status is "error"');
-          console.log('Error object:', errorData.error);
-
-          // Check for field-specific errors in different possible formats
-          if (errorData.error) {
-            console.log('Error object type:', typeof errorData.error);
-
-            // Case 1: error is an object with errors array
-            if (typeof errorData.error === 'object' && errorData.error.errors) {
-              console.log('Found field-specific errors (format 1):', errorData.error.errors);
-              const fieldErrors = {};
-              errorData.error.errors.forEach(err => {
-                console.log('Processing error:', err);
-                // Convert API field names (e.g., 'campground.title') to form field names (e.g., 'title')
-                const fieldName = err.field.replace('campground.', '');
-                console.log('Field name after conversion:', fieldName);
-                fieldErrors[fieldName] = err.message;
-              });
-              console.log('Final field errors:', fieldErrors);
-              setValidationErrors(fieldErrors);
-              setError('Please correct the validation errors');
-              return; // Don't throw, just return to avoid the catch block
-            } 
-            // Case 2: error is a string "Validation Error"
-            else if (errorData.error === 'Validation Error' && errorData.message) {
-              console.log('Found validation error message:', errorData.message);
-              // Set a general validation error
-              setError(errorData.message || 'Please correct the validation errors');
-              return; // Don't throw, just return to avoid the catch block
-            }
-
-            // If we get here, handle as a general error
-            throw new Error(errorData.error || errorData.message || 'Failed to save campground');
-          } else {
-            console.log('No field-specific errors found');
-            // Handle general error message
-            throw new Error(errorData.error || errorData.message || 'Failed to save campground');
-          }
-        } else {
-          console.log('Error status is not "error"');
-          // Handle legacy error format
-          throw new Error(errorData.error || 'Failed to save campground');
-        }
-      }
-
-      // Check if the response has content before parsing
-      const contentType = response.headers.get('content-type');
+      // Check if the response is in the new standardized format
+      const responseData = response.data;
       let campgroundData;
 
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        // Check if the response is in the new standardized format
-        campgroundData = data.status && data.data ? data.data.campground : data.campground;
-
-        if (!campgroundData) {
-          throw new Error('Campground data not found in response');
-        }
+      if (responseData.status === 'success' && responseData.data) {
+        // New standardized format
+        campgroundData = responseData.data.campground;
+      } else if (responseData.campground) {
+        // Legacy format
+        campgroundData = responseData.campground;
       } else {
-        // If response is not JSON or empty, just proceed without parsing
-        console.log('Response is not JSON or empty, proceeding without parsing');
-        // Use a default ID to navigate back to the campgrounds list
+        // If we can't find the campground data, use a default ID
+        console.log('Campground data not found in response, using default');
         campgroundData = { _id: 'list' };
       }
+
+      console.log('Campground data:', campgroundData);
 
       // Navigate to the campground detail page
       navigate(`/campgrounds/${campgroundData._id}`);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import StarRating from './StarRating';
+import apiClient from '../utils/api';
 import './ReviewForm.css';
 
 /**
@@ -21,46 +22,33 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated) {
       setError('You must be logged in to submit a review');
       return;
     }
-    
+
     if (rating < 1 || rating > 5) {
       setError('Please select a rating between 1 and 5 stars');
       return;
     }
-    
+
     if (!body.trim()) {
       setError('Please enter a review comment');
       return;
     }
-    
+
     try {
       setSubmitting(true);
       setError(null);
-      
-      const response = await fetch(`/api/campgrounds/${campgroundId}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ rating, body }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit review');
-      }
-      
-      const data = await response.json();
-      
+
+      const response = await apiClient.post(`/campgrounds/${campgroundId}/reviews`, { rating, body });
+      const data = response.data;
+
       // Reset form
       setRating(5);
       setBody('');
-      
+
       // Notify parent component
       if (onReviewSubmitted) {
         onReviewSubmitted(data.review);
@@ -84,13 +72,13 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
   return (
     <div className="review-form">
       <h3 className="review-form-title">Leave a Review</h3>
-      
+
       {error && (
         <div className="review-form-error">
           {error}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit}>
         <div className="review-form-rating">
           <label>Rating:</label>
@@ -100,7 +88,7 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
             onChange={setRating} 
           />
         </div>
-        
+
         <div className="review-form-body">
           <label htmlFor="review-body">Review:</label>
           <textarea
@@ -112,7 +100,7 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
             required
           />
         </div>
-        
+
         <button 
           type="submit" 
           className="review-form-submit"

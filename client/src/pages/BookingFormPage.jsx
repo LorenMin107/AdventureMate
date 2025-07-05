@@ -20,7 +20,7 @@ const BookingFormPage = () => {
   useEffect(() => {
     const fetchCampground = async () => {
       try {
-        const response = await fetch(`/api/campgrounds/${id}`);
+        const response = await fetch(`/api/v1/campgrounds/${id}`);
 
         if (!response.ok) {
           const errorData = await response.json();

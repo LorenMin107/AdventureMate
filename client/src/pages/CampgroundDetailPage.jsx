@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../utils/api';
 import CampgroundMap from '../components/maps/CampgroundMap';
 import ReviewList from '../components/ReviewList';
 import ReviewForm from '../components/ReviewForm';
@@ -75,13 +76,10 @@ const CampgroundDetailPage = () => {
         // No valid cache, make the API call
         console.log(`No valid campground cache for id: ${id}, making API call`);
 
-        const response = await fetch(`/api/campgrounds/${id}`);
+        const response = await apiClient.get(`/campgrounds/${id}`);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch campground');
-        }
-
-        const data = await response.json();
+        // With apiClient, the response is already parsed and in response.data
+        const data = response.data;
 
         // Check if the response is in the new standardized format
         const campgroundData = data.status && data.data ? data.data.campground : data.campground;
@@ -146,13 +144,10 @@ const CampgroundDetailPage = () => {
       // No valid cache, make the API call
       console.log(`No valid campsites cache for campground id: ${campgroundId}, making API call`);
 
-      const response = await fetch(`/api/v1/campgrounds/${campgroundId}/campsites`);
+      const response = await apiClient.get(`/campgrounds/${campgroundId}/campsites`);
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch campsites');
-      }
-
-      const data = await response.json();
+      // With apiClient, the response is already parsed and in response.data
+      const data = response.data;
 
       // Check if the response is in the standardized format
       const campsitesData = data.status && data.data ? data.data.campsites : data.campsites;
@@ -250,28 +245,15 @@ const CampgroundDetailPage = () => {
     }
 
     try {
-      const response = await fetch(`/api/campgrounds/${id}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+      const response = await apiClient.delete(`/campgrounds/${id}`);
 
-      if (!response.ok) {
-        throw new Error('Failed to delete campground');
-      }
-
-      // Try to parse the response, but don't worry if it fails
-      try {
-        const data = await response.json();
-        console.log('Delete response:', data);
-      } catch (parseError) {
-        // Ignore JSON parsing errors, as some DELETE endpoints may not return JSON
-        console.log('No JSON response from delete operation');
-      }
+      // Log the response data
+      console.log('Delete response:', response.data);
 
       navigate('/campgrounds');
     } catch (err) {
       console.error('Error deleting campground:', err);
-      alert('Failed to delete campground. Please try again later.');
+      alert(err.response?.data?.message || 'Failed to delete campground. Please try again later.');
     }
   };
 
@@ -336,13 +318,10 @@ const CampgroundDetailPage = () => {
       // No valid cache, make the API call
       console.log(`No valid reviews cache for campground id: ${campgroundId}, making API call`);
 
-      const response = await fetch(`/api/campgrounds/${campgroundId}/reviews`);
+      const response = await apiClient.get(`/campgrounds/${campgroundId}/reviews`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch reviews: ${response.status}`);
-      }
-
-      const data = await response.json();
+      // With apiClient, the response is already parsed and in response.data
+      const data = response.data;
 
       // Check if the response is in the new standardized format
       const responseData = data.status && data.data ? data.data : data;

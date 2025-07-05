@@ -1,0 +1,580 @@
+/* Owner Bookings Page Styles */
+.owner-bookings {
+  padding: 0;
+  max-width: 100%;
+}
+
+/* Booking Stats Grid */
+.booking-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 4px solid #2c5530;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.pending {
+  border-left-color: #ffc107;
+}
+
+.stat-card.confirmed {
+  border-left-color: #28a745;
+}
+
+.stat-card.completed {
+  border-left-color: #17a2b8;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c5530;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Filters Section */
+.filters-section {
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.filters-section h3 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+/* Table Specific Styles for Bookings */
+.booking-id {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.booking-id strong {
+  color: #2c5530;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.booking-date {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.guest-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.guest-info strong {
+  color: #495057;
+  font-weight: 600;
+}
+
+.guest-email {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.campground-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.campground-info strong {
+  color: #2c5530;
+  font-weight: 600;
+}
+
+.campground-location {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.campsite-name {
+  font-weight: 500;
+  color: #495057;
+}
+
+.guest-count {
+  display: inline-block;
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.booking-total {
+  color: #28a745;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Status Badge Variations */
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-confirmed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-completed {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-default {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+/* Action Buttons for Bookings */
+.action-buttons .owner-btn-sm {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive adjustments for booking table */
+@media (max-width: 1200px) {
+  .owner-table {
+    font-size: 0.8rem;
+  }
+  
+  .owner-table th,
+  .owner-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .booking-id strong,
+  .guest-info strong,
+  .campground-info strong {
+    font-size: 0.85rem;
+  }
+  
+  .booking-date,
+  .guest-email,
+  .campground-location {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .booking-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-icon {
+    font-size: 1.5rem;
+  }
+  
+  .stat-value {
+    font-size: 2rem;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+  }
+  
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Hide less important columns on mobile */
+  .owner-table th:nth-child(4), /* Campsite */
+  .owner-table td:nth-child(4),
+  .owner-table th:nth-child(7), /* Guests */
+  .owner-table td:nth-child(7) {
+    display: none;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .action-buttons .owner-btn-sm {
+    min-width: 2rem;
+    height: 2rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Hide even more columns on very small screens */
+  .owner-table th:nth-child(6), /* Check-out */
+  .owner-table td:nth-child(6) {
+    display: none;
+  }
+  
+  .booking-id,
+  .guest-info,
+  .campground-info {
+    gap: 0.1rem;
+  }
+  
+  .booking-id strong,
+  .guest-info strong,
+  .campground-info strong {
+    font-size: 0.8rem;
+  }
+  
+  .booking-date,
+  .guest-email,
+  .campground-location {
+    font-size: 0.65rem;
+  }
+  
+  .booking-total {
+    font-size: 1rem;
+  }
+}
+
+/* Loading and Error States - Inherit from OwnerCampgroundsPage.css */
+.owner-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.owner-loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2c5530;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.owner-loading p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.owner-error {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.owner-error h4 {
+  color: #dc3545;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.owner-error p {
+  color: #6c757d;
+  margin: 0 0 2rem 0;
+  font-size: 1.1rem;
+}
+
+/* Page Header - Inherit from OwnerCampgroundsPage.css */
+.owner-page-header {
+  background: linear-gradient(135deg, #2c5530 0%, #3d7c47 100%);
+  color: white;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.header-content h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.header-content p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+/* Owner Card - Inherit from OwnerCampgroundsPage.css */
+.owner-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+/* Table Styles - Inherit from OwnerCampgroundsPage.css */
+.table-container {
+  overflow-x: auto;
+}
+
+.owner-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.owner-table th {
+  background: #f8f9fa;
+  padding: 1rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.owner-table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: middle;
+}
+
+.owner-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+/* Button Styles - Inherit from OwnerCampgroundsPage.css */
+.owner-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.owner-btn-sm {
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  min-width: 2.5rem;
+  height: 2.5rem;
+}
+
+.owner-btn-primary {
+  background: #2c5530;
+  color: white;
+}
+
+.owner-btn-primary:hover {
+  background: #1e3a21;
+  transform: translateY(-1px);
+}
+
+.owner-btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.owner-btn-secondary:hover {
+  background: #545b62;
+  transform: translateY(-1px);
+}
+
+.owner-btn-outline {
+  background: transparent;
+  color: #2c5530;
+  border: 2px solid #2c5530;
+}
+
+.owner-btn-outline:hover {
+  background: #2c5530;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.owner-btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.owner-btn-danger:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.owner-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.owner-btn:disabled:hover {
+  transform: none;
+}
+
+/* Select Styles - Inherit from OwnerCampgroundsPage.css */
+.owner-select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  background: white;
+  color: #495057;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.owner-select:focus {
+  outline: none;
+  border-color: #2c5530;
+  box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+}
+
+/* Empty State - Inherit from OwnerCampgroundsPage.css */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.empty-state h3 {
+  margin: 0 0 1rem 0;
+  color: #495057;
+  font-size: 1.5rem;
+}
+
+.empty-state p {
+  margin: 0 0 2rem 0;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Pagination - Inherit from OwnerCampgroundsPage.css */
+.owner-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+.pagination-info {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0 1rem;
+}
+
+/* Action Buttons */
+.actions-cell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}

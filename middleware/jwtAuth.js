@@ -1,6 +1,36 @@
 const { verifyAccessToken, extractTokenFromHeader } = require('../utils/jwtUtils');
 const User = require('../models/user');
 const ExpressError = require('../utils/ExpressError');
+const ApiResponse = require('../utils/ApiResponse');
+
+/**
+ * List of public API endpoints that don't require authentication
+ * This is used to prevent logging "JWT authentication failed" messages for these endpoints
+ */
+const publicApiEndpoints = [
+  // Campgrounds
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/search\/?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/?$/ },
+
+  // Campsites
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/campsites\/?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/campsites\/[^\/]+\/?$/ },
+
+  // Reviews
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/reviews\/?$/ }
+];
+
+/**
+ * Check if the request is for a public API endpoint
+ * @param {Object} req - Express request object
+ * @returns {Boolean} - True if the request is for a public API endpoint
+ */
+const isPublicApiEndpoint = (req) => {
+  return publicApiEndpoints.some(endpoint => 
+    req.method === endpoint.method && endpoint.pattern.test(req.originalUrl)
+  );
+};
 
 /**
  * Middleware to authenticate requests using JWT
@@ -13,26 +43,74 @@ const authenticateJWT = async (req, res, next) => {
     const token = extractTokenFromHeader(req);
 
     if (!token) {
-      return next(); // No token provided, continue without authentication
+      // No token provided, continue without authentication
+      // Check if this is an API endpoint that requires authentication
+      if (req.originalUrl.includes('/api/v1/') && 
+          !req.originalUrl.includes('/auth/') && 
+          !req.originalUrl.includes('/public/') &&
+          !isPublicApiEndpoint(req)) {
+        // Log the missing token for debugging
+        console.log(`JWT authentication failed: No token provided for ${req.method} ${req.originalUrl}`);
+      }
+      return next();
     }
 
     // Verify the token
-    const decoded = verifyAccessToken(token);
+    try {
+      // Use await with verifyAccessToken since it's now an async function
+      const decoded = await verifyAccessToken(token);
 
-    // Find the user
-    const user = await User.findById(decoded.sub);
+      // Find the user
+      const user = await User.findById(decoded.sub);
 
-    if (!user) {
-      return next(); // User not found, continue without authentication
+      if (!user) {
+        console.log(`JWT authentication failed: User not found for token subject ${decoded.sub}`);
+        return next(); // User not found, continue without authentication
+      }
+
+      // Set the user in the request object
+      req.user = user;
+      req.isAuthenticated = () => true; // For compatibility with passport
+      req.isJwtAuthenticated = true; // Flag to indicate JWT authentication
+      req.tokenData = decoded; // Store decoded token data for potential use
+      req.accessToken = token; // Store the token for potential blacklisting on logout
+
+      next();
+    } catch (tokenError) {
+      // Provide detailed error information based on the type of error
+      if (tokenError.name === 'TokenExpiredError') {
+        console.log(`JWT authentication failed: Token expired for ${req.method} ${req.originalUrl}`);
+        // For API endpoints that explicitly require authentication, return 401
+        if (req.originalUrl.includes('/api/v1/') && 
+            req.headers['x-requested-with'] === 'XMLHttpRequest') {
+          return ApiResponse.error(
+            'Token expired', 
+            'Your authentication token has expired. Please refresh the token or log in again.',
+            401
+          ).send(res);
+        }
+      } else if (tokenError.name === 'RevokedTokenError') {
+        console.log(`JWT authentication failed: Token has been revoked for ${req.method} ${req.originalUrl}`);
+        // For API endpoints that explicitly require authentication, return 401
+        if (req.originalUrl.includes('/api/v1/') && 
+            req.headers['x-requested-with'] === 'XMLHttpRequest') {
+          return ApiResponse.error(
+            'Token revoked', 
+            'Your authentication token has been revoked. Please log in again.',
+            401
+          ).send(res);
+        }
+      } else if (tokenError.name === 'JsonWebTokenError') {
+        console.log(`JWT authentication failed: Invalid token for ${req.method} ${req.originalUrl} - ${tokenError.message}`);
+      } else {
+        console.log(`JWT authentication failed: ${tokenError.name} - ${tokenError.message}`);
+      }
+
+      // For regular requests, continue without authentication
+      next();
     }
-
-    // Set the user in the request object
-    req.user = user;
-    req.isAuthenticated = () => true; // For compatibility with passport
-
-    next();
   } catch (error) {
-    // Token verification failed, continue without authentication
+    console.error('Error in JWT authentication middleware:', error);
     next();
   }
 };

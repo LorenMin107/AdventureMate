@@ -22,7 +22,7 @@ const CampgroundEditPage = () => {
     const fetchCampground = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/campgrounds/${id}`);
+        const response = await fetch(`/api/v1/campgrounds/${id}`);
 
         if (!response.ok) {
           const errorData = await response.json();

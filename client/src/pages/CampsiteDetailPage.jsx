@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../utils/api';
 import { Form, DateRangePicker, ErrorMessage, Input } from '../components/forms';
 import { bookingSchema } from '../utils/validationSchemas';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -28,13 +29,10 @@ const CampsiteDetailPage = () => {
     const fetchCampsite = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/v1/campsites/${id}`);
+        const response = await apiClient.get(`/campsites/${id}`);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch campsite');
-        }
-
-        const data = await response.json();
+        // With apiClient, the response is already parsed and in response.data
+        const data = response.data;
 
         // Check if the response is in the standardized format
         const campsiteData = data.status && data.data ? data.data.campsite : data.campsite;
@@ -51,13 +49,10 @@ const CampsiteDetailPage = () => {
             ? campsiteData.campground._id 
             : campsiteData.campground;
 
-          const campgroundResponse = await fetch(`/api/campgrounds/${campgroundId}`);
+          const campgroundResponse = await apiClient.get(`/campgrounds/${campgroundId}`);
 
-          if (!campgroundResponse.ok) {
-            throw new Error('Failed to fetch parent campground');
-          }
-
-          const campgroundData = await campgroundResponse.json();
+          // With apiClient, the response is already parsed and in response.data
+          const campgroundData = campgroundResponse.data;
 
           // Check if the response is in the standardized format
           const campgroundInfo = campgroundData.status && campgroundData.data 
@@ -108,30 +103,15 @@ const CampsiteDetailPage = () => {
     try {
       setApiError(null);
 
-      const response = await fetch(`/api/bookings/${campground._id}/book`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ 
-          startDate: data.startDate, 
-          endDate: data.endDate,
-          campsiteId: id, // Use the current campsite ID
-          guests: parseInt(data.guests || guests, 10)
-        }),
+      const response = await apiClient.post(`/bookings/${campground._id}/book`, { 
+        startDate: data.startDate, 
+        endDate: data.endDate,
+        campsiteId: id, // Use the current campsite ID
+        guests: parseInt(data.guests || guests, 10)
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        // Check if the error response is in the standardized format
-        const errorMessage = errorData.status === 'error' 
-          ? errorData.error || errorData.message 
-          : errorData.error || 'Failed to create booking';
-        throw new Error(errorMessage);
-      }
-
-      const responseData = await response.json();
+      // With apiClient, the response is already parsed and in response.data
+      const responseData = response.data;
 
       // Check if the response is in the standardized format
       const bookingData = responseData.status && responseData.data 
@@ -150,10 +130,11 @@ const CampsiteDetailPage = () => {
       return bookingData; // Return data to trigger success handling
     } catch (err) {
       console.error('Error creating booking:', err);
-      // Set API-specific error
-      setApiError(err.message || 'Failed to create booking. Please try again later.');
+      // Set API-specific error with improved error handling for axios errors
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Failed to create booking. Please try again later.';
+      setApiError(errorMessage);
       // Re-throw to let Form component handle it
-      throw err;
+      throw new Error(errorMessage);
     }
   };
 

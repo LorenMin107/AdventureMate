@@ -7,7 +7,7 @@ import apiClient from '../utils/api';
  */
 const useUsers = () => {
   const queryClient = useQueryClient();
-  
+
   // Get the current user's profile
   const useCurrentUser = (options = {}) => {
     return useQuery({
@@ -19,7 +19,7 @@ const useUsers = () => {
       ...options,
     });
   };
-  
+
   // Get a user by ID (admin only)
   const useUser = (userId, options = {}) => {
     return useQuery({
@@ -32,19 +32,19 @@ const useUsers = () => {
       ...options,
     });
   };
-  
+
   // Get all users (admin only)
   const useAllUsers = (options = {}) => {
     return useQuery({
       queryKey: ['users'],
       queryFn: async () => {
-        const { data } = await apiClient.get('/users');
+        const { data } = await apiClient.get('/admin/users');
         return data;
       },
       ...options,
     });
   };
-  
+
   // Update the current user's profile
   const useUpdateProfile = () => {
     return useMutation({
@@ -58,7 +58,7 @@ const useUsers = () => {
       },
     });
   };
-  
+
   // Update a user (admin only)
   const useUpdateUser = () => {
     return useMutation({
@@ -73,7 +73,7 @@ const useUsers = () => {
       },
     });
   };
-  
+
   // Delete a user (admin only)
   const useDeleteUser = () => {
     return useMutation({
@@ -87,7 +87,7 @@ const useUsers = () => {
       },
     });
   };
-  
+
   // Register a new user
   const useRegister = () => {
     return useMutation({
@@ -97,7 +97,7 @@ const useUsers = () => {
       },
     });
   };
-  
+
   // Login a user
   const useLogin = () => {
     return useMutation({
@@ -111,7 +111,7 @@ const useUsers = () => {
       },
     });
   };
-  
+
   // Logout the current user
   const useLogout = () => {
     return useMutation({
@@ -127,7 +127,7 @@ const useUsers = () => {
       },
     });
   };
-  
+
   return {
     useCurrentUser,
     useUser,

@@ -1,25 +1,64 @@
 const express = require("express");
 const router = express.Router();
-const admin = require("../../controllers/api/admin");
-const catchAsync = require("../../utils/catchAsync");
-const { isLoggedInApi, isAdminApi } = require("../../middleware");
-
-// All routes in this file require both authentication and admin privileges
-router.use(isLoggedInApi, isAdminApi);
 
 // Get dashboard statistics
-router.get("/dashboard", catchAsync(admin.getDashboardStats));
+router.get("/dashboard", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/admin/dashboard instead.",
+    redirectTo: "/api/v1/admin/dashboard"
+  });
+});
 
 // Get all bookings (paginated)
-router.get("/bookings", catchAsync(admin.getBookings));
+router.get("/bookings", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/admin/bookings instead.",
+    redirectTo: "/api/v1/admin/bookings"
+  });
+});
 
 // Cancel a booking
-router.delete("/bookings/:id", catchAsync(admin.cancelBooking));
+router.delete("/bookings/:id", (req, res) => {
+  const bookingId = req.params.id;
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/admin/bookings/:id instead.",
+    redirectTo: `/api/v1/admin/bookings/${bookingId}`
+  });
+});
 
 // Get all users (paginated)
-router.get("/users", catchAsync(admin.getAllUsers));
+router.get("/users", (req, res) => {
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/admin/users instead.",
+    redirectTo: "/api/v1/admin/users"
+  });
+});
 
 // Get user details
-router.get("/users/:id", catchAsync(admin.getUserDetails));
+router.get("/users/:id", (req, res) => {
+  const userId = req.params.id;
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/admin/users/:id instead.",
+    redirectTo: `/api/v1/admin/users/${userId}`
+  });
+});
+
+// Toggle user admin status
+router.patch("/users/:id/toggle-admin", (req, res) => {
+  const userId = req.params.id;
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/admin/users/:id/toggle-admin instead.",
+    redirectTo: `/api/v1/admin/users/${userId}/toggle-admin`
+  });
+});
+
+// Toggle user owner status
+router.patch("/users/:id/toggle-owner", (req, res) => {
+  const userId = req.params.id;
+  return res.status(308).json({ 
+    message: "This endpoint is deprecated. Please use /api/v1/admin/users/:id/toggle-owner instead.",
+    redirectTo: `/api/v1/admin/users/${userId}/toggle-owner`
+  });
+});
 
 module.exports = router;

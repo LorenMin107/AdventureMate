@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../utils/api';
 import './BookingPaymentSuccessPage.css';
 
 /**
@@ -42,21 +43,11 @@ const BookingPaymentSuccessPage = () => {
       console.log(`Processing payment for session_id: ${sessionId} at ${new Date().toISOString()}`);
 
       try {
-        // Call API to process the payment and create the booking
-        const response = await fetch(`/api/bookings/${campgroundId}/success?session_id=${sessionId}`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        // Call API to process the payment and create the booking using apiClient
+        const response = await apiClient.get(`/bookings/${campgroundId}/success?session_id=${sessionId}`);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to process payment');
-        }
-
-        const data = await response.json();
+        // With apiClient, the response data is already parsed
+        const data = response.data;
         setBookingDetails(data.booking);
         console.log(`Payment processing completed successfully at ${new Date().toISOString()}`);
 

@@ -1,0 +1,694 @@
+/* Owner Analytics Page Styles */
+.owner-analytics {
+  padding: 0;
+  max-width: 100%;
+}
+
+/* Analytics Sections */
+.analytics-section {
+  margin-bottom: 3rem;
+}
+
+.analytics-section h2 {
+  margin: 0 0 1.5rem 0;
+  color: #2c5530;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Analytics Stats Grid */
+.analytics-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.analytics-stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 5px solid #2c5530;
+}
+
+.analytics-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.analytics-stat-card.revenue {
+  border-left-color: #28a745;
+}
+
+.analytics-stat-card.bookings {
+  border-left-color: #007bff;
+}
+
+.analytics-stat-card.occupancy {
+  border-left-color: #ffc107;
+}
+
+.analytics-stat-card.rating {
+  border-left-color: #ff9800;
+}
+
+.analytics-stat-card .stat-icon {
+  font-size: 3rem;
+  opacity: 0.8;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-content .stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c5530;
+  margin-bottom: 0.25rem;
+  line-height: 1;
+}
+
+.stat-content .stat-label {
+  font-size: 1rem;
+  color: #6c757d;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.stat-change {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.stat-change .positive {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.stat-change .negative {
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.stat-change .neutral {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.change-label {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+/* Analytics Grid */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+/* Analytics Cards */
+.analytics-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.analytics-card h3 {
+  margin: 0;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  color: #2c5530;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Revenue Sources */
+.revenue-sources {
+  padding: 1.5rem;
+}
+
+.revenue-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.revenue-item:last-child {
+  margin-bottom: 0;
+}
+
+.revenue-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.campground-name {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+
+.revenue-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.revenue-bar {
+  flex: 1;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.revenue-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745, #20c997);
+  transition: width 0.3s ease;
+}
+
+.revenue-percentage {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6c757d;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* Trends Chart */
+.trends-chart {
+  padding: 1.5rem;
+  display: flex;
+  align-items: end;
+  gap: 1rem;
+  height: 200px;
+}
+
+.trend-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trend-bar {
+  width: 100%;
+  height: 120px;
+  background: #f8f9fa;
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: end;
+  overflow: hidden;
+}
+
+.trend-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #007bff, #0056b3);
+  transition: height 0.3s ease;
+  border-radius: 4px 4px 0 0;
+}
+
+.trend-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.trend-value {
+  font-size: 0.75rem;
+  color: #495057;
+  font-weight: 600;
+}
+
+/* Booking Status Grid */
+.booking-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.status-item {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.status-item:hover {
+  transform: translateY(-2px);
+}
+
+.status-item.confirmed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-item.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-item.cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-item.completed {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-count {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.status-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Metrics List */
+.metrics-list {
+  padding: 1.5rem;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.metric-item:last-child {
+  border-bottom: none;
+}
+
+.metric-label {
+  color: #495057;
+  font-weight: 500;
+}
+
+.metric-value {
+  color: #2c5530;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Performers List */
+.performers-list {
+  padding: 1.5rem;
+}
+
+.performer-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.performer-item:last-child {
+  border-bottom: none;
+}
+
+.performer-rank {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #2c5530;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.performer-info {
+  flex: 1;
+}
+
+.performer-name {
+  font-weight: 600;
+  color: #2c5530;
+  margin-bottom: 0.25rem;
+}
+
+.performer-stats {
+  font-size: 0.85rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.performer-badge {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Reviews List */
+.reviews-list {
+  padding: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.review-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.review-item:last-child {
+  border-bottom: none;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.review-rating {
+  color: #ff9800;
+  font-size: 0.9rem;
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.review-content {
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.review-campground {
+  font-size: 0.8rem;
+  color: #2c5530;
+  font-weight: 500;
+}
+
+/* Export Actions */
+.export-actions {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.export-actions h3 {
+  margin: 0 0 1.5rem 0;
+  color: #2c5530;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.export-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Inherit common styles */
+.owner-page-header {
+  background: linear-gradient(135deg, #2c5530 0%, #3d7c47 100%);
+  color: white;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.header-content h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.header-content p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.owner-select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  background: white;
+  color: #495057;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.owner-select:focus {
+  outline: none;
+  border-color: #2c5530;
+  box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+}
+
+.owner-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.owner-btn-primary {
+  background: #2c5530;
+  color: white;
+}
+
+.owner-btn-primary:hover {
+  background: #1e3a21;
+  transform: translateY(-1px);
+}
+
+.owner-btn-outline {
+  background: transparent;
+  color: #2c5530;
+  border: 2px solid #2c5530;
+}
+
+.owner-btn-outline:hover {
+  background: #2c5530;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.owner-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.owner-loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2c5530;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.owner-loading p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.owner-error {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.owner-error h4 {
+  color: #dc3545;
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+}
+
+.owner-error p {
+  color: #6c757d;
+  margin: 0 0 2rem 0;
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-stat-card {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+  
+  .analytics-stat-card .stat-icon {
+    font-size: 2.5rem;
+  }
+  
+  .stat-content .stat-value {
+    font-size: 2rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .header-actions {
+    justify-content: space-between;
+  }
+  
+  .booking-status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .trends-chart {
+    height: 150px;
+  }
+  
+  .trend-bar {
+    height: 80px;
+  }
+  
+  .export-buttons {
+    flex-direction: column;
+  }
+  
+  .performer-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .performer-rank {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .owner-page-header {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .header-content p {
+    font-size: 1rem;
+  }
+  
+  .analytics-section {
+    margin-bottom: 2rem;
+  }
+  
+  .analytics-section h2 {
+    font-size: 1.25rem;
+  }
+  
+  .analytics-card h3 {
+    font-size: 1.1rem;
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
+  
+  .revenue-sources,
+  .metrics-list,
+  .performers-list,
+  .reviews-list {
+    padding: 1rem;
+  }
+  
+  .trends-chart {
+    padding: 1rem;
+    height: 120px;
+  }
+  
+  .trend-bar {
+    height: 60px;
+  }
+  
+  .export-actions {
+    padding: 1.5rem;
+  }
+}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../utils/api';
 import './BookingDetail.css';
 
 /**
@@ -37,15 +38,8 @@ const BookingDetail = ({ initialBooking = null }) => {
     const fetchBooking = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/bookings/${id}`, {
-          credentials: 'include'
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch booking: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await apiClient.get(`/bookings/${id}`);
+        const data = response.data;
         setBooking(data.booking);
         setError(null);
       } catch (err) {

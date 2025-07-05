@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import apiClient from '../utils/api';
 import './BookingList.css';
 
 /**
@@ -34,20 +35,17 @@ const BookingList = ({ initialBookings = [] }) => {
     const fetchBookings = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/bookings', {
-          credentials: 'include'
-        });
+        const response = await apiClient.get('/bookings');
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch bookings: ${response.status}`);
-        }
-
-        const data = await response.json();
+        // With apiClient, the response is already parsed and in response.data
+        const data = response.data;
         setBookings(data.bookings || []);
         setError(null);
       } catch (err) {
         console.error('Error fetching bookings:', err);
-        setError('Failed to load bookings. Please try again later.');
+        // Improved error handling for axios errors
+        const errorMessage = err.response?.data?.message || err.message || 'Failed to load bookings. Please try again later.';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

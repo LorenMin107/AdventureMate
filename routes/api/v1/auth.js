@@ -7,7 +7,9 @@ const { body } = require('express-validator');
 const { 
   authLimiter, 
   emailVerificationLimiter, 
-  resendVerificationLimiter 
+  resendVerificationLimiter,
+  passwordResetLimiter,
+  authStatusLimiter
 } = require('../../../middleware/rateLimiter');
 
 // Validation rules
@@ -24,6 +26,29 @@ const logoutValidation = [
   body('token').notEmpty().withMessage('Refresh token is required')
 ];
 
+const forgotPasswordValidation = [
+  body('email').isEmail().withMessage('Valid email is required')
+];
+
+const resetPasswordValidation = [
+  body('token').notEmpty().withMessage('Reset token is required'),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
+];
+
+const registerValidation = [
+  body('username').notEmpty().withMessage('Username is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
+];
+
+const socialAuthValidation = [
+  body('code').notEmpty().withMessage('Authorization code is required'),
+  body('redirectUri').notEmpty().withMessage('Redirect URI is required')
+];
+
+// Register route - creates a new user and sends verification email
+router.post('/register', authLimiter, validate(registerValidation), authController.register);
+
 // Login route - returns JWT access and refresh tokens
 router.post('/login', authLimiter, validate(loginValidation), authController.login);
 
@@ -39,5 +64,16 @@ router.post('/logout-all', authenticateJWT, requireAuth, authController.logoutAl
 // Email verification routes
 router.get('/verify-email', emailVerificationLimiter, authController.verifyEmail);
 router.post('/resend-verification-email', resendVerificationLimiter, authenticateJWT, requireAuth, authController.resendVerificationEmail);
+
+// Password reset routes
+router.post('/forgot-password', passwordResetLimiter, validate(forgotPasswordValidation), authController.requestPasswordReset);
+router.post('/reset-password', passwordResetLimiter, validate(resetPasswordValidation), authController.resetPassword);
+
+// Check authentication status
+router.get('/status', authStatusLimiter, authenticateJWT, authController.checkAuthStatus);
+
+// Social login routes
+router.post('/google', authLimiter, validate(socialAuthValidation), authController.googleAuth);
+router.post('/facebook', authLimiter, validate(socialAuthValidation), authController.facebookAuth);
 
 module.exports = router;

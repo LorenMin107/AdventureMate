@@ -1,61 +1,34 @@
-const { campgroundSchema, reviewSchema } = require("./schemas.js");
-const ExpressError = require("./utils/ExpressError");
-const Campground = require("./models/campground");
-const Review = require("./models/review");
-const User = require("./models/user");
-const Booking = require("./models/booking");
-const config = require("./config");
-
-module.exports.isLoggedIn = (req, res, next) => {
-  if (!req.isAuthenticated()) {
-    req.session.returnTo = req.originalUrl; // store the returnTo path in the session
-    req.flash("error", "You must be signed in to create a new campground.");
-    return res.redirect("/login");
-  }
-  next();
-};
+const { campgroundSchema, reviewSchema } = require('./schemas.js');
+const ExpressError = require('./utils/ExpressError');
+const Campground = require('./models/campground');
+const Review = require('./models/review');
+const User = require('./models/user');
+const Booking = require('./models/booking');
+const config = require('./config');
 
 // API version of isLoggedIn middleware that returns JSON instead of redirecting
+// Uses JWT-based authentication
 module.exports.isLoggedInApi = (req, res, next) => {
   console.log('isLoggedInApi middleware called');
-  console.log('req.isAuthenticated():', req.isAuthenticated());
   console.log('req.user:', req.user ? req.user._id : 'No user');
 
-  if (!req.isAuthenticated()) {
+  if (!req.user) {
     console.log('User not authenticated, returning 401');
-    return res.status(401).json({ error: "You must be logged in to access this resource" });
+    return res.status(401).json({ error: 'You must be logged in to access this resource' });
   }
 
   console.log('User authenticated, continuing to next middleware');
   next();
 };
 
-// storeReturnTo middleware to store the returnTo path in the session
-module.exports.storeReturnTo = (req, res, next) => {
-  if (req.session.returnTo) {
-    res.locals.returnTo = req.session.returnTo;
-  }
-  next();
-};
-
 module.exports.validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body);
   if (error) {
-    const msg = error.details.map((el) => el.message).join(",");
+    const msg = error.details.map((el) => el.message).join(',');
     throw new ExpressError(msg, 400);
   } else {
     next();
   }
-};
-
-module.exports.isAuthor = async (req, res, next) => {
-  const { id } = req.params;
-  const campground = await Campground.findById(id);
-  if (!campground || (!campground.author.equals(req.user._id) && !req.user.isAdmin)) {
-    req.flash("error", "You do not have permission to do that!");
-    return res.redirect(`/campgrounds/${id}`);
-  }
-  next();
 };
 
 // API version of isAuthor middleware that returns JSON instead of redirecting
@@ -63,20 +36,10 @@ module.exports.isAuthorApi = async (req, res, next) => {
   const { id } = req.params;
   const campground = await Campground.findById(id);
   if (!campground) {
-    return res.status(404).json({ error: "Campground not found" });
+    return res.status(404).json({ error: 'Campground not found' });
   }
   if (!campground.author.equals(req.user._id) && !req.user.isAdmin) {
-    return res.status(403).json({ error: "You do not have permission to modify this campground" });
-  }
-  next();
-};
-
-module.exports.isReviewAuthor = async (req, res, next) => {
-  const { id, reviewId } = req.params;
-  const review = await Review.findById(reviewId);
-  if (!review || (!review.author.equals(req.user._id) && !req.user.isAdmin)) {
-    req.flash("error", "You do not have permission to do that!");
-    return res.redirect(`/campgrounds/${id}`);
+    return res.status(403).json({ error: 'You do not have permission to modify this campground' });
   }
   next();
 };
@@ -86,47 +49,50 @@ module.exports.isReviewAuthorApi = async (req, res, next) => {
   const { id, reviewId } = req.params;
   const review = await Review.findById(reviewId);
   if (!review) {
-    return res.status(404).json({ error: "Review not found" });
+    return res.status(404).json({ error: 'Review not found' });
   }
   if (!review.author.equals(req.user._id) && !req.user.isAdmin) {
-    return res.status(403).json({ error: "You do not have permission to modify this review" });
+    return res.status(403).json({ error: 'You do not have permission to modify this review' });
   }
   next();
 };
 
 module.exports.validateBookingDates = async (req, res, next) => {
   const { startDate, endDate, campsiteId } = req.body;
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
   if (startDate < tomorrow || endDate < tomorrow) {
-    req.flash("error", "Booking dates must be in the future.");
+    req.flash('error', 'Booking dates must be in the future.');
     return res.redirect(`/campgrounds/${req.params.id}`);
   }
 
   if (new Date(endDate) < new Date(startDate)) {
-    req.flash("error", "End date cannot be before start date.");
+    req.flash('error', 'End date cannot be before start date.');
     return res.redirect(`/campgrounds/${req.params.id}`);
   }
 
   // If a specific campsite is selected, check if it's available for the requested dates
   if (campsiteId) {
     try {
-      const Campsite = require("./models/campsite");
+      const Campsite = require('./models/campsite');
       const campsite = await Campsite.findById(campsiteId);
 
       if (!campsite) {
-        req.flash("error", "Campsite not found.");
+        req.flash('error', 'Campsite not found.');
         return res.redirect(`/campgrounds/${req.params.id}`);
       }
 
       // Check if the campsite is available for the requested dates
       if (!campsite.isAvailableForDates(startDate, endDate)) {
-        req.flash("error", "The selected campsite is already booked for these dates. Please choose different dates or a different campsite.");
+        req.flash(
+          'error',
+          'The selected campsite is already booked for these dates. Please choose different dates or a different campsite.'
+        );
         return res.redirect(`/campgrounds/${req.params.id}`);
       }
     } catch (err) {
-      console.error("Error checking campsite availability:", err);
-      req.flash("error", "Failed to check campsite availability.");
+      console.error('Error checking campsite availability:', err);
+      req.flash('error', 'Failed to check campsite availability.');
       return res.redirect(`/campgrounds/${req.params.id}`);
     }
   }
@@ -137,36 +103,37 @@ module.exports.validateBookingDates = async (req, res, next) => {
 // API version of validateBookingDates middleware that returns JSON instead of redirecting
 module.exports.validateBookingDatesApi = async (req, res, next) => {
   const { startDate, endDate, campsiteId } = req.body;
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
   if (startDate < tomorrow || endDate < tomorrow) {
-    return res.status(400).json({ error: "Booking dates must be in the future" });
+    return res.status(400).json({ error: 'Booking dates must be in the future' });
   }
 
   if (new Date(endDate) < new Date(startDate)) {
-    return res.status(400).json({ error: "End date cannot be before start date" });
+    return res.status(400).json({ error: 'End date cannot be before start date' });
   }
 
   // If a specific campsite is selected, check if it's available for the requested dates
   if (campsiteId) {
     try {
-      const Campsite = require("./models/campsite");
+      const Campsite = require('./models/campsite');
       const campsite = await Campsite.findById(campsiteId);
 
       if (!campsite) {
-        return res.status(404).json({ error: "Campsite not found" });
+        return res.status(404).json({ error: 'Campsite not found' });
       }
 
       // Check if the campsite is available for the requested dates
       if (!campsite.isAvailableForDates(startDate, endDate)) {
-        return res.status(400).json({ 
-          error: "Campsite is not available for the selected dates",
-          message: "The selected campsite is already booked for these dates. Please choose different dates or a different campsite."
+        return res.status(400).json({
+          error: 'Campsite is not available for the selected dates',
+          message:
+            'The selected campsite is already booked for these dates. Please choose different dates or a different campsite.',
         });
       }
     } catch (err) {
-      console.error("Error checking campsite availability:", err);
-      return res.status(500).json({ error: "Failed to check campsite availability" });
+      console.error('Error checking campsite availability:', err);
+      return res.status(500).json({ error: 'Failed to check campsite availability' });
     }
   }
 
@@ -176,8 +143,8 @@ module.exports.validateBookingDatesApi = async (req, res, next) => {
 module.exports.validateReview = (req, res, next) => {
   const { error } = reviewSchema.validate(req.body);
   if (error) {
-    const msg = error.details.map((el) => el.message).join(",");
-    req.flash("error", msg);
+    const msg = error.details.map((el) => el.message).join(',');
+    req.flash('error', msg);
     return res.redirect(`/campgrounds/${req.params.id}`);
   } else {
     next();
@@ -191,43 +158,41 @@ module.exports.validateReviewApi = (req, res, next) => {
   const reviewData = {
     review: {
       body: req.body.body,
-      rating: req.body.rating
-    }
+      rating: req.body.rating,
+    },
   };
 
   const { error } = reviewSchema.validate(reviewData);
   if (error) {
-    const msg = error.details.map((el) => el.message).join(",");
+    const msg = error.details.map((el) => el.message).join(',');
     return res.status(400).json({ error: msg });
   } else {
     next();
   }
 };
 
-module.exports.isAdmin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    next();
-  } else {
-    req.flash("error", "You do not have permission to perform this action.");
-    return res.redirect("/campgrounds");
-  }
-};
-
 // API version of isAdmin middleware that returns JSON instead of redirecting
+// Uses JWT-based authentication
 module.exports.isAdminApi = (req, res, next) => {
+  console.log('isAdminApi middleware called');
+  console.log('req.user:', req.user ? `${req.user._id} (isAdmin: ${req.user.isAdmin})` : 'No user');
+
   if (req.user && req.user.isAdmin) {
+    console.log('User is admin, continuing to next middleware');
     next();
   } else {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
+    console.log('User is not admin, returning 403');
+    return res.status(403).json({ error: 'You do not have permission to perform this action' });
   }
 };
 
 module.exports.addBookingCountToUser = async (req, res, next) => {
-  if (req.isAuthenticated()) {
+  // Check if user is authenticated via JWT
+  if (req.user) {
     // Count only active (non-cancelled) bookings
     const activeBookingsCount = await Booking.countDocuments({
       user: req.user._id,
-      status: { $ne: 'cancelled' }
+      status: { $ne: 'cancelled' },
     });
     req.user.bookingsCount = activeBookingsCount;
   }
@@ -242,24 +207,25 @@ module.exports.isOwnerApi = async (req, res, next) => {
   const campId = campgroundId || id;
 
   if (!campId) {
-    return res.status(400).json({ error: "Campground ID is required" });
+    return res.status(400).json({ error: 'Campground ID is required' });
   }
 
   const campground = await Campground.findById(campId);
 
   if (!campground) {
-    return res.status(404).json({ error: "Campground not found" });
+    return res.status(404).json({ error: 'Campground not found' });
   }
 
   // Check if user is the owner or an admin
   // First check the owner field, then fall back to author for backward compatibility
-  const isOwner = (campground.owner && campground.owner.equals(req.user._id)) || 
-                 (campground.author && campground.author.equals(req.user._id));
+  const isOwner =
+    (campground.owner && campground.owner.equals(req.user._id)) ||
+    (campground.author && campground.author.equals(req.user._id));
 
   if (!isOwner && !req.user.isAdmin) {
-    return res.status(403).json({ 
-      error: "You do not have permission to modify this campground",
-      message: "Only the campground owner or an admin can perform this action"
+    return res.status(403).json({
+      error: 'You do not have permission to modify this campground',
+      message: 'Only the campground owner or an admin can perform this action',
     });
   }
 
@@ -273,11 +239,11 @@ module.exports.addConfigToTemplates = (req, res, next) => {
   // Add only the configuration values that templates need
   res.locals.config = {
     mapbox: {
-      token: config.mapbox.token
+      token: config.mapbox.token,
     },
     environment: config.server.env,
     isDevelopment: config.server.isDevelopment,
-    isProduction: config.server.isProduction
+    isProduction: config.server.isProduction,
   };
   next();
 };
