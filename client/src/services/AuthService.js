@@ -150,17 +150,21 @@ class AuthService {
    * @returns {Promise<Object>} The user object if login is successful
    */
   async login(username, password, rememberMe = false) {
+    console.log('🔍 AuthService: login method called');
     try {
+      console.log('🔍 AuthService: Making API call to /auth/login');
       const response = await apiClient.post('/auth/login', {
         username,
         password,
         rememberMe,
       });
+      console.log('🔍 AuthService: API call successful:', response.data);
 
       const data = response.data;
 
       // Check if 2FA is required
       if (data.requiresTwoFactor) {
+        console.log('🔍 AuthService: 2FA required');
         // Store temporary tokens if provided
         if (data.tempAccessToken) {
           localStorage.setItem('tempAccessToken', data.tempAccessToken);
@@ -173,6 +177,7 @@ class AuthService {
         return { requiresTwoFactor: true, userId: data.user._id };
       }
 
+      console.log('🔍 AuthService: Login successful, storing tokens');
       // Store JWT tokens
       if (data.accessToken) {
         this.accessToken = data.accessToken;
@@ -189,7 +194,21 @@ class AuthService {
 
       return data.user;
     } catch (err) {
+      console.log('🔍 AuthService: Login error caught:', err);
       logError('Error logging in', err);
+
+      // Ensure the error has the proper structure for error handling
+      if (err.response && err.response.data) {
+        console.log('🔍 AuthService: Creating structured error');
+        // Create a new error with the API response data
+        const apiError = new Error(
+          err.response.data.message || err.response.data.error || 'Login failed'
+        );
+        apiError.response = err.response;
+        apiError.status = err.response.status;
+        throw apiError;
+      }
+
       throw err;
     }
   }
@@ -299,6 +318,18 @@ class AuthService {
       return data.user;
     } catch (err) {
       logError('Error registering user', err);
+
+      // Ensure the error has the proper structure for error handling
+      if (err.response && err.response.data) {
+        // Create a new error with the API response data
+        const apiError = new Error(
+          err.response.data.message || err.response.data.error || 'Registration failed'
+        );
+        apiError.response = err.response;
+        apiError.status = err.response.status;
+        throw apiError;
+      }
+
       throw err;
     }
   }

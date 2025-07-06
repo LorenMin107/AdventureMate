@@ -23,9 +23,19 @@ const RegisterForm = () => {
     message: 'Password is too weak',
     color: '#dc3545',
   });
-  const { register, error, loading } = useAuth();
+  const { register, error, loading, clearLoginAttempt } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
   const navigate = useNavigate();
+
+  // Clear login attempt flag when component unmounts
+  useEffect(() => {
+    return () => {
+      // Clear the login attempt flag when leaving the register form
+      if (clearLoginAttempt) {
+        clearLoginAttempt();
+      }
+    };
+  }, [clearLoginAttempt]);
 
   // Check password strength
   useEffect(() => {
@@ -155,6 +165,13 @@ const RegisterForm = () => {
       const { confirmPassword, ...userData } = formData;
       const user = await register(userData);
 
+      // Check if registration failed (returned null)
+      if (user === null) {
+        // Error is already set in AuthContext, just add to flash messages
+        addErrorMessage(error || 'Registration failed. Please try again.');
+        return;
+      }
+
       // Check if email is verified
       if (user && !user.isEmailVerified) {
         // Redirect to email verification page with a message
@@ -168,9 +185,24 @@ const RegisterForm = () => {
         navigate('/');
       }
     } catch (err) {
-      // Error is already handled by the AuthContext
+      // Extract error message from the error object
+      let errorMessage = 'Registration failed. Please try again.';
+
+      if (err.response && err.response.data) {
+        // API error response
+        errorMessage = err.response.data.message || err.response.data.error || errorMessage;
+      } else if (err.message) {
+        // JavaScript error
+        errorMessage = err.message;
+      }
+
+      // Set form error for immediate display
+      setFormError(errorMessage);
+
+      // Also add to flash messages for consistency
+      addErrorMessage(errorMessage);
+
       logError('Registration error', err);
-      addErrorMessage(err.message || 'Registration failed. Please try again.');
     }
   };
 

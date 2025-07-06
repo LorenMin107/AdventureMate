@@ -69,7 +69,16 @@ api.interceptors.response.use(
     }
 
     // Handle token expiration and refresh
-    if (response && response.status === 401 && !originalRequest._retry) {
+    // Don't handle 401 errors for authentication endpoints (login, register, etc.)
+    // These are expected authentication failures, not token expiration issues
+    const isAuthEndpoint =
+      originalRequest.url &&
+      (originalRequest.url.includes('/auth/login') ||
+        originalRequest.url.includes('/auth/register') ||
+        originalRequest.url.includes('/auth/refresh-token') ||
+        originalRequest.url.includes('/2fa/verify-login'));
+
+    if (response && response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
 
       try {

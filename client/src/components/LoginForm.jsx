@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
@@ -16,41 +16,84 @@ const LoginForm = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [formError, setFormError] = useState('');
   const [userId, setUserId] = useState(null);
-  const { login, error, loading, requiresTwoFactor } = useAuth();
+  const { login, error, loading, requiresTwoFactor, clearLoginAttempt } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
   const navigate = useNavigate();
 
+  // Clear login attempt flag when component unmounts
+  useEffect(() => {
+    return () => {
+      // Clear the login attempt flag when leaving the login form
+      if (clearLoginAttempt) {
+        clearLoginAttempt();
+      }
+    };
+  }, [clearLoginAttempt]);
+
   const handleSubmit = async (e) => {
+    console.log('🔍 LoginForm: handleSubmit called');
     e.preventDefault();
+    console.log('🔍 LoginForm: preventDefault called');
     setFormError('');
 
     // Validate form
     if (!username.trim()) {
+      console.log('🔍 LoginForm: Username validation failed');
       setFormError('Username is required');
       return;
     }
 
     if (!password) {
+      console.log('🔍 LoginForm: Password validation failed');
       setFormError('Password is required');
       return;
     }
 
+    console.log('🔍 LoginForm: Starting login attempt');
     try {
       const result = await login(username, password, rememberMe);
+      console.log('🔍 LoginForm: Login result:', result);
+
+      // Check if login failed (returned null)
+      if (result === null) {
+        console.log('🔍 LoginForm: Login failed, showing error message');
+        // Error is already set in AuthContext, just add to flash messages
+        addErrorMessage(error || 'Login failed. Please try again.');
+        return;
+      }
 
       // Check if 2FA is required
       if (result && result.requiresTwoFactor) {
+        console.log('🔍 LoginForm: 2FA required');
         setUserId(result.userId);
         // The requiresTwoFactor state in AuthContext will trigger the 2FA verification UI
         return;
       }
 
+      console.log('🔍 LoginForm: Login successful, navigating to home');
       addSuccessMessage('Login successful! Welcome back.');
       navigate('/'); // Redirect to home page after successful login
     } catch (err) {
-      // Error is already handled by the AuthContext
+      console.log('🔍 LoginForm: Login error caught:', err);
+      // Extract error message from the error object
+      let errorMessage = 'Login failed. Please try again.';
+
+      if (err.response && err.response.data) {
+        // API error response
+        errorMessage = err.response.data.message || err.response.data.error || errorMessage;
+      } else if (err.message) {
+        // JavaScript error
+        errorMessage = err.message;
+      }
+
+      console.log('🔍 LoginForm: Setting error message:', errorMessage);
+      // Set form error for immediate display
+      setFormError(errorMessage);
+
+      // Also add to flash messages for consistency
+      addErrorMessage(errorMessage);
+
       logError('Login error', err);
-      addErrorMessage(err.message || 'Login failed. Please try again.');
     }
   };
 

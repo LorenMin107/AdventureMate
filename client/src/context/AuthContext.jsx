@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
+  const [isLoginAttempt, setIsLoginAttempt] = useState(false);
 
   // Check if user is logged in on initial load
   useEffect(() => {
@@ -66,10 +67,17 @@ export const AuthProvider = ({ children }) => {
           setRequiresTwoFactor(false);
         }
 
-        setError(null);
+        // Only clear error if we're not in the middle of a login attempt
+        // This prevents clearing login errors while the user is still on the login form
+        if (!isLoginAttempt) {
+          setError(null);
+        }
       } catch (err) {
         logError('Error checking auth status', err);
-        setError('Failed to authenticate user');
+        // Only set auth error if there's no existing error (don't override login errors)
+        if (!error && !isLoginAttempt) {
+          setError('Failed to authenticate user');
+        }
       } finally {
         setLoading(false);
       }
@@ -120,26 +128,48 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (username, password, rememberMe = false) => {
+    console.log('🔍 AuthContext: login function called');
     setLoading(true);
     setError(null);
     setRequiresTwoFactor(false);
+    setIsLoginAttempt(true);
 
     try {
+      console.log('🔍 AuthContext: Calling authService.login');
       const result = await authService.login(username, password, rememberMe);
+      console.log('🔍 AuthContext: authService.login result:', result);
 
       // Check if 2FA is required
       if (result && result.requiresTwoFactor) {
+        console.log('🔍 AuthContext: 2FA required');
         setRequiresTwoFactor(true);
         return { requiresTwoFactor: true, userId: result.userId };
       }
 
+      console.log('🔍 AuthContext: Login successful, setting currentUser');
       setCurrentUser(result);
       return result;
     } catch (err) {
-      setError(err.message || 'Failed to login');
-      throw err;
+      console.log('🔍 AuthContext: Login error caught:', err);
+      // Extract error message from the error object
+      let errorMessage = 'Failed to login';
+
+      if (err.response && err.response.data) {
+        // API error response
+        errorMessage = err.response.data.message || err.response.data.error || errorMessage;
+      } else if (err.message) {
+        // JavaScript error
+        errorMessage = err.message;
+      }
+
+      console.log('🔍 AuthContext: Setting error message:', errorMessage);
+      setError(errorMessage);
+      // Don't throw the error - let the component handle it
+      return null;
     } finally {
+      console.log('🔍 AuthContext: Login function finally block');
       setLoading(false);
+      setIsLoginAttempt(false);
     }
   };
 
@@ -198,8 +228,20 @@ export const AuthProvider = ({ children }) => {
 
       return user;
     } catch (err) {
-      setError(err.message || 'Failed to register');
-      throw err;
+      // Extract error message from the error object
+      let errorMessage = 'Failed to register';
+
+      if (err.response && err.response.data) {
+        // API error response
+        errorMessage = err.response.data.message || err.response.data.error || errorMessage;
+      } else if (err.message) {
+        // JavaScript error
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
+      // Don't throw the error - let the component handle it
+      return null;
     } finally {
       setLoading(false);
     }
@@ -283,6 +325,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Clear login attempt flag
+  const clearLoginAttempt = () => {
+    setIsLoginAttempt(false);
+  };
+
   // Context value
   const value = {
     currentUser,
@@ -299,6 +346,7 @@ export const AuthProvider = ({ children }) => {
     facebookLogin,
     requiresTwoFactor,
     isAuthenticated: !!currentUser && currentUser?.isEmailVerified && !requiresTwoFactor,
+    clearLoginAttempt,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
