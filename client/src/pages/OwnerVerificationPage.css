@@ -169,8 +169,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive styles */
@@ -193,4 +197,89 @@
     width: 100%;
     max-width: 300px;
   }
+}
+
+/* Dark Theme Support */
+.owner-verification-page.dark-theme {
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.owner-verification-page.dark-theme .verification-container {
+  background: var(--color-card-bg);
+  border-color: var(--color-border);
+  box-shadow: 0 4px 20px var(--color-card-shadow);
+}
+
+.owner-verification-page.dark-theme .verification-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  border-color: var(--color-border);
+}
+
+.owner-verification-page.dark-theme .verification-header h1 {
+  color: white;
+}
+
+.owner-verification-page.dark-theme .verification-header p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.owner-verification-page.dark-theme .verification-status {
+  background: var(--color-card-bg);
+}
+
+.owner-verification-page.dark-theme .verification-status h2 {
+  color: var(--color-text);
+}
+
+.owner-verification-page.dark-theme .verification-status p {
+  color: var(--color-text-muted);
+}
+
+.owner-verification-page.dark-theme .next-steps {
+  background: var(--color-card-bg-light);
+  border-color: var(--color-border);
+}
+
+.owner-verification-page.dark-theme .next-steps h3 {
+  color: var(--color-text);
+}
+
+.owner-verification-page.dark-theme .next-steps li {
+  color: var(--color-text-muted);
+}
+
+.owner-verification-page.dark-theme .rejection-reason {
+  background: rgba(220, 53, 69, 0.1);
+  border-color: rgba(220, 53, 69, 0.2);
+}
+
+.owner-verification-page.dark-theme .rejection-reason h3 {
+  color: var(--color-error);
+}
+
+.owner-verification-page.dark-theme .rejection-reason p {
+  color: var(--color-text-muted);
+}
+
+.owner-verification-page.dark-theme .verification-footer {
+  background: var(--color-card-bg-light);
+  border-color: var(--color-border);
+}
+
+.owner-verification-page.dark-theme .verification-footer p {
+  color: var(--color-text-muted);
+}
+
+.owner-verification-page.dark-theme .verification-footer a {
+  color: var(--color-primary);
+}
+
+.owner-verification-page.dark-theme .verification-footer a:hover {
+  color: var(--color-primary-dark);
+}
+
+.owner-verification-page.dark-theme .spinner {
+  border-color: var(--color-border);
+  border-top-color: var(--color-primary);
 }

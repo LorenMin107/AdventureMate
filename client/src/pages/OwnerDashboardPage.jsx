@@ -1,22 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
 import './OwnerDashboardPage.css';
 
 /**
  * Owner Dashboard Page
- * Main dashboard for campground owners showing key metrics and recent activity
+ * Modern dashboard for campground owners showing key metrics and recent activity
  */
 const OwnerDashboardPage = () => {
   const { ownerProfile } = useOutletContext();
   const { showMessage } = useFlashMessage();
+  const { theme } = useTheme();
   const { useOwnerDashboard } = useOwners();
-  
+
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update current time every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Fetch dashboard data
-  const { data: dashboardData, isLoading, error } = useOwnerDashboard({
+  const {
+    data: dashboardData,
+    isLoading,
+    error,
+  } = useOwnerDashboard({
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
   });
 
@@ -24,7 +39,7 @@ const OwnerDashboardPage = () => {
     return (
       <div className="owner-loading">
         <div className="owner-loading-spinner"></div>
-        <p>Loading dashboard...</p>
+        <p>Loading your dashboard...</p>
       </div>
     );
   }
@@ -34,10 +49,7 @@ const OwnerDashboardPage = () => {
       <div className="owner-error">
         <h4>Error Loading Dashboard</h4>
         <p>There was an error loading your dashboard data. Please try again later.</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="owner-btn owner-btn-primary"
-        >
+        <button onClick={() => window.location.reload()} className="owner-btn owner-btn-primary">
           Retry
         </button>
       </div>
@@ -61,6 +73,13 @@ const OwnerDashboardPage = () => {
     });
   };
 
+  const formatTime = (dateString) => {
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'confirmed':
@@ -74,19 +93,64 @@ const OwnerDashboardPage = () => {
     }
   };
 
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  const getRevenueChange = () => {
+    if (!stats?.revenueChange) return null;
+    const change = stats.revenueChange;
+    return {
+      value: Math.abs(change),
+      isPositive: change > 0,
+      percentage: Math.abs((change / (stats.totalRevenue - change)) * 100).toFixed(1),
+    };
+  };
+
+  const revenueChange = getRevenueChange();
+
   return (
-    <div className="owner-dashboard">
-      {/* Page Header */}
+    <div className={`owner-dashboard ${theme === 'dark' ? 'dark-theme' : ''}`}>
+      {/* Enhanced Page Header */}
       <div className="owner-page-header">
         <div className="header-content">
-          <div>
-            <h1>Welcome back, {owner?.businessName || 'Owner'}!</h1>
-            <p>Here's what's happening with your campgrounds today.</p>
+          <div className="header-main">
+            <div className="greeting-section">
+              <h1>
+                {getGreeting()}, {owner?.businessName || 'Owner'}! 👋
+              </h1>
+              <p className="header-subtitle">
+                Here's your business overview for{' '}
+                {currentTime.toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </p>
+            </div>
+            <div className="header-stats">
+              <div className="header-stat">
+                <span className="stat-label">Active Campgrounds</span>
+                <span className="stat-value">{owner?.totalCampgrounds || 0}</span>
+              </div>
+              <div className="header-stat">
+                <span className="stat-label">Today's Bookings</span>
+                <span className="stat-value">{stats?.todayBookings || 0}</span>
+              </div>
+            </div>
           </div>
           <div className="header-actions">
             <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-primary">
-              <span>➕</span>
+              <span className="btn-icon">➕</span>
               Add Campground
+            </Link>
+            <Link to="/owner/analytics" className="owner-btn owner-btn-secondary">
+              <span className="btn-icon">📊</span>
+              Analytics
             </Link>
           </div>
         </div>
@@ -100,8 +164,9 @@ const OwnerDashboardPage = () => {
             <div className="alert-text">
               <h4>Complete Your Verification</h4>
               <p>
-                Your account verification is {ownerProfile?.verificationStatusDisplay?.toLowerCase()}. 
-                Complete verification to start accepting bookings.
+                Your account verification is{' '}
+                <strong>{ownerProfile?.verificationStatusDisplay?.toLowerCase()}</strong>. Complete
+                verification to start accepting bookings and receiving payments.
               </p>
             </div>
             <Link to="/owner/verification" className="owner-btn owner-btn-outline">
@@ -111,47 +176,77 @@ const OwnerDashboardPage = () => {
         </div>
       )}
 
-      {/* Stats Grid */}
+      {/* Enhanced Stats Grid */}
       <div className="owner-stats-grid">
-        <div className="owner-stat-card">
-          <div className="stat-icon">🏕️</div>
-          <div className="stat-value">{owner?.totalCampgrounds || 0}</div>
-          <div className="stat-label">Total Campgrounds</div>
-        </div>
-
-        <div className="owner-stat-card">
-          <div className="stat-icon">📅</div>
-          <div className="stat-value">{stats?.totalBookings || 0}</div>
-          <div className="stat-label">Total Bookings</div>
-          <div className="stat-change positive">
-            +{stats?.confirmedBookings || 0} confirmed
+        <div className="owner-stat-card revenue-card">
+          <div className="stat-header">
+            <div className="stat-icon">💰</div>
+            <div className="stat-trend">
+              {revenueChange && (
+                <span
+                  className={`trend-indicator ${revenueChange.isPositive ? 'positive' : 'negative'}`}
+                >
+                  {revenueChange.isPositive ? '↗' : '↘'} {revenueChange.percentage}%
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-
-        <div className="owner-stat-card">
-          <div className="stat-icon">💰</div>
           <div className="stat-value">{formatCurrency(stats?.totalRevenue)}</div>
           <div className="stat-label">Total Revenue</div>
-          <div className="stat-change positive">Last 30 days</div>
+          <div className="stat-period">Last 30 days</div>
         </div>
 
-        <div className="owner-stat-card">
-          <div className="stat-icon">⭐</div>
+        <div className="owner-stat-card bookings-card">
+          <div className="stat-header">
+            <div className="stat-icon">📅</div>
+            <div className="stat-trend">
+              <span className="trend-indicator positive">
+                ↗ {stats?.confirmedBookings || 0} confirmed
+              </span>
+            </div>
+          </div>
+          <div className="stat-value">{stats?.totalBookings || 0}</div>
+          <div className="stat-label">Total Bookings</div>
+          <div className="stat-period">All time</div>
+        </div>
+
+        <div className="owner-stat-card campgrounds-card">
+          <div className="stat-header">
+            <div className="stat-icon">🏕️</div>
+            <div className="stat-trend">
+              <span className="trend-indicator neutral">
+                {stats?.activeCampgrounds || 0} active
+              </span>
+            </div>
+          </div>
+          <div className="stat-value">{owner?.totalCampgrounds || 0}</div>
+          <div className="stat-label">Campgrounds</div>
+          <div className="stat-period">Total listings</div>
+        </div>
+
+        <div className="owner-stat-card rating-card">
+          <div className="stat-header">
+            <div className="stat-icon">⭐</div>
+            <div className="stat-trend">
+              <span className="trend-indicator neutral">{stats?.totalReviews || 0} reviews</span>
+            </div>
+          </div>
           <div className="stat-value">{stats?.averageRating?.toFixed(1) || '0.0'}</div>
           <div className="stat-label">Average Rating</div>
-          <div className="stat-change">
-            {stats?.totalReviews || 0} reviews
-          </div>
+          <div className="stat-period">Customer satisfaction</div>
         </div>
       </div>
 
       <div className="dashboard-content">
-        {/* Recent Bookings */}
-        <div className="owner-card">
+        {/* Enhanced Recent Bookings */}
+        <div className="owner-card bookings-card">
           <div className="card-header">
-            <h3>Recent Bookings</h3>
+            <div className="card-title">
+              <h3>Recent Bookings</h3>
+              <span className="card-subtitle">Latest customer reservations</span>
+            </div>
             <Link to="/owner/bookings" className="view-all-link">
-              View All
+              View All Bookings
             </Link>
           </div>
 
@@ -159,6 +254,11 @@ const OwnerDashboardPage = () => {
             <div className="bookings-list">
               {recentBookings.slice(0, 5).map((booking) => (
                 <div key={booking._id} className="booking-item">
+                  <div className="booking-avatar">
+                    <div className="avatar-circle">
+                      {booking.user?.username?.charAt(0).toUpperCase() || 'G'}
+                    </div>
+                  </div>
                   <div className="booking-info">
                     <div className="booking-guest">
                       <strong>{booking.user?.username || 'Guest'}</strong>
@@ -176,6 +276,7 @@ const OwnerDashboardPage = () => {
                     <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
                       {booking.status}
                     </span>
+                    <span className="booking-time">{formatTime(booking.createdAt)}</span>
                   </div>
                 </div>
               ))}
@@ -184,15 +285,23 @@ const OwnerDashboardPage = () => {
             <div className="empty-state">
               <div className="empty-icon">📅</div>
               <h4>No Recent Bookings</h4>
-              <p>Your recent bookings will appear here once guests start booking your campgrounds.</p>
+              <p>
+                Your recent bookings will appear here once guests start booking your campgrounds.
+              </p>
+              <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-outline">
+                Add Your First Campground
+              </Link>
             </div>
           )}
         </div>
 
-        {/* My Campgrounds */}
-        <div className="owner-card">
+        {/* Enhanced My Campgrounds */}
+        <div className="owner-card campgrounds-card">
           <div className="card-header">
-            <h3>My Campgrounds</h3>
+            <div className="card-title">
+              <h3>My Campgrounds</h3>
+              <span className="card-subtitle">Manage your listings</span>
+            </div>
             <Link to="/owner/campgrounds" className="view-all-link">
               Manage All
             </Link>
@@ -204,8 +313,8 @@ const OwnerDashboardPage = () => {
                 <div key={campground._id} className="campground-card">
                   <div className="campground-image">
                     {campground.images && campground.images.length > 0 ? (
-                      <img 
-                        src={campground.images[0].url} 
+                      <img
+                        src={campground.images[0].url}
                         alt={campground.title}
                         onError={(e) => {
                           e.target.src = '/placeholder-campground.jpg';
@@ -216,18 +325,30 @@ const OwnerDashboardPage = () => {
                         <span>🏕️</span>
                       </div>
                     )}
+                    <div className="campground-overlay">
+                      <div className="campground-rating">
+                        <span className="rating-star">⭐</span>
+                        <span className="rating-value">
+                          {campground.rating?.toFixed(1) || '0.0'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   <div className="campground-info">
                     <h4>{campground.title}</h4>
                     <p className="campground-location">{campground.location}</p>
+                    <div className="campground-stats">
+                      <span className="stat">${campground.price}/night</span>
+                      <span className="stat">{campground.reviews?.length || 0} reviews</span>
+                    </div>
                     <div className="campground-actions">
-                      <Link 
+                      <Link
                         to={`/owner/campgrounds/${campground._id}`}
                         className="owner-btn owner-btn-secondary"
                       >
                         Manage
                       </Link>
-                      <Link 
+                      <Link
                         to={`/campgrounds/${campground._id}`}
                         className="owner-btn owner-btn-outline"
                         target="_blank"
@@ -251,9 +372,14 @@ const OwnerDashboardPage = () => {
           )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="owner-card">
-          <h3>Quick Actions</h3>
+        {/* Enhanced Quick Actions */}
+        <div className="owner-card quick-actions-card">
+          <div className="card-header">
+            <div className="card-title">
+              <h3>Quick Actions</h3>
+              <span className="card-subtitle">Common tasks</span>
+            </div>
+          </div>
           <div className="quick-actions-grid">
             <Link to="/owner/campgrounds/new" className="quick-action-item">
               <div className="action-icon">➕</div>
@@ -261,6 +387,7 @@ const OwnerDashboardPage = () => {
                 <h4>Add Campground</h4>
                 <p>Create a new campground listing</p>
               </div>
+              <div className="action-arrow">→</div>
             </Link>
 
             <Link to="/owner/bookings?status=pending" className="quick-action-item">
@@ -272,6 +399,7 @@ const OwnerDashboardPage = () => {
               {stats?.pendingBookings > 0 && (
                 <div className="action-badge">{stats.pendingBookings}</div>
               )}
+              <div className="action-arrow">→</div>
             </Link>
 
             <Link to="/owner/analytics" className="quick-action-item">
@@ -280,6 +408,7 @@ const OwnerDashboardPage = () => {
                 <h4>View Analytics</h4>
                 <p>Check your performance metrics</p>
               </div>
+              <div className="action-arrow">→</div>
             </Link>
 
             <Link to="/owner/profile" className="quick-action-item">
@@ -288,7 +417,53 @@ const OwnerDashboardPage = () => {
                 <h4>Account Settings</h4>
                 <p>Update your profile and preferences</p>
               </div>
+              <div className="action-arrow">→</div>
             </Link>
+          </div>
+        </div>
+
+        {/* Performance Insights */}
+        <div className="owner-card insights-card">
+          <div className="card-header">
+            <div className="card-title">
+              <h3>Performance Insights</h3>
+              <span className="card-subtitle">This month's highlights</span>
+            </div>
+          </div>
+          <div className="insights-grid">
+            <div className="insight-item">
+              <div className="insight-icon">📈</div>
+              <div className="insight-content">
+                <h4>Revenue Growth</h4>
+                <p>
+                  {revenueChange
+                    ? `${revenueChange.isPositive ? '+' : '-'}${revenueChange.percentage}% from last month`
+                    : 'No data available'}
+                </p>
+              </div>
+            </div>
+            <div className="insight-item">
+              <div className="insight-icon">👥</div>
+              <div className="insight-content">
+                <h4>Customer Satisfaction</h4>
+                <p>
+                  {stats?.averageRating
+                    ? `${stats.averageRating.toFixed(1)}/5.0 average rating`
+                    : 'No reviews yet'}
+                </p>
+              </div>
+            </div>
+            <div className="insight-item">
+              <div className="insight-icon">🎯</div>
+              <div className="insight-content">
+                <h4>Occupancy Rate</h4>
+                <p>
+                  {stats?.occupancyRate
+                    ? `${stats.occupancyRate.toFixed(1)}% average occupancy`
+                    : 'Calculating...'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

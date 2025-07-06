@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
 import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
@@ -8,10 +9,11 @@ import './OwnerBookingsPage.css';
 
 /**
  * Owner Bookings Page
- * Allows campground owners to manage bookings for their campgrounds
+ * Modern dashboard for campground owners to manage bookings
  */
 const OwnerBookingsPage = () => {
   const { showMessage } = useFlashMessage();
+  const { theme } = useTheme();
   const { useOwnerBookings } = useOwners();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -169,253 +171,353 @@ const OwnerBookingsPage = () => {
   const stats = getBookingStats();
 
   return (
-    <div className="owner-bookings">
-      {/* Page Header */}
+    <div className={`owner-bookings ${theme === 'dark' ? 'dark-theme' : ''}`}>
+      {/* Enhanced Page Header */}
       <div className="owner-page-header">
         <div className="header-content">
-          <div>
-            <h1>Booking Management</h1>
-            <p>Manage reservations for your campgrounds</p>
+          <div className="header-main">
+            <div className="greeting-section">
+              <h1>Booking Management</h1>
+              <p className="header-subtitle">
+                Manage reservations and track booking performance for your campgrounds
+              </p>
+            </div>
+            <div className="header-stats">
+              <div className="header-stat">
+                <span className="stat-label">Total Bookings</span>
+                <span className="stat-value">{stats.total}</span>
+              </div>
+              <div className="header-stat">
+                <span className="stat-label">Pending Actions</span>
+                <span className="stat-value">{stats.pending}</span>
+              </div>
+            </div>
           </div>
           <div className="header-actions">
-            <select
-              value={pagination.limit}
-              onChange={(e) =>
-                setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })
-              }
-              className="owner-select"
-            >
-              <option value="10">10 per page</option>
-              <option value="25">25 per page</option>
-              <option value="50">50 per page</option>
-              <option value="100">100 per page</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="booking-stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📅</div>
-          <div className="stat-value">{stats.total}</div>
-          <div className="stat-label">Total Bookings</div>
-        </div>
-        <div className="stat-card pending">
-          <div className="stat-icon">⏳</div>
-          <div className="stat-value">{stats.pending}</div>
-          <div className="stat-label">Pending</div>
-        </div>
-        <div className="stat-card confirmed">
-          <div className="stat-icon">✅</div>
-          <div className="stat-value">{stats.confirmed}</div>
-          <div className="stat-label">Confirmed</div>
-        </div>
-        <div className="stat-card completed">
-          <div className="stat-icon">🏁</div>
-          <div className="stat-value">{stats.completed}</div>
-          <div className="stat-label">Completed</div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="owner-card">
-        <div className="filters-section">
-          <h3>Filters</h3>
-          <div className="filters-grid">
-            <div className="filter-group">
-              <label htmlFor="statusFilter">Status:</label>
+            <div className="view-controls">
               <select
-                id="statusFilter"
-                value={statusFilter}
-                onChange={handleStatusChange}
+                value={pagination.limit}
+                onChange={(e) =>
+                  setPagination({ ...pagination, page: 1, limit: Number(e.target.value) })
+                }
                 className="owner-select"
               >
-                <option value="all">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label htmlFor="campgroundFilter">Campground:</label>
-              <select
-                id="campgroundFilter"
-                value={campgroundFilter}
-                onChange={handleCampgroundChange}
-                className="owner-select"
-              >
-                <option value="all">All Campgrounds</option>
-                {/* This would be populated with owner's campgrounds */}
+                <option value="10">10 per page</option>
+                <option value="25">25 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
               </select>
             </div>
           </div>
         </div>
       </div>
 
-      {bookings.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">📅</div>
-          <h3>No Bookings Found</h3>
-          <p>
-            {statusFilter !== 'all'
-              ? `No ${statusFilter} bookings found. Try adjusting your filters.`
-              : "You don't have any bookings yet. Bookings will appear here once guests start booking your campgrounds."}
-          </p>
-          {statusFilter !== 'all' && (
-            <button onClick={() => setStatusFilter('all')} className="owner-btn owner-btn-outline">
-              Show All Bookings
-            </button>
-          )}
-        </div>
-      ) : (
-        <>
-          {/* Bookings Table */}
-          <div className="owner-card">
-            <div className="table-container">
-              <table className="owner-table">
-                <thead>
-                  <tr>
-                    <th>Booking ID</th>
-                    <th>Guest</th>
-                    <th>Campground</th>
-                    <th>Campsite</th>
-                    <th>Check-in</th>
-                    <th>Check-out</th>
-                    <th>Guests</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookings.map((booking) => (
-                    <tr key={booking._id}>
-                      <td>
-                        <div className="booking-id">
-                          <strong>#{booking._id.substring(0, 8)}</strong>
-                          <span className="booking-date">{formatDate(booking.createdAt)}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="guest-info">
-                          <strong>{booking.user?.username || 'Unknown'}</strong>
-                          <span className="guest-email">{booking.user?.email}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="campground-info">
-                          <strong>{booking.campground?.title || 'Unknown'}</strong>
-                          <span className="campground-location">
-                            {booking.campground?.location}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="campsite-name">{booking.campsite?.name || 'N/A'}</span>
-                      </td>
-                      <td>{formatDate(booking.startDate)}</td>
-                      <td>{formatDate(booking.endDate)}</td>
-                      <td>
-                        <span className="guest-count">{booking.numberOfGuests || 1}</span>
-                      </td>
-                      <td>
-                        <strong className="booking-total">
-                          {formatCurrency(booking.totalPrice)}
-                        </strong>
-                      </td>
-                      <td>
-                        <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
-                          {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) ||
-                            'Pending'}
-                        </span>
-                      </td>
-                      <td className="actions-cell">
-                        <div className="action-buttons">
-                          <Link
-                            to={`/owner/bookings/${booking._id}`}
-                            className="owner-btn owner-btn-secondary owner-btn-sm"
-                            title="View details"
-                          >
-                            👁️
-                          </Link>
-                          {booking.status === 'pending' && (
-                            <>
-                              <button
-                                onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
-                                className="owner-btn owner-btn-primary owner-btn-sm"
-                                title="Confirm booking"
-                              >
-                                ✅
-                              </button>
-                              <button
-                                onClick={() => handleStatusUpdate(booking._id, 'cancelled')}
-                                className="owner-btn owner-btn-danger owner-btn-sm"
-                                title="Cancel booking"
-                              >
-                                ❌
-                              </button>
-                            </>
-                          )}
-                          {booking.status === 'confirmed' && (
-                            <button
-                              onClick={() => handleStatusUpdate(booking._id, 'completed')}
-                              className="owner-btn owner-btn-outline owner-btn-sm"
-                              title="Mark as completed"
-                            >
-                              🏁
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Main Content Area */}
+      <div className="bookings-content">
+        {/* Enhanced Stats Grid */}
+        <div className="owner-stats-grid">
+          <div className="owner-stat-card total-bookings-card">
+            <div className="stat-header">
+              <div className="stat-icon">📅</div>
+              <div className="stat-trend">
+                <span className="trend-indicator neutral">All time</span>
+              </div>
             </div>
+            <div className="stat-value">{stats.total}</div>
+            <div className="stat-label">Total Bookings</div>
+            <div className="stat-period">All time</div>
           </div>
 
-          {/* Pagination */}
-          {pagination.totalPages > 1 && (
-            <div className="owner-pagination">
-              <button
-                onClick={() => handlePageChange(1)}
-                disabled={pagination.page === 1}
-                className="owner-btn owner-btn-outline"
-              >
-                First
-              </button>
-              <button
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={pagination.page === 1}
-                className="owner-btn owner-btn-outline"
-              >
-                Previous
-              </button>
-
-              <span className="pagination-info">
-                Page {pagination.page} of {pagination.totalPages}({pagination.total} total bookings)
-              </span>
-
-              <button
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={pagination.page >= pagination.totalPages}
-                className="owner-btn owner-btn-outline"
-              >
-                Next
-              </button>
-              <button
-                onClick={() => handlePageChange(pagination.totalPages)}
-                disabled={pagination.page >= pagination.totalPages}
-                className="owner-btn owner-btn-outline"
-              >
-                Last
-              </button>
+          <div className="owner-stat-card pending-bookings-card">
+            <div className="stat-header">
+              <div className="stat-icon">⏳</div>
+              <div className="stat-trend">
+                <span className="trend-indicator warning">Needs attention</span>
+              </div>
             </div>
-          )}
-        </>
-      )}
+            <div className="stat-value">{stats.pending}</div>
+            <div className="stat-label">Pending Review</div>
+            <div className="stat-period">Awaiting confirmation</div>
+          </div>
+
+          <div className="owner-stat-card confirmed-bookings-card">
+            <div className="stat-header">
+              <div className="stat-icon">✅</div>
+              <div className="stat-trend">
+                <span className="trend-indicator positive">Confirmed</span>
+              </div>
+            </div>
+            <div className="stat-value">{stats.confirmed}</div>
+            <div className="stat-label">Confirmed</div>
+            <div className="stat-period">Ready for guests</div>
+          </div>
+
+          <div className="owner-stat-card completed-bookings-card">
+            <div className="stat-header">
+              <div className="stat-icon">🏁</div>
+              <div className="stat-trend">
+                <span className="trend-indicator success">Completed</span>
+              </div>
+            </div>
+            <div className="stat-value">{stats.completed}</div>
+            <div className="stat-label">Completed</div>
+            <div className="stat-period">Past stays</div>
+          </div>
+
+          <div className="owner-stat-card cancelled-bookings-card">
+            <div className="stat-header">
+              <div className="stat-icon">❌</div>
+              <div className="stat-trend">
+                <span className="trend-indicator negative">Cancelled</span>
+              </div>
+            </div>
+            <div className="stat-value">{stats.cancelled}</div>
+            <div className="stat-label">Cancelled</div>
+            <div className="stat-period">Cancelled bookings</div>
+          </div>
+        </div>
+
+        {/* Enhanced Filters Section */}
+        <div className="owner-card filters-card">
+          <div className="card-header">
+            <div className="card-title">
+              <h3>Filter & Search</h3>
+              <p className="card-subtitle">Refine your booking view</p>
+            </div>
+          </div>
+          <div className="card-content">
+            <div className="filters-grid">
+              <div className="filter-group">
+                <label htmlFor="statusFilter">Booking Status</label>
+                <select
+                  id="statusFilter"
+                  value={statusFilter}
+                  onChange={handleStatusChange}
+                  className="owner-select"
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div className="filter-group">
+                <label htmlFor="campgroundFilter">Campground</label>
+                <select
+                  id="campgroundFilter"
+                  value={campgroundFilter}
+                  onChange={handleCampgroundChange}
+                  className="owner-select"
+                >
+                  <option value="all">All Campgrounds</option>
+                  {/* This would be populated with owner's campgrounds */}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bookings Content */}
+        {bookings.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">📅</div>
+            <h3>No Bookings Found</h3>
+            <p>
+              {statusFilter !== 'all'
+                ? `No ${statusFilter} bookings found. Try adjusting your filters.`
+                : "You don't have any bookings yet. Bookings will appear here once guests start booking your campgrounds."}
+            </p>
+            {statusFilter !== 'all' && (
+              <button
+                onClick={() => setStatusFilter('all')}
+                className="owner-btn owner-btn-outline"
+              >
+                Show All Bookings
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Enhanced Bookings Table */}
+            <div className="owner-card table-card">
+              <div className="card-header">
+                <div className="card-title">
+                  <h3>Booking Listings</h3>
+                  <p className="card-subtitle">
+                    Showing {bookings.length} of {pagination.total} bookings
+                  </p>
+                </div>
+              </div>
+              <div className="card-content">
+                <div className="table-container">
+                  <table className="owner-table">
+                    <thead>
+                      <tr>
+                        <th>Booking Details</th>
+                        <th>Guest Information</th>
+                        <th>Campground & Site</th>
+                        <th>Stay Period</th>
+                        <th>Financial</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookings.map((booking) => (
+                        <tr key={booking._id}>
+                          <td>
+                            <div className="booking-details">
+                              <div className="booking-id">
+                                <strong>#{booking._id.substring(0, 8)}</strong>
+                              </div>
+                              <div className="booking-date">
+                                Created {formatDate(booking.createdAt)}
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="guest-info">
+                              <div className="guest-name">
+                                <strong>{booking.user?.username || 'Unknown'}</strong>
+                              </div>
+                              <div className="guest-email">{booking.user?.email}</div>
+                              <div className="guest-count">
+                                {booking.numberOfGuests || 1} guest
+                                {booking.numberOfGuests > 1 ? 's' : ''}
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="campground-info">
+                              <div className="campground-name">
+                                <strong>{booking.campground?.title || 'Unknown'}</strong>
+                              </div>
+                              <div className="campground-location">
+                                {booking.campground?.location}
+                              </div>
+                              <div className="campsite-name">
+                                Site: {booking.campsite?.name || 'N/A'}
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="stay-period">
+                              <div className="check-in">
+                                <span className="date-label">Check-in:</span>
+                                <span className="date-value">{formatDate(booking.startDate)}</span>
+                              </div>
+                              <div className="check-out">
+                                <span className="date-label">Check-out:</span>
+                                <span className="date-value">{formatDate(booking.endDate)}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="financial-info">
+                              <div className="booking-total">
+                                <strong>{formatCurrency(booking.totalPrice)}</strong>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
+                              {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) ||
+                                'Pending'}
+                            </span>
+                          </td>
+                          <td className="actions-cell">
+                            <div className="action-buttons">
+                              <Link
+                                to={`/owner/bookings/${booking._id}`}
+                                className="owner-btn owner-btn-secondary owner-btn-sm"
+                                title="View details"
+                              >
+                                👁️
+                              </Link>
+                              {booking.status === 'pending' && (
+                                <>
+                                  <button
+                                    onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
+                                    className="owner-btn owner-btn-primary owner-btn-sm"
+                                    title="Confirm booking"
+                                  >
+                                    ✅
+                                  </button>
+                                  <button
+                                    onClick={() => handleStatusUpdate(booking._id, 'cancelled')}
+                                    className="owner-btn owner-btn-danger owner-btn-sm"
+                                    title="Cancel booking"
+                                  >
+                                    ❌
+                                  </button>
+                                </>
+                              )}
+                              {booking.status === 'confirmed' && (
+                                <button
+                                  onClick={() => handleStatusUpdate(booking._id, 'completed')}
+                                  className="owner-btn owner-btn-outline owner-btn-sm"
+                                  title="Mark as completed"
+                                >
+                                  🏁
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Enhanced Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="owner-card pagination-card">
+                <div className="owner-pagination">
+                  <div className="pagination-info">
+                    <span className="page-info">
+                      Page {pagination.page} of {pagination.totalPages}
+                    </span>
+                    <span className="total-info">({pagination.total} total bookings)</span>
+                  </div>
+                  <div className="pagination-controls">
+                    <button
+                      onClick={() => handlePageChange(1)}
+                      disabled={pagination.page === 1}
+                      className="owner-btn owner-btn-outline"
+                    >
+                      First
+                    </button>
+                    <button
+                      onClick={() => handlePageChange(pagination.page - 1)}
+                      disabled={pagination.page === 1}
+                      className="owner-btn owner-btn-outline"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => handlePageChange(pagination.page + 1)}
+                      disabled={pagination.page >= pagination.totalPages}
+                      className="owner-btn owner-btn-outline"
+                    >
+                      Next
+                    </button>
+                    <button
+                      onClick={() => handlePageChange(pagination.totalPages)}
+                      disabled={pagination.page >= pagination.totalPages}
+                      className="owner-btn owner-btn-outline"
+                    >
+                      Last
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

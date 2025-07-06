@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFlashMessage } from '../../context/FlashMessageContext';
+import { useTheme } from '../../context/ThemeContext';
 import useOwners from '../../hooks/useOwners';
 import { logError } from '../../utils/logger';
 import './OwnerCampgroundList.css';
@@ -10,6 +11,7 @@ import './OwnerCampgroundList.css';
  */
 const OwnerCampgroundList = () => {
   const { showMessage } = useFlashMessage();
+  const { theme } = useTheme();
   const { useOwnerCampgrounds, useDeleteCampground } = useOwners();
 
   const [filters, setFilters] = useState({
@@ -83,7 +85,7 @@ const OwnerCampgroundList = () => {
   const { campgrounds = [], pagination = {} } = data || {};
 
   return (
-    <div className="owner-campground-list">
+    <div className={`owner-campground-list ${theme === 'dark' ? 'dark-theme' : ''}`}>
       {/* Page Header */}
       <div className="owner-page-header">
         <div className="header-content">

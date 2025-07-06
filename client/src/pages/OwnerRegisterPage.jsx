@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
 import { logError } from '../utils/logger';
 import './OwnerRegisterPage.css';
@@ -15,6 +16,7 @@ const OwnerRegisterPage = () => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
+  const { theme } = useTheme();
   const { useApplyToBeOwner } = useOwners();
   const applyToBeOwnerMutation = useApplyToBeOwner();
 
@@ -570,7 +572,7 @@ const OwnerRegisterPage = () => {
   // If user is not authenticated, show login/register prompt
   if (!isAuthenticated) {
     return (
-      <div className="owner-register-page">
+      <div className={`owner-register-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
         <div className="register-container">
           <div className="register-header">
             <h1>Become a Campground Owner</h1>
@@ -603,7 +605,7 @@ const OwnerRegisterPage = () => {
   }
 
   return (
-    <div className="owner-register-page">
+    <div className={`owner-register-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
       <div className="register-container">
         <div className="register-header">
           <h1>Become a Campground Owner</h1>

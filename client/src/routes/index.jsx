@@ -54,6 +54,7 @@ const OwnerProtectedRoute = lazy(() => import('../components/OwnerProtectedRoute
 const OwnerCampgroundsPage = lazy(() => import('../pages/OwnerCampgroundsPage'));
 const OwnerBookingsPage = lazy(() => import('../pages/OwnerBookingsPage'));
 const OwnerAnalyticsPage = lazy(() => import('../pages/OwnerAnalyticsPage'));
+const OwnerSettingsPage = lazy(() => import('../pages/OwnerSettingsPage'));
 
 /**
  * Routes configuration
@@ -356,10 +357,9 @@ const routes = [
               {
                 path: 'profile',
                 element: (
-                  <div className="owner-page-header">
-                    <h1>Profile Settings</h1>
-                    <p>Manage your owner profile and settings</p>
-                  </div>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <OwnerSettingsPage />
+                  </Suspense>
                 ),
               },
               {

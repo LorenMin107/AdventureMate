@@ -1,55 +1,224 @@
-/* Owner Campgrounds Page Styles */
+/* Modern Owner Campgrounds Page Styles */
 .owner-campgrounds {
-  padding: 0;
-  max-width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  min-height: 100vh;
 }
 
-/* Page Header */
+/* Enhanced Page Header */
 .owner-page-header {
-  background: linear-gradient(135deg, #2c5530 0%, #3d7c47 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   color: white;
-  padding: 2rem;
+  padding: 2.5rem;
   margin-bottom: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(46, 125, 50, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.owner-page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+  transition: all 0.3s ease;
 }
 
 .header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
   gap: 2rem;
+  align-items: start;
 }
 
-.header-content h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 2rem;
-  font-weight: 600;
+.header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.header-content p {
+.greeting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.greeting-section h1 {
   margin: 0;
-  opacity: 0.9;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.header-subtitle {
+  margin: 0;
   font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 400;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.header-stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.header-stat {
+  text-align: center;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 140px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.header-stat:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.header-stat .stat-label {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.header-stat .stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .header-actions {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 1rem;
-  flex-shrink: 0;
+  align-items: flex-end;
+  justify-content: flex-start;
 }
 
-/* Owner Card */
-.owner-card {
-  background: white;
+.view-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.owner-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin-bottom: 2rem;
+  background: var(--color-card-bg);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  cursor: pointer;
 }
 
-/* Table Styles */
+.owner-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.owner-select:hover {
+  border-color: var(--color-primary);
+}
+
+/* Enhanced Campgrounds Content */
+.campgrounds-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Enhanced Table Card */
+.table-card {
+  background: var(--color-card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--color-card-shadow);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+}
+
+.table-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--color-card-shadow);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-card-bg-light);
+  transition: all 0.3s ease;
+}
+
+.card-title h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.card-subtitle {
+  margin: 0.25rem 0 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.view-all-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.view-all-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
+/* Enhanced Table */
 .table-container {
   overflow-x: auto;
 }
@@ -57,373 +226,598 @@
 .owner-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  background: var(--color-card-bg);
+  transition: all 0.3s ease;
+}
+
+.owner-table th,
+.owner-table td {
+  padding: 1.25rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  transition: all 0.3s ease;
 }
 
 .owner-table th {
-  background: #f8f9fa;
-  padding: 1rem 0.75rem;
-  text-align: left;
+  background: var(--color-card-bg-light);
+  color: var(--color-text);
   font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
-  white-space: nowrap;
-}
-
-.owner-table th.sortable {
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.2s;
-}
-
-.owner-table th.sortable:hover {
-  background: #e9ecef;
-}
-
-.sort-indicator {
-  margin-left: 0.5rem;
-  opacity: 0.6;
-  font-size: 0.8rem;
-}
-
-.owner-table th.sorted-asc,
-.owner-table th.sorted-desc {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.owner-table td {
-  padding: 1rem 0.75rem;
-  border-bottom: 1px solid #dee2e6;
-  vertical-align: middle;
-}
-
-.owner-table tbody tr:hover {
-  background: #f8f9fa;
-}
-
-/* Table Cell Content */
-.campground-title {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.campground-title strong {
-  color: #2c5530;
-  font-weight: 600;
-}
-
-.image-count {
-  font-size: 0.75rem;
-  color: #6c757d;
-}
-
-.count-badge {
-  display: inline-block;
-  background: #e3f2fd;
-  color: #1976d2;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  min-width: 1.5rem;
-  text-align: center;
-}
-
-.reviews-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.rating {
-  font-size: 0.75rem;
-  color: #ff9800;
-  font-weight: 500;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.status-active {
-  background: #d4edda;
-  color: #155724;
+.owner-table tr:hover {
+  background: var(--color-card-bg-light);
+  transition: background-color 0.3s ease;
 }
 
-.status-inactive {
-  background: #f8d7da;
-  color: #721c24;
+.owner-table tr:last-child td {
+  border-bottom: none;
 }
 
-/* Action Buttons */
-.actions-cell {
-  width: 1%;
-  white-space: nowrap;
+/* Enhanced Table Content */
+.campground-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.action-buttons {
+.campground-name {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.campground-location {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.campground-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.status-indicator.active {
+  background: var(--color-success);
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+}
+
+.status-indicator.inactive {
+  background: var(--color-error);
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+.status-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.status-text.active {
+  color: var(--color-success);
+}
+
+.status-text.inactive {
+  color: var(--color-error);
+}
+
+.campground-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.stat-label {
+  color: var(--color-text-muted);
+  transition: color 0.3s ease;
+}
+
+.stat-value {
+  color: var(--color-text);
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.campground-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.rating-star {
+  color: #ffc107;
+  font-size: 0.9rem;
+}
+
+.rating-value {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.rating-count {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  transition: color 0.3s ease;
+}
+
+.campground-actions {
   display: flex;
   gap: 0.5rem;
-  align-items: center;
+  flex-wrap: wrap;
 }
 
-/* Button Styles */
-.owner-btn {
+.action-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  gap: 0.5rem;
-  white-space: nowrap;
+  gap: 0.25rem;
+  min-height: 36px;
 }
 
-.owner-btn-sm {
-  padding: 0.5rem;
-  font-size: 0.8rem;
-  min-width: 2.5rem;
-  height: 2.5rem;
-}
-
-.owner-btn-primary {
-  background: #2c5530;
+.action-btn.view {
+  background: var(--color-primary);
   color: white;
 }
 
-.owner-btn-primary:hover {
-  background: #1e3a21;
+.action-btn.view:hover {
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
 }
 
-.owner-btn-secondary {
-  background: #6c757d;
+.action-btn.edit {
+  background: var(--color-warning);
   color: white;
 }
 
-.owner-btn-secondary:hover {
-  background: #545b62;
+.action-btn.edit:hover {
+  background: #e0a800;
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
 }
 
-.owner-btn-outline {
-  background: transparent;
-  color: #2c5530;
-  border: 2px solid #2c5530;
-}
-
-.owner-btn-outline:hover {
-  background: #2c5530;
-  color: white;
-  transform: translateY(-1px);
-}
-
-.owner-btn-danger {
-  background: #dc3545;
+.action-btn.delete {
+  background: var(--color-error);
   color: white;
 }
 
-.owner-btn-danger:hover {
+.action-btn.delete:hover {
   background: #c82333;
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
-.owner-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
+/* Enhanced Sort Controls */
+.sort-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-.owner-btn:disabled:hover {
-  transform: none;
-}
-
-/* Select Styles */
-.owner-select {
+.sort-btn {
   padding: 0.5rem 1rem;
-  border: 2px solid #dee2e6;
+  border: 2px solid var(--color-border);
+  background: var(--color-card-bg);
+  color: var(--color-text);
   border-radius: 8px;
-  background: white;
-  color: #495057;
-  font-size: 0.9rem;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-.owner-select:focus {
-  outline: none;
-  border-color: #2c5530;
-  box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+.sort-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-card-bg-light);
 }
 
-/* Empty State */
+.sort-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.sort-btn.active:hover {
+  background: var(--color-primary-hover);
+}
+
+.sort-icon {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.sort-btn.asc .sort-icon {
+  transform: rotate(180deg);
+}
+
+/* Enhanced Empty State */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--color-text-muted);
 }
 
 .empty-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .empty-state h3 {
   margin: 0 0 1rem 0;
-  color: #495057;
+  color: var(--color-text);
   font-size: 1.5rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .empty-state p {
   margin: 0 0 2rem 0;
-  color: #6c757d;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: color 0.3s ease;
 }
 
-/* Pagination */
-.owner-pagination {
+.empty-actions {
   display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 1rem;
-  padding: 2rem 0;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.pagination-info {
-  color: #6c757d;
-  font-size: 0.9rem;
-  margin: 0 1rem;
+/* Enhanced Button Styles */
+.owner-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  min-height: 44px;
+  gap: 0.5rem;
 }
 
-/* Loading and Error States */
+.owner-btn-primary {
+  background: var(--color-primary);
+  color: var(--color-button-text);
+  border: 2px solid var(--color-primary);
+}
+
+.owner-btn-primary:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-button-text);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+.owner-btn-secondary {
+  background: var(--color-secondary);
+  color: var(--color-button-text);
+  border: 2px solid var(--color-secondary);
+}
+
+.owner-btn-secondary:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-button-text);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(67, 160, 71, 0.3);
+}
+
+.owner-btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.owner-btn-outline:hover {
+  background: var(--color-primary);
+  color: var(--color-button-text);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+.owner-btn-danger {
+  background: var(--color-error);
+  color: white;
+  border: 2px solid var(--color-error);
+}
+
+.owner-btn-danger:hover {
+  background: #c82333;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Enhanced Loading and Error States */
 .owner-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
+  min-height: 400px;
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
 }
 
 .owner-loading-spinner {
-  width: 3rem;
-  height: 3rem;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #2c5530;
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-border);
+  border-top: 4px solid var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.owner-loading p {
-  color: #6c757d;
-  font-size: 1.1rem;
-  margin: 0;
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .owner-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
   text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--color-error);
+  padding: 2rem;
 }
 
 .owner-error h4 {
-  color: #dc3545;
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
+  color: var(--color-error);
 }
 
 .owner-error p {
-  color: #6c757d;
   margin: 0 0 2rem 0;
-  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 500px;
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
+  .owner-table th,
+  .owner-table td {
+    padding: 1rem 0.75rem;
+  }
+}
+
+@media (max-width: 1024px) {
   .header-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .header-actions {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .view-controls {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+@media (max-width: 768px) {
+  .owner-campgrounds {
+    padding: 1rem;
+  }
+
+  .owner-page-header {
+    padding: 2rem 1.5rem;
+  }
+
+  .greeting-section h1 {
+    font-size: 2rem;
+  }
+
+  .header-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .header-main {
+    gap: 1rem;
+  }
+
+  .header-stats {
     gap: 1rem;
   }
 
   .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-controls {
+    flex-direction: row;
     justify-content: space-between;
   }
 
+  .table-container {
+    overflow-x: auto;
+  }
+
   .owner-table {
-    font-size: 0.8rem;
+    min-width: 800px;
   }
 
-  .owner-table th,
-  .owner-table td {
-    padding: 0.5rem 0.25rem;
+  .campground-info {
+    min-width: 200px;
   }
 
-  .action-buttons {
+  .campground-actions {
     flex-direction: column;
     gap: 0.25rem;
   }
 
-  .owner-btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.7rem;
-    min-width: 2rem;
-    height: 2rem;
+  .action-btn {
+    width: 100%;
+    justify-content: center;
   }
 
-  .owner-pagination {
-    flex-wrap: wrap;
+  .sort-controls {
+    flex-direction: column;
     gap: 0.5rem;
   }
 
-  .pagination-info {
-    order: -1;
+  .sort-btn {
     width: 100%;
-    text-align: center;
-    margin: 0 0 1rem 0;
+    justify-content: center;
+  }
+
+  .empty-actions {
+    flex-direction: column;
+    align-items: center;
   }
 }
 
 @media (max-width: 480px) {
   .owner-page-header {
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 1.5rem 1rem;
+    margin-bottom: 1.5rem;
   }
 
-  .header-content h1 {
-    font-size: 1.5rem;
+  .greeting-section h1 {
+    font-size: 1.75rem;
   }
 
-  .header-content p {
+  .header-subtitle {
     font-size: 1rem;
   }
 
+  .header-stats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .header-stat {
+    min-width: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .header-actions {
+    gap: 0.75rem;
+  }
+
+  .view-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .owner-select {
+    min-width: auto;
+  }
+
+  .card-header {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .card-title h3 {
+    font-size: 1.25rem;
+  }
+
+  .owner-table th,
+  .owner-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .campground-name {
+    font-size: 0.9rem;
+  }
+
+  .campground-location {
+    font-size: 0.8rem;
+  }
+
+  .stat-item {
+    font-size: 0.8rem;
+  }
+
+  .rating-value {
+    font-size: 0.85rem;
+  }
+
+  .rating-count {
+    font-size: 0.75rem;
+  }
+
+  .action-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+
+  .sort-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
   .empty-state {
-    padding: 2rem 1rem;
+    padding: 3rem 1rem;
   }
 
   .empty-icon {
@@ -435,6 +829,76 @@
   }
 
   .empty-state p {
-    font-size: 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Focus and Accessibility Improvements */
+.owner-btn:focus,
+.action-btn:focus,
+.sort-btn:focus,
+.owner-select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.owner-table th:focus,
+.owner-table td:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* Animation Enhancements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.owner-campgrounds > * {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.owner-campgrounds > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.owner-campgrounds > *:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.owner-table tr {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Print Styles */
+@media print {
+  .header-actions,
+  .campground-actions,
+  .sort-controls {
+    display: none;
+  }
+
+  .owner-campgrounds {
+    padding: 0;
+  }
+
+  .table-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .owner-table th {
+    background: #f8f9fa !important;
+    color: #000 !important;
+  }
+
+  .owner-table td {
+    border-bottom: 1px solid #ccc;
   }
 }

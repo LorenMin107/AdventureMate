@@ -1,82 +1,165 @@
-/* Owner Bookings Page Styles */
+/* Modern Owner Bookings Page Styles */
 .owner-bookings {
-  padding: 0;
-  max-width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  min-height: 100vh;
 }
 
-/* Booking Stats Grid */
-.booking-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+/* Enhanced Page Header */
+.owner-page-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: white;
+  padding: 2.5rem;
   margin-bottom: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(46, 125, 50, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.stat-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border-left: 4px solid #2c5530;
+.owner-page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+  transition: all 0.3s ease;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.header-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
 }
 
-.stat-card.pending {
-  border-left-color: #ffc107;
+.header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.stat-card.confirmed {
-  border-left-color: #28a745;
+.greeting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.stat-card.completed {
-  border-left-color: #17a2b8;
-}
-
-.stat-icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  opacity: 0.8;
-}
-
-.stat-value {
+.greeting-section h1 {
+  margin: 0;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #2c5530;
-  margin-bottom: 0.25rem;
+  color: white;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-.stat-label {
-  font-size: 0.9rem;
-  color: #6c757d;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Filters Section */
-.filters-section {
-  padding: 1.5rem;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.filters-section h3 {
-  margin: 0 0 1rem 0;
-  color: #495057;
+.header-subtitle {
+  margin: 0;
   font-size: 1.1rem;
-  font-weight: 600;
+  opacity: 0.9;
+  font-weight: 400;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+.header-stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.header-stat {
+  text-align: center;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 140px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.header-stat:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.header-stat .stat-label {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.header-stat .stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.view-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.owner-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card-bg);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  cursor: pointer;
+}
+
+.owner-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.owner-select:hover {
+  border-color: var(--color-primary);
+}
+
+/* Enhanced Filter Controls */
+.filter-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
 
 .filter-group {
@@ -85,28 +168,89 @@
   gap: 0.5rem;
 }
 
-.filter-group label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #495057;
-}
-
-/* Table Specific Styles for Bookings */
-.booking-id {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.booking-id strong {
-  color: #2c5530;
+.filter-label {
+  font-size: 0.85rem;
   font-weight: 600;
-  font-family: 'Courier New', monospace;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
 }
 
-.booking-date {
-  font-size: 0.75rem;
-  color: #6c757d;
+/* Enhanced Bookings Table */
+.bookings-table-container {
+  background: var(--color-card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--color-card-shadow);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.bookings-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-card-bg);
+  transition: all 0.3s ease;
+}
+
+.bookings-table th,
+.bookings-table td {
+  padding: 1.25rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+}
+
+.bookings-table th {
+  background: var(--color-card-bg-light);
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.bookings-table tr:hover {
+  background: var(--color-card-bg-light);
+  transition: background-color 0.3s ease;
+}
+
+.bookings-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Enhanced Booking Row */
+.booking-row {
+  transition: all 0.3s ease;
+}
+
+.booking-row:hover {
+  transform: translateX(4px);
+}
+
+.booking-guest {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.guest-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .guest-info {
@@ -115,466 +259,773 @@
   gap: 0.25rem;
 }
 
-.guest-info strong {
-  color: #495057;
+.guest-name {
   font-weight: 600;
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: color 0.3s ease;
 }
 
 .guest-email {
-  font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
 }
 
-.campground-info {
+.booking-details {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
 
-.campground-info strong {
-  color: #2c5530;
+.campground-name {
   font-weight: 600;
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: color 0.3s ease;
 }
 
-.campground-location {
-  font-size: 0.75rem;
-  color: #6c757d;
+.booking-dates {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
 }
 
-.campsite-name {
-  font-weight: 500;
-  color: #495057;
-}
-
-.guest-count {
-  display: inline-block;
-  background: #e3f2fd;
-  color: #1976d2;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  min-width: 2rem;
-  text-align: center;
-}
-
-.booking-total {
-  color: #28a745;
-  font-size: 1.1rem;
+.booking-amount {
   font-weight: 700;
+  color: var(--color-success);
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
 }
 
-/* Status Badge Variations */
-.status-pending {
-  background: #fff3cd;
-  color: #856404;
+.booking-time {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  transition: color 0.3s ease;
+}
+
+/* Enhanced Status Badges */
+.status-badge {
+  padding: 0.375rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.3s ease;
 }
 
 .status-confirmed {
-  background: #d4edda;
-  color: #155724;
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.status-pending {
+  background: rgba(255, 193, 7, 0.1);
+  color: var(--color-warning);
+  border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
 .status-cancelled {
-  background: #f8d7da;
-  color: #721c24;
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--color-error);
+  border: 1px solid rgba(220, 53, 69, 0.2);
 }
 
 .status-completed {
-  background: #d1ecf1;
-  color: #0c5460;
+  background: rgba(23, 162, 184, 0.1);
+  color: #17a2b8;
+  border: 1px solid rgba(23, 162, 184, 0.2);
 }
 
 .status-default {
-  background: #e2e3e5;
-  color: #383d41;
+  background: rgba(108, 117, 125, 0.1);
+  color: var(--color-text-muted);
+  border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
-/* Action Buttons for Bookings */
-.action-buttons .owner-btn-sm {
-  min-width: 2.5rem;
-  height: 2.5rem;
-  padding: 0.5rem;
+/* Enhanced Action Buttons */
+.booking-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 36px;
+}
+
+.action-btn.confirm {
+  background: var(--color-success);
+  color: white;
+}
+
+.action-btn.confirm:hover {
+  background: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.action-btn.cancel {
+  background: var(--color-error);
+  color: white;
+}
+
+.action-btn.cancel:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.action-btn.view {
+  background: var(--color-primary);
+  color: white;
+}
+
+.action-btn.view:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+}
+
+/* Enhanced Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: var(--color-card-bg-light);
+  border-top: 1px solid var(--color-border);
+}
+
+.pagination-info {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--color-border);
+  background: var(--color-card-bg);
+  color: var(--color-text);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  min-width: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Responsive adjustments for booking table */
-@media (max-width: 1200px) {
-  .owner-table {
-    font-size: 0.8rem;
-  }
-  
-  .owner-table th,
-  .owner-table td {
-    padding: 0.5rem 0.25rem;
-  }
-  
-  .booking-id strong,
-  .guest-info strong,
-  .campground-info strong {
-    font-size: 0.85rem;
-  }
-  
-  .booking-date,
-  .guest-email,
-  .campground-location {
-    font-size: 0.7rem;
-  }
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+  transform: translateY(-1px);
 }
 
-@media (max-width: 768px) {
-  .booking-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-  
-  .stat-card {
-    padding: 1rem;
-  }
-  
-  .stat-icon {
-    font-size: 1.5rem;
-  }
-  
-  .stat-value {
-    font-size: 2rem;
-  }
-  
-  .stat-label {
-    font-size: 0.8rem;
-  }
-  
-  .filters-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  /* Hide less important columns on mobile */
-  .owner-table th:nth-child(4), /* Campsite */
-  .owner-table td:nth-child(4),
-  .owner-table th:nth-child(7), /* Guests */
-  .owner-table td:nth-child(7) {
-    display: none;
-  }
-  
-  .action-buttons {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  
-  .action-buttons .owner-btn-sm {
-    min-width: 2rem;
-    height: 2rem;
-    font-size: 0.7rem;
-  }
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-@media (max-width: 480px) {
-  .booking-stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  /* Hide even more columns on very small screens */
-  .owner-table th:nth-child(6), /* Check-out */
-  .owner-table td:nth-child(6) {
-    display: none;
-  }
-  
-  .booking-id,
-  .guest-info,
-  .campground-info {
-    gap: 0.1rem;
-  }
-  
-  .booking-id strong,
-  .guest-info strong,
-  .campground-info strong {
-    font-size: 0.8rem;
-  }
-  
-  .booking-date,
-  .guest-email,
-  .campground-location {
-    font-size: 0.65rem;
-  }
-  
-  .booking-total {
-    font-size: 1rem;
-  }
+.pagination-btn.active {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
 }
 
-/* Loading and Error States - Inherit from OwnerCampgroundsPage.css */
+/* Enhanced Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-muted);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.empty-state p {
+  margin: 0 0 2rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: color 0.3s ease;
+}
+
+.empty-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Enhanced Button Styles */
+.owner-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  min-height: 44px;
+  gap: 0.5rem;
+}
+
+.owner-btn-primary {
+  background: var(--color-primary);
+  color: var(--color-button-text);
+  border: 2px solid var(--color-primary);
+}
+
+.owner-btn-primary:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-button-text);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+.owner-btn-secondary {
+  background: var(--color-secondary);
+  color: var(--color-button-text);
+  border: 2px solid var(--color-secondary);
+}
+
+.owner-btn-secondary:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-button-text);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(67, 160, 71, 0.3);
+}
+
+.owner-btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.owner-btn-outline:hover {
+  background: var(--color-primary);
+  color: var(--color-button-text);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+/* Enhanced Loading and Error States */
 .owner-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
+  min-height: 400px;
+  color: var(--color-text-muted);
+  font-size: 1.1rem;
 }
 
 .owner-loading-spinner {
-  width: 3rem;
-  height: 3rem;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #2c5530;
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-border);
+  border-top: 4px solid var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.owner-loading p {
-  color: #6c757d;
-  font-size: 1.1rem;
-  margin: 0;
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .owner-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
   text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--color-error);
+  padding: 2rem;
 }
 
 .owner-error h4 {
-  color: #dc3545;
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
+  color: var(--color-error);
 }
 
 .owner-error p {
-  color: #6c757d;
   margin: 0 0 2rem 0;
-  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 500px;
 }
 
-/* Page Header - Inherit from OwnerCampgroundsPage.css */
-.owner-page-header {
-  background: linear-gradient(135deg, #2c5530 0%, #3d7c47 100%);
-  color: white;
-  padding: 2rem;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .bookings-table th,
+  .bookings-table td {
+    padding: 1rem 0.75rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .header-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .header-actions {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .view-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 768px) {
+  .owner-bookings {
+    padding: 1rem;
+  }
+
+  .owner-page-header {
+    padding: 2rem 1.5rem;
+  }
+
+  .greeting-section h1 {
+    font-size: 2rem;
+  }
+
+  .header-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .header-main {
+    gap: 1rem;
+  }
+
+  .header-stats {
+    gap: 1rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-controls {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .bookings-table-container {
+    overflow-x: auto;
+  }
+
+  .bookings-table {
+    min-width: 800px;
+  }
+
+  .booking-guest {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .booking-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+  }
+
+  .empty-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .owner-page-header {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .greeting-section h1 {
+    font-size: 1.75rem;
+  }
+
+  .header-subtitle {
+    font-size: 1rem;
+  }
+
+  .header-stats {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .header-stat {
+    min-width: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .header-actions {
+    gap: 0.75rem;
+  }
+
+  .view-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .owner-select {
+    min-width: auto;
+  }
+
+  .bookings-table th,
+  .bookings-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .guest-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .guest-name {
+    font-size: 0.9rem;
+  }
+
+  .guest-email {
+    font-size: 0.8rem;
+  }
+
+  .campground-name {
+    font-size: 0.9rem;
+  }
+
+  .booking-amount {
+    font-size: 1rem;
+  }
+
+  .status-badge {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .action-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+
+  .pagination-btn {
+    padding: 0.375rem 0.75rem;
+    min-width: 36px;
+    font-size: 0.85rem;
+  }
+
+  .empty-state {
+    padding: 3rem 1rem;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .empty-state h3 {
+    font-size: 1.25rem;
+  }
+
+  .empty-state p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Focus and Accessibility Improvements */
+.owner-btn:focus,
+.action-btn:focus,
+.pagination-btn:focus,
+.owner-select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.bookings-table th:focus,
+.bookings-table td:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* Animation Enhancements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.owner-bookings > * {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.owner-bookings > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.owner-bookings > *:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.booking-row {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Print Styles */
+@media print {
+  .header-actions,
+  .filter-controls,
+  .booking-actions,
+  .pagination-container {
+    display: none;
+  }
+
+  .owner-bookings {
+    padding: 0;
+  }
+
+  .bookings-table-container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .bookings-table th {
+    background: #f8f9fa !important;
+    color: #000 !important;
+  }
+
+  .bookings-table td {
+    border-bottom: 1px solid #ccc;
+  }
+}
+
+/* Enhanced Stats Grid */
+.owner-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
   margin-bottom: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.header-content {
+.owner-stat-card {
+  background: var(--color-card-bg);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-normal);
+  border: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.owner-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transition: all var(--transition-normal);
+}
+
+.owner-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.owner-stat-card.total-bookings-card::before {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+}
+
+.owner-stat-card.pending-bookings-card::before {
+  background: linear-gradient(90deg, var(--color-warning), #ff9800);
+}
+
+.owner-stat-card.confirmed-bookings-card::before {
+  background: linear-gradient(90deg, var(--color-success), #20c997);
+}
+
+.owner-stat-card.completed-bookings-card::before {
+  background: linear-gradient(90deg, #17a2b8, #138496);
+}
+
+.owner-stat-card.cancelled-bookings-card::before {
+  background: linear-gradient(90deg, var(--color-error), #e74c3c);
+}
+
+.stat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 2rem;
+  margin-bottom: 1.5rem;
 }
 
-.header-content h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 2rem;
-  font-weight: 600;
+.stat-icon {
+  font-size: 2.5rem;
+  opacity: 0.8;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
-.header-content p {
-  margin: 0;
-  opacity: 0.9;
-  font-size: 1.1rem;
-}
-
-.header-actions {
+.stat-trend {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
 }
 
-/* Owner Card - Inherit from OwnerCampgroundsPage.css */
-.owner-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-/* Table Styles - Inherit from OwnerCampgroundsPage.css */
-.table-container {
-  overflow-x: auto;
-}
-
-.owner-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.owner-table th {
-  background: #f8f9fa;
-  padding: 1rem 0.75rem;
-  text-align: left;
+.trend-indicator {
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
-  white-space: nowrap;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-normal);
 }
 
-.owner-table td {
-  padding: 1rem 0.75rem;
-  border-bottom: 1px solid #dee2e6;
-  vertical-align: middle;
+.trend-indicator.positive {
+  background: var(--color-success-light);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
 }
 
-.owner-table tbody tr:hover {
-  background: #f8f9fa;
+.trend-indicator.negative {
+  background: var(--color-error-light);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
 }
 
-/* Button Styles - Inherit from OwnerCampgroundsPage.css */
-.owner-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
+.trend-indicator.warning {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+.trend-indicator.success {
+  background: var(--color-success-light);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.trend-indicator.neutral {
+  background: var(--color-info-light);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  line-height: 1;
+  transition: color var(--transition-normal);
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: var(--color-text);
   font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  gap: 0.5rem;
-  white-space: nowrap;
+  margin-bottom: 0.5rem;
+  transition: color var(--transition-normal);
 }
 
-.owner-btn-sm {
-  padding: 0.5rem;
-  font-size: 0.8rem;
-  min-width: 2.5rem;
-  height: 2.5rem;
+.stat-period {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  transition: color var(--transition-normal);
 }
 
-.owner-btn-primary {
-  background: #2c5530;
-  color: white;
-}
-
-.owner-btn-primary:hover {
-  background: #1e3a21;
-  transform: translateY(-1px);
-}
-
-.owner-btn-secondary {
-  background: #6c757d;
-  color: white;
-}
-
-.owner-btn-secondary:hover {
-  background: #545b62;
-  transform: translateY(-1px);
-}
-
-.owner-btn-outline {
-  background: transparent;
-  color: #2c5530;
-  border: 2px solid #2c5530;
-}
-
-.owner-btn-outline:hover {
-  background: #2c5530;
-  color: white;
-  transform: translateY(-1px);
-}
-
-.owner-btn-danger {
-  background: #dc3545;
-  color: white;
-}
-
-.owner-btn-danger:hover {
-  background: #c82333;
-  transform: translateY(-1px);
-}
-
-.owner-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.owner-btn:disabled:hover {
-  transform: none;
-}
-
-/* Select Styles - Inherit from OwnerCampgroundsPage.css */
-.owner-select {
-  padding: 0.5rem 1rem;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
-  background: white;
-  color: #495057;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.owner-select:focus {
-  outline: none;
-  border-color: #2c5530;
-  box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
-}
-
-/* Empty State - Inherit from OwnerCampgroundsPage.css */
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  opacity: 0.6;
-}
-
-.empty-state h3 {
-  margin: 0 0 1rem 0;
-  color: #495057;
-  font-size: 1.5rem;
-}
-
-.empty-state p {
-  margin: 0 0 2rem 0;
-  color: #6c757d;
-  font-size: 1.1rem;
-}
-
-/* Pagination - Inherit from OwnerCampgroundsPage.css */
-.owner-pagination {
+/* Enhanced Bookings Content */
+.bookings-content {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem 0;
-}
-
-.pagination-info {
-  color: #6c757d;
-  font-size: 0.9rem;
-  margin: 0 1rem;
-}
-
-/* Action Buttons */
-.actions-cell {
-  width: 1%;
-  white-space: nowrap;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  transition: all var(--transition-normal);
 }

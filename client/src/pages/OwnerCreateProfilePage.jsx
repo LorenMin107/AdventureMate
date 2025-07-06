@@ -2,18 +2,20 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
 import { logError } from '../utils/logger';
 import './OwnerRegisterPage.css'; // Reuse the same CSS
 
 /**
  * Owner Create Profile Page
- * For users who have been assigned as owners by an admin but don't have an owner profile yet
+ * Modern profile creation for users assigned as owners by admin
  */
 const OwnerCreateProfilePage = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { showMessage } = useFlashMessage();
+  const { theme } = useTheme();
   const { useRegisterOwner } = useOwners();
   const registerOwnerMutation = useRegisterOwner();
 
@@ -169,7 +171,10 @@ const OwnerCreateProfilePage = () => {
       case 1:
         return (
           <div className="form-step">
-            <h3>Business Information</h3>
+            <div className="step-header">
+              <h3>Business Information</h3>
+              <p className="step-description">Provide your basic business details to get started</p>
+            </div>
 
             <div className="form-group">
               <label htmlFor="businessName">Business Name *</label>
@@ -266,7 +271,12 @@ const OwnerCreateProfilePage = () => {
       case 2:
         return (
           <div className="form-step">
-            <h3>Business Address</h3>
+            <div className="step-header">
+              <h3>Business Address</h3>
+              <p className="step-description">
+                Provide your business address for verification purposes
+              </p>
+            </div>
 
             <div className="form-group">
               <label htmlFor="businessAddress.street">Street Address *</label>
@@ -277,7 +287,7 @@ const OwnerCreateProfilePage = () => {
                 value={formData.businessAddress.street}
                 onChange={handleInputChange}
                 className={errors['businessAddress.street'] ? 'error' : ''}
-                placeholder="Enter street address"
+                placeholder="123 Main Street"
               />
               {errors['businessAddress.street'] && (
                 <span className="error-message">{errors['businessAddress.street']}</span>
@@ -294,7 +304,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.businessAddress.city}
                   onChange={handleInputChange}
                   className={errors['businessAddress.city'] ? 'error' : ''}
-                  placeholder="City"
+                  placeholder="Yangon"
                 />
                 {errors['businessAddress.city'] && (
                   <span className="error-message">{errors['businessAddress.city']}</span>
@@ -310,7 +320,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.businessAddress.state}
                   onChange={handleInputChange}
                   className={errors['businessAddress.state'] ? 'error' : ''}
-                  placeholder="State or Region"
+                  placeholder="Yangon Region"
                 />
                 {errors['businessAddress.state'] && (
                   <span className="error-message">{errors['businessAddress.state']}</span>
@@ -328,7 +338,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.businessAddress.zipCode}
                   onChange={handleInputChange}
                   className={errors['businessAddress.zipCode'] ? 'error' : ''}
-                  placeholder="ZIP Code"
+                  placeholder="11011"
                 />
                 {errors['businessAddress.zipCode'] && (
                   <span className="error-message">{errors['businessAddress.zipCode']}</span>
@@ -337,18 +347,14 @@ const OwnerCreateProfilePage = () => {
 
               <div className="form-group">
                 <label htmlFor="businessAddress.country">Country</label>
-                <select
+                <input
+                  type="text"
                   id="businessAddress.country"
                   name="businessAddress.country"
                   value={formData.businessAddress.country}
                   onChange={handleInputChange}
-                >
-                  <option value="Myanmar">Myanmar</option>
-                  <option value="Thailand">Thailand</option>
-                  <option value="Vietnam">Vietnam</option>
-                  <option value="Laos">Laos</option>
-                  <option value="Cambodia">Cambodia</option>
-                </select>
+                  placeholder="Myanmar"
+                />
               </div>
             </div>
           </div>
@@ -357,29 +363,30 @@ const OwnerCreateProfilePage = () => {
       case 3:
         return (
           <div className="form-step">
-            <h3>Banking Information</h3>
-            <p className="step-description">
-              Banking information is optional but required for receiving payments. You can add this
-              later in your profile settings.
-            </p>
-
-            <div className="form-group">
-              <label htmlFor="bankingInfo.accountHolderName">Account Holder Name</label>
-              <input
-                type="text"
-                id="bankingInfo.accountHolderName"
-                name="bankingInfo.accountHolderName"
-                value={formData.bankingInfo.accountHolderName}
-                onChange={handleInputChange}
-                className={errors['bankingInfo.accountHolderName'] ? 'error' : ''}
-                placeholder="Full name as on bank account"
-              />
-              {errors['bankingInfo.accountHolderName'] && (
-                <span className="error-message">{errors['bankingInfo.accountHolderName']}</span>
-              )}
+            <div className="step-header">
+              <h3>Banking Information</h3>
+              <p className="step-description">
+                Provide banking details for payment processing (optional)
+              </p>
             </div>
 
             <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="bankingInfo.accountHolderName">Account Holder Name</label>
+                <input
+                  type="text"
+                  id="bankingInfo.accountHolderName"
+                  name="bankingInfo.accountHolderName"
+                  value={formData.bankingInfo.accountHolderName}
+                  onChange={handleInputChange}
+                  className={errors['bankingInfo.accountHolderName'] ? 'error' : ''}
+                  placeholder="Account holder name"
+                />
+                {errors['bankingInfo.accountHolderName'] && (
+                  <span className="error-message">{errors['bankingInfo.accountHolderName']}</span>
+                )}
+              </div>
+
               <div className="form-group">
                 <label htmlFor="bankingInfo.bankName">Bank Name</label>
                 <input
@@ -395,7 +402,9 @@ const OwnerCreateProfilePage = () => {
                   <span className="error-message">{errors['bankingInfo.bankName']}</span>
                 )}
               </div>
+            </div>
 
+            <div className="form-row">
               <div className="form-group">
                 <label htmlFor="bankingInfo.accountNumber">Account Number</label>
                 <input
@@ -404,12 +413,10 @@ const OwnerCreateProfilePage = () => {
                   name="bankingInfo.accountNumber"
                   value={formData.bankingInfo.accountNumber}
                   onChange={handleInputChange}
-                  placeholder="Bank account number"
+                  placeholder="Account number"
                 />
               </div>
-            </div>
 
-            <div className="form-row">
               <div className="form-group">
                 <label htmlFor="bankingInfo.routingNumber">Routing Number</label>
                 <input
@@ -418,21 +425,21 @@ const OwnerCreateProfilePage = () => {
                   name="bankingInfo.routingNumber"
                   value={formData.bankingInfo.routingNumber}
                   onChange={handleInputChange}
-                  placeholder="Routing number (if applicable)"
+                  placeholder="Routing number"
                 />
               </div>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="bankingInfo.swiftCode">SWIFT Code</label>
-                <input
-                  type="text"
-                  id="bankingInfo.swiftCode"
-                  name="bankingInfo.swiftCode"
-                  value={formData.bankingInfo.swiftCode}
-                  onChange={handleInputChange}
-                  placeholder="SWIFT/BIC code (if applicable)"
-                />
-              </div>
+            <div className="form-group">
+              <label htmlFor="bankingInfo.swiftCode">SWIFT Code</label>
+              <input
+                type="text"
+                id="bankingInfo.swiftCode"
+                name="bankingInfo.swiftCode"
+                value={formData.bankingInfo.swiftCode}
+                onChange={handleInputChange}
+                placeholder="SWIFT/BIC code"
+              />
             </div>
           </div>
         );
@@ -440,51 +447,35 @@ const OwnerCreateProfilePage = () => {
       case 4:
         return (
           <div className="form-step">
-            <h3>Booking Settings</h3>
-            <p className="step-description">
-              Configure your default booking settings. You can change these later in your dashboard.
-            </p>
-
-            <div className="form-group checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="settings.autoApproveBookings"
-                  checked={formData.settings.autoApproveBookings}
-                  onChange={handleInputChange}
-                />
-                <span className="checkmark"></span>
-                Auto-approve bookings
-              </label>
-              <small>Automatically approve booking requests without manual review</small>
+            <div className="step-header">
+              <h3>Business Settings</h3>
+              <p className="step-description">
+                Configure your default business settings and policies
+              </p>
             </div>
 
-            <div className="form-group checkbox-group">
-              <label className="checkbox-label">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="settings.checkInTime">Check-in Time</label>
                 <input
-                  type="checkbox"
-                  name="settings.allowInstantBooking"
-                  checked={formData.settings.allowInstantBooking}
+                  type="time"
+                  id="settings.checkInTime"
+                  name="settings.checkInTime"
+                  value={formData.settings.checkInTime}
                   onChange={handleInputChange}
                 />
-                <span className="checkmark"></span>
-                Allow instant booking
-              </label>
-              <small>Allow guests to book immediately without approval</small>
-            </div>
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="settings.cancellationPolicy">Cancellation Policy</label>
-              <select
-                id="settings.cancellationPolicy"
-                name="settings.cancellationPolicy"
-                value={formData.settings.cancellationPolicy}
-                onChange={handleInputChange}
-              >
-                <option value="flexible">Flexible - Full refund 24 hours before check-in</option>
-                <option value="moderate">Moderate - Full refund 5 days before check-in</option>
-                <option value="strict">Strict - 50% refund up to 1 week before check-in</option>
-              </select>
+              <div className="form-group">
+                <label htmlFor="settings.checkOutTime">Check-out Time</label>
+                <input
+                  type="time"
+                  id="settings.checkOutTime"
+                  name="settings.checkOutTime"
+                  value={formData.settings.checkOutTime}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
 
             <div className="form-row">
@@ -515,28 +506,44 @@ const OwnerCreateProfilePage = () => {
               </div>
             </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="settings.checkInTime">Check-in Time</label>
-                <input
-                  type="time"
-                  id="settings.checkInTime"
-                  name="settings.checkInTime"
-                  value={formData.settings.checkInTime}
-                  onChange={handleInputChange}
-                />
-              </div>
+            <div className="form-group">
+              <label htmlFor="settings.cancellationPolicy">Cancellation Policy</label>
+              <select
+                id="settings.cancellationPolicy"
+                name="settings.cancellationPolicy"
+                value={formData.settings.cancellationPolicy}
+                onChange={handleInputChange}
+              >
+                <option value="flexible">Flexible - Full refund 24 hours before check-in</option>
+                <option value="moderate">Moderate - Full refund 5 days before check-in</option>
+                <option value="strict">Strict - 50% refund up to 1 week before check-in</option>
+              </select>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="settings.checkOutTime">Check-out Time</label>
+            <div className="checkbox-group">
+              <label className="checkbox-label">
                 <input
-                  type="time"
-                  id="settings.checkOutTime"
-                  name="settings.checkOutTime"
-                  value={formData.settings.checkOutTime}
+                  type="checkbox"
+                  name="settings.autoApproveBookings"
+                  checked={formData.settings.autoApproveBookings}
                   onChange={handleInputChange}
                 />
-              </div>
+                Auto-approve bookings
+                <small>Automatically approve new booking requests</small>
+              </label>
+            </div>
+
+            <div className="checkbox-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="settings.allowInstantBooking"
+                  checked={formData.settings.allowInstantBooking}
+                  onChange={handleInputChange}
+                />
+                Allow instant booking
+                <small>Allow guests to book immediately without approval</small>
+              </label>
             </div>
           </div>
         );
@@ -547,71 +554,104 @@ const OwnerCreateProfilePage = () => {
   };
 
   return (
-    <div className="owner-register-page">
-      <div className="register-container">
-        <div className="register-header">
-          <h1>Complete Your Owner Profile</h1>
-          <p>
-            You've been assigned as a campground owner. Please complete your profile to access the
-            owner dashboard.
-          </p>
-        </div>
-
-        <div className="progress-bar">
-          <div className="progress-steps">
-            {[1, 2, 3, 4].map((step) => (
-              <div
-                key={step}
-                className={`progress-step ${step <= currentStep ? 'active' : ''} ${step < currentStep ? 'completed' : ''}`}
-              >
-                <span className="step-number">{step}</span>
-                <span className="step-label">
-                  {step === 1 && 'Business Info'}
-                  {step === 2 && 'Address'}
-                  {step === 3 && 'Banking'}
-                  {step === 4 && 'Settings'}
+    <div className={`owner-register-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
+      {/* Enhanced Page Header */}
+      <div className="owner-page-header">
+        <div className="header-content">
+          <div className="header-main">
+            <div className="greeting-section">
+              <h1>Create Owner Profile</h1>
+              <p className="header-subtitle">
+                Complete your profile to access the owner dashboard and start managing campgrounds
+              </p>
+            </div>
+            <div className="header-stats">
+              <div className="header-stat">
+                <span className="stat-label">Step</span>
+                <span className="stat-value">
+                  {currentStep}/{totalSteps}
                 </span>
               </div>
-            ))}
+              <div className="header-stat">
+                <span className="stat-label">Progress</span>
+                <span className="stat-value">{Math.round((currentStep / totalSteps) * 100)}%</span>
+              </div>
+            </div>
           </div>
-          <div className="progress-line">
-            <div
-              className="progress-fill"
-              style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
-            ></div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="profile-content">
+        {/* Enhanced Progress Bar */}
+        <div className="owner-card progress-card">
+          <div className="progress-bar">
+            <div className="progress-steps">
+              {[1, 2, 3, 4].map((step) => (
+                <div
+                  key={step}
+                  className={`progress-step ${step <= currentStep ? 'active' : ''} ${step < currentStep ? 'completed' : ''}`}
+                >
+                  <span className="step-number">{step}</span>
+                  <span className="step-label">
+                    {step === 1 && 'Business Info'}
+                    {step === 2 && 'Address'}
+                    {step === 3 && 'Banking'}
+                    {step === 4 && 'Settings'}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="progress-line">
+              <div
+                className="progress-fill"
+                style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+              ></div>
+            </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="register-form">
-          {renderStepContent()}
+        {/* Enhanced Form */}
+        <div className="owner-card form-card">
+          <form onSubmit={handleSubmit} className="register-form">
+            {renderStepContent()}
 
-          <div className="form-actions">
-            {currentStep > 1 && (
-              <button type="button" onClick={handlePrevious} className="btn btn-secondary">
-                Previous
-              </button>
-            )}
+            <div className="form-actions">
+              {currentStep > 1 && (
+                <button type="button" onClick={handlePrevious} className="btn btn-secondary">
+                  Previous
+                </button>
+              )}
 
-            {currentStep < totalSteps ? (
-              <button type="button" onClick={handleNext} className="btn btn-primary">
-                Next
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={registerOwnerMutation.isLoading}
-              >
-                {registerOwnerMutation.isLoading ? 'Creating Profile...' : 'Complete Profile'}
-              </button>
-            )}
+              {currentStep < totalSteps ? (
+                <button type="button" onClick={handleNext} className="btn btn-primary">
+                  Next
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={registerOwnerMutation.isLoading}
+                >
+                  {registerOwnerMutation.isLoading ? 'Creating Profile...' : 'Complete Profile'}
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Enhanced Footer */}
+        <div className="owner-card footer-card">
+          <div className="register-footer">
+            <div className="footer-content">
+              <p>
+                Already have an owner account? <Link to="/owner/dashboard">Go to Dashboard</Link>
+              </p>
+              <p>
+                Need help? <a href="mailto:support@myancamp.com">Contact Support</a>
+              </p>
+            </div>
           </div>
-        </form>
-
-        <div className="register-footer">
-          <p>
-            Need help? <a href="mailto:support@myancamp.com">Contact Support</a>
-          </p>
         </div>
       </div>
     </div>
