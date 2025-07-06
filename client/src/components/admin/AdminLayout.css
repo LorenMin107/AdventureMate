@@ -18,8 +18,8 @@
   border-bottom: 1px solid var(--color-border);
   border-radius: 20px 20px 20px 20px; /* Rounded top and bottom corners */
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   /* Fallback positioning - will be overridden by JavaScript */
   top: 60px;
   overflow: hidden; /* Ensure content doesn't overflow rounded corners */
