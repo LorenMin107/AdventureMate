@@ -4,6 +4,8 @@ import apiClient from '../utils/api';
 import './CampgroundForm.css';
 import { logInfo, logError } from '../utils/logger';
 
+const LOCAL_STORAGE_KEY = 'myancamp-owner-campground-form';
+
 /**
  * CampgroundForm component for creating and editing campgrounds
  *
@@ -33,6 +35,27 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+
+  // Restore form state from localStorage on mount (only for new form)
+  useEffect(() => {
+    if (!isEditing) {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setFormData(parsed.formData || { title: '', location: '', description: '' });
+          // Do not restore images for security reasons
+        } catch {}
+      }
+    }
+  }, [isEditing]);
+
+  // Save form state to localStorage on change (only for new form)
+  useEffect(() => {
+    if (!isEditing) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ formData }));
+    }
+  }, [formData, isEditing]);
 
   // Initialize form data if editing an existing campground
   useEffect(() => {
@@ -206,6 +229,11 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
       }
 
       logInfo('Campground data:', campgroundData);
+
+      // On successful submit, clear localStorage for new form
+      if (!isEditing) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      }
 
       // Navigate to the campground detail page
       navigate(`/campgrounds/${campgroundData._id}`);

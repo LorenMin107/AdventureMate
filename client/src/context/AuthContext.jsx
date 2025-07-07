@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import authService from '../services/AuthService';
 import { logInfo, logError } from '../utils/logger';
 
@@ -87,30 +87,28 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus(isNewTab);
 
     // Set up an interval to periodically check auth status
-    // Use a longer interval and only force a check occasionally
-    const intervalId = setInterval(() => {
-      // Only force a check every 5 minutes, otherwise use cache if available
-      const now = Date.now();
-      const lastForceCheck = localStorage.getItem('auth_last_force_check');
-      const shouldForceCheck = !lastForceCheck || now - parseInt(lastForceCheck) > 5 * 60 * 1000;
+    // Increase interval to 10 minutes (600,000 ms)
+    const intervalId = setInterval(
+      () => {
+        const now = Date.now();
+        const lastForceCheck = localStorage.getItem('auth_last_force_check');
+        const shouldForceCheck = !lastForceCheck || now - parseInt(lastForceCheck) > 10 * 60 * 1000; // 10 minutes
 
-      if (shouldForceCheck) {
-        localStorage.setItem('auth_last_force_check', now.toString());
-        checkAuthStatus(true);
-      } else {
-        checkAuthStatus(false);
-      }
-    }, 60 * 1000); // 60 seconds (increased from 30 seconds)
+        if (shouldForceCheck) {
+          localStorage.setItem('auth_last_force_check', now.toString());
+          checkAuthStatus(true);
+        } else {
+          checkAuthStatus(false);
+        }
+      },
+      10 * 60 * 1000
+    ); // 10 minutes
 
     // Listen for storage events to detect changes in other tabs
     const handleStorageChange = (event) => {
       if (event.key === 'auth_status_updated') {
         logInfo('Auth status updated in another tab, refreshing');
-
-        // Add a small delay to prevent rapid successive calls
         setTimeout(() => {
-          // Always force a check when auth status is updated from another tab
-          // This ensures we get the latest authentication state
           checkAuthStatus(true);
         }, 100);
       }
@@ -119,10 +117,20 @@ export const AuthProvider = ({ children }) => {
     // Add event listener for storage events
     window.addEventListener('storage', handleStorageChange);
 
-    // Clean up the interval and event listener when the component unmounts
+    // Add event listener for tab visibility change
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        logInfo('Tab became visible, checking auth status');
+        checkAuthStatus(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Clean up the interval and event listeners when the component unmounts
     return () => {
       clearInterval(intervalId);
       window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
@@ -330,24 +338,33 @@ export const AuthProvider = ({ children }) => {
     setIsLoginAttempt(false);
   };
 
-  // Context value
-  const value = {
-    currentUser,
-    loading,
-    error,
-    login,
-    logout,
-    register,
-    verifyTwoFactor,
-    refreshAccessToken,
-    requestPasswordReset,
-    resetPassword,
-    googleLogin,
-    facebookLogin,
-    requiresTwoFactor,
-    isAuthenticated: !!currentUser && currentUser?.isEmailVerified && !requiresTwoFactor,
-    clearLoginAttempt,
-  };
+  // Memoize the context value to prevent unnecessary re-renders
+  const value = useMemo(
+    () => ({
+      currentUser,
+      loading,
+      error,
+      login,
+      logout,
+      register,
+      verifyTwoFactor,
+      refreshAccessToken,
+      requestPasswordReset,
+      resetPassword,
+      googleLogin,
+      facebookLogin,
+      requiresTwoFactor,
+      isAuthenticated: !!currentUser && currentUser?.isEmailVerified && !requiresTwoFactor,
+      clearLoginAttempt,
+    }),
+    [
+      currentUser,
+      loading,
+      error,
+      requiresTwoFactor,
+      // (add other dependencies if needed)
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

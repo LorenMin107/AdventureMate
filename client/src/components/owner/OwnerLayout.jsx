@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import React, { Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useOutletContext } from 'react-router-dom';
@@ -130,4 +130,4 @@ const OwnerLayout = () => {
   );
 };
 
-export default OwnerLayout;
+export default React.memo(OwnerLayout);

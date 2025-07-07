@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -13,6 +13,11 @@ const OwnerCampgroundNewPage = () => {
   const { currentUser, loading } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  useEffect(() => {
+    if (!loading) setInitialLoad(false);
+  }, [loading]);
 
   // Check if user is owner, redirect if not
   useEffect(() => {
@@ -21,7 +26,7 @@ const OwnerCampgroundNewPage = () => {
     }
   }, [currentUser, loading, navigate]);
 
-  if (loading) {
+  if (initialLoad) {
     return <div className="loading-container">Loading...</div>;
   }
 
