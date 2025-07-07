@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const Review = require("./review");
-const Booking = require("./booking");
+const mongoose = require('mongoose');
+const Review = require('./review');
+const Booking = require('./booking');
 const Schema = mongoose.Schema;
 
 const ImageSchema = new Schema({
@@ -8,11 +8,11 @@ const ImageSchema = new Schema({
   filename: String,
 });
 
-ImageSchema.virtual("thumbnail").get(function () {
-  return this.url ? this.url.replace("/upload", "/upload/w_200") : '';
+ImageSchema.virtual('thumbnail').get(function () {
+  return this.url ? this.url.replace('/upload', '/upload/w_200') : '';
 });
 
-const opts = { toJSON: { virtuals: true } }; // to include virtuals when calling toJSON on the model
+const opts = { toJSON: { virtuals: true }, timestamps: true }; // to include virtuals when calling toJSON on the model
 
 const CampgroundSchema = new Schema(
   {
@@ -25,7 +25,7 @@ const CampgroundSchema = new Schema(
     geometry: {
       type: {
         type: String,
-        enum: ["Point"],
+        enum: ['Point'],
         required: true,
       },
       coordinates: {
@@ -38,38 +38,38 @@ const CampgroundSchema = new Schema(
     // The author field is kept for backward compatibility
     author: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
     // New owner field to explicitly represent campground ownership
     owner: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
     // Campground no longer has a price field - prices are defined at the campsite level
     // Array of campsites within this campground
     campsites: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Campsite",
+        ref: 'Campsite',
       },
     ],
     reviews: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Review",
+        ref: 'Review',
       },
     ],
     bookings: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Booking",
+        ref: 'Booking',
       },
     ],
   },
   opts
 );
 
-CampgroundSchema.virtual("properties.popUpMarkup").get(function () {
+CampgroundSchema.virtual('properties.popUpMarkup').get(function () {
   if (!this._id || !this.title) return '';
   const description = this.description || '';
   return `<strong><a href="/campgrounds/${this._id}">${this.title}</a></strong>
@@ -82,7 +82,7 @@ CampgroundSchema.index({ author: 1 });
 CampgroundSchema.index({ location: 'text' });
 CampgroundSchema.index({ 'geometry.coordinates': '2dsphere' });
 
-CampgroundSchema.post("findOneAndDelete", async function (doc) {
+CampgroundSchema.post('findOneAndDelete', async function (doc) {
   if (doc) {
     await Review.deleteMany({
       _id: { $in: doc.reviews },
@@ -93,4 +93,4 @@ CampgroundSchema.post("findOneAndDelete", async function (doc) {
   }
 });
 
-module.exports = mongoose.model("Campground", CampgroundSchema);
+module.exports = mongoose.model('Campground', CampgroundSchema);

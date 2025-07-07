@@ -10,9 +10,13 @@ import { logInfo, logError } from '../utils/logger';
  * @param {Object} props - Component props
  * @param {Object} props.campground - Existing campground data for editing (optional)
  * @param {boolean} props.isEditing - Whether the form is for editing (true) or creating (false)
+ * @param {string} [props.apiPath] - Optional API path for creation (e.g., /owners/campgrounds)
  */
-const CampgroundForm = ({ campground = null, isEditing = false }) => {
+const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
   const navigate = useNavigate();
+
+  // Add this line:
+  const useFlatFields = apiPath === '/owners/campgrounds';
 
   // Form state
   const [formData, setFormData] = useState({
@@ -140,14 +144,20 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
       // Create FormData object for file uploads
       const formDataToSend = new FormData();
 
-      // Nest campground data under 'campground' property as expected by the schema
-      formDataToSend.append('campground[title]', formData.title);
-      formDataToSend.append('campground[location]', formData.location);
-      formDataToSend.append('campground[description]', formData.description);
+      // Use flat field names for owner endpoint, nested for admin/general
+      if (useFlatFields) {
+        formDataToSend.append('title', formData.title);
+        formDataToSend.append('location', formData.location);
+        formDataToSend.append('description', formData.description);
+      } else {
+        formDataToSend.append('campground[title]', formData.title);
+        formDataToSend.append('campground[location]', formData.location);
+        formDataToSend.append('campground[description]', formData.description);
+      }
 
       // Add images to form data
       images.forEach((image) => {
-        formDataToSend.append('image', image);
+        formDataToSend.append(useFlatFields ? 'images' : 'image', image);
       });
 
       // Add images to delete if editing
@@ -159,8 +169,7 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
 
       // Determine URL and method based on whether we're creating or editing
       // Don't include /api/v1 in the URL as it's already in the baseURL of apiClient
-      const url = isEditing ? `/campgrounds/${campground?._id}` : '/campgrounds';
-
+      const url = isEditing ? `/campgrounds/${campground?._id}` : apiPath || '/campgrounds';
       const method = isEditing ? 'PUT' : 'POST';
 
       // Send the request using apiClient
@@ -329,7 +338,7 @@ const CampgroundForm = ({ campground = null, isEditing = false }) => {
             <input
               type="file"
               id="images"
-              name="images"
+              name={useFlatFields ? 'images' : 'image'}
               onChange={handleImageChange}
               multiple
               accept="image/*"

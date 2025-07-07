@@ -97,35 +97,37 @@ const HomePage = () => {
     <div className={`home-page ${isVisible ? 'visible' : ''}`}>
       {/* Hero Section */}
       <section className="hero">
-        <div className="hero-background">
-          <div className="hero-overlay"></div>
-        </div>
-        <div className="hero-content">
-          <h1 className="hero-title">
-            <span className="hero-title-main">Explore</span>
-            <span className="hero-title-sub">Thailand's Natural Wonders</span>
-          </h1>
-          <p className="hero-description">
-            Discover, book, and experience the most beautiful campgrounds across Thailand. From
-            misty mountains to pristine beaches, your next adventure awaits in the Land of Smiles.
-          </p>
-          <div className="hero-cta">
-            <Link to="/campgrounds" className="btn btn-primary btn-large">
-              Explore Campgrounds
-            </Link>
-            <Link to="/campgrounds" className="btn btn-outline btn-large">
-              View Destinations
-            </Link>
+        <div className="hero-container">
+          <div className="hero-background">
+            <div className="hero-overlay"></div>
           </div>
-        </div>
-        <div className="hero-scroll-indicator">
-          <div className="scroll-arrow"></div>
+          <div className="hero-content">
+            <h1 className="hero-title">
+              <span className="hero-title-main">Explore</span>
+              <span className="hero-title-sub">Thailand's Natural Wonders</span>
+            </h1>
+            <p className="hero-description">
+              Discover, book, and experience the most beautiful campgrounds across Thailand. From
+              misty mountains to pristine beaches, your next adventure awaits in the Land of Smiles.
+            </p>
+            <div className="hero-cta">
+              <Link to="/campgrounds" className="btn btn-primary btn-large">
+                Explore Campgrounds
+              </Link>
+              <Link to="/campgrounds" className="btn btn-outline btn-large">
+                View Destinations
+              </Link>
+            </div>
+          </div>
+          <div className="hero-scroll-indicator">
+            <div className="scroll-arrow"></div>
+          </div>
         </div>
       </section>
 
       {/* Popular Destinations */}
       <section className="destinations-section">
-        <div className="container">
+        <div className="destinations-container">
           <div className="section-header">
             <h2 className="section-title">Popular Destinations</h2>
             <p className="section-subtitle">
@@ -178,7 +180,7 @@ const HomePage = () => {
 
       {/* Features Section */}
       <section className="features-section">
-        <div className="container">
+        <div className="features-container">
           <div className="section-header">
             <h2 className="section-title">Why Choose AdventureMate?</h2>
             <p className="section-subtitle">
@@ -206,7 +208,7 @@ const HomePage = () => {
 
       {/* How It Works Section */}
       <section className="how-it-works-section">
-        <div className="container">
+        <div className="how-it-works-container">
           <div className="section-header">
             <h2 className="section-title">How It Works</h2>
             <p className="section-subtitle">Get started in just three simple steps</p>
@@ -238,7 +240,7 @@ const HomePage = () => {
 
       {/* Testimonials Section */}
       <section className="testimonials-section">
-        <div className="container">
+        <div className="testimonials-container">
           <div className="section-header">
             <h2 className="section-title">What Our Campers Say</h2>
             <p className="section-subtitle">
@@ -273,7 +275,7 @@ const HomePage = () => {
 
       {/* CTA Section */}
       <section className="cta-section">
-        <div className="container">
+        <div className="cta-container">
           <div className="cta-content">
             <h2>Ready for Your Thai Adventure?</h2>
             <p>Join thousands of campers discovering Thailand's natural wonders</p>

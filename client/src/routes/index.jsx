@@ -55,6 +55,7 @@ const OwnerCampgroundsPage = lazy(() => import('../pages/OwnerCampgroundsPage'))
 const OwnerBookingsPage = lazy(() => import('../pages/OwnerBookingsPage'));
 const OwnerAnalyticsPage = lazy(() => import('../pages/OwnerAnalyticsPage'));
 const OwnerSettingsPage = lazy(() => import('../pages/OwnerSettingsPage'));
+const OwnerCampgroundNewPage = lazy(() => import('../pages/OwnerCampgroundNewPage'));
 
 /**
  * Routes configuration
@@ -316,7 +317,7 @@ const routes = [
                     path: 'new',
                     element: (
                       <Suspense fallback={<LoadingFallback />}>
-                        <CampgroundNewPage />
+                        <OwnerCampgroundNewPage />
                       </Suspense>
                     ),
                   },
