@@ -11,16 +11,36 @@ const {
   serverError,
 } = require('../../utils/errorHandler');
 const { logInfo, logWarn, logError } = require('../../utils/logger');
+const redisCache = require('../../utils/redis');
 
 module.exports.index = asyncHandler(async (req, res) => {
+  // Try to get from cache first
+  const cacheKey = 'campgrounds:all';
+  let cachedData = null;
+
+  if (redisCache.isReady()) {
+    cachedData = await redisCache.get(cacheKey);
+  }
+
+  if (cachedData) {
+    logInfo('Serving campgrounds from cache', { count: cachedData.campgrounds.length });
+    return ApiResponse.success(cachedData, 'Campgrounds retrieved successfully (cached)').send(res);
+  }
+
+  // Fetch from database
   const campgrounds = await Campground.find({});
   const locations = await Campground.distinct('location');
 
-  logInfo('Retrieved all campgrounds', { count: campgrounds.length });
+  const data = { campgrounds, locations };
 
-  return ApiResponse.success({ campgrounds, locations }, 'Campgrounds retrieved successfully').send(
-    res
-  );
+  // Cache the result
+  if (redisCache.isReady()) {
+    await redisCache.setWithDefaultTTL(cacheKey, data, 'campgrounds');
+  }
+
+  logInfo('Retrieved all campgrounds from database', { count: campgrounds.length });
+
+  return ApiResponse.success(data, 'Campgrounds retrieved successfully').send(res);
 });
 
 module.exports.createCampground = asyncHandler(async (req, res) => {
@@ -52,6 +72,12 @@ module.exports.createCampground = asyncHandler(async (req, res) => {
 
   await campground.save();
 
+  // Invalidate cache after creating new campground
+  if (redisCache.isReady()) {
+    await redisCache.invalidatePattern('campgrounds:*');
+    logInfo('Invalidated campground cache after creation');
+  }
+
   logInfo('Created new campground', {
     campgroundId: campground._id,
     title: campground.title,
@@ -62,21 +88,44 @@ module.exports.createCampground = asyncHandler(async (req, res) => {
 });
 
 module.exports.showCampground = asyncHandler(async (req, res) => {
-  const campground = await Campground.findById(req.params.id)
+  const { id } = req.params;
+
+  // Try to get from cache first
+  const cacheKey = `campground:${id}`;
+  let cachedData = null;
+
+  if (redisCache.isReady()) {
+    cachedData = await redisCache.get(cacheKey);
+  }
+
+  if (cachedData) {
+    logInfo('Serving campground from cache', { campgroundId: id });
+    return ApiResponse.success(cachedData, 'Campground retrieved successfully (cached)').send(res);
+  }
+
+  // Fetch from database
+  const campground = await Campground.findById(id)
     .populate({ path: 'reviews', populate: { path: 'author' } })
     .populate('author');
 
   if (!campground) {
-    logWarn('Campground not found', { campgroundId: req.params.id });
-    throw notFoundError('Campground', req.params.id);
+    logWarn('Campground not found', { campgroundId: id });
+    throw notFoundError('Campground', id);
   }
 
-  logInfo('Retrieved campground details', {
+  const data = { campground };
+
+  // Cache the result
+  if (redisCache.isReady()) {
+    await redisCache.setWithDefaultTTL(cacheKey, data, 'campgrounds');
+  }
+
+  logInfo('Retrieved campground details from database', {
     campgroundId: campground._id,
     title: campground.title,
   });
 
-  return ApiResponse.success({ campground }, 'Campground retrieved successfully').send(res);
+  return ApiResponse.success(data, 'Campground retrieved successfully').send(res);
 });
 
 module.exports.searchCampgrounds = asyncHandler(async (req, res) => {
@@ -87,17 +136,44 @@ module.exports.searchCampgrounds = asyncHandler(async (req, res) => {
     throw validationError('Search term is required');
   }
 
+  // Try to get from cache first
+  const cacheKey = `search:campgrounds:${search.toLowerCase()}`;
+  let cachedData = null;
+
+  if (redisCache.isReady()) {
+    cachedData = await redisCache.get(cacheKey);
+  }
+
+  if (cachedData) {
+    logInfo('Serving search results from cache', {
+      searchTerm: search,
+      resultsCount: cachedData.campgrounds.length,
+    });
+    return ApiResponse.success(
+      cachedData,
+      `Found ${cachedData.campgrounds.length} campgrounds matching "${search}" (cached)`
+    ).send(res);
+  }
+
+  // Fetch from database
   const campgrounds = await Campground.find({
     title: { $regex: new RegExp(search, 'i') },
   });
 
-  logInfo('Performed campground search', {
+  const data = { campgrounds, searchTerm: search };
+
+  // Cache the result with shorter TTL for search results
+  if (redisCache.isReady()) {
+    await redisCache.setWithDefaultTTL(cacheKey, data, 'searchResults');
+  }
+
+  logInfo('Performed campground search from database', {
     searchTerm: search,
     resultsCount: campgrounds.length,
   });
 
   return ApiResponse.success(
-    { campgrounds, searchTerm: search },
+    data,
     `Found ${campgrounds.length} campgrounds matching "${search}"`
   ).send(res);
 });
@@ -208,6 +284,13 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
 
   await campground.save();
 
+  // Invalidate cache after updating campground
+  if (redisCache.isReady()) {
+    await redisCache.invalidatePattern('campgrounds:*');
+    await redisCache.del(`campground:${id}`);
+    logInfo('Invalidated campground cache after update');
+  }
+
   logInfo('Updated campground', {
     campgroundId: id,
     title: campground.title,
@@ -254,6 +337,13 @@ module.exports.deleteCampground = asyncHandler(async (req, res) => {
   }
 
   await Campground.findByIdAndDelete(id);
+
+  // Invalidate cache after deleting campground
+  if (redisCache.isReady()) {
+    await redisCache.invalidatePattern('campgrounds:*');
+    await redisCache.del(`campground:${id}`);
+    logInfo('Invalidated campground cache after deletion');
+  }
 
   logInfo('Campground deleted successfully', { campgroundId: id });
 

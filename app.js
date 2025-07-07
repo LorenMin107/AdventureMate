@@ -11,6 +11,7 @@ const mongoSanitize = require('express-mongo-sanitize'); // sanitize user input 
 const helmet = require('helmet'); // to set various HTTP headers for security (security middleware)
 const cors = require('cors'); // to allow cross-origin requests
 const cookieParser = require('cookie-parser'); // to parse cookies
+const compression = require('compression'); // for response compression
 const { setFlashMessages, readFlashMessages } = require('./middleware/flashMessages'); // custom flash messages middleware
 const swaggerUi = require('swagger-ui-express'); // for API documentation
 const swaggerDocument = require('./docs/swagger.json'); // swagger documentation
@@ -35,13 +36,27 @@ const { addBookingCountToUser, addConfigToTemplates } = require('./middleware');
 
 const ExpressError = require('./utils/ExpressError'); // import the ExpressError class from the utils folder
 const ApiResponse = require('./utils/ApiResponse'); // import the ApiResponse class for standardized API responses
+const redisCache = require('./utils/redis'); // import Redis cache utility
 
-// Connect to MongoDB using configuration
+// Connect to MongoDB and Redis using configuration
 // Using async IIFE for better error handling with async/await
 (async () => {
   try {
+    // Connect to MongoDB
     await mongoose.connect(config.db.url);
     logInfo('Database connected successfully', { url: config.db.url });
+
+    // Connect to Redis (optional - app will work without Redis)
+    try {
+      await redisCache.connect();
+      logInfo('Redis cache initialized successfully');
+    } catch (redisErr) {
+      logWarn('Redis connection failed, continuing without cache', {
+        error: redisErr.message,
+        host: config.redis.host,
+        port: config.redis.port,
+      });
+    }
   } catch (err) {
     logError('MongoDB Atlas connection error', err, { url: config.db.url });
 
@@ -52,6 +67,16 @@ const ApiResponse = require('./utils/ApiResponse'); // import the ApiResponse cl
         logInfo('Attempting to connect to local MongoDB', { url: localMongoUrl });
         await mongoose.connect(localMongoUrl);
         logInfo('Connected to local MongoDB', { url: localMongoUrl });
+
+        // Try Redis connection again
+        try {
+          await redisCache.connect();
+          logInfo('Redis cache initialized successfully');
+        } catch (redisErr) {
+          logWarn('Redis connection failed, continuing without cache', {
+            error: redisErr.message,
+          });
+        }
       } catch (localErr) {
         logError('Local MongoDB connection also failed', localErr, {
           atlasError: err.message,
@@ -76,6 +101,10 @@ app.set('views', path.join(__dirname, 'views')); // set the views directory
 app.use(express.urlencoded({ extended: true })); // to parse the form data
 app.use(express.json()); // to parse JSON data
 app.use(methodOverride('_method'));
+
+// Apply compression middleware early in the chain
+app.use(compression(config.compression));
+
 app.use(express.static(path.join(__dirname, 'public'))); // to serve static files like CSS, JS, images
 app.use(mongoSanitize({ replaceWith: '_' })); // sanitize user input to prevent NoSQL Injection
 
@@ -261,3 +290,16 @@ const tryStartServer = async (initialPort, maxAttempts = 5) => {
 
 // Start the server with port from config
 tryStartServer(config.server.port);
+
+// Graceful shutdown handlers
+process.on('SIGTERM', async () => {
+  logInfo('SIGTERM received, shutting down gracefully');
+  await redisCache.disconnect();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  logInfo('SIGINT received, shutting down gracefully');
+  await redisCache.disconnect();
+  process.exit(0);
+});

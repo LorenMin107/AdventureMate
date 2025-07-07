@@ -3,7 +3,13 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px 0;
-  font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+  font-family:
+    'Circular',
+    -apple-system,
+    BlinkMacSystemFont,
+    Roboto,
+    'Helvetica Neue',
+    sans-serif;
 }
 
 .booking-detail-page-title {
@@ -25,7 +31,7 @@
   margin: 48px auto;
   max-width: 600px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  border: 1px solid #DDDDDD;
+  border: 1px solid #dddddd;
 }
 
 .booking-detail-page-loading {
@@ -33,7 +39,7 @@
 }
 
 .booking-detail-page-error {
-  color: #C13515;
+  color: #c13515;
 }
 
 .booking-detail-page-not-found {

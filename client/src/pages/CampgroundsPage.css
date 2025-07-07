@@ -32,7 +32,9 @@
   border-radius: 4px;
   text-decoration: none;
   font-weight: 500;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   margin-top: 1rem;
 }
 
@@ -46,7 +48,9 @@
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .campgrounds-search-form {
@@ -73,7 +77,11 @@
   font-size: 1rem;
   background-color: var(--color-background);
   color: var(--color-text);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .search-input:focus,
@@ -97,7 +105,9 @@
   border-radius: 4px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .search-button {

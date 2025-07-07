@@ -4,9 +4,10 @@
   min-height: 100vh;
   background-color: var(--color-background);
   color: var(--color-text);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
-
 
 .main-content {
   flex: 1;

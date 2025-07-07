@@ -18,7 +18,9 @@
   padding: 1.5rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 4px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .booking-form-page-campground-info h2 {
