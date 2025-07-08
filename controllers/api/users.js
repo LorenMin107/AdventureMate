@@ -17,10 +17,12 @@ const {
   createPasswordChangeAuditLog,
 } = require('../../utils/passwordUtils');
 const { logError, logInfo, logWarn } = require('../../utils/logger');
+const Invite = require('../../models/invite');
+const Trip = require('../../models/trip');
 
 module.exports.register = async (req, res) => {
   try {
-    const { email, username, password, phone } = req.body;
+    const { email, username, password, phone, invite } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -37,6 +39,30 @@ module.exports.register = async (req, res) => {
     const user = new User({ email, username, phone, password: hashedPassword });
     await user.save();
     const registeredUser = user;
+
+    // Handle invite token if present
+    const inviteToken = invite || req.query.invite;
+    if (inviteToken) {
+      const pendingInvite = await Invite.findOne({ token: inviteToken, status: 'pending' });
+      if (pendingInvite) {
+        // Add user as collaborator to the trip
+        const trip = await Trip.findById(pendingInvite.trip);
+        if (trip) {
+          if (!trip.collaborators.includes(user._id)) {
+            trip.collaborators.push(user._id);
+            await trip.save();
+          }
+        }
+        // Add trip to user's sharedTrips
+        if (!user.sharedTrips.includes(trip._id)) {
+          user.sharedTrips.push(trip._id);
+          await user.save();
+        }
+        // Mark invite as accepted (or delete)
+        pendingInvite.status = 'accepted';
+        await pendingInvite.save();
+      }
+    }
 
     try {
       // Generate email verification token

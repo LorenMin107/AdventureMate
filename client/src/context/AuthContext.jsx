@@ -29,6 +29,14 @@ export const AuthProvider = ({ children }) => {
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
   const [isLoginAttempt, setIsLoginAttempt] = useState(false);
 
+  // Dispatch auth state change event
+  const dispatchAuthStateChange = (isAuthenticated) => {
+    const event = new CustomEvent('authStateChange', {
+      detail: { isAuthenticated }
+    });
+    window.dispatchEvent(event);
+  };
+
   // Check if user is logged in on initial load
   useEffect(() => {
     // Generate a unique ID for this tab
@@ -58,13 +66,16 @@ export const AuthProvider = ({ children }) => {
           if (authData.requiresTwoFactor) {
             setCurrentUser(null);
             setRequiresTwoFactor(true);
+            dispatchAuthStateChange(false);
           } else {
             setCurrentUser(authData.user);
             setRequiresTwoFactor(false);
+            dispatchAuthStateChange(!!authData.user);
           }
         } else {
           setCurrentUser(null);
           setRequiresTwoFactor(false);
+          dispatchAuthStateChange(false);
         }
 
         // Only clear error if we're not in the middle of a login attempt
@@ -156,6 +167,7 @@ export const AuthProvider = ({ children }) => {
 
       console.log('🔍 AuthContext: Login successful, setting currentUser');
       setCurrentUser(result);
+      dispatchAuthStateChange(true);
       return result;
     } catch (err) {
       console.log('🔍 AuthContext: Login error caught:', err);
@@ -190,6 +202,7 @@ export const AuthProvider = ({ children }) => {
       const user = await authService.verifyTwoFactor(token, useBackupCode);
       setCurrentUser(user);
       setRequiresTwoFactor(false);
+      dispatchAuthStateChange(true);
       return user;
     } catch (err) {
       setError(err.message || 'Failed to verify 2FA token');
@@ -208,6 +221,7 @@ export const AuthProvider = ({ children }) => {
       await authService.logout();
       setCurrentUser(null);
       setRequiresTwoFactor(false);
+      dispatchAuthStateChange(false);
     } catch (err) {
       setError('Failed to logout');
       logError('Logout error', err);
@@ -228,10 +242,12 @@ export const AuthProvider = ({ children }) => {
       // This prevents users from being "logged in" before email verification
       if (user && user.isEmailVerified) {
         setCurrentUser(user);
+        dispatchAuthStateChange(true);
       } else {
         // Don't set currentUser if email is not verified
         // The user will need to verify their email first
         setCurrentUser(null);
+        dispatchAuthStateChange(false);
       }
 
       return user;

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import ErrorBoundary from '../components/ErrorBoundary';
 import ProtectedRoute from '../components/ProtectedRoute';
@@ -56,6 +56,15 @@ const OwnerBookingsPage = lazy(() => import('../pages/OwnerBookingsPage'));
 const OwnerAnalyticsPage = lazy(() => import('../pages/OwnerAnalyticsPage'));
 const OwnerSettingsPage = lazy(() => import('../pages/OwnerSettingsPage'));
 const OwnerCampgroundNewPage = lazy(() => import('../pages/OwnerCampgroundNewPage'));
+
+// Trip Planner page
+const TripPlannerPage = lazy(() => import('../pages/TripPlannerPage'));
+
+// Add InviteRedirect component
+const InviteRedirect = () => {
+  const { tripId } = useParams();
+  return <Navigate to={`/trips/${tripId}`} replace />;
+};
 
 /**
  * Routes configuration
@@ -476,6 +485,29 @@ const routes = [
         ],
       },
 
+      // Trip Planner page
+      {
+        path: 'trips',
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <TripPlannerPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <TripPlannerPage />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+
       // 404 route
       {
         path: '*',
@@ -486,6 +518,10 @@ const routes = [
         ),
       },
     ],
+  },
+  {
+    path: 'invite/:tripId',
+    element: <InviteRedirect />,
   },
 ];
 

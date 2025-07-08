@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import TwoFactorSetup from '../components/TwoFactorSetup';
 import BookingList from '../components/BookingList';
@@ -114,6 +115,13 @@ const ProfilePage = () => {
                 <span>Bookings</span>
               </li>
               <li
+                className={`profile-nav-item ${activeSection === 'trips' ? 'active' : ''}`}
+                onClick={() => setActiveSection('trips')}
+              >
+                <span className="profile-nav-icon">🗺️</span>
+                <span>Trip Planner</span>
+              </li>
+              <li
                 className={`profile-nav-item ${activeSection === 'reviews' ? 'active' : ''}`}
                 onClick={() => setActiveSection('reviews')}
               >
@@ -211,6 +219,42 @@ const ProfilePage = () => {
               <h2 className="section-title">My Bookings</h2>
               <div className="profile-card">
                 <BookingList initialBookings={userDetails?.bookings || []} />
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'trips' && (
+            <div className="profile-section">
+              <h2 className="section-title">Trip Planner</h2>
+              <div className="profile-card">
+                <div className="trip-planner-intro">
+                  <h3>Plan Your Adventures</h3>
+                  <p>
+                    Create and manage your camping trip itineraries with our comprehensive trip
+                    planner.
+                  </p>
+                  <div className="trip-planner-features">
+                    <div className="feature-item">
+                      <span className="feature-icon">🗺️</span>
+                      <span>Create detailed itineraries</span>
+                    </div>
+                    <div className="feature-item">
+                      <span className="feature-icon">👥</span>
+                      <span>Share trips with friends</span>
+                    </div>
+                    <div className="feature-item">
+                      <span className="feature-icon">📅</span>
+                      <span>Calendar integration</span>
+                    </div>
+                    <div className="feature-item">
+                      <span className="feature-icon">📄</span>
+                      <span>Export and print plans</span>
+                    </div>
+                  </div>
+                  <Link to="/trips" className="trip-planner-link">
+                    Open Trip Planner
+                  </Link>
+                </div>
               </div>
             </div>
           )}

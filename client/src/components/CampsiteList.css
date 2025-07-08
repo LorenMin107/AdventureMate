@@ -4,7 +4,9 @@
   background-color: var(--color-card-bg);
   border-radius: 8px;
   box-shadow: 0 2px 10px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .campsites-header {
@@ -31,14 +33,17 @@
   text-decoration: none;
   border-radius: 4px;
   font-weight: 500;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .add-campsite-button:hover {
   background-color: var(--color-button-hover);
 }
 
-.campsites-loading, .campsites-error {
+.campsites-loading,
+.campsites-error {
   padding: 2rem;
   text-align: center;
   display: flex;
@@ -69,7 +74,10 @@
   background-color: var(--color-card-bg);
   border-radius: 8px;
   border: 1px dashed var(--color-border);
-  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .campsites-list {
@@ -97,7 +105,10 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px var(--color-card-shadow);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
   border: 1px solid var(--color-border);
 }
 
@@ -106,15 +117,17 @@
   box-shadow: 0 8px 20px var(--color-card-shadow);
 }
 
+/* Consistent width for campsite images, matching campground images */
 .campsite-image {
+  width: 100%; /* Match campground card image width */
   height: 200px;
   overflow: hidden;
   position: relative;
 }
 
 .campsite-image img {
-  width: 100%;
-  height: 100%;
+  width: 100%; /* Match campground card image width */
+  height: 200px; /* Enforced for consistency */
   object-fit: cover;
   transition: transform 0.5s ease;
 }
@@ -131,7 +144,9 @@
   background-color: var(--color-card-bg);
   color: var(--color-text);
   opacity: 0.5;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .campsite-details {
@@ -177,7 +192,10 @@
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .campsite-info {
@@ -226,7 +244,9 @@
   transition: background-color 0.3s ease;
 }
 
-.book-button, .edit-button, .delete-button {
+.book-button,
+.edit-button,
+.delete-button {
   padding: 0.6rem 1.2rem;
   border-radius: 6px;
   font-weight: 600;
@@ -235,15 +255,22 @@
   font-size: 0.95rem;
   border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.book-button:hover, .edit-button:hover, .delete-button:hover {
+.book-button:hover,
+.edit-button:hover,
+.delete-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.book-button:active, .edit-button:active, .delete-button:active {
+.book-button:active,
+.edit-button:active,
+.delete-button:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -334,7 +361,9 @@
     flex-wrap: wrap;
   }
 
-  .book-button, .edit-button, .delete-button {
+  .book-button,
+  .edit-button,
+  .delete-button {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
   }
@@ -366,7 +395,8 @@
     padding: 1rem;
   }
 
-  .edit-button, .delete-button {
+  .edit-button,
+  .delete-button {
     flex: 1;
     text-align: center;
   }

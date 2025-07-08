@@ -1,8 +1,7 @@
-import React, { Link, Outlet, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, Outlet, useLocation, useOutletContext } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { useOutletContext } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
 import './OwnerLayout.css';
 
 /**

@@ -1,0 +1,244 @@
+.trip-itinerary-builder {
+  background-color: var(--color-card-bg);
+  padding: 1.2rem;
+  border-radius: var(--radius-md, 0.5rem);
+  box-shadow: var(--shadow-sm);
+  margin-top: 1.2rem;
+  transition:
+    background-color var(--transition-normal),
+    color var(--transition-normal);
+}
+
+.itinerary-days {
+  margin-top: 0; /* Adjusted since the container has padding */
+}
+
+.itinerary-day {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 0.375rem);
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.7rem;
+  position: relative;
+  border-left: 3px solid var(--color-primary);
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color var(--transition-normal),
+    color var(--transition-normal),
+    border-color var(--transition-normal);
+}
+
+.itinerary-day h3 {
+  margin-top: 0;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  margin-bottom: 0.7rem;
+  font-weight: 600;
+}
+
+.day-activities {
+  margin-top: 1rem;
+}
+
+.day-activities p {
+  color: var(--color-text-muted);
+}
+
+.add-activity-btn {
+  background-color: var(--color-primary);
+  color: var(--color-button-text, #fff);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.add-activity-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.add-activity-form {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.add-activity-form input,
+.add-activity-form textarea {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.add-activity-form button {
+  margin-right: 10px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.add-activity-form button:first-of-type {
+  background-color: var(--color-success);
+  color: #fff;
+}
+
+.add-activity-form button:first-of-type:hover {
+  background-color: var(--color-success-hover);
+}
+
+.add-activity-form button:last-of-type {
+  background-color: transparent;
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.add-activity-form button:last-of-type:hover {
+  background-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1.5rem;
+}
+
+.activity-item {
+  background-color: var(--color-background);
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius-sm, 0.375rem);
+  border: 1px solid var(--color-border);
+  margin-bottom: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  transition:
+    box-shadow 0.2s,
+    background 0.2s,
+    border-color var(--transition-normal);
+}
+.activity-item:hover {
+  background: var(--color-bg-hover, #f6f8fa);
+  box-shadow: var(--shadow-md);
+}
+
+.activity-item strong {
+  display: block;
+  color: var(--color-primary-dark, #1976d2);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.1rem;
+}
+.activity-item .activity-time {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  margin-bottom: 0.05rem;
+}
+
+.activity-item p {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.95em;
+  margin-bottom: 1rem;
+}
+
+.delete-activity-btn {
+  background-color: transparent;
+  color: var(--color-danger);
+  border: 1.5px solid var(--color-danger);
+  padding: 0.35em 1em 0.35em 0.7em;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.92em;
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-weight: 500;
+  box-shadow: none;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s,
+    transform 0.15s;
+}
+
+.delete-activity-btn:hover,
+.delete-activity-btn:focus {
+  background-color: var(--color-error-light, rgba(220, 53, 69, 0.12));
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.08);
+  outline: none;
+  transform: none;
+}
+
+.back-to-trips-btn {
+  display: inline-block;
+  margin-bottom: 1.2rem;
+  background: none;
+  color: var(--color-primary);
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.3rem 0.7rem;
+  border-radius: 5px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.back-to-trips-btn:hover,
+.back-to-trips-btn:focus {
+  background: var(--color-primary-hover, #e3eaff);
+  color: #fff;
+  outline: none;
+}
+
+/* Placeholder for empty days */
+.day-activities .empty-activities {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-style: italic;
+  margin: 0.7rem 0;
+}
+.day-activities .empty-activities .icon {
+  font-size: 1.1rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .trip-itinerary-builder {
+    padding: 0.5rem;
+  }
+  .itinerary-day {
+    padding: 0.6rem 0.5rem;
+    border-radius: var(--radius-sm, 0.375rem);
+    margin-bottom: 0.5rem;
+    border-left-width: 2px;
+  }
+  .activity-item {
+    padding: 0.4rem 0.5rem;
+    border-radius: var(--radius-sm, 0.375rem);
+  }
+}

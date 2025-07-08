@@ -1,0 +1,742 @@
+/* Base Dialog Styles */
+.share-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  padding: 1rem;
+}
+
+.share-dialog {
+  background-color: var(--bg-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalFadeIn 0.25s ease-out;
+  border: 1px solid var(--border-color);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header Styles */
+.share-dialog-header {
+  padding: 1.5rem 1.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+}
+
+.share-dialog-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  line-height: 1.3;
+}
+
+.dialog-subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--bg-hover);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: var(--text-color);
+  background: var(--bg-hover);
+  transform: rotate(90deg);
+}
+
+.close-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+}
+
+/* Content Area */
+.share-dialog-content {
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 1.75rem;
+  margin: 0;
+  gap: 1.5rem;
+}
+
+.tab-button {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 1rem 0;
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s;
+}
+
+.tab-button:hover {
+  color: var(--primary-color);
+  background: var(--bg-hover, #f3f4f6);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.07);
+  border-radius: 6px 6px 0 0;
+  position: relative;
+  z-index: 1;
+  transition:
+    color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s;
+}
+
+/* Dark theme tab button hover */
+.dark-theme .tab-button:hover,
+.share-dialog.dark-theme .tab-button:hover {
+  color: var(--color-primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.07);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary-color);
+  border-radius: 2px 2px 0 0;
+}
+
+.tab-icon {
+  font-size: 1.1em;
+}
+
+/* Form Styles */
+.invite-section {
+  padding: 1.5rem 1.75rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 0.9375rem;
+}
+
+.input-hint {
+  margin: 0 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.invite-input-group {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.email-input {
+  flex: 1;
+  padding: 0.6875rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  height: 44px;
+  box-sizing: border-box;
+}
+
+.email-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+}
+
+.invite-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 44px;
+  min-width: 120px;
+  white-space: nowrap;
+}
+
+.invite-button:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.invite-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.invite-button:disabled {
+  background-color: var(--disabled-bg);
+  color: var(--disabled-text);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.button-icon {
+  font-size: 1.1em;
+}
+
+.button-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Status Messages */
+.status-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.status-message.error {
+  background-color: var(--danger-bg);
+  color: var(--danger-color);
+  border-left: 3px solid var(--danger-color);
+}
+
+.status-message.success {
+  background-color: var(--success-bg);
+  color: var(--success-color);
+  border-left: 3px solid var(--success-color);
+}
+
+.status-icon {
+  flex-shrink: 0;
+  font-size: 1.1em;
+}
+
+/* Tips Section */
+.invite-tips {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background-color: var(--bg-hover);
+  border-radius: 8px;
+  border: 1px dashed var(--border-color);
+}
+
+.invite-tips h4 {
+  margin: 0 0 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--text-color);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.invite-tips h4::before {
+  content: '💡';
+  font-size: 1.1em;
+}
+
+.invite-tips ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.invite-tips li {
+  margin-bottom: 0.35rem;
+}
+
+.invite-tips li:last-child {
+  margin-bottom: 0;
+}
+
+.invite-button {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+
+.invite-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.invite-button:active {
+  transform: translateY(1px);
+}
+
+.invite-button:disabled {
+  background-color: var(--disabled-bg);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.collaborators-section {
+  font-size: 0.92rem;
+  padding: 0.75rem 1rem 0.5rem 1rem;
+}
+
+.collaborators-section .section-header h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+}
+
+.collaborators-section .badge {
+  font-size: 0.85rem;
+  padding: 0.15em 0.6em;
+  border-radius: 8px;
+}
+
+.owner-section-card {
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.4rem;
+  border-radius: 7px;
+  background: var(--color-card-bg, #f5f6fa);
+  display: flex;
+  align-items: center;
+  font-size: 0.95em;
+}
+
+.owner-section-content {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.owner-avatar-block {
+  display: flex;
+  align-items: center;
+}
+
+.owner-avatar-block .Avatar,
+.owner-avatar-block .avatar {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 1.1em !important;
+}
+
+.owner-avatar-block .owner-fullname {
+  margin-left: 0.5em;
+  font-size: 0.98em;
+  font-weight: 500;
+  color: var(--color-primary, #3b82f6);
+  align-self: center;
+  letter-spacing: 0.01em;
+}
+
+.owner-details {
+  margin-left: 0.5rem;
+}
+
+.owner-name {
+  font-size: 0.98em;
+  font-weight: 600;
+}
+
+.owner-email {
+  font-size: 0.85em;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.owner-role-badge {
+  font-size: 0.85em;
+  margin-left: 0.5rem;
+  color: var(--color-primary, #3b82f6);
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.collaborator-item {
+  font-size: 0.95em;
+  padding: 0.5rem 0.75rem;
+  border-radius: 7px;
+  margin-bottom: 0.3rem;
+}
+
+.collaborator-item .user-info .Avatar,
+.collaborator-item .user-info .avatar {
+  width: 28px !important;
+  height: 28px !important;
+  font-size: 1em !important;
+}
+
+.collaborator-item .user-details {
+  margin-left: 0.4rem;
+}
+
+.collaborator-item .user-name {
+  font-size: 0.97em;
+}
+
+.collaborator-item .user-email {
+  font-size: 0.82em;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.collaborator-role {
+  font-size: 0.85em;
+  margin-left: 0.4rem;
+}
+
+.remove-button {
+  font-size: 1em;
+  padding: 0.15rem 0.4rem;
+}
+
+.no-collaborators {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+.error-message {
+  color: var(--danger-color);
+  background-color: var(--danger-bg);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-size: 0.9375rem;
+  border-left: 3px solid var(--danger-color);
+}
+
+.success-message {
+  color: var(--success-color);
+  background-color: var(--success-bg);
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+  font-size: 0.9375rem;
+  border-left: 3px solid var(--success-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .share-dialog {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+
+  .invite-input-group {
+    flex-direction: column;
+  }
+
+  .invite-button {
+    width: 100%;
+    padding: 0.625rem;
+  }
+}
+
+/* Add dark theme support for ShareTripDialog */
+
+/* --- Owner Section Card Styles for Collaborators Tab --- */
+.dark-theme .share-dialog,
+.share-dialog.dark-theme {
+  background-color: var(--color-card-bg, #23272f);
+  color: var(--color-text, #f5f6fa);
+  border: 1px solid var(--color-border, #333a45);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.dark-theme .share-dialog-header,
+.share-dialog.dark-theme .share-dialog-header {
+  border-bottom: 1px solid var(--color-border, #333a45);
+}
+
+.dark-theme .close-button,
+.share-dialog.dark-theme .close-button {
+  background: var(--color-card-bg, #23272f);
+  color: var(--color-text-muted, #b0b8c1);
+}
+
+.dark-theme .close-button:hover,
+.share-dialog.dark-theme .close-button:hover {
+  background: var(--color-primary, #3b82f6);
+  color: #fff;
+}
+
+.dark-theme .tab-button,
+.share-dialog.dark-theme .tab-button {
+  color: var(--color-text-muted, #b0b8c1);
+}
+
+.dark-theme .tab-button.active,
+.share-dialog.dark-theme .tab-button.active {
+  color: var(--color-primary, #3b82f6);
+}
+
+.dark-theme .tab-button.active::after,
+.share-dialog.dark-theme .tab-button.active::after {
+  background-color: var(--color-primary, #3b82f6);
+}
+
+.dark-theme .invite-section,
+.share-dialog.dark-theme .invite-section {
+  background: transparent;
+}
+
+.dark-theme .email-input,
+.share-dialog.dark-theme .email-input {
+  background-color: var(--color-input-bg, #23272f);
+  color: var(--color-text, #f5f6fa);
+  border: 1px solid var(--color-border, #333a45);
+}
+
+.dark-theme .email-input:focus,
+.share-dialog.dark-theme .email-input:focus {
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.dark-theme .invite-button,
+.share-dialog.dark-theme .invite-button {
+  background: var(--color-primary, #3b82f6);
+  color: #fff;
+}
+
+.dark-theme .invite-button:disabled,
+.share-dialog.dark-theme .invite-button:disabled {
+  background: var(--color-border, #333a45);
+  color: var(--color-text-muted, #b0b8c1);
+}
+
+.dark-theme .status-message.error,
+.share-dialog.dark-theme .status-message.error {
+  background: rgba(220, 53, 69, 0.12);
+  color: #ff6b81;
+}
+
+.dark-theme .status-message.success,
+.share-dialog.dark-theme .status-message.success {
+  background: rgba(40, 167, 69, 0.12);
+  color: #4ade80;
+}
+
+.dark-theme .collaborator-item,
+.share-dialog.dark-theme .collaborator-item {
+  background: var(--color-card-bg, #23272f);
+  color: var(--color-text, #f5f6fa);
+  border: 1px solid var(--color-border, #333a45);
+}
+
+.dark-theme .remove-button,
+.share-dialog.dark-theme .remove-button {
+  background: transparent;
+  color: #ff6b81;
+}
+
+.dark-theme .remove-button:hover,
+.share-dialog.dark-theme .remove-button:hover {
+  background: rgba(220, 53, 69, 0.15);
+  color: #fff;
+}
+
+.dark-theme .invite-tips,
+.share-dialog.dark-theme .invite-tips {
+  background: rgba(59, 130, 246, 0.05);
+  color: var(--color-text, #f5f6fa);
+}
+
+/* Overlay darken for dark theme */
+.dark-theme .share-dialog-overlay,
+.share-dialog-overlay.dark-theme {
+  background-color: transparent;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* Improve accessibility and readability */
+.share-dialog .form-label,
+.share-dialog .user-name,
+.share-dialog .user-email,
+.share-dialog .dialog-subtitle {
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
+.share-dialog .invite-tips {
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  background: rgba(59, 130, 246, 0.07);
+  color: var(--color-text, #23272f);
+}
+
+.share-dialog .invite-tips h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.share-dialog .invite-tips ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.95rem;
+}
+
+.share-dialog .invite-tips li {
+  margin-bottom: 0.25rem;
+}
+
+.share-dialog .collaborator-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background: var(--color-card-bg, #f5f6fa);
+  border: 1px solid var(--color-border, #e5e7eb);
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.share-dialog .collaborator-item.owner {
+  font-weight: 600;
+  background: var(--color-primary-light, #e0e7ff);
+  color: var(--color-primary, #3b82f6);
+}
+
+.share-dialog .remove-button {
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.share-dialog .remove-button:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+.share-dialog .no-collaborators {
+  color: var(--color-text-muted, #6b7280);
+  text-align: center;
+  padding: 1rem 0;
+  font-size: 1rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 576px) {
+  .share-dialog {
+    max-width: 98vw;
+    padding: 0.5rem;
+  }
+  .share-dialog-header {
+    padding: 1rem 1rem 0.75rem;
+  }
+  .invite-section {
+    padding: 1rem 1rem;
+  }
+}
+
+.owner-details-vertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 0.5rem;
+  gap: 0.1em;
+}
+
+.owner-details-vertical .owner-role-badge {
+  margin-left: 0;
+  margin-top: 0.2em;
+  align-self: flex-start;
+}

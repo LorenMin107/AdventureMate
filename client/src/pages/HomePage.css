@@ -145,6 +145,22 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
+.btn-secondary {
+  background: var(--color-secondary, #6c757d);
+  border: 3px solid var(--color-secondary, #6c757d);
+  color: white;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background: var(--color-secondary-hover, #5a6268);
+  border-color: var(--color-secondary-hover, #5a6268);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
 .hero-scroll-indicator {
   position: absolute;
   bottom: 3rem;

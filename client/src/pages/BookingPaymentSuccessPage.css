@@ -109,18 +109,19 @@
   font-weight: 400;
 }
 
+/* Consistent image sizing for booking payment success campsite images */
 .booking-payment-success-campsite-image {
   margin-top: 1rem;
   margin-bottom: 1rem;
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
-  max-height: 300px;
+  max-height: 200px; /* Enforced for consistency */
 }
 
 .booking-payment-success-campsite-image img {
   width: 100%;
-  height: 100%;
+  height: 200px; /* Enforced for consistency */
   object-fit: cover;
   display: block;
 }

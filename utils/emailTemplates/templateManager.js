@@ -9,7 +9,8 @@ const TEMPLATE_TYPES = {
   WELCOME: 'welcome',
   PASSWORD_RESET: 'password-reset',
   BOOKING_CONFIRMATION: 'booking-confirmation',
-  ACCOUNT_UPDATE: 'account-update'
+  ACCOUNT_UPDATE: 'account-update',
+  TRIP_INVITE: 'trip-invite',
 };
 
 /**
@@ -30,6 +31,8 @@ const getHtmlTemplate = (type, data = {}) => {
       return renderBookingConfirmationEmail(data);
     case TEMPLATE_TYPES.ACCOUNT_UPDATE:
       return renderAccountUpdateEmail(data);
+    case TEMPLATE_TYPES.TRIP_INVITE:
+      return renderTripInviteEmail(data);
     default:
       throw new Error(`Unknown template type: ${type}`);
   }
@@ -53,6 +56,8 @@ const getTextTemplate = (type, data = {}) => {
       return renderBookingConfirmationEmailText(data);
     case TEMPLATE_TYPES.ACCOUNT_UPDATE:
       return renderAccountUpdateEmailText(data);
+    case TEMPLATE_TYPES.TRIP_INVITE:
+      return renderTripInviteEmailText(data);
     default:
       throw new Error(`Unknown template type: ${type}`);
   }
@@ -889,8 +894,134 @@ const renderAccountUpdateEmailText = ({ username, updates }) => {
   `;
 };
 
+/**
+ * Render the trip invite email HTML template
+ * @param {Object} data - Template data
+ * @param {string} data.inviter - Name of the inviter
+ * @param {string} data.tripName - Name of the trip
+ * @param {string} data.inviteUrl - Invitation URL
+ * @param {string} data.tripDescription - Trip description
+ * @param {string} data.tripStartDate - Trip start date
+ * @param {string} data.tripEndDate - Trip end date
+ * @param {string} data.inviterMessage - Inviter message
+ * @returns {string} HTML template
+ */
+const renderTripInviteEmail = ({
+  inviter,
+  tripName,
+  inviteUrl,
+  tripDescription,
+  tripStartDate,
+  tripEndDate,
+  inviterMessage,
+}) => {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Trip Invitation</title>
+      <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 24px; }
+        .header { text-align: center; margin-bottom: 24px; }
+        .logo { max-width: 120px; margin-bottom: 12px; }
+        .button { display: inline-block; background: #4CAF50; color: #fff; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: bold; margin: 20px 0; }
+        .button:hover { background: #388e3c; }
+        .footer { text-align: center; color: #777; font-size: 12px; margin-top: 32px; }
+        .link-fallback { margin-top: 20px; font-size: 12px; color: #777; word-break: break-all; }
+        .trip-details { background: #f0f8f5; border-radius: 6px; padding: 16px; margin: 18px 0; }
+        .trip-details h3 { margin: 0 0 8px 0; font-size: 1.1rem; color: #388e3c; }
+        .trip-details p { margin: 4px 0; font-size: 0.98rem; }
+        .inviter-message { margin: 18px 0; font-style: italic; color: #444; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="https://adventurecamp.com/logo.png" alt="AdventureCamp Logo" class="logo" />
+          <h1>AdventureCamp</h1>
+        </div>
+        <h2>You're Invited to Join a Trip!</h2>
+        <p>Hello,</p>
+        <p><strong>${inviter}</strong> has invited you to collaborate on the trip <strong>"${tripName}"</strong> in AdventureCamp.</p>
+        <div class="trip-details">
+          <h3>Trip Details</h3>
+          <p><strong>Name:</strong> ${tripName}</p>
+          ${tripStartDate ? `<p><strong>Start:</strong> ${tripStartDate}</p>` : ''}
+          ${tripEndDate ? `<p><strong>End:</strong> ${tripEndDate}</p>` : ''}
+          ${tripDescription ? `<p><strong>Description:</strong> ${tripDescription}</p>` : ''}
+        </div>
+        <div class="inviter-message">
+          ${inviterMessage || "Let\'s plan an amazing trip together!"}
+        </div>
+        <div style="text-align: center;">
+          <a href="${inviteUrl}" class="button">Accept Invitation</a>
+        </div>
+        <p>If you do not wish to join, you can safely ignore this email.</p>
+        <div class="link-fallback">
+          If the button doesn't work, copy and paste this link into your browser:<br>
+          ${inviteUrl}
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} AdventureCamp. All rights reserved.</p>
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+};
+
+/**
+ * Render the trip invite email text template
+ * @param {Object} data - Template data
+ * @param {string} data.inviter - Name of the inviter
+ * @param {string} data.tripName - Name of the trip
+ * @param {string} data.inviteUrl - Invitation URL
+ * @param {string} data.tripDescription - Trip description
+ * @param {string} data.tripStartDate - Trip start date
+ * @param {string} data.tripEndDate - Trip end date
+ * @param {string} data.inviterMessage - Inviter message
+ * @returns {string} Text template
+ */
+const renderTripInviteEmailText = ({
+  inviter,
+  tripName,
+  inviteUrl,
+  tripDescription,
+  tripStartDate,
+  tripEndDate,
+  inviterMessage,
+}) => {
+  let details = `Trip Details:\nName: ${tripName}\n`;
+  if (tripStartDate) details += `Start: ${tripStartDate}\n`;
+  if (tripEndDate) details += `End: ${tripEndDate}\n`;
+  if (tripDescription) details += `Description: ${tripDescription}\n`;
+  return `
+Hello,
+
+${inviter} has invited you to collaborate on the trip "${tripName}" in AdventureCamp.
+
+${details}
+${inviterMessage || "Let\'s plan an amazing trip together!"}
+
+Accept your invitation by visiting the link below:
+${inviteUrl}
+
+If you do not wish to join, you can safely ignore this email.
+
+Best regards,
+The AdventureCamp Team
+
+© ${new Date().getFullYear()} AdventureCamp. All rights reserved.
+This is an automated message, please do not reply to this email.
+`;
+};
+
 module.exports = {
   TEMPLATE_TYPES,
   getHtmlTemplate,
-  getTextTemplate
+  getTextTemplate,
 };

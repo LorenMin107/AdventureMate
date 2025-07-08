@@ -45,6 +45,16 @@ const Header = () => {
                 Campgrounds
               </NavLink>
             </li>
+            {showAuthenticatedLinks && (
+              <li className="nav-item">
+                <NavLink
+                  to="/trips"
+                  className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+                >
+                  Trip Planner
+                </NavLink>
+              </li>
+            )}
             {isAuthenticated ? (
               <>
                 {showAuthenticatedLinks ? (

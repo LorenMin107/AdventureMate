@@ -150,6 +150,9 @@ const UserSchema = new Schema(
         ref: 'Contact',
       },
     ],
+    // Add these fields for trip planner
+    trips: [{ type: Schema.Types.ObjectId, ref: 'Trip' }],
+    sharedTrips: [{ type: Schema.Types.ObjectId, ref: 'Trip' }],
   },
   { timestamps: true }
 ); // Add timestamps option

@@ -23,5 +23,6 @@ router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
 router.use('/2fa', twoFactorAuthRoutes);
 router.use('/owners', ownerRoutes);
+router.use('/trips', require('./trips'));
 
 module.exports = router;

@@ -12,7 +12,9 @@
   color: var(--color-text);
   border-bottom: 2px solid var(--color-border);
   padding-bottom: 10px;
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .admin-booking-detail-card {
@@ -22,7 +24,9 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px var(--color-card-shadow);
   overflow: hidden;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 @media (min-width: 768px) {
@@ -37,9 +41,12 @@
   padding: 20px;
   border-right: 1px solid var(--color-border);
   background-color: var(--color-card-bg);
-  transition: border-color 0.3s ease, background-color 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease;
 }
 
+/* Consistent image sizing for admin booking detail images */
 .admin-booking-detail-image {
   width: 100%;
   height: 200px;
@@ -50,7 +57,7 @@
 
 .admin-booking-detail-image img {
   width: 100%;
-  height: 100%;
+  height: 200px; /* Enforced for consistency */
   object-fit: cover;
 }
 
@@ -63,7 +70,9 @@
   background-color: var(--color-border);
   color: var(--color-text);
   font-size: 0.9rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .admin-booking-detail-campground-info {
@@ -92,7 +101,9 @@
   background-color: rgba(0, 0, 0, 0.03);
   border-radius: 6px;
   border-left: 3px solid var(--color-primary);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .admin-booking-detail-campsite-info h4 {
@@ -142,7 +153,10 @@
   border: 1px solid var(--color-primary);
   border-radius: 20px;
   font-size: 0.75rem;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .admin-booking-detail-trip-dates {
@@ -168,7 +182,9 @@
   background-color: var(--color-card-bg);
   border-radius: 4px;
   box-shadow: 0 1px 3px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .admin-booking-detail-date-label {
@@ -322,7 +338,9 @@
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .admin-booking-detail-back-button {
@@ -380,7 +398,9 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px var(--color-card-shadow);
   margin: 20px 0;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .admin-booking-detail-loading {

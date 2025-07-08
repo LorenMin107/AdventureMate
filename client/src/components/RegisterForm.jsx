@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { logError } from '../utils/logger';
 import './RegisterForm.css';
+import apiClient from '../utils/api';
 
 /**
  * Registration form component
@@ -25,7 +26,13 @@ const RegisterForm = () => {
   });
   const { register, error, loading, clearLoginAttempt } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const inviteToken = searchParams.get('invite');
+  const { currentUser, isAuthenticated } = useAuth();
+  const [inviteTripId, setInviteTripId] = useState(null);
+  const [inviteError, setInviteError] = useState('');
 
   // Clear login attempt flag when component unmounts
   useEffect(() => {
@@ -36,6 +43,26 @@ const RegisterForm = () => {
       }
     };
   }, [clearLoginAttempt]);
+
+  // If already logged in and there is an invite token, fetch invite and redirect
+  useEffect(() => {
+    if (isAuthenticated && inviteToken) {
+      // Fetch invite info from backend
+      apiClient
+        .get(`/trips/invite-by-token/${inviteToken}`)
+        .then((res) => {
+          const tripId = res.data.tripId;
+          setInviteTripId(tripId);
+          // Redirect after short delay
+          setTimeout(() => {
+            navigate(`/trips/${tripId}`);
+          }, 2000);
+        })
+        .catch(() => {
+          setInviteError('This invite is invalid or has expired.');
+        });
+    }
+  }, [isAuthenticated, inviteToken, navigate]);
 
   // Check password strength
   useEffect(() => {
@@ -163,6 +190,10 @@ const RegisterForm = () => {
     try {
       // Remove confirmPassword before sending to API
       const { confirmPassword, ...userData } = formData;
+      // If inviteToken is present, include it in the registration payload
+      if (inviteToken) {
+        userData.invite = inviteToken;
+      }
       const user = await register(userData);
 
       // Check if registration failed (returned null)
@@ -205,6 +236,22 @@ const RegisterForm = () => {
       logError('Registration error', err);
     }
   };
+
+  if (isAuthenticated && inviteToken) {
+    return (
+      <div className="register-container">
+        {inviteError ? (
+          <div className="form-error">{inviteError}</div>
+        ) : inviteTripId ? (
+          <div className="form-success">
+            You are already logged in. Redirecting you to the trip...
+          </div>
+        ) : (
+          <div className="form-success">Checking your invite...</div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="register-form-container">

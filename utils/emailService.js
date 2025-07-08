@@ -58,8 +58,8 @@ const getTransporter = async () => {
       },
     });
 
-    logInfo('Ethereal Email test account created', { 
-      user: testAccount.user 
+    logInfo('Ethereal Email test account created', {
+      user: testAccount.user,
     });
     return transporter;
   } catch (error) {
@@ -79,9 +79,9 @@ const getTransporter = async () => {
  */
 const sendEmail = async (options) => {
   try {
-    logInfo('Attempting to send email', { 
+    logInfo('Attempting to send email', {
       to: options.to,
-      subject: options.subject 
+      subject: options.subject,
     });
 
     const transport = await getTransporter();
@@ -102,23 +102,23 @@ const sendEmail = async (options) => {
     });
 
     const info = await transport.sendMail(mailOptions);
-    logInfo('Email sent successfully', { 
+    logInfo('Email sent successfully', {
       messageId: info.messageId,
-      to: options.to 
+      to: options.to,
     });
 
     // Log preview URL in development
     if (!config.server.isProduction && nodemailer.getTestMessageUrl(info)) {
-      logInfo('Email preview URL', { 
-      previewUrl: nodemailer.getTestMessageUrl(info) 
-    });
+      logInfo('Email preview URL', {
+        previewUrl: nodemailer.getTestMessageUrl(info),
+      });
     }
 
     return info;
   } catch (error) {
-    logError('Failed to send email', error, { 
+    logError('Failed to send email', error, {
       to: options.to,
-      subject: options.subject 
+      subject: options.subject,
     });
     throw new Error(`Failed to send email: ${error.message}`);
   }
@@ -256,6 +256,59 @@ const sendAccountUpdateEmail = async (user, updates) => {
   });
 };
 
+/**
+ * Send a trip invite email
+ * @param {Object} options - Trip invite options
+ * @param {string} options.to - Recipient email
+ * @param {string} options.inviter - Inviter username
+ * @param {string} options.tripName - Trip name
+ * @param {string} options.inviteUrl - Invite URL
+ * @param {string} options.tripDescription - Trip description
+ * @param {string} options.tripStartDate - Trip start date
+ * @param {string} options.tripEndDate - Trip end date
+ * @param {string} options.inviterMessage - Inviter message
+ * @returns {Promise<Object>} Email send info
+ */
+const sendTripInviteEmail = async ({
+  to,
+  inviter,
+  tripName,
+  inviteUrl,
+  tripDescription,
+  tripStartDate,
+  tripEndDate,
+  inviterMessage,
+}) => {
+  const subject = `${inviter} invited you to join a trip on MyanCamp!`;
+
+  const html = getHtmlTemplate(TEMPLATE_TYPES.TRIP_INVITE, {
+    inviter,
+    tripName,
+    inviteUrl,
+    tripDescription,
+    tripStartDate,
+    tripEndDate,
+    inviterMessage,
+  });
+
+  const text = getTextTemplate(TEMPLATE_TYPES.TRIP_INVITE, {
+    inviter,
+    tripName,
+    inviteUrl,
+    tripDescription,
+    tripStartDate,
+    tripEndDate,
+    inviterMessage,
+  });
+
+  return await sendEmail({
+    to,
+    subject,
+    text,
+    html,
+  });
+};
+
 module.exports = {
   sendEmail,
   sendVerificationEmail,
@@ -263,4 +316,5 @@ module.exports = {
   sendPasswordResetEmail,
   sendBookingConfirmationEmail,
   sendAccountUpdateEmail,
+  sendTripInviteEmail,
 };

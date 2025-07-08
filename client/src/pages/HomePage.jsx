@@ -37,6 +37,13 @@ const HomePage = () => {
       description: "Immerse yourself in Thailand's lush jungles and national parks.",
       color: 'var(--color-warning)',
     },
+    {
+      icon: '🗺️',
+      title: 'Trip Planner',
+      description:
+        'Plan your perfect camping adventure with our comprehensive trip planning tools.',
+      color: 'var(--color-success)',
+    },
   ];
 
   const testimonials = [
@@ -282,6 +289,9 @@ const HomePage = () => {
             <div className="cta-buttons">
               <Link to="/campgrounds" className="btn btn-primary btn-large">
                 Start Exploring
+              </Link>
+              <Link to="/trips" className="btn btn-secondary btn-large">
+                Plan Your Trip
               </Link>
               <Link to="/register" className="btn btn-outline btn-large">
                 Create Account
