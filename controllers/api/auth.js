@@ -574,9 +574,13 @@ module.exports.resetPassword = asyncHandler(async (req, res) => {
       });
     }
 
-    // Set the new password
-    await user.setPassword(password);
-
+    // Hash the new password
+    const { hashPassword } = require('../../utils/passwordUtils');
+    const hashedPassword = await hashPassword(password);
+    
+    // Update the user's password
+    user.password = hashedPassword;
+    
     // Add audit log entry directly to the user document
     // Create the password change event
     const passwordChangeEvent = {

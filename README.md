@@ -1,8 +1,16 @@
-# MyanCamp - Campground Booking Platform
+# AdventureMate - Campground Booking Platform
 
-MyanCamp is a comprehensive full-stack web application for discovering, booking, and reviewing campgrounds in Myanmar. Built with modern technologies including Node.js, Express, MongoDB, and React, the platform provides a seamless experience for campers, campground owners, and administrators.
+AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application for discovering, booking, and reviewing campgrounds. Built with modern technologies including Node.js, Express, MongoDB, React, and Vite, the platform provides a seamless experience for campers, campground owners, and administrators.
 
 ## 🚀 Features
+
+### Modern Tech Stack
+- **Frontend**: React 18 with Vite for fast development and building
+- **State Management**: React Query for efficient server state management
+- **UI Components**: Custom components with responsive design
+- **Maps**: Integrated Mapbox for interactive campground locations
+- **Forms**: React Hook Form with Yup validation
+- **PDF Generation**: @react-pdf/renderer for booking confirmations
 
 ### For Campers
 
@@ -13,6 +21,7 @@ MyanCamp is a comprehensive full-stack web application for discovering, booking,
   - JWT-based authentication with secure token management
   - Password reset functionality with email verification
   - Account security with login attempt limiting
+  - Toggle password visibility in login and registration forms
 
 - **Campground Discovery**
 
@@ -140,9 +149,14 @@ MyanCamp is a comprehensive full-stack web application for discovering, booking,
 
 ### Prerequisites
 
-- Node.js (v20.x or later)
-- MongoDB (local installation or MongoDB Atlas)
-- npm or yarn package manager
+- Node.js (v18 or higher)
+- MongoDB (v6 or higher)
+- npm (v9 or higher) or yarn
+- Git
+- Redis (for caching and rate limiting)
+- Mapbox API key
+- Cloudinary account (for image uploads)
+- Stripe account (for payments)
 
 ### Quick Start
 
@@ -150,7 +164,7 @@ MyanCamp is a comprehensive full-stack web application for discovering, booking,
 
    ```bash
    git clone <repository-url>
-   cd MyanCamp
+   cd AdventureMate
    ```
 
 2. **Install dependencies**
@@ -160,38 +174,46 @@ MyanCamp is a comprehensive full-stack web application for discovering, booking,
    ```
 
 3. **Environment Configuration**
-   Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory with the following variables:
 
    ```env
+   # Server Configuration
+   NODE_ENV=development
+   PORT=3000
+   
    # Database
-   DB_URL=mongodb://localhost:27017/myan-camp
-
-   # JWT Secrets
-   JWT_ACCESS_TOKEN_SECRET=your_access_token_secret
-   JWT_REFRESH_TOKEN_SECRET=your_refresh_token_secret
-
-   # Cloudinary (Image Storage)
+   MONGODB_URI=mongodb://localhost:27017/adventuremate
+   
+   # JWT
+   JWT_SECRET=your_jwt_secret_here
+   JWT_EXPIRES_IN=30d
+   JWT_COOKIE_EXPIRES=30
+   
+   # Email (Nodemailer)
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USER=your_email@gmail.com
+   EMAIL_PASS=your_app_specific_password
+   EMAIL_FROM=AdventureMate <noreply@adventuremate.com>
+   
+   # Cloudinary
    CLOUDINARY_CLOUD_NAME=your_cloud_name
    CLOUDINARY_KEY=your_api_key
    CLOUDINARY_SECRET=your_api_secret
-
-   # Mapbox (Maps)
+   
+   # Mapbox
    MAPBOX_TOKEN=your_mapbox_token
-
-   # Stripe (Payments)
+   
+   # Stripe
    STRIPE_SECRET_KEY=your_stripe_secret_key
-   STRIPE_PUBLIC_KEY=your_stripe_public_key
-
-   # Email Configuration
-   EMAIL_HOST=your_smtp_host
-   EMAIL_PORT=587
-   EMAIL_USER=your_email_user
-   EMAIL_PASSWORD=your_email_password
-   EMAIL_FROM=noreply@myancamp.com
-
-   # Server Configuration
-   PORT=3001
-   NODE_ENV=development
+   STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+   
+   # Redis
+   REDIS_URL=redis://localhost:6379
+   
+   # Rate Limiting
+   RATE_LIMIT_WINDOW_MS=15*60*1000  # 15 minutes
+   RATE_LIMIT_MAX=100  # limit each IP to 100 requests per windowMs
    ```
 
 4. **Database Setup**
@@ -211,7 +233,7 @@ MyanCamp is a comprehensive full-stack web application for discovering, booking,
    npm run dev
 
    # Or start individually:
-   npm run dev:server  # Backend on port 3001
+   npm run dev:server  # Backend on port 3000
    npm run dev:client  # Frontend on port 5173
    ```
 
@@ -253,21 +275,48 @@ npm test                # Run tests
 
 ### Project Structure
 
-```
-MyanCamp/
-├── app.js                 # Main Express application
-├── config/                # Configuration management
-├── models/                # Mongoose models
-├── controllers/           # Business logic
-│   └── api/              # API controllers
-├── routes/                # Route definitions
-│   └── api/v1/           # Versioned API routes
-├── middleware/            # Custom middleware
-├── utils/                 # Utility functions
-├── client/                # React frontend
+```bash
+AdventureMate/
+├── client/                 # React frontend (Vite + React 18)
 │   ├── src/
-│   │   ├── components/    # Reusable components
-│   │   ├── pages/         # Page components
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Page components
+│   │   ├── context/        # React context providers
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── layouts/        # Layout components
+│   │   ├── services/       # API service layer
+│   │   └── utils/          # Frontend utilities
+│   └── public/             # Static assets
+│
+├── config/                # Configuration management
+├── controllers/           # Route controllers
+│   ├── api/               # API controllers
+│   ├── bookings.js        # Booking logic
+│   ├── campgrounds.js     # Campground operations
+│   └── users.js           # User management
+│
+├── middleware/            # Express middleware
+│   ├── auth.js           # Authentication middleware
+│   ├── error.js          # Error handling
+│   └── validation.js     # Request validation
+│
+├── models/                # Mongoose models
+│   ├── Booking.js        # Booking schema
+│   ├── Campground.js     # Campground schema
+│   ├── Review.js         # Review schema
+│   └── User.js           # User schema
+│
+├── routes/                # Route definitions
+│   ├── api/              # API routes
+│   ├── bookings.js       # Booking routes
+│   ├── campgrounds.js    # Campground routes
+│   └── users.js          # User routes
+│
+├── utils/                 # Utility functions
+│   ├── logger.js         # Logging utilities
+│   └── apiResponse.js    # Standardized API responses
+│
+└── docs/                  # API documentation (Swagger/OpenAPI)
 │   │   ├── context/       # React context providers
 │   │   ├── hooks/         # Custom hooks
 │   │   └── utils/         # Frontend utilities

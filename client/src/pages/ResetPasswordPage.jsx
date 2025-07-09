@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { logError } from '../utils/logger';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import './ResetPasswordPage.css';
 
 /**
@@ -20,6 +21,8 @@ const ResetPasswordPage = () => {
   const [message, setMessage] = useState(
     token ? '' : 'No reset token provided. Please check your email link.'
   );
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState({
@@ -155,14 +158,24 @@ const ResetPasswordPage = () => {
             <form onSubmit={handleSubmit} className="reset-password-form">
               <div className="form-group">
                 <label htmlFor="password">New Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your new password"
-                  className={passwordError ? 'input-error' : ''}
-                />
+                <div className="password-input-container">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your new password"
+                    className={`password-input ${passwordError ? 'input-error' : ''}`}
+                  />
+                  <button 
+                    type="button" 
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
                 {passwordError && <div className="error-message">{passwordError}</div>}
 
                 {/* Password strength indicator */}
@@ -210,14 +223,24 @@ const ResetPasswordPage = () => {
 
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your new password"
-                  className={confirmPasswordError ? 'input-error' : ''}
-                />
+                <div className="password-input-container">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your new password"
+                    className={`password-input ${confirmPasswordError ? 'input-error' : ''}`}
+                  />
+                  <button 
+                    type="button" 
+                    className="password-toggle"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
                 {confirmPasswordError && (
                   <div className="error-message">{confirmPasswordError}</div>
                 )}
