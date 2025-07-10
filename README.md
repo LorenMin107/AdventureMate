@@ -5,10 +5,11 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 ## 🚀 Features
 
 ### Modern Tech Stack
+
 - **Frontend**: React 18 with Vite for fast development and building
 - **State Management**: React Query for efficient server state management
 - **UI Components**: Custom components with responsive design
-- **Maps**: Integrated Mapbox for interactive campground locations
+- **Maps**: Integrated Mapbox for interactive campground locations and location picking
 - **Forms**: React Hook Form with Yup validation
 - **PDF Generation**: @react-pdf/renderer for booking confirmations
 
@@ -26,7 +27,8 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 - **Campground Discovery**
 
   - Browse campgrounds with advanced filtering and search
-  - Interactive maps with Mapbox integration
+  - Interactive maps with Mapbox integration and clustering
+  - **Real-time Weather Integration**: Current weather and 3-day forecast for each campground location
   - View detailed campground information, photos, and amenities
   - Real-time availability checking and pricing
   - Responsive design for mobile and desktop
@@ -52,6 +54,26 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
   - Review history and contributions
   - Account settings and security preferences
 
+### 🌤️ Weather Integration System
+
+- **Real-time Weather Data**: Current temperature, conditions, and 3-day forecast for each campground
+- **OpenWeatherMap Integration**: Free API with comprehensive weather information
+- **Smart Caching**: Redis-based caching (15 minutes) to reduce API calls and improve performance
+- **Responsive Weather Display**: Compact weather boxes in map popups with full weather details
+- **Theme Integration**: Weather components follow the app's dark/light theme system
+- **Location-based**: Weather data fetched based on campground coordinates
+- **Error Handling**: Graceful fallback when weather data is unavailable
+
+### 🗺️ Enhanced Map Popup System
+
+- **Custom Popup Layout**: Professional popup design with custom close buttons
+- **Weather Integration**: Weather information prominently displayed at the top of popups
+- **Responsive Design**: Popups auto-expand to fit content without clipping
+- **Dark Theme**: Consistent dark theme styling throughout popup components
+- **Flexible Layout**: Clean vertical stacking with proper spacing and typography
+- **Interactive Elements**: Hover effects and smooth transitions for better UX
+- **Content Management**: Proper text truncation and overflow handling for long addresses
+
 ### For Campground Owners
 
 - **Owner Dashboard**
@@ -63,6 +85,7 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 - **Campground Management**
 
   - Create and manage multiple campgrounds
+  - **Advanced Location Input System**: Interactive Mapbox map picker with search and autocomplete
   - Add/edit campsites with detailed information
   - Set pricing, availability, and restrictions
   - Photo gallery management with Cloudinary
@@ -108,6 +131,66 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
   - Security audit logs
   - Backup and maintenance tools
 
+### 🗺️ Advanced Location System
+
+- **Interactive Map Picker**: Drag-and-drop location selection with Mapbox integration
+- **Geocoding & Reverse Geocoding**: Automatic address-to-coordinates conversion
+- **Search & Autocomplete**: Location search with suggestions focused on Thailand
+- **Structured Address Fields**: Street, city, state, and country with validation
+- **Real-time Validation**: Immediate feedback on location data
+- **Cache Management**: Redis-based caching for improved performance
+- **Error Handling**: Detailed validation error reporting for better user experience
+
+### 🌤️ Weather Integration Implementation
+
+The weather feature provides real-time weather information for campground locations:
+
+#### Backend Implementation
+
+- **Weather API Route**: `/api/v1/weather` with lat/lng query parameters
+- **OpenWeatherMap Integration**: Uses free API endpoints for current weather and 5-day forecast
+- **Data Transformation**: Combines current weather and forecast data into unified response
+- **Redis Caching**: 15-minute cache to reduce API calls and improve performance
+- **Error Handling**: Graceful fallback when weather data is unavailable
+- **Input Validation**: Latitude (-90 to 90) and longitude (-180 to 180) validation
+
+#### Frontend Implementation
+
+- **WeatherBox Component**: Reusable component with compact and full-size variants
+- **React Query Integration**: Efficient data fetching with caching and error handling
+- **useWeather Hook**: Custom hook for weather data management
+- **Theme Integration**: Weather components follow app's dark/light theme
+- **Responsive Design**: Adapts to different screen sizes and popup layouts
+
+#### Weather Data Structure
+
+```json
+{
+  "current": {
+    "temp": 25,
+    "feels_like": 27,
+    "humidity": 65,
+    "description": "Partly cloudy",
+    "icon": "02d"
+  },
+  "forecast": [
+    {
+      "date": "2024-01-15",
+      "temp": { "max": 28, "min": 22 },
+      "description": "Sunny",
+      "icon": "01d"
+    }
+  ]
+}
+```
+
+#### Map Popup Integration
+
+- **Weather at Top**: Weather information displayed prominently in popup header
+- **Compact Layout**: Optimized weather display for map popups
+- **Auto-expansion**: Popup height adjusts to accommodate weather content
+- **Custom Styling**: Consistent with app's design language and theme
+
 ## 🛠 Technology Stack
 
 ### Backend
@@ -119,10 +202,12 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 - **File Storage**: Cloudinary for image management
 - **Payment Processing**: Stripe integration
 - **Email Service**: Nodemailer with SMTP
-- **Maps**: Mapbox GL API
+- **Maps & Geocoding**: Mapbox GL API with Geocoding API
+- **Weather Data**: OpenWeatherMap API for real-time weather information
+- **Caching**: Redis for performance optimization
 - **Security**: Helmet, CORS, rate limiting, input sanitization
 - **Documentation**: Swagger/OpenAPI 3.0
-- **Logging**: Winston with daily rotation
+- **Logging**: Winston with daily rotation and structured error reporting
 - **Testing**: Jest with supertest
 
 ### Frontend
@@ -132,8 +217,9 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 - **State Management**: React Query (v5.28.x) for server state
 - **Forms**: React Hook Form (v7.51.x) with Yup validation
 - **HTTP Client**: Axios with interceptors
-- **Maps**: React Map GL with Mapbox
+- **Maps**: React Map GL with Mapbox integration
 - **UI Components**: Custom components with CSS modules
+- **Weather Components**: WeatherBox component with React Query integration
 - **Date Handling**: React Datepicker
 - **Testing**: Jest with React Testing Library
 
@@ -154,7 +240,8 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 - npm (v9 or higher) or yarn
 - Git
 - Redis (for caching and rate limiting)
-- Mapbox API key
+- Mapbox API key (for maps and geocoding)
+- OpenWeatherMap API key (for weather data)
 - Cloudinary account (for image uploads)
 - Stripe account (for payments)
 
@@ -180,37 +267,40 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
    # Server Configuration
    NODE_ENV=development
    PORT=3000
-   
+
    # Database
    MONGODB_URI=mongodb://localhost:27017/adventuremate
-   
+
    # JWT
    JWT_SECRET=your_jwt_secret_here
    JWT_EXPIRES_IN=30d
    JWT_COOKIE_EXPIRES=30
-   
+
    # Email (Nodemailer)
    EMAIL_HOST=smtp.gmail.com
    EMAIL_PORT=587
    EMAIL_USER=your_email@gmail.com
    EMAIL_PASS=your_app_specific_password
    EMAIL_FROM=AdventureMate <noreply@adventuremate.com>
-   
+
    # Cloudinary
    CLOUDINARY_CLOUD_NAME=your_cloud_name
    CLOUDINARY_KEY=your_api_key
    CLOUDINARY_SECRET=your_api_secret
-   
-   # Mapbox
+
+   # Mapbox (Required for location system)
    MAPBOX_TOKEN=your_mapbox_token
-   
+
+   # OpenWeatherMap (Required for weather integration)
+   OPENWEATHER_KEY=your_openweathermap_api_key
+
    # Stripe
    STRIPE_SECRET_KEY=your_stripe_secret_key
    STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-   
-   # Redis
+
+   # Redis (Required for caching)
    REDIS_URL=redis://localhost:6379
-   
+
    # Rate Limiting
    RATE_LIMIT_WINDOW_MS=15*60*1000  # 15 minutes
    RATE_LIMIT_MAX=100  # limit each IP to 100 requests per windowMs
@@ -280,6 +370,8 @@ AdventureMate/
 ├── client/                 # React frontend (Vite + React 18)
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
+│   │   │   ├── MapPicker.jsx  # Interactive location picker
+│   │   │   └── maps/       # Map-related components
 │   │   ├── pages/          # Page components
 │   │   ├── context/        # React context providers
 │   │   ├── hooks/          # Custom React hooks
@@ -291,8 +383,9 @@ AdventureMate/
 ├── config/                # Configuration management
 ├── controllers/           # Route controllers
 │   ├── api/               # API controllers
+│   │   ├── campgrounds.js # Enhanced with location validation
+│   │   └── ownerCampgrounds.js # Owner-specific with cache invalidation
 │   ├── bookings.js        # Booking logic
-│   ├── campgrounds.js     # Campground operations
 │   └── users.js           # User management
 │
 ├── middleware/            # Express middleware
@@ -302,7 +395,7 @@ AdventureMate/
 │
 ├── models/                # Mongoose models
 │   ├── Booking.js        # Booking schema
-│   ├── Campground.js     # Campground schema
+│   ├── Campground.js     # Enhanced with geometry and location fields
 │   ├── Review.js         # Review schema
 │   └── User.js           # User schema
 │
@@ -313,18 +406,12 @@ AdventureMate/
 │   └── users.js          # User routes
 │
 ├── utils/                 # Utility functions
-│   ├── logger.js         # Logging utilities
+│   ├── logger.js         # Enhanced logging with structured errors
+│   ├── errorHandler.js   # Detailed validation error reporting
+│   ├── redis.js          # Redis caching utilities
 │   └── apiResponse.js    # Standardized API responses
 │
 └── docs/                  # API documentation (Swagger/OpenAPI)
-│   │   ├── context/       # React context providers
-│   │   ├── hooks/         # Custom hooks
-│   │   └── utils/         # Frontend utilities
-│   └── public/            # Static assets
-├── views/                 # EJS templates (legacy)
-├── public/                # Static files
-├── docs/                  # Documentation
-└── scripts/               # Utility scripts
 ```
 
 ## 🔌 API Documentation
@@ -348,11 +435,18 @@ The application provides a comprehensive RESTful API with full OpenAPI 3.0 docum
 
 #### Campgrounds
 
-- `GET /api/v1/campgrounds` - List campgrounds
+- `GET /api/v1/campgrounds` - List campgrounds (with caching)
 - `GET /api/v1/campgrounds/:id` - Get campground details
 - `POST /api/v1/campgrounds` - Create campground (admin/owner)
 - `PUT /api/v1/campgrounds/:id` - Update campground
 - `DELETE /api/v1/campgrounds/:id` - Delete campground
+
+#### Owner Campgrounds
+
+- `GET /api/v1/owner/campgrounds` - Owner's campgrounds
+- `POST /api/v1/owner/campgrounds` - Create campground (owner)
+- `PUT /api/v1/owner/campgrounds/:id` - Update campground (owner)
+- `DELETE /api/v1/owner/campgrounds/:id` - Delete campground (owner)
 
 #### Bookings
 
@@ -368,6 +462,13 @@ The application provides a comprehensive RESTful API with full OpenAPI 3.0 docum
 - `POST /api/v1/campgrounds/:id/reviews` - Create review
 - `PUT /api/v1/reviews/:id` - Update review
 - `DELETE /api/v1/reviews/:id` - Delete review
+
+#### Weather
+
+- `GET /api/v1/weather?lat={latitude}&lng={longitude}` - Get weather data for location
+  - Returns current weather and 3-day forecast
+  - Cached for 15 minutes to improve performance
+  - Requires valid latitude (-90 to 90) and longitude (-180 to 180)
 
 #### Admin
 
@@ -451,9 +552,10 @@ Ensure all required environment variables are set:
 
 - Database connection string
 - JWT secrets
-- Third-party API keys
+- Third-party API keys (Mapbox, Cloudinary, Stripe)
 - Email configuration
 - Security settings
+- Redis configuration
 
 ### Deployment Options
 
@@ -470,6 +572,7 @@ Ensure all required environment variables are set:
 - **Daily Rotation**: Log files rotated daily
 - **Log Levels**: Error, Warn, Info, Debug
 - **Security Logging**: Authentication and authorization events
+- **Validation Error Logging**: Detailed field-level error reporting
 
 ### Monitoring
 
@@ -477,6 +580,7 @@ Ensure all required environment variables are set:
 - **Performance**: Response time tracking
 - **Errors**: Error tracking and alerting
 - **Usage**: API usage analytics
+- **Cache Performance**: Redis cache hit/miss monitoring
 
 ## 🤝 Contributing
 
@@ -516,10 +620,11 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 - [Express.js](https://expressjs.com/) - Web framework
 - [React](https://reactjs.org/) - UI library
 - [MongoDB](https://www.mongodb.com/) - Database
-- [Mapbox](https://www.mapbox.com/) - Maps and geolocation
+- [Mapbox](https://www.mapbox.com/) - Maps, geolocation, and geocoding
 - [Cloudinary](https://cloudinary.com/) - Image management
 - [Stripe](https://stripe.com/) - Payment processing
 - [Vite](https://vitejs.dev/) - Build tool
+- [Redis](https://redis.io/) - Caching and session storage
 - All contributors who have helped shape this project
 
 ## 📞 Support
@@ -532,4 +637,4 @@ For support and questions:
 
 ---
 
-**MyanCamp** - Connecting campers with amazing outdoor experiences in Myanmar 🌲🏕️
+**AdventureMate** - Connecting campers with amazing outdoor experiences in Thailand 🌲🏕️

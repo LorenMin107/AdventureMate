@@ -11,6 +11,7 @@ const adminRoutes = require('./admin');
 const authRoutes = require('./auth');
 const twoFactorAuthRoutes = require('./twoFactorAuth');
 const ownerRoutes = require('./owners');
+const weatherRoutes = require('./weather');
 
 // Mount routes
 router.use('/campgrounds/:id/reviews', reviewRoutes);
@@ -24,5 +25,6 @@ router.use('/auth', authRoutes);
 router.use('/2fa', twoFactorAuthRoutes);
 router.use('/owners', ownerRoutes);
 router.use('/trips', require('./trips'));
+router.use('/weather', weatherRoutes);
 
 module.exports = router;

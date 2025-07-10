@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import CampgroundMap from '../components/maps/CampgroundMap';
+import WeatherBox from '../components/WeatherBox';
 import ReviewList from '../components/ReviewList';
 import ReviewForm from '../components/ReviewForm';
 import CampsiteList from '../components/CampsiteList';
@@ -447,11 +448,24 @@ const CampgroundDetailPage = () => {
               key={mapKey} // Force re-render when key changes
               geometry={geometry}
               title={title}
-              popupContent={`<strong>${title}</strong><p>${campLocation}</p>`}
+              enablePopup={false}
             />
           </div>
         )}
       </div>
+
+      {/* Weather Section - moved outside the media container */}
+      {geometry && geometry.coordinates && (
+        <div className="weather-section">
+          <h2>Weather Forecast for this Campground</h2>
+          <WeatherBox
+            lat={geometry.coordinates[1]}
+            lng={geometry.coordinates[0]}
+            showForecast={true}
+            compact={false}
+          />
+        </div>
+      )}
 
       <div className="campground-info-container">
         <div className="campground-info">

@@ -41,7 +41,9 @@
   border-radius: 8px;
   color: var(--color-text);
   opacity: 0.7;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .map-loading-placeholder {
@@ -55,7 +57,9 @@
   border-radius: 8px;
   color: var(--color-text);
   opacity: 0.7;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   position: absolute;
   top: 0;
   left: 0;
@@ -63,27 +67,312 @@
 }
 
 .campground-popup {
-  max-width: 200px;
+  max-width: 320px;
+  min-width: 280px;
   font-family: inherit;
+  z-index: 1000; /* Ensure popup is above other elements */
 }
 
-.campground-popup h3 {
-  margin: 0 0 0.5rem;
+.campground-popup .popup-content {
+  padding: 0;
+  max-width: none;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+}
+
+.popup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+  padding: 1rem;
+  box-sizing: border-box;
+  background: var(--color-card-bg, #1a1a1a);
+  border-radius: 8px;
+  border: 1px solid var(--color-border, #333);
+  margin: 0.5rem 0 0 0;
+}
+
+.popup-info h3 {
+  margin: 0 0 0.5rem 0;
   font-size: 1rem;
-  color: #333;
+  font-weight: 600;
+  color: var(--color-text, #e2e8f0);
+  white-space: normal;
+  word-break: break-word;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  max-height: 3.6em; /* Allow up to 3 lines */
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  display: -moz-box;
+  -moz-box-orient: vertical;
+  display: box;
+  box-orient: vertical;
+  padding-right: 30px; /* Make room for close button */
+  word-break: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
-.campground-popup p {
+.popup-info p {
   margin: 0;
-  font-size: 0.875rem;
-  color: #666;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #666);
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  max-height: 3.9em; /* Allow up to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
 .campground-popup strong {
   color: #333;
-  font-size: 1rem;
+  font-size: 0.85rem;
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
+}
+
+/* Weather box specific styles for single campground popup - reposition to top */
+.campground-popup .weather-box {
+  margin: 0 0 0.4rem 0;
+  max-width: none;
+  width: 100%;
+  order: -1; /* Move weather to top */
+}
+
+.campground-popup .weather-box.compact {
+  background: rgba(26, 26, 26, 0.9);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  margin: 0 0 0.5rem 0; /* Remove auto margins to prevent centering */
+  width: 100%; /* Take full width */
+  order: -1; /* Move weather to top */
+  align-self: center; /* Ensure centering in flexbox */
+}
+
+/* Style popups for campground map */
+.campground-map-container .mapboxgl-popup {
+  z-index: 3;
+}
+
+.campground-map-container .mapboxgl-popup-content {
+  background-color: var(--color-card-bg, #1a1a1a);
+  border: 1px solid var(--color-border, #333);
+  color: var(--color-text, #e2e8f0);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+  padding: 0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  min-width: 280px;
+  max-width: 320px;
+  overflow: visible;
+}
+
+/* Style the popup close button */
+.campground-map-container .mapboxgl-popup-close-button {
+  background-color: transparent;
+  color: var(--color-text-secondary, #a0aec0);
+  border: none;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: normal;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.campground-map-container .mapboxgl-popup-close-button:hover {
+  color: var(--color-error, #e53e3e);
+  background-color: transparent;
+  border: none;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Style the popup tip */
+.campground-map-container .mapboxgl-popup-tip {
+  border-top-color: var(--color-card-bg, #1a1a1a);
+  border-bottom-color: var(--color-card-bg, #1a1a1a);
+}
+
+.campground-map-container .mapboxgl-popup-tip[data-placement='top'] {
+  border-top-color: var(--color-card-bg, #1a1a1a);
+}
+
+.campground-map-container .mapboxgl-popup-tip[data-placement='bottom'] {
+  border-bottom-color: var(--color-card-bg, #1a1a1a);
+}
+
+.campground-popup .popup-content {
+  padding: 16px;
+  max-width: none;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.popup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.popup-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text, #e2e8f0);
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  max-height: 4.2em; /* Allow up to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  padding-right: 40px; /* Make room for close button */
+  word-break: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.popup-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #a0aec0);
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  max-height: 4.2em; /* Allow up to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+/* Weather box specific styles for single campground popup - reposition to top */
+.campground-popup .weather-box {
+  margin: 0;
+  max-width: none;
+  width: 100%;
+  order: -1; /* Move weather to top */
+  flex-shrink: 0;
+}
+
+.campground-popup .weather-box.compact {
+  max-width: none;
+  margin: 0;
+  order: -1; /* Move weather to top */
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+/* Hide default Mapbox close button */
+.campground-map-container .mapboxgl-popup-close-button {
+  display: none !important;
+}
+
+/* Custom popup header */
+.campground-popup .popup-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-light, #2d3748);
+}
+
+.campground-popup .popup-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text, #e2e8f0);
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  max-height: 4.2em; /* Allow up to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Custom close button */
+.campground-popup .popup-close-button {
+  background-color: transparent;
+  color: var(--color-text-secondary, #a0aec0);
+  border: none;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: normal;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.campground-popup .popup-close-button:hover {
+  color: var(--color-error, #e53e3e);
+  background-color: rgba(229, 62, 62, 0.1);
+  transform: scale(1.1);
+}
+
+.campground-popup .popup-close-button:active {
+  transform: scale(0.95);
 }
 
 /* Make the map responsive */

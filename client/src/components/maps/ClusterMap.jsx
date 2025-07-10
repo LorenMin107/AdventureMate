@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Map, Marker, Popup, NavigationControl } from 'react-map-gl';
 import { useTheme } from '../../context/ThemeContext';
+import WeatherBox from '../WeatherBox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './ClusterMap.css';
 
@@ -85,17 +86,38 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
             latitude={selectedCampground.geometry.coordinates[1]}
             anchor="bottom"
             onClose={() => setSelectedCampground(null)}
-            closeButton={true}
+            closeButton={false}
             closeOnClick={false}
             className="campground-popup"
           >
             <div className="popup-content">
-              <h3>{selectedCampground.title}</h3>
-              <p>{selectedCampground.location}</p>
-              <p className="popup-price">View pricing</p>
-              <Link to={`/campgrounds/${selectedCampground._id}`} className="popup-view-button">
-                View Campground
-              </Link>
+              <div className="popup-header">
+                <h3>{selectedCampground.title}</h3>
+                <button
+                  className="popup-close-button"
+                  onClick={() => setSelectedCampground(null)}
+                  aria-label="Close popup"
+                >
+                  ×
+                </button>
+              </div>
+
+              <WeatherBox
+                coordinates={{
+                  lat: selectedCampground.geometry.coordinates[1],
+                  lng: selectedCampground.geometry.coordinates[0],
+                }}
+                showForecast={true}
+                compact={true}
+              />
+
+              <div className="popup-info">
+                <p>{selectedCampground.location}</p>
+                <p className="popup-price">View pricing</p>
+                <Link to={`/campgrounds/${selectedCampground._id}`} className="popup-view-button">
+                  View Campground
+                </Link>
+              </div>
             </div>
           </Popup>
         )}

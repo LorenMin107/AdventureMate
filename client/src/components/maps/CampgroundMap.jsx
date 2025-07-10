@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Map, Marker, NavigationControl, Popup } from 'react-map-gl';
 import { useTheme } from '../../context/ThemeContext';
+import WeatherBox from '../WeatherBox';
 import { logError, logInfo } from '../../utils/logger';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './CampgroundMap.css';
@@ -12,9 +13,10 @@ import './CampgroundMap.css';
  * @param {Object} props.geometry - Campground geometry object with coordinates
  * @param {string} props.title - Campground title
  * @param {string} props.popupContent - HTML content for the popup (optional)
+ * @param {boolean} props.enablePopup - Whether to enable popup functionality (default: true)
  * @param {number} props.zoom - Initial zoom level (default: 10)
  */
-const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
+const CampgroundMap = ({ geometry, title, popupContent, enablePopup = true, zoom = 10 }) => {
   const { theme } = useTheme();
   const mapRef = useRef(null);
   const [viewState, setViewState] = useState({
@@ -413,7 +415,7 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
             longitude={geometry.coordinates[0]}
             latitude={geometry.coordinates[1]}
             color="#F44336"
-            onClick={() => setShowPopup(true)}
+            onClick={() => enablePopup && setShowPopup(true)}
           />
 
           {showPopup && (
@@ -422,16 +424,36 @@ const CampgroundMap = ({ geometry, title, popupContent, zoom = 10 }) => {
               latitude={geometry.coordinates[1]}
               anchor="bottom"
               onClose={() => setShowPopup(false)}
-              closeButton={true}
+              closeButton={false}
               closeOnClick={false}
               className="campground-popup"
             >
-              <div>
-                {popupContent ? (
-                  <div dangerouslySetInnerHTML={{ __html: popupContent }} />
-                ) : (
-                  <h3>{title}</h3>
-                )}
+              <div className="popup-content">
+                <div className="popup-header">
+                  {popupContent ? (
+                    <div dangerouslySetInnerHTML={{ __html: popupContent }} />
+                  ) : (
+                    <h3>{title}</h3>
+                  )}
+                  <button
+                    className="popup-close-button"
+                    onClick={() => setShowPopup(false)}
+                    aria-label="Close popup"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <WeatherBox
+                  coordinates={{
+                    lat: geometry.coordinates[1],
+                    lng: geometry.coordinates[0],
+                  }}
+                  showForecast={true}
+                  compact={true}
+                />
+
+                <div className="popup-info">{/* Additional info can go here if needed */}</div>
               </div>
             </Popup>
           )}
