@@ -40,6 +40,19 @@ const errorHandler = (err, req, res, next) => {
 
   // Check if the request is an API request
   if (req.originalUrl.startsWith('/api')) {
+    // Enhanced: Return detailed Mongoose validation errors if present
+    if (err.name === 'ValidationError' && err.errors) {
+      const errors = Object.keys(err.errors).map((field) => ({
+        field,
+        message: err.errors[field].message,
+      }));
+      return ApiResponse.error(
+        'Validation Error',
+        'The provided data failed validation',
+        400,
+        errors
+      ).send(res);
+    }
     // Return standardized JSON error response for API requests
     return ApiResponse.error(
       message,

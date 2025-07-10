@@ -1,0 +1,173 @@
+/* Minimal, safe customizations for Mapbox geocoder */
+.mapbox-geocoder-container {
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 100%;
+  z-index: 10;
+}
+
+.mapboxgl-ctrl-geocoder {
+  min-width: 320px;
+  max-width: 100%;
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--color-card-bg, #fff);
+  color: var(--color-text, #222);
+  border: 1px solid var(--color-border, #e0e0e0);
+  position: relative;
+  z-index: 20;
+}
+
+.mapboxgl-ctrl-geocoder input {
+  background: transparent;
+  color: var(--color-text, #222);
+  border: none;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px 0 0 8px;
+  height: 44px;
+}
+
+.mapboxgl-ctrl-geocoder--button {
+  background: var(--color-primary, #4caf50);
+  color: #fff;
+  border-radius: 0 8px 8px 0;
+  border: none;
+  padding: 0 1rem;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  cursor: pointer;
+}
+
+.mapboxgl-ctrl-geocoder--button svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: #fff;
+}
+
+.mapboxgl-ctrl-geocoder--suggestions {
+  width: 100% !important;
+  min-width: 200px;
+  background: var(--color-card-bg, #fff);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 30;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-top: none;
+  overflow: hidden;
+}
+
+.mapboxgl-ctrl-geocoder--suggestion {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: var(--color-text, #222);
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.2s;
+}
+
+.mapboxgl-ctrl-geocoder--suggestion.active,
+.mapboxgl-ctrl-geocoder--suggestion:hover {
+  background: transparent !important;
+  color: inherit !important;
+  /* Remove highlight effect */
+}
+
+.mapboxgl-ctrl-geocoder.dark {
+  background: #23272f;
+  color: #f3f3f3;
+  border: 1px solid #444;
+}
+
+.mapboxgl-ctrl-geocoder.dark input {
+  color: #f3f3f3;
+}
+
+.mapboxgl-ctrl-geocoder.dark .mapboxgl-ctrl-geocoder--button {
+  background: var(--color-primary, #4caf50);
+  color: #fff;
+}
+
+.mapboxgl-ctrl-geocoder.dark .mapboxgl-ctrl-geocoder--suggestions {
+  background: #23272f;
+  color: #f3f3f3;
+  border: 1px solid #444;
+}
+
+/* Style the clear (X) button inside the input */
+.mapboxgl-ctrl-geocoder--icon {
+  position: absolute;
+  right: 48px; /* Place it just before the search button */
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--color-text, #222);
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  z-index: 2;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mapboxgl-ctrl-geocoder--icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  fill: var(--color-text, #222);
+}
+
+.mapboxgl-ctrl-geocoder.dark .mapboxgl-ctrl-geocoder--icon {
+  color: #f3f3f3;
+}
+
+.mapboxgl-ctrl-geocoder.dark .mapboxgl-ctrl-geocoder--icon svg {
+  fill: #f3f3f3;
+}
+
+/* Hide the search (magnifier) icon button */
+.mapboxgl-ctrl-geocoder--button {
+  display: none !important;
+}
+
+/* Hide the clear (X) button */
+.mapboxgl-ctrl-geocoder--icon {
+  display: none !important;
+}
+
+/* Prevent overlap on small screens */
+@media (max-width: 600px) {
+  .mapboxgl-ctrl-geocoder {
+    min-width: 0;
+    font-size: 0.95rem;
+  }
+  .mapboxgl-ctrl-geocoder input {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.95rem;
+    height: 38px;
+  }
+  .mapboxgl-ctrl-geocoder--button {
+    padding: 0 0.75rem;
+    height: 38px;
+  }
+  .mapboxgl-ctrl-geocoder--suggestions {
+    top: 38px !important;
+  }
+  .mapboxgl-ctrl-geocoder--button,
+  .mapboxgl-ctrl-geocoder--icon {
+    height: 38px;
+    min-width: 38px;
+  }
+  .mapboxgl-ctrl-geocoder--icon {
+    right: 38px;
+  }
+}

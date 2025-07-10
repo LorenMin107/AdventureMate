@@ -44,25 +44,62 @@ module.exports.index = asyncHandler(async (req, res) => {
 });
 
 module.exports.createCampground = asyncHandler(async (req, res) => {
-  const geoData = await geocoder
-    .forwardGeocode({
-      query: req.body.campground.location,
-      limit: 1,
-    })
-    .send();
+  let { title, location, description, geometry } = req.body.campground || {};
 
-  if (!geoData.body.features.length) {
-    logWarn('Invalid location provided', { location: req.body.campground.location });
-    throw validationError('Invalid location', {
-      location: 'Could not geocode the provided location',
+  // Parse geometry if it's a string
+  if (geometry && typeof geometry === 'string') {
+    try {
+      geometry = JSON.parse(geometry);
+    } catch (e) {
+      geometry = undefined;
+    }
+  }
+
+  let finalGeometry = geometry;
+  let finalLocation = location;
+
+  // If geometry is not provided, geocode the location string
+  if (!finalGeometry && location) {
+    const geoData = await geocoder
+      .forwardGeocode({
+        query: location,
+        limit: 1,
+      })
+      .send();
+    if (!geoData.body.features.length) {
+      logWarn('Invalid location provided', { location });
+      throw validationError('Invalid location', {
+        location: 'Could not geocode the provided location',
+      });
+    }
+    finalGeometry = geoData.body.features[0].geometry;
+  }
+
+  // If geometry is provided but location is not, reverse geocode to get address
+  if (finalGeometry && !finalLocation) {
+    const reverseGeo = await geocoder
+      .reverseGeocode({
+        query: finalGeometry.coordinates,
+        limit: 1,
+      })
+      .send();
+    if (reverseGeo.body.features && reverseGeo.body.features.length > 0) {
+      finalLocation = reverseGeo.body.features[0].place_name;
+    }
+  }
+
+  // Require at least geometry
+  if (!finalGeometry) {
+    throw validationError('Location or coordinates are required', {
+      location: 'Location or coordinates are required',
     });
   }
 
   const campground = new Campground({
-    title: req.body.campground.title,
-    location: req.body.campground.location,
-    description: req.body.campground.description,
-    geometry: geoData.body.features[0].geometry,
+    title,
+    location: finalLocation,
+    description,
+    geometry: finalGeometry,
     author: req.user._id,
   });
 
@@ -181,57 +218,79 @@ module.exports.searchCampgrounds = asyncHandler(async (req, res) => {
 module.exports.updateCampground = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  // Validate campground data
   if (!req.body.campground) {
     logWarn('Missing campground data in update request');
     throw validationError('Campground data is required');
   }
 
-  // Get geocoding data if location is provided
-  let geometry = undefined;
-  if (req.body.campground.location) {
+  let { title, location, description, geometry } = req.body.campground;
+
+  // Parse geometry if it's a string
+  if (geometry && typeof geometry === 'string') {
+    try {
+      geometry = JSON.parse(geometry);
+    } catch (e) {
+      geometry = undefined;
+    }
+  }
+
+  let finalGeometry = geometry;
+  let finalLocation = location;
+
+  // If geometry is not provided but location is present, geocode
+  if (!finalGeometry && location) {
     try {
       const geoData = await geocoder
         .forwardGeocode({
-          query: req.body.campground.location,
+          query: location,
           limit: 1,
         })
         .send();
-
       if (!geoData.body.features.length) {
         logWarn('Invalid location provided for update', {
-          location: req.body.campground.location,
+          location,
           campgroundId: id,
         });
         throw validationError('Invalid location', {
           location: 'Could not geocode the provided location',
         });
       }
-
-      geometry = geoData.body.features[0].geometry;
+      finalGeometry = geoData.body.features[0].geometry;
     } catch (error) {
       if (error.statusCode === 400) {
-        // Re-throw validation errors
         throw error;
       }
       logError('Geocoding error during campground update', {
         error,
-        location: req.body.campground.location,
+        location,
         campgroundId: id,
       });
       throw serverError('Error processing location data');
     }
   }
 
+  // If geometry is provided but location is not, reverse geocode
+  if (finalGeometry && !finalLocation) {
+    const reverseGeo = await geocoder
+      .reverseGeocode({
+        query: finalGeometry.coordinates,
+        limit: 1,
+      })
+      .send();
+    if (reverseGeo.body.features && reverseGeo.body.features.length > 0) {
+      finalLocation = reverseGeo.body.features[0].place_name;
+    }
+  }
+
   // Build update object
   const updateData = {
-    title: req.body.campground.title,
-    location: req.body.campground.location,
-    description: req.body.campground.description,
+    title,
+    location: finalLocation,
+    description,
   };
 
-  if (geometry) {
-    updateData.geometry = geometry;
+  if (finalGeometry) {
+    updateData.geometry = finalGeometry;
   }
 
   // Find and update the campground
@@ -258,15 +317,12 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
   // Delete images if specified
   if (req.body.deleteImages && req.body.deleteImages.length > 0) {
     try {
-      // Delete from cloudinary
       for (let filename of req.body.deleteImages) {
         await cloudinary.uploader.destroy(filename);
       }
-      // Remove from campground
       await campground.updateOne({
         $pull: { images: { filename: { $in: req.body.deleteImages } } },
       });
-
       logInfo('Deleted images from campground', {
         campgroundId: id,
         deletedCount: req.body.deleteImages.length,
@@ -278,7 +334,6 @@ module.exports.updateCampground = asyncHandler(async (req, res) => {
         campgroundId: id,
         imageIds: req.body.deleteImages,
       });
-      // Continue with the update even if image deletion fails
     }
   }
 

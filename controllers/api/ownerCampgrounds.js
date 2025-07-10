@@ -8,6 +8,7 @@ const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const config = require('../../config');
 const { cloudinary } = require('../../cloudinary');
 const { logError, logInfo, logDebug } = require('../../utils/logger');
+const redisCache = require('../../utils/redis');
 
 const geocoder = mbxGeocoding({ accessToken: config.mapbox.token });
 
@@ -89,10 +90,10 @@ const getOwnerCampgrounds = async (req, res) => {
       },
     });
   } catch (error) {
-    logError('Error fetching owner campgrounds', error, { 
+    logError('Error fetching owner campgrounds', error, {
       endpoint: '/api/owners/campgrounds',
       userId: req.user?._id,
-      query: req.query 
+      query: req.query,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -107,21 +108,33 @@ const getOwnerCampgrounds = async (req, res) => {
  */
 const createCampground = async (req, res) => {
   try {
-    const { title, description, location } = req.body;
+    let { title, description, location, geometry } = req.body;
 
-    // Geocode the location
-    const geoData = await geocoder
-      .forwardGeocode({
-        query: location,
-        limit: 1,
-      })
-      .send();
+    // Parse geometry if it's a string
+    if (geometry && typeof geometry === 'string') {
+      try {
+        geometry = JSON.parse(geometry);
+      } catch (e) {
+        geometry = undefined;
+      }
+    }
 
-    if (!geoData.body.features || geoData.body.features.length === 0) {
-      return res.status(400).json({
-        error: 'Bad Request',
-        message: 'Invalid location. Please provide a valid address.',
-      });
+    // If geometry is provided, use it; otherwise geocode location
+    let finalGeometry = geometry;
+    if (!finalGeometry && location) {
+      const geoData = await geocoder
+        .forwardGeocode({
+          query: location,
+          limit: 1,
+        })
+        .send();
+      if (!geoData.body.features || geoData.body.features.length === 0) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Invalid location. Please provide a valid address.',
+        });
+      }
+      finalGeometry = geoData.body.features[0].geometry;
     }
 
     // Create campground
@@ -129,7 +142,7 @@ const createCampground = async (req, res) => {
       title,
       description,
       location,
-      geometry: geoData.body.features[0].geometry,
+      geometry: finalGeometry,
       author: req.user._id, // For backward compatibility
       owner: req.user._id,
       images: req.files ? req.files.map((f) => ({ url: f.path, filename: f.filename })) : [],
@@ -143,15 +156,21 @@ const createCampground = async (req, res) => {
       { $push: { campgrounds: campground._id } }
     );
 
+    // Invalidate campgrounds cache after creation
+    if (redisCache.isReady()) {
+      await redisCache.invalidatePattern('campgrounds:*');
+      logInfo('Invalidated campground cache after owner creation');
+    }
+
     res.status(201).json({
       message: 'Campground created successfully',
       campground,
     });
   } catch (error) {
-    logError('Error creating campground', error, { 
+    logError('Error creating campground', error, {
       endpoint: '/api/owners/campgrounds',
       userId: req.user?._id,
-      body: { title: req.body.title, location: req.body.location } 
+      body: { title: req.body.title, location: req.body.location },
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -226,10 +245,10 @@ const getOwnerCampground = async (req, res) => {
       recentBookings,
     });
   } catch (error) {
-    logError('Error fetching campground', error, { 
+    logError('Error fetching campground', error, {
       endpoint: '/api/owners/campgrounds/:id',
       userId: req.user?._id,
-      campgroundId: req.params.id 
+      campgroundId: req.params.id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -244,7 +263,16 @@ const getOwnerCampground = async (req, res) => {
  */
 const updateCampground = async (req, res) => {
   try {
-    const { title, description, location, deleteImages } = req.body;
+    let { title, description, location, geometry, deleteImages } = req.body;
+
+    // Parse geometry if it's a string
+    if (geometry && typeof geometry === 'string') {
+      try {
+        geometry = JSON.parse(geometry);
+      } catch (e) {
+        geometry = undefined;
+      }
+    }
 
     const campground = await Campground.findOne({
       _id: req.params.id,
@@ -277,6 +305,11 @@ const updateCampground = async (req, res) => {
       }
     }
 
+    // If geometry is provided, update it
+    if (geometry) {
+      campground.geometry = geometry;
+    }
+
     // Add new images
     if (req.files && req.files.length > 0) {
       const newImages = req.files.map((f) => ({ url: f.path, filename: f.filename }));
@@ -293,15 +326,21 @@ const updateCampground = async (req, res) => {
 
     await campground.save();
 
+    // Invalidate campgrounds cache after update
+    if (redisCache.isReady()) {
+      await redisCache.invalidatePattern('campgrounds:*');
+      logInfo('Invalidated campground cache after owner update');
+    }
+
     res.json({
       message: 'Campground updated successfully',
       campground,
     });
   } catch (error) {
-    logError('Error updating campground', error, { 
+    logError('Error updating campground', error, {
       endpoint: '/api/owners/campgrounds/:id',
       userId: req.user?._id,
-      campgroundId: req.params.id 
+      campgroundId: req.params.id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -359,14 +398,20 @@ const deleteCampground = async (req, res) => {
     // Delete the campground (this will trigger the post middleware to delete reviews and bookings)
     await Campground.findByIdAndDelete(campground._id);
 
+    // Invalidate campgrounds cache after deletion
+    if (redisCache.isReady()) {
+      await redisCache.invalidatePattern('campgrounds:*');
+      logInfo('Invalidated campground cache after owner deletion');
+    }
+
     res.json({
       message: 'Campground deleted successfully',
     });
   } catch (error) {
-    logError('Error deleting campground', error, { 
+    logError('Error deleting campground', error, {
       endpoint: '/api/owners/campgrounds/:id',
       userId: req.user?._id,
-      campgroundId: req.params.id 
+      campgroundId: req.params.id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -429,10 +474,10 @@ const getCampgroundBookings = async (req, res) => {
       },
     });
   } catch (error) {
-    logError('Error fetching campground bookings', error, { 
+    logError('Error fetching campground bookings', error, {
       endpoint: '/api/owners/campgrounds/:id/bookings',
       userId: req.user?._id,
-      campgroundId: req.params.id 
+      campgroundId: req.params.id,
     });
     res.status(500).json({
       error: 'Internal Server Error',
@@ -483,11 +528,11 @@ const updateBookingStatus = async (req, res) => {
       booking,
     });
   } catch (error) {
-    logError('Error updating booking status', error, { 
+    logError('Error updating booking status', error, {
       endpoint: '/api/owners/campgrounds/:campgroundId/bookings/:bookingId',
       userId: req.user?._id,
       campgroundId: req.params.campgroundId,
-      bookingId: req.params.bookingId 
+      bookingId: req.params.bookingId,
     });
     res.status(500).json({
       error: 'Internal Server Error',

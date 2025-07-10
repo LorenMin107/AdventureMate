@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../utils/api';
 import './CampgroundForm.css';
 import { logInfo, logError } from '../utils/logger';
+import MapPicker from './MapPicker';
+import { useTheme } from '../context/ThemeContext';
 
 const LOCAL_STORAGE_KEY = 'myancamp-owner-campground-form';
 
@@ -16,6 +18,7 @@ const LOCAL_STORAGE_KEY = 'myancamp-owner-campground-form';
  */
 const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
   const navigate = useNavigate();
+  const { theme } = useTheme ? useTheme() : { theme: 'light' };
 
   // Add this line:
   const useFlatFields = apiPath === '/owners/campgrounds';
@@ -25,6 +28,11 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
     title: '',
     location: '',
     description: '',
+    geometry: null, // { type: 'Point', coordinates: [lng, lat] }
+    street: '',
+    city: '',
+    state: '',
+    country: '',
   });
 
   const [images, setImages] = useState([]);
@@ -64,6 +72,11 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
         title: campground.title || '',
         location: campground.location || '',
         description: campground.description || '',
+        geometry: campground.geometry || null,
+        street: campground.street || '',
+        city: campground.city || '',
+        state: campground.state || '',
+        country: campground.country || '',
       });
 
       if (campground.images && campground.images.length > 0) {
@@ -72,7 +85,24 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
     }
   }, [campground, isEditing]);
 
-  // Handle input changes
+  // Handle MapPicker change (now receives address components)
+  const handleMapPickerChange = ({ lat, lng, address, components }) => {
+    setFormData((prev) => ({
+      ...prev,
+      location: address || '',
+      geometry: lat && lng ? { type: 'Point', coordinates: [lng, lat] } : null,
+      street: components?.street || '',
+      city: components?.city || '',
+      state: components?.state || '',
+      country: components?.country || '',
+    }));
+    // Clear validation error for location
+    if (validationErrors.location) {
+      setValidationErrors((prev) => ({ ...prev, location: null }));
+    }
+  };
+
+  // Handle input changes (for title, description, and address fields)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -129,6 +159,21 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
       errors.location = 'Location is required';
     }
 
+    if (
+      !formData.geometry ||
+      !formData.geometry.coordinates ||
+      formData.geometry.coordinates.length !== 2
+    ) {
+      errors.location = 'Please select a location on the map.';
+    }
+
+    if (!formData.city.trim()) {
+      errors.city = 'City is required';
+    }
+    if (!formData.country.trim()) {
+      errors.country = 'Country is required';
+    }
+
     if (!formData.description.trim()) {
       errors.description = 'Description is required';
     }
@@ -172,10 +217,24 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
         formDataToSend.append('title', formData.title);
         formDataToSend.append('location', formData.location);
         formDataToSend.append('description', formData.description);
+        if (formData.geometry) {
+          formDataToSend.append('geometry', JSON.stringify(formData.geometry));
+        }
+        formDataToSend.append('street', formData.street);
+        formDataToSend.append('city', formData.city);
+        formDataToSend.append('state', formData.state);
+        formDataToSend.append('country', formData.country);
       } else {
         formDataToSend.append('campground[title]', formData.title);
         formDataToSend.append('campground[location]', formData.location);
         formDataToSend.append('campground[description]', formData.description);
+        if (formData.geometry) {
+          formDataToSend.append('campground[geometry]', JSON.stringify(formData.geometry));
+        }
+        formDataToSend.append('campground[street]', formData.street);
+        formDataToSend.append('campground[city]', formData.city);
+        formDataToSend.append('campground[state]', formData.state);
+        formDataToSend.append('campground[country]', formData.country);
       }
 
       // Add images to form data
@@ -304,18 +363,89 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
 
         <div className="form-group">
           <label htmlFor="location">Location</label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            className={validationErrors.location ? 'error' : ''}
-            disabled={loading}
+          <MapPicker
+            value={
+              formData.geometry
+                ? { lat: formData.geometry.coordinates[1], lng: formData.geometry.coordinates[0] }
+                : null
+            }
+            onChange={handleMapPickerChange}
+            initialAddress={formData.location}
+            theme={theme}
           />
           {validationErrors.location && (
             <div className="validation-error">{validationErrors.location}</div>
           )}
+          <div
+            className="address-fields-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1rem',
+              marginTop: '1rem',
+            }}
+          >
+            <div>
+              <label htmlFor="street">Street</label>
+              <input
+                type="text"
+                id="street"
+                name="street"
+                value={formData.street}
+                onChange={handleChange}
+                className={validationErrors.street ? 'error' : ''}
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label htmlFor="city">
+                City<span style={{ color: 'red' }}>*</span>
+              </label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                className={validationErrors.city ? 'error' : ''}
+                disabled={loading}
+                required
+              />
+              {validationErrors.city && (
+                <div className="validation-error">{validationErrors.city}</div>
+              )}
+            </div>
+            <div>
+              <label htmlFor="state">State/Region</label>
+              <input
+                type="text"
+                id="state"
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                className={validationErrors.state ? 'error' : ''}
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <label htmlFor="country">
+                Country<span style={{ color: 'red' }}>*</span>
+              </label>
+              <input
+                type="text"
+                id="country"
+                name="country"
+                value={formData.country}
+                onChange={handleChange}
+                className={validationErrors.country ? 'error' : ''}
+                disabled={loading}
+                required
+              />
+              {validationErrors.country && (
+                <div className="validation-error">{validationErrors.country}</div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="form-group">

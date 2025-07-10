@@ -7,18 +7,18 @@ import './ClusterMap.css';
 
 /**
  * ClusterMap component displays all campgrounds on a map with markers
- * 
+ *
  * @param {Object} props - Component props
  * @param {Array} props.campgrounds - Array of campground objects
  * @param {Object} props.initialViewState - Initial view state for the map (optional)
  */
 const ClusterMap = ({ campgrounds = [], initialViewState }) => {
   const { theme } = useTheme();
-  // Default view state centered on Myanmar
+  // Default view state centered on Thailand
   const defaultViewState = {
-    longitude: 96.1951,
-    latitude: 19.7633,
-    zoom: 5
+    longitude: 100.9925, // Thailand longitude
+    latitude: 15.87, // Thailand latitude
+    zoom: 5,
   };
 
   const [viewState, setViewState] = useState(initialViewState || defaultViewState);
@@ -32,9 +32,10 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
 
   // Filter out campgrounds without valid geometry
   const validCampgrounds = campgrounds.filter(
-    campground => campground.geometry && 
-    campground.geometry.coordinates && 
-    campground.geometry.coordinates.length === 2
+    (campground) =>
+      campground.geometry &&
+      campground.geometry.coordinates &&
+      campground.geometry.coordinates.length === 2
   );
 
   // If no campgrounds with valid geometry, show a message
@@ -52,10 +53,12 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
       <Map
         {...viewState}
         ref={mapRef}
-        onMove={evt => setViewState(evt.viewState)}
-        mapStyle={theme === 'dark' 
-          ? "mapbox://styles/mapbox/dark-v11" 
-          : "mapbox://styles/mapbox/outdoors-v12"}
+        onMove={(evt) => setViewState(evt.viewState)}
+        mapStyle={
+          theme === 'dark'
+            ? 'mapbox://styles/mapbox/dark-v11'
+            : 'mapbox://styles/mapbox/outdoors-v12'
+        }
         mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
         onClick={handleMapClick}
         attributionControl={true}
@@ -63,13 +66,13 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
       >
         <NavigationControl position="top-right" />
 
-        {validCampgrounds.map(campground => (
+        {validCampgrounds.map((campground) => (
           <Marker
             key={campground._id}
             longitude={campground.geometry.coordinates[0]}
             latitude={campground.geometry.coordinates[1]}
             color="#F44336"
-            onClick={e => {
+            onClick={(e) => {
               e.originalEvent.stopPropagation();
               setSelectedCampground(campground);
             }}
@@ -90,10 +93,7 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
               <h3>{selectedCampground.title}</h3>
               <p>{selectedCampground.location}</p>
               <p className="popup-price">View pricing</p>
-              <Link 
-                to={`/campgrounds/${selectedCampground._id}`}
-                className="popup-view-button"
-              >
+              <Link to={`/campgrounds/${selectedCampground._id}`} className="popup-view-button">
                 View Campground
               </Link>
             </div>
