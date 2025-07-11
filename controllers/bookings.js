@@ -9,9 +9,9 @@ const { logError, logInfo, logDebug, logWarn } = require('../utils/logger');
 function calculateDaysAndPrice(startDate, endDate, pricePerNight) {
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const daysCount = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-  const totalPrice = daysCount * pricePerNight;
-  return { daysCount, totalPrice };
+  const nightsCount = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  const totalPrice = nightsCount * pricePerNight;
+  return { daysCount: nightsCount, totalPrice };
 }
 module.exports.bookCampground = async (req, res) => {
   const campground = await Campground.findById(req.params.id);

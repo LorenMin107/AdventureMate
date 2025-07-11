@@ -1,9 +1,9 @@
-const Campsite = require("../../models/campsite");
-const Campground = require("../../models/campground");
-const User = require("../../models/user");
-const { cloudinary } = require("../../cloudinary");
-const ApiResponse = require("../../utils/ApiResponse");
-const ExpressError = require("../../utils/ExpressError");
+const Campsite = require('../../models/campsite');
+const Campground = require('../../models/campground');
+const User = require('../../models/user');
+const { cloudinary } = require('../../cloudinary');
+const ApiResponse = require('../../utils/ApiResponse');
+const ExpressError = require('../../utils/ExpressError');
 const { logError, logInfo, logWarn, logDebug } = require('../../utils/logger');
 
 // Get all campsites for a campground
@@ -16,8 +16,8 @@ module.exports.index = async (req, res) => {
     const campground = await Campground.findById(campgroundId);
     if (!campground) {
       return ApiResponse.error(
-        "Campground not found",
-        "The requested campground does not exist",
+        'Campground not found',
+        'The requested campground does not exist',
         404
       ).send(res);
     }
@@ -28,23 +28,20 @@ module.exports.index = async (req, res) => {
     // If date parameters are provided, filter campsites by availability for those dates
     if (startDate && endDate) {
       // Filter campsites that are available for the requested dates
-      campsites = campsites.filter(campsite => {
+      campsites = campsites.filter((campsite) => {
         return campsite.isAvailableForDates(startDate, endDate);
       });
     }
 
-    return ApiResponse.success(
-      { campsites },
-      "Campsites retrieved successfully"
-    ).send(res);
+    return ApiResponse.success({ campsites }, 'Campsites retrieved successfully').send(res);
   } catch (error) {
-    logError("Failed to fetch campsites", error, { 
-      endpoint: "/api/v1/campsites",
-      userId: req.user?._id 
+    logError('Failed to fetch campsites', error, {
+      endpoint: '/api/v1/campsites',
+      userId: req.user?._id,
     });
     return ApiResponse.error(
-      "Failed to fetch campsites",
-      "An error occurred while retrieving campsites",
+      'Failed to fetch campsites',
+      'An error occurred while retrieving campsites',
       500
     ).send(res);
   }
@@ -59,8 +56,8 @@ module.exports.createCampsite = async (req, res) => {
     const campground = await Campground.findById(campgroundId);
     if (!campground) {
       return ApiResponse.error(
-        "Campground not found",
-        "The requested campground does not exist",
+        'Campground not found',
+        'The requested campground does not exist',
         404
       ).send(res);
     }
@@ -68,21 +65,47 @@ module.exports.createCampsite = async (req, res) => {
     // Verify user is the owner of the campground
     if (campground.owner && campground.owner.toString() !== req.user._id.toString()) {
       return ApiResponse.error(
-        "Unauthorized",
-        "You do not have permission to add campsites to this campground",
+        'Unauthorized',
+        'You do not have permission to add campsites to this campground',
         403
       ).send(res);
     }
 
+    // Field-level validation
+    const errors = [];
+    const { name, description, price, capacity } = req.body.campsite || {};
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      errors.push({ field: 'name', message: 'Name is required' });
+    }
+    if (!description || typeof description !== 'string' || !description.trim()) {
+      errors.push({ field: 'description', message: 'Description is required' });
+    }
+    if (price === undefined || price === null || isNaN(Number(price)) || Number(price) <= 0) {
+      errors.push({ field: 'price', message: 'Price must be a positive number' });
+    }
+    if (
+      capacity === undefined ||
+      capacity === null ||
+      isNaN(Number(capacity)) ||
+      Number(capacity) < 1
+    ) {
+      errors.push({ field: 'capacity', message: 'Capacity must be at least 1' });
+    }
+    // You can add more field validations here as needed
+
+    if (errors.length > 0) {
+      return ApiResponse.error({ errors }, 'Validation failed', 400).send(res);
+    }
+
     // Create new campsite
     const campsite = new Campsite({
-      name: req.body.campsite.name,
-      description: req.body.campsite.description,
+      name,
+      description,
       features: req.body.campsite.features,
-      price: req.body.campsite.price,
-      capacity: req.body.campsite.capacity,
+      price,
+      capacity,
       campground: campgroundId,
-      availability: req.body.campsite.availability
+      availability: req.body.campsite.availability,
     });
 
     // Add images if provided
@@ -96,20 +119,16 @@ module.exports.createCampsite = async (req, res) => {
     campground.campsites.push(campsite._id);
     await campground.save();
 
-    return ApiResponse.success(
-      { campsite },
-      "Campsite created successfully",
-      201
-    ).send(res);
+    return ApiResponse.success({ campsite }, 'Campsite created successfully', 201).send(res);
   } catch (error) {
-    logError("Error creating campsite", error, { 
-      endpoint: "/api/v1/campsites",
+    logError('Error creating campsite', error, {
+      endpoint: '/api/v1/campsites',
       userId: req.user?._id,
-      campgroundId: req.params.campgroundId 
+      campgroundId: req.params.campgroundId,
     });
     return ApiResponse.error(
-      error.message || "Failed to create campsite",
-      "An error occurred while creating the campsite",
+      error.message || 'Failed to create campsite',
+      'An error occurred while creating the campsite',
       400
     ).send(res);
   }
@@ -120,29 +139,26 @@ module.exports.showCampsite = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const campsite = await Campsite.findById(id).populate("campground");
+    const campsite = await Campsite.findById(id).populate('campground');
 
     if (!campsite) {
       return ApiResponse.error(
-        "Campsite not found",
-        "The requested campsite does not exist",
+        'Campsite not found',
+        'The requested campsite does not exist',
         404
       ).send(res);
     }
 
-    return ApiResponse.success(
-      { campsite },
-      "Campsite retrieved successfully"
-    ).send(res);
+    return ApiResponse.success({ campsite }, 'Campsite retrieved successfully').send(res);
   } catch (error) {
-    logError("Error fetching campsite", error, { 
-      endpoint: "/api/v1/campsites/:id",
+    logError('Error fetching campsite', error, {
+      endpoint: '/api/v1/campsites/:id',
       userId: req.user?._id,
-      campsiteId: req.params.id 
+      campsiteId: req.params.id,
     });
     return ApiResponse.error(
-      "Failed to fetch campsite",
-      "An error occurred while retrieving the campsite",
+      'Failed to fetch campsite',
+      'An error occurred while retrieving the campsite',
       500
     ).send(res);
   }
@@ -157,8 +173,8 @@ module.exports.updateCampsite = async (req, res) => {
 
     if (!campsite) {
       return ApiResponse.error(
-        "Campsite not found",
-        "The requested campsite does not exist",
+        'Campsite not found',
+        'The requested campsite does not exist',
         404
       ).send(res);
     }
@@ -167,8 +183,8 @@ module.exports.updateCampsite = async (req, res) => {
     const campgroundId = campsite.campground;
     if (!campgroundId) {
       return ApiResponse.error(
-        "Invalid campsite data",
-        "The campsite is not associated with a campground",
+        'Invalid campsite data',
+        'The campsite is not associated with a campground',
         400
       ).send(res);
     }
@@ -177,20 +193,21 @@ module.exports.updateCampsite = async (req, res) => {
     const campground = await Campground.findById(campgroundId);
     if (!campground) {
       return ApiResponse.error(
-        "Campground not found",
-        "The parent campground does not exist",
+        'Campground not found',
+        'The parent campground does not exist',
         404
       ).send(res);
     }
 
     // Check if user is the owner or an admin
-    const isOwner = (campground.owner && campground.owner.toString() === req.user._id.toString()) || 
-                   (campground.author && campground.author.toString() === req.user._id.toString());
+    const isOwner =
+      (campground.owner && campground.owner.toString() === req.user._id.toString()) ||
+      (campground.author && campground.author.toString() === req.user._id.toString());
 
     if (!isOwner && !req.user.isAdmin) {
       return ApiResponse.error(
-        "Unauthorized",
-        "You do not have permission to update this campsite",
+        'Unauthorized',
+        'You do not have permission to update this campsite',
         403
       ).send(res);
     }
@@ -216,26 +233,23 @@ module.exports.updateCampsite = async (req, res) => {
         await cloudinary.uploader.destroy(filename);
       }
       // Remove from campsite
-      await campsite.updateOne({ 
-        $pull: { images: { filename: { $in: req.body.deleteImages } } } 
+      await campsite.updateOne({
+        $pull: { images: { filename: { $in: req.body.deleteImages } } },
       });
     }
 
     await campsite.save();
 
-    return ApiResponse.success(
-      { campsite },
-      "Campsite updated successfully"
-    ).send(res);
+    return ApiResponse.success({ campsite }, 'Campsite updated successfully').send(res);
   } catch (error) {
-    logError("Error updating campsite", error, { 
-      endpoint: "/api/v1/campsites/:id",
+    logError('Error updating campsite', error, {
+      endpoint: '/api/v1/campsites/:id',
       userId: req.user?._id,
-      campsiteId: req.params.id 
+      campsiteId: req.params.id,
     });
     return ApiResponse.error(
-      error.message || "Failed to update campsite",
-      "An error occurred while updating the campsite",
+      error.message || 'Failed to update campsite',
+      'An error occurred while updating the campsite',
       400
     ).send(res);
   }
@@ -250,8 +264,8 @@ module.exports.deleteCampsite = async (req, res) => {
 
     if (!campsite) {
       return ApiResponse.error(
-        "Campsite not found",
-        "The requested campsite does not exist",
+        'Campsite not found',
+        'The requested campsite does not exist',
         404
       ).send(res);
     }
@@ -260,8 +274,8 @@ module.exports.deleteCampsite = async (req, res) => {
     const campgroundId = campsite.campground;
     if (!campgroundId) {
       return ApiResponse.error(
-        "Invalid campsite data",
-        "The campsite is not associated with a campground",
+        'Invalid campsite data',
+        'The campsite is not associated with a campground',
         400
       ).send(res);
     }
@@ -270,20 +284,21 @@ module.exports.deleteCampsite = async (req, res) => {
     const campground = await Campground.findById(campgroundId);
     if (!campground) {
       return ApiResponse.error(
-        "Campground not found",
-        "The parent campground does not exist",
+        'Campground not found',
+        'The parent campground does not exist',
         404
       ).send(res);
     }
 
     // Check if user is the owner or an admin
-    const isOwner = (campground.owner && campground.owner.toString() === req.user._id.toString()) || 
-                   (campground.author && campground.author.toString() === req.user._id.toString());
+    const isOwner =
+      (campground.owner && campground.owner.toString() === req.user._id.toString()) ||
+      (campground.author && campground.author.toString() === req.user._id.toString());
 
     if (!isOwner && !req.user.isAdmin) {
       return ApiResponse.error(
-        "Unauthorized",
-        "You do not have permission to delete this campsite",
+        'Unauthorized',
+        'You do not have permission to delete this campsite',
         403
       ).send(res);
     }
@@ -295,24 +310,21 @@ module.exports.deleteCampsite = async (req, res) => {
 
     // Remove campsite from campground
     await Campground.findByIdAndUpdate(campsite.campground, {
-      $pull: { campsites: campsite._id }
+      $pull: { campsites: campsite._id },
     });
 
     await Campsite.findByIdAndDelete(id);
 
-    return ApiResponse.success(
-      null,
-      "Campsite deleted successfully"
-    ).send(res);
+    return ApiResponse.success(null, 'Campsite deleted successfully').send(res);
   } catch (error) {
-    logError("Error deleting campsite", error, { 
-      endpoint: "/api/v1/campsites/:id",
+    logError('Error deleting campsite', error, {
+      endpoint: '/api/v1/campsites/:id',
       userId: req.user?._id,
-      campsiteId: req.params.id 
+      campsiteId: req.params.id,
     });
     return ApiResponse.error(
-      "Failed to delete campsite",
-      "An error occurred while deleting the campsite",
+      'Failed to delete campsite',
+      'An error occurred while deleting the campsite',
       500
     ).send(res);
   }

@@ -138,7 +138,7 @@
   max-height: 3.9em; /* Allow up to 3 lines */
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  line-clamp: 3;
   word-break: break-word;
   -webkit-hyphens: auto;
   hyphens: auto;
@@ -268,8 +268,8 @@
   max-height: 4.2em; /* Allow up to 3 lines */
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
-  padding-right: 40px; /* Make room for close button */
   word-break: break-word;
   -webkit-hyphens: auto;
   hyphens: auto;
@@ -286,7 +286,7 @@
   max-height: 4.2em; /* Allow up to 3 lines */
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  line-clamp: 3;
   word-break: break-word;
   -webkit-hyphens: auto;
   hyphens: auto;
@@ -337,6 +337,7 @@
   max-height: 4.2em; /* Allow up to 3 lines */
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   word-break: break-word;
   -webkit-hyphens: auto;

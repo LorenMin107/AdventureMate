@@ -46,6 +46,23 @@ module.exports.index = asyncHandler(async (req, res) => {
 module.exports.createCampground = asyncHandler(async (req, res) => {
   let { title, location, description, geometry } = req.body.campground || {};
 
+  // Field-level validation
+  const errors = [];
+  if (!title || typeof title !== 'string' || !title.trim()) {
+    errors.push({ field: 'title', message: 'Title is required' });
+  }
+  if (!location || typeof location !== 'string' || !location.trim()) {
+    errors.push({ field: 'location', message: 'Location is required' });
+  }
+  if (!description || typeof description !== 'string' || !description.trim()) {
+    errors.push({ field: 'description', message: 'Description is required' });
+  }
+  // You can add more field validations here as needed
+
+  if (errors.length > 0) {
+    return ApiResponse.error({ errors }, 'Validation failed', 400).send(res);
+  }
+
   // Parse geometry if it's a string
   if (geometry && typeof geometry === 'string') {
     try {
@@ -68,9 +85,15 @@ module.exports.createCampground = asyncHandler(async (req, res) => {
       .send();
     if (!geoData.body.features.length) {
       logWarn('Invalid location provided', { location });
-      throw validationError('Invalid location', {
-        location: 'Could not geocode the provided location',
-      });
+      return ApiResponse.error(
+        {
+          errors: [
+            { field: 'location', message: 'Invalid location. Please provide a valid address.' },
+          ],
+        },
+        'Validation failed',
+        400
+      ).send(res);
     }
     finalGeometry = geoData.body.features[0].geometry;
   }
@@ -90,9 +113,11 @@ module.exports.createCampground = asyncHandler(async (req, res) => {
 
   // Require at least geometry
   if (!finalGeometry) {
-    throw validationError('Location or coordinates are required', {
-      location: 'Location or coordinates are required',
-    });
+    return ApiResponse.error(
+      { errors: [{ field: 'location', message: 'Location or coordinates are required' }] },
+      'Validation failed',
+      400
+    ).send(res);
   }
 
   const campground = new Campground({
@@ -135,19 +160,60 @@ module.exports.showCampground = asyncHandler(async (req, res) => {
     cachedData = await redisCache.get(cacheKey);
   }
 
+  let campground;
   if (cachedData) {
     logInfo('Serving campground from cache', { campgroundId: id });
-    return ApiResponse.success(cachedData, 'Campground retrieved successfully (cached)').send(res);
+    campground = cachedData.campground || cachedData;
+  } else {
+    // Fetch from database
+    campground = await Campground.findById(id)
+      .populate({ path: 'reviews', populate: { path: 'author' } })
+      .populate('author');
+
+    if (!campground) {
+      logWarn('Campground not found', { campgroundId: id });
+      throw notFoundError('Campground', id);
+    }
   }
 
-  // Fetch from database
-  const campground = await Campground.findById(id)
-    .populate({ path: 'reviews', populate: { path: 'author' } })
-    .populate('author');
-
-  if (!campground) {
-    logWarn('Campground not found', { campgroundId: id });
-    throw notFoundError('Campground', id);
+  // Ensure address components are present
+  let addressFields = ['street', 'city', 'state', 'country'];
+  let missingFields = addressFields.filter((f) => !campground[f]);
+  if (missingFields.length > 0 && campground.geometry && campground.geometry.coordinates) {
+    // Perform reverse geocoding
+    try {
+      const reverseGeo = await geocoder
+        .reverseGeocode({
+          query: campground.geometry.coordinates,
+          limit: 1,
+        })
+        .send();
+      if (reverseGeo.body.features && reverseGeo.body.features.length > 0) {
+        const components = reverseGeo.body.features[0].context || [];
+        // Mapbox context array contains address components
+        let street = '',
+          city = '',
+          state = '',
+          country = '';
+        for (const comp of components) {
+          if (comp.id.startsWith('place')) city = comp.text;
+          if (comp.id.startsWith('region')) state = comp.text;
+          if (comp.id.startsWith('country')) country = comp.text;
+          if (comp.id.startsWith('address')) street = comp.text;
+        }
+        // Sometimes street is in feature.text
+        if (!street && reverseGeo.body.features[0].place_type.includes('address')) {
+          street = reverseGeo.body.features[0].text;
+        }
+        // Patch missing fields
+        if (!campground.street) campground.street = street;
+        if (!campground.city) campground.city = city;
+        if (!campground.state) campground.state = state;
+        if (!campground.country) campground.country = country;
+      }
+    } catch (err) {
+      logError('Reverse geocoding failed for campground', { id, err });
+    }
   }
 
   const data = { campground };
@@ -157,7 +223,7 @@ module.exports.showCampground = asyncHandler(async (req, res) => {
     await redisCache.setWithDefaultTTL(cacheKey, data, 'campgrounds');
   }
 
-  logInfo('Retrieved campground details from database', {
+  logInfo('Retrieved campground details', {
     campgroundId: campground._id,
     title: campground.title,
   });

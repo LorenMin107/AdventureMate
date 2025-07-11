@@ -160,18 +160,18 @@ const ResetPasswordPage = () => {
                 <label htmlFor="password">New Password</label>
                 <div className="password-input-container">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your new password"
                     className={`password-input ${passwordError ? 'input-error' : ''}`}
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="password-toggle"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <FiEyeOff /> : <FiEye />}
                   </button>
@@ -225,18 +225,18 @@ const ResetPasswordPage = () => {
                 <label htmlFor="confirmPassword">Confirm Password</label>
                 <div className="password-input-container">
                   <input
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showConfirmPassword ? 'text' : 'password'}
                     id="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm your new password"
                     className={`password-input ${confirmPasswordError ? 'input-error' : ''}`}
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="password-toggle"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   >
                     {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
                   </button>

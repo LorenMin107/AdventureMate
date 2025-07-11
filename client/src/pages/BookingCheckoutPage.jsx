@@ -120,7 +120,9 @@ const BookingCheckoutPage = () => {
 
           <div className="detail-item">
             <span className="detail-label">Duration:</span>
-            <span className="detail-value">{bookingData.totalDays} days</span>
+            <span className="detail-value">
+              {bookingData.totalDays} {bookingData.totalDays === 1 ? 'night' : 'nights'}
+            </span>
           </div>
 
           <div className="detail-item">

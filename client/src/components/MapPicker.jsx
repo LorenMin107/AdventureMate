@@ -93,6 +93,22 @@ const MapPicker = ({ value, onChange, initialAddress, style, theme = 'light' }) 
     // eslint-disable-next-line
   }, [mapRef.current, theme]);
 
+  // Update marker and viewport when value prop changes
+  useEffect(() => {
+    if (value && typeof value.lat === 'number' && typeof value.lng === 'number') {
+      setMarker({ lat: value.lat, lng: value.lng });
+      setViewport((v) => ({ ...v, latitude: value.lat, longitude: value.lng, zoom: 12 }));
+    } else {
+      setMarker(null);
+      setViewport((v) => ({
+        ...v,
+        latitude: defaultThailand.latitude,
+        longitude: defaultThailand.longitude,
+        zoom: defaultThailand.zoom,
+      }));
+    }
+  }, [value]);
+
   // Handle map click to set marker and reverse geocode
   const handleMapClick = async (e) => {
     const { lngLat } = e;

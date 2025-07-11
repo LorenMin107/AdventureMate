@@ -20,7 +20,7 @@ const validate = (validations) => {
 
   return async (req, res, next) => {
     // Execute all validations
-    await Promise.all(validations.map(validation => validation.run(req)));
+    await Promise.all(validations.map((validation) => validation.run(req)));
 
     // Check if there are validation errors
     const errors = validationResult(req);
@@ -29,18 +29,15 @@ const validate = (validations) => {
     }
 
     // Format validation errors
-    const extractedErrors = errors.array().map(err => ({
+    const extractedErrors = errors.array().map((err) => ({
       field: err.param,
-      message: err.msg
+      message: err.msg,
     }));
 
     // Return standardized error response
-    return ApiResponse.error(
-      'Validation Error',
-      'The request data failed validation',
-      400,
-      { errors: extractedErrors }
-    ).send(res);
+    return ApiResponse.error('Validation Error', 'The request data failed validation', 400, {
+      errors: extractedErrors,
+    }).send(res);
   };
 };
 
@@ -50,33 +47,31 @@ const validate = (validations) => {
 const campgroundValidators = {
   create: [
     body('campground.title')
-      .notEmpty().withMessage('Title is required')
-      .isLength({ min: 3, max: 100 }).withMessage('Title must be between 3 and 100 characters'),
-    body('campground.location')
-      .notEmpty().withMessage('Location is required'),
+      .notEmpty()
+      .withMessage('Title is required')
+      .isLength({ min: 3, max: 100 })
+      .withMessage('Title must be between 3 and 100 characters'),
+    body('campground.location').notEmpty().withMessage('Location is required'),
     body('campground.description')
-      .notEmpty().withMessage('Description is required')
-      .isLength({ min: 10 }).withMessage('Description must be at least 10 characters')
+      .notEmpty()
+      .withMessage('Description is required')
+      .isLength({ min: 10 })
+      .withMessage('Description must be at least 10 characters'),
   ],
 
   update: [
     param('id').isMongoId().withMessage('Invalid campground ID format'),
     body('campground.title')
       .optional()
-      .isLength({ min: 3, max: 100 }).withMessage('Title must be between 3 and 100 characters')
+      .isLength({ min: 3, max: 100 })
+      .withMessage('Title must be between 3 and 100 characters'),
   ],
 
-  delete: [
-    param('id').isMongoId().withMessage('Invalid campground ID format')
-  ],
+  delete: [param('id').isMongoId().withMessage('Invalid campground ID format')],
 
-  show: [
-    param('id').isMongoId().withMessage('Invalid campground ID format')
-  ],
+  show: [param('id').isMongoId().withMessage('Invalid campground ID format')],
 
-  search: [
-    query('search').notEmpty().withMessage('Search term is required')
-  ]
+  search: [query('search').notEmpty().withMessage('Search term is required')],
 };
 
 /**
@@ -86,17 +81,21 @@ const reviewValidators = {
   create: [
     param('id').isMongoId().withMessage('Invalid campground ID format'),
     body('review.rating')
-      .notEmpty().withMessage('Rating is required')
-      .isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+      .notEmpty()
+      .withMessage('Rating is required')
+      .isInt({ min: 1, max: 5 })
+      .withMessage('Rating must be between 1 and 5'),
     body('review.body')
-      .notEmpty().withMessage('Review text is required')
-      .isLength({ min: 5 }).withMessage('Review must be at least 5 characters')
+      .notEmpty()
+      .withMessage('Review text is required')
+      .isLength({ min: 5 })
+      .withMessage('Review must be at least 5 characters'),
   ],
 
   delete: [
     param('id').isMongoId().withMessage('Invalid campground ID format'),
-    param('reviewId').isMongoId().withMessage('Invalid review ID format')
-  ]
+    param('reviewId').isMongoId().withMessage('Invalid review ID format'),
+  ],
 };
 
 /**
@@ -105,23 +104,32 @@ const reviewValidators = {
 const userValidators = {
   register: [
     body('username')
-      .notEmpty().withMessage('Username is required')
-      .isLength({ min: 3, max: 30 }).withMessage('Username must be between 3 and 30 characters')
-      .matches(/^[a-zA-Z0-9_]+$/).withMessage('Username can only contain letters, numbers, and underscores'),
+      .notEmpty()
+      .withMessage('Username is required')
+      .isLength({ min: 3, max: 30 })
+      .withMessage('Username must be between 3 and 30 characters')
+      .matches(/^[a-zA-Z0-9_]+$/)
+      .withMessage('Username can only contain letters, numbers, and underscores'),
     body('email')
-      .notEmpty().withMessage('Email is required')
-      .isEmail().withMessage('Must be a valid email address'),
+      .notEmpty()
+      .withMessage('Email is required')
+      .isEmail()
+      .withMessage('Must be a valid email address'),
     body('password')
-      .notEmpty().withMessage('Password is required')
-      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-      .matches(/\d/).withMessage('Password must contain at least one number')
-      .matches(/[a-zA-Z]/).withMessage('Password must contain at least one letter')
+      .notEmpty()
+      .withMessage('Password is required')
+      .isLength({ min: 8 })
+      .withMessage('Password must be at least 8 characters')
+      .matches(/\d/)
+      .withMessage('Password must contain at least one number')
+      .matches(/[a-zA-Z]/)
+      .withMessage('Password must contain at least one letter'),
   ],
 
   login: [
     body('username').notEmpty().withMessage('Username is required'),
-    body('password').notEmpty().withMessage('Password is required')
-  ]
+    body('password').notEmpty().withMessage('Password is required'),
+  ],
 };
 
 /**
@@ -131,41 +139,42 @@ const bookingValidators = {
   create: [
     body('booking.campgroundId').isMongoId().withMessage('Invalid campground ID format'),
     body('booking.startDate')
-      .notEmpty().withMessage('Start date is required')
-      .isISO8601().withMessage('Start date must be a valid date'),
+      .notEmpty()
+      .withMessage('Start date is required')
+      .isISO8601()
+      .withMessage('Start date must be a valid date'),
     body('booking.endDate')
-      .notEmpty().withMessage('End date is required')
-      .isISO8601().withMessage('End date must be a valid date')
+      .notEmpty()
+      .withMessage('End date is required')
+      .isISO8601()
+      .withMessage('End date must be a valid date')
       .custom((value, { req }) => {
         const startDate = new Date(req.body.booking.startDate);
         const endDate = new Date(value);
         return endDate > startDate;
-      }).withMessage('End date must be after start date')
+      })
+      .withMessage('End date must be after start date'),
   ],
 
   update: [
     param('id').isMongoId().withMessage('Invalid booking ID format'),
-    body('booking.startDate')
-      .optional()
-      .isISO8601().withMessage('Start date must be a valid date'),
+    body('booking.startDate').optional().isISO8601().withMessage('Start date must be a valid date'),
     body('booking.endDate')
       .optional()
-      .isISO8601().withMessage('End date must be a valid date')
+      .isISO8601()
+      .withMessage('End date must be a valid date')
       .custom((value, { req }) => {
         if (!req.body.booking.startDate) return true;
         const startDate = new Date(req.body.booking.startDate);
         const endDate = new Date(value);
         return endDate > startDate;
-      }).withMessage('End date must be after start date')
+      })
+      .withMessage('End date must be after start date'),
   ],
 
-  delete: [
-    param('id').isMongoId().withMessage('Invalid booking ID format')
-  ],
+  delete: [param('id').isMongoId().withMessage('Invalid booking ID format')],
 
-  show: [
-    param('id').isMongoId().withMessage('Invalid booking ID format')
-  ]
+  show: [param('id').isMongoId().withMessage('Invalid booking ID format')],
 };
 
 module.exports = {
@@ -173,5 +182,5 @@ module.exports = {
   campgroundValidators,
   reviewValidators,
   userValidators,
-  bookingValidators
+  bookingValidators,
 };

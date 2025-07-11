@@ -1,0 +1,231 @@
+.safety-alert-form {
+  background-color: var(--color-card-bg);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  margin: 2rem 0;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.safety-alert-form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.safety-alert-form-login-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  font-style: italic;
+  transition: color 0.3s ease;
+}
+
+.safety-alert-form-login-message a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.safety-alert-form-login-message a:hover {
+  text-decoration: underline;
+}
+
+.safety-alert-form-error {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #dc2626;
+}
+
+.safety-alert-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.safety-alert-form-group label {
+  display: block;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.safety-alert-form-group input,
+.safety-alert-form-group textarea,
+.safety-alert-form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.safety-alert-form-group input:focus,
+.safety-alert-form-group textarea:focus,
+.safety-alert-form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Date range picker integration */
+.safety-alert-form-group .date-range-picker {
+  margin-bottom: 0;
+}
+
+.safety-alert-form-help-text {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+/* Required field indicator */
+.safety-alert-form-group label:has(+ input[required]),
+.safety-alert-form-group label:has(+ textarea[required]),
+.safety-alert-form-group label:has(+ select[required]) {
+  position: relative;
+}
+
+.safety-alert-form-group label:has(+ input[required])::after,
+.safety-alert-form-group label:has(+ textarea[required])::after,
+.safety-alert-form-group label:has(+ select[required])::after {
+  content: ' *';
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.safety-alert-form-group input:disabled,
+.safety-alert-form-group textarea:disabled,
+.safety-alert-form-group select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.safety-alert-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.safety-alert-form-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.safety-alert-form-group.checkbox-group {
+  margin-bottom: 0;
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: normal !important;
+  margin-bottom: 0 !important;
+}
+
+.checkbox-label input[type='checkbox'] {
+  width: auto !important;
+  margin: 0;
+  cursor: pointer;
+}
+
+.safety-alert-form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.safety-alert-form-submit,
+.safety-alert-form-cancel {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.safety-alert-form-submit {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.safety-alert-form-submit:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.safety-alert-form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.safety-alert-form-cancel {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.safety-alert-form-cancel:hover:not(:disabled) {
+  background-color: var(--color-border);
+  transform: translateY(-1px);
+}
+
+.safety-alert-form-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .safety-alert-form {
+    padding: 1.5rem;
+  }
+
+  .safety-alert-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .safety-alert-form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .safety-alert-form-submit,
+  .safety-alert-form-cancel {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .safety-alert-form {
+    padding: 1rem;
+  }
+
+  .safety-alert-form-title {
+    font-size: 1.25rem;
+  }
+}

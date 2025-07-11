@@ -1,6 +1,7 @@
 const Campground = require('../../models/campground');
 const Booking = require('../../models/booking');
 const User = require('../../models/user');
+const SafetyAlert = require('../../models/safetyAlert');
 const config = require('../../config');
 const stripe = require('stripe')(config.stripe.secretKey);
 const { logError, logInfo, logDebug } = require('../../utils/logger');
@@ -8,9 +9,9 @@ const { logError, logInfo, logDebug } = require('../../utils/logger');
 function calculateDaysAndPrice(startDate, endDate, pricePerNight) {
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const daysCount = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-  const totalPrice = daysCount * pricePerNight;
-  return { daysCount, totalPrice };
+  const nightsCount = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  const totalPrice = nightsCount * pricePerNight;
+  return { daysCount: nightsCount, totalPrice };
 }
 
 module.exports.getBookings = async (req, res) => {
@@ -97,6 +98,98 @@ module.exports.createBooking = async (req, res) => {
     const campground = await Campground.findById(id);
     if (!campground) {
       return res.status(404).json({ error: 'Campground not found' });
+    }
+
+    // Check if user has acknowledged all required safety alerts for campground
+    const campgroundAlerts = await SafetyAlert.getAlertsRequiringAcknowledgement(
+      campground._id,
+      req.user,
+      'campground'
+    );
+
+    // Debug logging for safety alert acknowledgment check
+    console.log('Backend - Campground alerts acknowledgment check:', {
+      campgroundId: campground._id,
+      userId: req.user._id,
+      alertsCount: campgroundAlerts.length,
+      alertsWithAcknowledgment: campgroundAlerts.map((alert) => ({
+        id: alert._id,
+        title: alert.title,
+        requiresAcknowledgement: alert.requiresAcknowledgement,
+        acknowledgedBy: alert.acknowledgedBy,
+        acknowledgedByLength: (alert.acknowledgedBy || []).length,
+        acknowledgedByDetails: (alert.acknowledgedBy || []).map((ack) => ({
+          user: ack.user,
+          userType: typeof ack.user,
+          userString: ack.user?.toString(),
+          userObjectId: typeof ack.user === 'object' ? ack.user._id : null,
+          currentUserString: req.user._id?.toString(),
+          match: (() => {
+            if (!ack || !ack.user) return false;
+            const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
+            const currentUserId = req.user._id;
+            return ackUserId?.toString() === currentUserId?.toString();
+          })(),
+        })),
+      })),
+    });
+
+    const unacknowledgedCampgroundAlerts = campgroundAlerts.filter((alert) => {
+      if (!alert.requiresAcknowledgement) {
+        return false;
+      }
+
+      const hasAcknowledged = alert.acknowledgedBy.some((ack) => {
+        if (!ack || !ack.user) return false;
+
+        // Handle both populated user object and user ID string
+        const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
+        const currentUserId = req.user._id;
+
+        return ackUserId.toString() === currentUserId.toString();
+      });
+
+      return !hasAcknowledged;
+    });
+
+    // Check if user has acknowledged all required safety alerts for campsite (if specified)
+    let unacknowledgedCampsiteAlerts = [];
+    if (campsiteId) {
+      const campsiteAlerts = await SafetyAlert.getAlertsRequiringAcknowledgement(
+        campsiteId,
+        req.user,
+        'campsite'
+      );
+      unacknowledgedCampsiteAlerts = campsiteAlerts.filter((alert) => {
+        if (!alert.requiresAcknowledgement) {
+          return false;
+        }
+
+        const hasAcknowledged = alert.acknowledgedBy.some((ack) => {
+          if (!ack || !ack.user) return false;
+
+          // Handle both populated user object and user ID string
+          const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
+          const currentUserId = req.user._id;
+
+          return ackUserId.toString() === currentUserId.toString();
+        });
+
+        return !hasAcknowledged;
+      });
+    }
+
+    // Combine all unacknowledged alerts
+    const allUnacknowledgedAlerts = [
+      ...unacknowledgedCampgroundAlerts,
+      ...unacknowledgedCampsiteAlerts,
+    ];
+
+    if (allUnacknowledgedAlerts.length > 0) {
+      const alertTitles = allUnacknowledgedAlerts.map((alert) => alert.title).join(', ');
+      return res.status(400).json({
+        error: `You must acknowledge all safety alerts before booking. Required alerts: ${alertTitles}`,
+      });
     }
 
     // If a campsite is specified, fetch it and use its price
@@ -199,6 +292,66 @@ module.exports.createCheckoutSession = async (req, res) => {
     const campground = await Campground.findById(id);
     if (!campground) {
       return res.status(404).json({ error: 'Campground not found' });
+    }
+
+    // Check if user has acknowledged all required safety alerts for campground
+    const campgroundAlerts = await SafetyAlert.getAlertsRequiringAcknowledgement(
+      campground._id,
+      req.user,
+      'campground'
+    );
+    const unacknowledgedCampgroundAlerts = campgroundAlerts.filter((alert) => {
+      if (!alert.requiresAcknowledgement) {
+        return false;
+      }
+      const hasAcknowledged = alert.acknowledgedBy.some((ack) => {
+        if (!ack || !ack.user) return false;
+
+        // Handle both populated user object and user ID string
+        const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
+        const currentUserId = req.user._id;
+
+        return ackUserId.toString() === currentUserId.toString();
+      });
+      return !hasAcknowledged;
+    });
+
+    // Check if user has acknowledged all required safety alerts for campsite (if specified)
+    let unacknowledgedCampsiteAlerts = [];
+    if (campsiteId) {
+      const campsiteAlerts = await SafetyAlert.getAlertsRequiringAcknowledgement(
+        campsiteId,
+        req.user,
+        'campsite'
+      );
+      unacknowledgedCampsiteAlerts = campsiteAlerts.filter((alert) => {
+        if (!alert.requiresAcknowledgement) {
+          return false;
+        }
+        const hasAcknowledged = alert.acknowledgedBy.some((ack) => {
+          if (!ack || !ack.user) return false;
+
+          // Handle both populated user object and user ID string
+          const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
+          const currentUserId = req.user._id;
+
+          return ackUserId.toString() === currentUserId.toString();
+        });
+        return !hasAcknowledged;
+      });
+    }
+
+    // Combine all unacknowledged alerts
+    const allUnacknowledgedAlerts = [
+      ...unacknowledgedCampgroundAlerts,
+      ...unacknowledgedCampsiteAlerts,
+    ];
+
+    if (allUnacknowledgedAlerts.length > 0) {
+      const alertTitles = allUnacknowledgedAlerts.map((alert) => alert.title).join(', ');
+      return res.status(400).json({
+        error: `You must acknowledge all safety alerts before booking. Required alerts: ${alertTitles}`,
+      });
     }
 
     // If a campsite is specified, fetch it

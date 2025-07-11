@@ -6,7 +6,9 @@
   background-color: var(--color-card-bg);
   border-radius: 12px;
   box-shadow: 0 6px 20px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .form-logo {
@@ -33,7 +35,9 @@
   height: 2px;
   background-color: var(--color-primary);
   transform: scaleX(0.7);
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .logo-text:hover::after {
@@ -85,7 +89,11 @@
   font-size: 1rem;
   background-color: var(--color-card-bg);
   color: var(--color-text);
-  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
   width: 100%;
   box-sizing: border-box;
 }
@@ -174,7 +182,9 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.3s ease;
+  transition:
+    transform 0.1s ease,
+    background-color 0.3s ease;
   margin-top: 0.75rem;
 }
 
@@ -204,7 +214,7 @@
   color: var(--color-text);
 }
 
-.checkbox-label input[type="checkbox"] {
+.checkbox-label input[type='checkbox'] {
   margin-right: 0.75rem;
   width: 18px;
   height: 18px;

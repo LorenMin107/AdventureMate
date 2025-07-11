@@ -8,7 +8,7 @@ import './CampgroundList.css';
 /**
  * CampgroundList component displays a grid of campground cards
  * with filtering capabilities
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.searchTerm - Search term for filtering campgrounds
  * @param {string} props.locationFilter - Location filter for filtering campgrounds
@@ -19,13 +19,7 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
 
   // Use the custom hook to fetch all campgrounds
   const { useAllCampgrounds } = useCampgrounds();
-  const { 
-    data, 
-    isLoading, 
-    isError, 
-    error, 
-    refetch 
-  } = useAllCampgrounds({
+  const { data, isLoading, isError, error, refetch } = useAllCampgrounds({
     // Enable refetching when search term changes
     enabled: true,
   });
@@ -34,16 +28,17 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
   const campgrounds = data?.campgrounds || [];
 
   // Filter campgrounds by search term and location
-  const filteredCampgrounds = campgrounds.filter(campground => {
+  const filteredCampgrounds = campgrounds.filter((campground) => {
     // Check if campground matches the search term
-    const matchesSearchTerm = !searchTerm || 
+    const matchesSearchTerm =
+      !searchTerm ||
       campground.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       campground.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       campground.location.toLowerCase().includes(searchTerm.toLowerCase());
 
     // Check if campground matches the location filter
-    const matchesLocation = !locationFilter || 
-      campground.location.toLowerCase().includes(locationFilter.toLowerCase());
+    const matchesLocation =
+      !locationFilter || campground.location.toLowerCase().includes(locationFilter.toLowerCase());
 
     // Return true if campground matches both filters
     return matchesSearchTerm && matchesLocation;
@@ -51,7 +46,7 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
 
   // Toggle between grid and list view
   const toggleViewMode = () => {
-    setViewMode(prevMode => prevMode === 'grid' ? 'list' : 'grid');
+    setViewMode((prevMode) => (prevMode === 'grid' ? 'list' : 'grid'));
   };
 
   // Handle loading state
@@ -70,10 +65,7 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
       <div className="error-message">
         <h3>Error loading campgrounds</h3>
         <p>{error?.message || 'Failed to load campgrounds. Please try again later.'}</p>
-        <button 
-          onClick={() => refetch()} 
-          className="btn btn-primary"
-        >
+        <button onClick={() => refetch()} className="btn btn-primary">
           Try Again
         </button>
       </div>
@@ -98,14 +90,14 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
         </div>
 
         <div className="view-toggle">
-          <button 
+          <button
             className={`view-toggle-button ${viewMode === 'grid' ? 'active' : ''}`}
             onClick={() => setViewMode('grid')}
             aria-label="Grid view"
           >
             Grid
           </button>
-          <button 
+          <button
             className={`view-toggle-button ${viewMode === 'list' ? 'active' : ''}`}
             onClick={() => setViewMode('list')}
             aria-label="List view"
@@ -113,7 +105,7 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
             List
           </button>
           {!hideMapView && (
-            <button 
+            <button
               className={`view-toggle-button ${viewMode === 'map' ? 'active' : ''}`}
               onClick={() => setViewMode('map')}
               aria-label="Map view"
@@ -128,7 +120,7 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
         <ClusterMap campgrounds={filteredCampgrounds} />
       ) : (
         <div className={`campground-list ${viewMode}`}>
-          {filteredCampgrounds.map(campground => (
+          {filteredCampgrounds.map((campground) => (
             <div className="campground-item" key={campground._id}>
               <CampgroundCard campground={campground} />
             </div>

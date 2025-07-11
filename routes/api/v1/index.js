@@ -12,12 +12,16 @@ const authRoutes = require('./auth');
 const twoFactorAuthRoutes = require('./twoFactorAuth');
 const ownerRoutes = require('./owners');
 const weatherRoutes = require('./weather');
+const safetyAlertRoutes = require('./safetyAlerts');
+const campsiteSafetyAlertRoutes = require('./campsiteSafetyAlerts');
 
 // Mount routes
 router.use('/campgrounds/:id/reviews', reviewRoutes);
 router.use('/campgrounds/:campgroundId/campsites', campsiteRoutes);
+router.use('/campgrounds/:campgroundId/safety-alerts', safetyAlertRoutes);
 router.use('/campgrounds', campgroundRoutes);
 router.use('/campsites', campsiteRoutes);
+router.use('/campsite-safety-alerts', campsiteSafetyAlertRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/admin', adminRoutes);
 router.use('/users', userRoutes);

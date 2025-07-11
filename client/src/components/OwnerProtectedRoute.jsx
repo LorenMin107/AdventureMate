@@ -10,7 +10,7 @@ import TwoFactorVerification from './TwoFactorVerification';
  * Redirects to login page if user is not authenticated
  * Redirects to owner registration if user is not an owner
  * Checks owner verification status and permissions
- * 
+ *
  * @param {Object} props - Component props
  * @param {boolean} props.requireVerified - Whether the route requires verified owner status (default: true)
  * @param {boolean} props.requireEmailVerified - Whether the route requires email verification (default: true)
@@ -19,7 +19,11 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
   const { currentUser, loading, isAuthenticated, requiresTwoFactor } = useAuth();
 
   // Fetch owner profile if user is authenticated
-  const { data: ownerProfile, isLoading: ownerLoading, error: ownerError } = useQuery({
+  const {
+    data: ownerProfile,
+    isLoading: ownerLoading,
+    error: ownerError,
+  } = useQuery({
     queryKey: ['owner', 'profile'],
     queryFn: async () => {
       const { data } = await apiClient.get('/owners/profile');
@@ -88,21 +92,30 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
 
           {ownerProfile?.verificationStatus === 'pending' && (
             <div className="verification-message">
-              <p>Your owner account is pending verification. Please upload the required documents to complete the verification process.</p>
+              <p>
+                Your owner account is pending verification. Please upload the required documents to
+                complete the verification process.
+              </p>
               <Navigate to="/owner/verification" replace />
             </div>
           )}
 
           {ownerProfile?.verificationStatus === 'under_review' && (
             <div className="verification-message">
-              <p>Your verification documents are currently under review. We'll notify you once the review is complete.</p>
+              <p>
+                Your verification documents are currently under review. We'll notify you once the
+                review is complete.
+              </p>
               <p>This process typically takes 1-3 business days.</p>
             </div>
           )}
 
           {ownerProfile?.verificationStatus === 'rejected' && (
             <div className="verification-message">
-              <p>Your verification was rejected. Please review the feedback and resubmit your documents.</p>
+              <p>
+                Your verification was rejected. Please review the feedback and resubmit your
+                documents.
+              </p>
               <Navigate to="/owner/verification" replace />
             </div>
           )}
@@ -110,7 +123,9 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
           {ownerProfile?.verificationStatus === 'suspended' && (
             <div className="verification-message">
               <p>Your owner account has been suspended. Please contact support for assistance.</p>
-              <a href="mailto:support@myancamp.com" className="support-link">Contact Support</a>
+              <a href="mailto:support@myancamp.com" className="support-link">
+                Contact Support
+              </a>
             </div>
           )}
         </div>
@@ -124,7 +139,9 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
       <div className="owner-account-suspended">
         <h2>Account Suspended</h2>
         <p>Your owner account has been suspended. Please contact support for assistance.</p>
-        <a href="mailto:support@myancamp.com" className="support-link">Contact Support</a>
+        <a href="mailto:support@myancamp.com" className="support-link">
+          Contact Support
+        </a>
       </div>
     );
   }

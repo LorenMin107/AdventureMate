@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import CampgroundMap from '../components/maps/CampgroundMap';
 import WeatherBox from '../components/WeatherBox';
+import SafetyAlertList from '../components/SafetyAlertList';
+import SafetyAlertForm from '../components/SafetyAlertForm';
 import ReviewList from '../components/ReviewList';
 import ReviewForm from '../components/ReviewForm';
 import CampsiteList from '../components/CampsiteList';
@@ -33,6 +35,8 @@ const CampgroundDetailPage = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [mapKey, setMapKey] = useState(Date.now()); // Used to force re-render of the map
   const [reviews, setReviews] = useState([]);
+  const [showSafetyAlertForm, setShowSafetyAlertForm] = useState(false);
+  const [safetyAlertsKey, setSafetyAlertsKey] = useState(0);
   const [campsites, setCampsites] = useState([]);
   const [loadingCampsites, setLoadingCampsites] = useState(false);
 
@@ -466,6 +470,50 @@ const CampgroundDetailPage = () => {
           />
         </div>
       )}
+
+      {/* Safety Alerts Section */}
+      <div className="safety-alerts-section">
+        <div className="safety-alerts-header">
+          <h2>Safety Alerts</h2>
+          {isOwner && (
+            <button
+              onClick={() => setShowSafetyAlertForm(!showSafetyAlertForm)}
+              className="create-alert-button"
+            >
+              {showSafetyAlertForm ? 'Cancel' : 'Create Alert'}
+            </button>
+          )}
+        </div>
+
+        {showSafetyAlertForm && (
+          <SafetyAlertForm
+            entityId={id}
+            entityType="campground"
+            onAlertSubmitted={(newAlert) => {
+              setShowSafetyAlertForm(false);
+              // Force a refresh of the safety alerts list by changing the key
+              setSafetyAlertsKey((prev) => prev + 1);
+            }}
+            onCancel={() => setShowSafetyAlertForm(false)}
+          />
+        )}
+
+        <SafetyAlertList
+          key={safetyAlertsKey}
+          entityId={id}
+          entityType="campground"
+          showActiveOnly={false}
+          showAllForAcknowledgment={true}
+          onAlertDeleted={(alertId) => {
+            // Force a refresh of the safety alerts list by changing the key
+            setSafetyAlertsKey((prev) => prev + 1);
+          }}
+          onAlertAcknowledged={() => {
+            // Force a refresh of the safety alerts list by changing the key
+            setSafetyAlertsKey((prev) => prev + 1);
+          }}
+        />
+      </div>
 
       <div className="campground-info-container">
         <div className="campground-info">

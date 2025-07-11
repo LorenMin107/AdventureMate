@@ -313,7 +313,7 @@ const RegisterForm = () => {
           <label htmlFor="password">Password</label>
           <div className="password-input-container">
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               id="password"
               name="password"
               value={formData.password}
@@ -323,11 +323,11 @@ const RegisterForm = () => {
               placeholder="Create a password"
               className="password-input"
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="password-toggle"
               onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
@@ -376,7 +376,7 @@ const RegisterForm = () => {
           <label htmlFor="confirmPassword">Confirm Password</label>
           <div className="password-input-container">
             <input
-              type={showConfirmPassword ? "text" : "password"}
+              type={showConfirmPassword ? 'text' : 'password'}
               id="confirmPassword"
               name="confirmPassword"
               value={formData.confirmPassword}
@@ -386,11 +386,11 @@ const RegisterForm = () => {
               placeholder="Confirm your password"
               className="password-input"
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="password-toggle"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
             >
               {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
             </button>

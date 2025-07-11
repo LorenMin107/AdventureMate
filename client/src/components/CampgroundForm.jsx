@@ -5,6 +5,7 @@ import './CampgroundForm.css';
 import { logInfo, logError } from '../utils/logger';
 import MapPicker from './MapPicker';
 import { useTheme } from '../context/ThemeContext';
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || process.env.MAPBOX_TOKEN;
 
 const LOCAL_STORAGE_KEY = 'myancamp-owner-campground-form';
 
@@ -84,6 +85,44 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
       }
     }
   }, [campground, isEditing]);
+
+  // Fallback: If editing and geometry is missing but location is present, geocode the location
+  useEffect(() => {
+    if (
+      isEditing &&
+      formData.location &&
+      (!formData.geometry ||
+        !formData.geometry.coordinates ||
+        formData.geometry.coordinates.length !== 2)
+    ) {
+      // Geocode the location string
+      const geocodeLocation = async () => {
+        try {
+          const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            formData.location
+          )}.json?access_token=${MAPBOX_TOKEN}`;
+          const resp = await fetch(url);
+          const data = await resp.json();
+          if (data.features && data.features[0] && data.features[0].center) {
+            const [lng, lat] = data.features[0].center;
+            setFormData((prev) => ({
+              ...prev,
+              geometry: { type: 'Point', coordinates: [lng, lat] },
+            }));
+          } else {
+            // Could not geocode, prompt user to pick on map
+            setFormData((prev) => ({ ...prev, geometry: null }));
+          }
+        } catch (err) {
+          logError('Failed to geocode location on frontend', err);
+          setFormData((prev) => ({ ...prev, geometry: null }));
+        }
+      };
+      geocodeLocation();
+    }
+    // Only run when editing and geometry is missing but location is present
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, formData.location]);
 
   // Handle MapPicker change (now receives address components)
   const handleMapPickerChange = ({ lat, lng, address, components }) => {

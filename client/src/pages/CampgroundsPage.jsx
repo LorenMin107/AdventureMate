@@ -31,16 +31,17 @@ const CampgroundsPage = () => {
   const campgrounds = data?.campgrounds || [];
 
   // Filter campgrounds by search term and location
-  const filteredCampgrounds = campgrounds.filter(campground => {
+  const filteredCampgrounds = campgrounds.filter((campground) => {
     // Check if campground matches the search term
-    const matchesSearchTerm = !searchTerm || 
+    const matchesSearchTerm =
+      !searchTerm ||
       campground.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       campground.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       campground.location.toLowerCase().includes(searchTerm.toLowerCase());
 
     // Check if campground matches the location filter
-    const matchesLocation = !locationFilter || 
-      campground.location.toLowerCase().includes(locationFilter.toLowerCase());
+    const matchesLocation =
+      !locationFilter || campground.location.toLowerCase().includes(locationFilter.toLowerCase());
 
     // Return true if campground matches both filters
     return matchesSearchTerm && matchesLocation;
@@ -95,7 +96,7 @@ const CampgroundsPage = () => {
               {isLoading ? (
                 <option disabled>Loading locations...</option>
               ) : (
-                locations.map(location => (
+                locations.map((location) => (
                   <option key={location} value={location}>
                     {location}
                   </option>
@@ -110,11 +111,7 @@ const CampgroundsPage = () => {
             </button>
 
             {isSearching && (
-              <button 
-                type="button" 
-                className="clear-search-button"
-                onClick={handleClearSearch}
-              >
+              <button type="button" className="clear-search-button" onClick={handleClearSearch}>
                 Clear
               </button>
             )}
@@ -141,9 +138,9 @@ const CampgroundsPage = () => {
 
       {/* Campground List Section */}
       <div className="campgrounds-content">
-        <CampgroundList 
-          searchTerm={isSearching ? searchTerm : ''} 
-          locationFilter={isSearching ? locationFilter : ''} 
+        <CampgroundList
+          searchTerm={isSearching ? searchTerm : ''}
+          locationFilter={isSearching ? locationFilter : ''}
           hideMapView={true} // Hide map view in list since we have a dedicated map section
         />
       </div>

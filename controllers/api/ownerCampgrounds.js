@@ -110,6 +110,27 @@ const createCampground = async (req, res) => {
   try {
     let { title, description, location, geometry } = req.body;
 
+    // Field-level validation
+    const errors = [];
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      errors.push({ field: 'title', message: 'Title is required' });
+    }
+    if (!location || typeof location !== 'string' || !location.trim()) {
+      errors.push({ field: 'location', message: 'Location is required' });
+    }
+    if (!description || typeof description !== 'string' || !description.trim()) {
+      errors.push({ field: 'description', message: 'Description is required' });
+    }
+    // You can add more field validations here as needed
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        status: 'error',
+        error: { errors },
+        message: 'Validation failed',
+      });
+    }
+
     // Parse geometry if it's a string
     if (geometry && typeof geometry === 'string') {
       try {
@@ -130,8 +151,13 @@ const createCampground = async (req, res) => {
         .send();
       if (!geoData.body.features || geoData.body.features.length === 0) {
         return res.status(400).json({
-          error: 'Bad Request',
-          message: 'Invalid location. Please provide a valid address.',
+          status: 'error',
+          error: {
+            errors: [
+              { field: 'location', message: 'Invalid location. Please provide a valid address.' },
+            ],
+          },
+          message: 'Validation failed',
         });
       }
       finalGeometry = geoData.body.features[0].geometry;
@@ -163,6 +189,7 @@ const createCampground = async (req, res) => {
     }
 
     res.status(201).json({
+      status: 'success',
       message: 'Campground created successfully',
       campground,
     });
@@ -173,6 +200,7 @@ const createCampground = async (req, res) => {
       body: { title: req.body.title, location: req.body.location },
     });
     res.status(500).json({
+      status: 'error',
       error: 'Internal Server Error',
       message: 'Failed to create campground',
     });
