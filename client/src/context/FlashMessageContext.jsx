@@ -32,16 +32,16 @@ export const FlashMessageProvider = ({ children }) => {
   const addMessage = useCallback((text, type = 'info', timeout = 5000) => {
     const id = Date.now() + Math.random().toString(36).substr(2, 5);
     const newMessage = { id, text, type, timestamp: Date.now() };
-    
-    setMessages(prevMessages => [...prevMessages, newMessage]);
-    
+
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
     // Auto-dismiss message after timeout if timeout > 0
     if (timeout > 0) {
       setTimeout(() => {
         removeMessage(id);
       }, timeout);
     }
-    
+
     return id;
   }, []);
 
@@ -50,7 +50,7 @@ export const FlashMessageProvider = ({ children }) => {
    * @param {string} id - Message ID to remove
    */
   const removeMessage = useCallback((id) => {
-    setMessages(prevMessages => prevMessages.filter(message => message.id !== id));
+    setMessages((prevMessages) => prevMessages.filter((message) => message.id !== id));
   }, []);
 
   /**
@@ -65,36 +65,61 @@ export const FlashMessageProvider = ({ children }) => {
    * @param {string} text - Message text
    * @param {number} timeout - Auto-dismiss timeout in milliseconds
    */
-  const addSuccessMessage = useCallback((text, timeout = 5000) => {
-    return addMessage(text, 'success', timeout);
-  }, [addMessage]);
+  const addSuccessMessage = useCallback(
+    (text, timeout = 5000) => {
+      return addMessage(text, 'success', timeout);
+    },
+    [addMessage]
+  );
 
   /**
    * Shorthand for adding an error message
    * @param {string} text - Message text
    * @param {number} timeout - Auto-dismiss timeout in milliseconds
    */
-  const addErrorMessage = useCallback((text, timeout = 5000) => {
-    return addMessage(text, 'error', timeout);
-  }, [addMessage]);
+  const addErrorMessage = useCallback(
+    (text, timeout = 5000) => {
+      return addMessage(text, 'error', timeout);
+    },
+    [addMessage]
+  );
 
   /**
    * Shorthand for adding an info message
    * @param {string} text - Message text
    * @param {number} timeout - Auto-dismiss timeout in milliseconds
    */
-  const addInfoMessage = useCallback((text, timeout = 5000) => {
-    return addMessage(text, 'info', timeout);
-  }, [addMessage]);
+  const addInfoMessage = useCallback(
+    (text, timeout = 5000) => {
+      return addMessage(text, 'info', timeout);
+    },
+    [addMessage]
+  );
 
   /**
    * Shorthand for adding a warning message
    * @param {string} text - Message text
    * @param {number} timeout - Auto-dismiss timeout in milliseconds
    */
-  const addWarningMessage = useCallback((text, timeout = 5000) => {
-    return addMessage(text, 'warning', timeout);
-  }, [addMessage]);
+  const addWarningMessage = useCallback(
+    (text, timeout = 5000) => {
+      return addMessage(text, 'warning', timeout);
+    },
+    [addMessage]
+  );
+
+  /**
+   * Generic show message method (alias for addMessage)
+   * @param {string} text - Message text
+   * @param {string} type - Message type (success, error, info, warning)
+   * @param {number} timeout - Auto-dismiss timeout in milliseconds
+   */
+  const showMessage = useCallback(
+    (text, type = 'info', timeout = 5000) => {
+      return addMessage(text, type, timeout);
+    },
+    [addMessage]
+  );
 
   // Context value
   const value = {
@@ -105,12 +130,9 @@ export const FlashMessageProvider = ({ children }) => {
     addSuccessMessage,
     addErrorMessage,
     addInfoMessage,
-    addWarningMessage
+    addWarningMessage,
+    showMessage,
   };
 
-  return (
-    <FlashMessageContext.Provider value={value}>
-      {children}
-    </FlashMessageContext.Provider>
-  );
+  return <FlashMessageContext.Provider value={value}>{children}</FlashMessageContext.Provider>;
 };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import TwoFactorSetup from '../components/TwoFactorSetup';
+import PasswordChangeForm from '../components/PasswordChangeForm';
 import BookingList from '../components/BookingList';
 import UserReviewList from '../components/UserReviewList';
 import { logError } from '../utils/logger';
@@ -210,6 +211,12 @@ const ProfilePage = () => {
               <h2 className="section-title">Security Settings</h2>
               <div className="profile-card">
                 <TwoFactorSetup />
+                <div className="security-actions">
+                  <Link to="/password-change" className="security-link">
+                    <span className="security-icon">🔑</span>
+                    <span>Change Password</span>
+                  </Link>
+                </div>
               </div>
             </div>
           )}

@@ -12,6 +12,7 @@ import LoadingFallback from './LoadingFallback';
 const EmailVerificationPage = lazy(() => import('../pages/EmailVerificationPage'));
 const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
+const PasswordChangePage = lazy(() => import('../pages/PasswordChangePage'));
 
 // Lazy load components for code splitting
 const HomePage = lazy(() => import('../pages/HomePage'));
@@ -245,6 +246,14 @@ const routes = [
             element: (
               <Suspense fallback={<LoadingFallback />}>
                 <CampsiteEditPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'password-change',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <PasswordChangePage />
               </Suspense>
             ),
           },

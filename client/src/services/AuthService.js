@@ -144,40 +144,37 @@ class AuthService {
 
   /**
    * Login a user
-   * @param {string} username - The username
+   * @param {string} username - The username or email
    * @param {string} password - The password
    * @param {boolean} rememberMe - Whether to remember the user
    * @returns {Promise<Object>} The user object if login is successful
    */
   async login(username, password, rememberMe = false) {
-    console.log('🔍 AuthService: login method called');
     try {
-      console.log('🔍 AuthService: Making API call to /auth/login');
       const response = await apiClient.post('/auth/login', {
         username,
         password,
         rememberMe,
       });
-      console.log('🔍 AuthService: API call successful:', response.data);
 
       const data = response.data;
 
       // Check if 2FA is required
       if (data.requiresTwoFactor) {
-        console.log('🔍 AuthService: 2FA required');
-        // Store temporary tokens if provided
+        // Store temporary access token for 2FA verification
         if (data.tempAccessToken) {
           localStorage.setItem('tempAccessToken', data.tempAccessToken);
         }
-
-        // Don't cache the user when 2FA is required
-        // The user should not be considered authenticated until they complete 2FA
         this.updateAuthCache(null, true);
-
-        return { requiresTwoFactor: true, userId: data.user._id };
+        // Return 2FA data instead of throwing error
+        return {
+          requiresTwoFactor: true,
+          userId: data.user._id,
+          user: data.user,
+          tempAccessToken: data.tempAccessToken,
+        };
       }
 
-      console.log('🔍 AuthService: Login successful, storing tokens');
       // Store JWT tokens
       if (data.accessToken) {
         this.accessToken = data.accessToken;
@@ -194,22 +191,25 @@ class AuthService {
 
       return data.user;
     } catch (err) {
-      console.log('🔍 AuthService: Login error caught:', err);
       logError('Error logging in', err);
 
-      // Ensure the error has the proper structure for error handling
+      // Extract meaningful error message from API response
       if (err.response && err.response.data) {
-        console.log('🔍 AuthService: Creating structured error');
+        // API error response with specific error message
+        const errorMessage = err.response.data.error || err.response.data.message || 'Login failed';
+
         // Create a new error with the API response data
-        const apiError = new Error(
-          err.response.data.message || err.response.data.error || 'Login failed'
-        );
+        const apiError = new Error(errorMessage);
         apiError.response = err.response;
         apiError.status = err.response.status;
         throw apiError;
+      } else if (err.message) {
+        // JavaScript error with message
+        throw new Error(err.message);
+      } else {
+        // Generic error
+        throw new Error('Login failed. Please check your credentials and try again.');
       }
-
-      throw err;
     }
   }
 
@@ -319,18 +319,24 @@ class AuthService {
     } catch (err) {
       logError('Error registering user', err);
 
-      // Ensure the error has the proper structure for error handling
+      // Extract meaningful error message from API response
       if (err.response && err.response.data) {
+        // API error response with specific error message
+        const errorMessage =
+          err.response.data.error || err.response.data.message || 'Registration failed';
+
         // Create a new error with the API response data
-        const apiError = new Error(
-          err.response.data.message || err.response.data.error || 'Registration failed'
-        );
+        const apiError = new Error(errorMessage);
         apiError.response = err.response;
         apiError.status = err.response.status;
         throw apiError;
+      } else if (err.message) {
+        // JavaScript error with message
+        throw new Error(err.message);
+      } else {
+        // Generic error
+        throw new Error('Registration failed. Please try again.');
       }
-
-      throw err;
     }
   }
 
@@ -437,7 +443,27 @@ class AuthService {
       return response.data.message;
     } catch (err) {
       logError('Error requesting password reset', err);
-      throw err;
+
+      // Extract meaningful error message from API response
+      if (err.response && err.response.data) {
+        // API error response with specific error message
+        const errorMessage =
+          err.response.data.error ||
+          err.response.data.message ||
+          'Failed to request password reset';
+
+        // Create a new error with the API response data
+        const apiError = new Error(errorMessage);
+        apiError.response = err.response;
+        apiError.status = err.response.status;
+        throw apiError;
+      } else if (err.message) {
+        // JavaScript error with message
+        throw new Error(err.message);
+      } else {
+        // Generic error
+        throw new Error('Failed to request password reset. Please try again.');
+      }
     }
   }
 
@@ -456,7 +482,71 @@ class AuthService {
       return response.data.message;
     } catch (err) {
       logError('Error resetting password', err);
-      throw err;
+
+      // Extract meaningful error message from API response
+      if (err.response && err.response.data) {
+        // API error response with specific error message
+        const errorMessage =
+          err.response.data.error || err.response.data.message || 'Failed to reset password';
+
+        // Create a new error with the API response data
+        const apiError = new Error(errorMessage);
+        apiError.response = err.response;
+        apiError.status = err.response.status;
+        throw apiError;
+      } else if (err.message) {
+        // JavaScript error with message
+        throw new Error(err.message);
+      } else {
+        // Generic error
+        throw new Error('Failed to reset password. Please try again.');
+      }
+    }
+  }
+
+  /**
+   * Change password for authenticated user
+   * @param {string} currentPassword - The current password
+   * @param {string} newPassword - The new password
+   * @param {string} twoFactorCode - The 2FA code (optional, required if 2FA is enabled)
+   * @returns {Promise<string>} A success message
+   */
+  async changePassword(currentPassword, newPassword, twoFactorCode = null) {
+    try {
+      const requestBody = {
+        currentPassword,
+        newPassword,
+      };
+
+      // Add 2FA code if provided
+      if (twoFactorCode) {
+        requestBody.twoFactorCode = twoFactorCode;
+      }
+
+      const response = await apiClient.put('/users/change-password', requestBody);
+      return response.data.message;
+    } catch (err) {
+      logError('Error changing password', err);
+
+      // Extract meaningful error message from API response
+      if (err.response && err.response.data) {
+        // API error response with specific error message
+        const errorMessage =
+          err.response.data.error || err.response.data.message || 'Failed to change password';
+
+        // Create a new error with the API response data
+        const apiError = new Error(errorMessage);
+        apiError.response = err.response;
+        apiError.status = err.response.status;
+        apiError.requiresTwoFactor = err.response.data.requiresTwoFactor || false;
+        throw apiError;
+      } else if (err.message) {
+        // JavaScript error with message
+        throw new Error(err.message);
+      } else {
+        // Generic error
+        throw new Error('Failed to change password. Please try again.');
+      }
     }
   }
 

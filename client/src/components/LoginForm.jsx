@@ -17,8 +17,8 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [formError, setFormError] = useState('');
-  const [userId, setUserId] = useState(null);
-  const { login, error, loading, requiresTwoFactor, clearLoginAttempt } = useAuth();
+  const { login, error, loading, requiresTwoFactor, clearLoginAttempt, currentUser, logout } =
+    useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
   const navigate = useNavigate();
 
@@ -67,7 +67,6 @@ const LoginForm = () => {
       // Check if 2FA is required
       if (result && result.requiresTwoFactor) {
         console.log('🔍 LoginForm: 2FA required');
-        setUserId(result.userId);
         // The requiresTwoFactor state in AuthContext will trigger the 2FA verification UI
         return;
       }
@@ -101,15 +100,17 @@ const LoginForm = () => {
 
   // Handle cancellation of 2FA verification
   const handleCancelTwoFactor = () => {
-    setUserId(null);
     setUsername('');
     setPassword('');
     setRememberMe(false);
+    // Clear the 2FA state by calling logout to reset auth state
+    // This will clear currentUser and requiresTwoFactor
+    logout();
   };
 
   // If 2FA verification is required, show the 2FA verification component
-  if (requiresTwoFactor && userId) {
-    return <TwoFactorVerification userId={userId} onCancel={handleCancelTwoFactor} />;
+  if (requiresTwoFactor && currentUser) {
+    return <TwoFactorVerification userId={currentUser._id} onCancel={handleCancelTwoFactor} />;
   }
 
   // Otherwise, show the login form

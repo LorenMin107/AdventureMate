@@ -3,8 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
+import PasswordChangeForm from '../components/PasswordChangeForm';
 import { logError } from '../utils/logger';
 import './OwnerSettingsPage.css';
+import { Link } from 'react-router-dom';
 
 /**
  * Owner Settings Page
@@ -504,33 +506,29 @@ const OwnerSettingsPage = () => {
           {activeSection === 'security' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2>Security Settings</h2>
+                <h2>Security</h2>
                 <p className="section-subtitle">Manage your account security and privacy</p>
               </div>
 
+              <PasswordChangeForm />
+
               <div className="security-options">
-                <div className="security-item">
-                  <div className="security-info">
-                    <h3>Two-Factor Authentication</h3>
+                <div className="security-option">
+                  <div className="option-info">
+                    <h4>Two-Factor Authentication</h4>
                     <p>Add an extra layer of security to your account</p>
                   </div>
-                  <button className="owner-btn owner-btn-outline">Enable 2FA</button>
+                  <button className="owner-btn owner-btn-outline">Setup 2FA</button>
                 </div>
 
-                <div className="security-item">
-                  <div className="security-info">
-                    <h3>Change Password</h3>
-                    <p>Update your account password regularly</p>
+                <div className="security-option">
+                  <div className="option-info">
+                    <h4>Password Change</h4>
+                    <p>Update your password to keep your account secure</p>
                   </div>
-                  <button className="owner-btn owner-btn-outline">Change Password</button>
-                </div>
-
-                <div className="security-item">
-                  <div className="security-info">
-                    <h3>Login History</h3>
-                    <p>View recent login activity and sessions</p>
-                  </div>
-                  <button className="owner-btn owner-btn-outline">View History</button>
+                  <Link to="/password-change" className="owner-btn owner-btn-outline">
+                    Change Password
+                  </Link>
                 </div>
               </div>
             </div>

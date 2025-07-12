@@ -174,6 +174,8 @@ export const AuthProvider = ({ children }) => {
       if (result && result.requiresTwoFactor) {
         console.log('🔍 AuthContext: 2FA required');
         setRequiresTwoFactor(true);
+        // Set the user temporarily for 2FA verification
+        setCurrentUser(result.user);
         return { requiresTwoFactor: true, userId: result.userId };
       }
 
@@ -327,6 +329,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Change password function
+  const changePassword = async (currentPassword, newPassword, twoFactorCode = null) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const message = await authService.changePassword(currentPassword, newPassword, twoFactorCode);
+      return message;
+    } catch (err) {
+      setError(err.message || 'Failed to change password');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Google login function
   const googleLogin = async (code, redirectUri) => {
     setLoading(true);
@@ -366,6 +384,15 @@ export const AuthProvider = ({ children }) => {
     setIsLoginAttempt(false);
   };
 
+  // Refresh auth status (useful after 2FA changes)
+  const refreshAuthStatus = async () => {
+    try {
+      await authService.checkAuthStatus(true);
+    } catch (err) {
+      logError('Error refreshing auth status', err);
+    }
+  };
+
   // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(
     () => ({
@@ -379,11 +406,13 @@ export const AuthProvider = ({ children }) => {
       refreshAccessToken,
       requestPasswordReset,
       resetPassword,
+      changePassword,
       googleLogin,
       facebookLogin,
       requiresTwoFactor,
       isAuthenticated: !!currentUser && currentUser?.isEmailVerified && !requiresTwoFactor,
       clearLoginAttempt,
+      refreshAuthStatus,
     }),
     [
       currentUser,

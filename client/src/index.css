@@ -16,6 +16,7 @@
   --color-primary-hover: #1b5e20; /* Changed to darker green */
   --color-primary-light: rgba(46, 125, 50, 0.1);
   --color-primary-dark: #1b5e20;
+  --color-primary-rgb: 46, 125, 50; /* RGB values for primary color */
   --color-secondary: #43a047; /* Changed to slightly different green */
   --color-secondary-hover: #388e3c;
   --color-secondary-light: rgba(67, 160, 71, 0.1);
@@ -39,15 +40,19 @@
   --color-warning: #ffc107; /* Warning color (amber) */
   --color-warning-light: rgba(255, 193, 7, 0.1);
   --color-warning-dark: #e0a800;
+  --color-warning-rgb: 255, 193, 7; /* RGB values for warning color */
   --color-success: #28a745; /* Success color (green) */
   --color-success-light: rgba(40, 167, 69, 0.1);
   --color-success-dark: #1e7e34;
+  --color-success-rgb: 40, 167, 69; /* RGB values for success color */
   --color-error: #dc3545; /* Error color (red) */
   --color-error-light: rgba(220, 53, 69, 0.1);
   --color-error-dark: #c82333;
+  --color-error-rgb: 220, 53, 69; /* RGB values for error color */
   --color-info: #17a2b8; /* Info color (blue) */
   --color-info-light: rgba(23, 162, 184, 0.1);
   --color-info-dark: #138496;
+  --color-info-rgb: 23, 162, 184; /* RGB values for info color */
   --color-bg-hover: #f6f8fa;
 
   /* Enhanced transition variables */
@@ -86,6 +91,7 @@
   --color-primary-hover: #388e3c; /* Changed to medium green for dark theme */
   --color-primary-light: rgba(76, 175, 80, 0.2);
   --color-primary-dark: #2e7d32;
+  --color-primary-rgb: 76, 175, 80; /* RGB values for primary color */
   --color-secondary: #66bb6a; /* Changed to light green for dark theme */
   --color-secondary-hover: #4caf50;
   --color-secondary-light: rgba(102, 187, 106, 0.2);
@@ -109,15 +115,19 @@
   --color-warning: #ffca2c; /* Warning color (amber) - slightly brighter for dark theme */
   --color-warning-light: rgba(255, 202, 44, 0.2);
   --color-warning-dark: #ffc107;
+  --color-warning-rgb: 255, 202, 44; /* RGB values for warning color */
   --color-success: #2dbc4e; /* Success color (green) - slightly brighter for dark theme */
   --color-success-light: rgba(45, 188, 78, 0.2);
   --color-success-dark: #28a745;
+  --color-success-rgb: 45, 188, 78; /* RGB values for success color */
   --color-error: #e74c3c; /* Error color (red) - slightly brighter for dark theme */
   --color-error-light: rgba(231, 76, 60, 0.2);
   --color-error-dark: #dc3545;
+  --color-error-rgb: 231, 76, 60; /* RGB values for error color */
   --color-info: #17a2b8; /* Info color (blue) */
   --color-info-light: rgba(23, 162, 184, 0.2);
   --color-info-dark: #138496;
+  --color-info-rgb: 23, 162, 184; /* RGB values for info color */
   --color-bg-hover: #23272f;
 
   /* Enhanced shadow variables for dark theme */

@@ -669,3 +669,106 @@ module.exports.resetPassword = async (req, res) => {
     res.status(500).json({ error: 'Failed to reset password' });
   }
 };
+
+/**
+ * Change password for authenticated user
+ * This endpoint allows users to change their password while logged in
+ * It requires the current password for verification and 2FA code if enabled
+ */
+module.exports.changePassword = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'You must be logged in to change your password' });
+    }
+
+    const { currentPassword, newPassword, twoFactorCode } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Verify the current password
+    const { comparePassword } = require('../../utils/passwordUtils');
+    const isCurrentPasswordValid = await comparePassword(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
+    }
+
+    // Check if 2FA is enabled and verify 2FA code
+    if (user.isTwoFactorEnabled) {
+      if (!twoFactorCode) {
+        return res.status(400).json({
+          error: 'Two-factor authentication code is required',
+          requiresTwoFactor: true,
+        });
+      }
+
+      // Verify 2FA code
+      const { verifyToken } = require('../../utils/twoFactorAuth');
+      const isValidTwoFactor = verifyToken(twoFactorCode, user.twoFactorSecret);
+
+      if (!isValidTwoFactor) {
+        return res.status(400).json({
+          error: 'Invalid two-factor authentication code',
+          requiresTwoFactor: true,
+        });
+      }
+    }
+
+    // Validate the new password strength
+    const { validatePasswordStrength } = require('../../utils/passwordUtils');
+    const passwordValidation = validatePasswordStrength(newPassword);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({ error: passwordValidation.message });
+    }
+
+    // Hash the new password
+    const { hashPassword } = require('../../utils/passwordUtils');
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update the user's password
+    user.password = hashedPassword;
+
+    // Add audit log entry directly to the user document
+    // Create the password change event
+    const passwordChangeEvent = {
+      date: new Date(),
+      ipAddress: req.ip || req.connection.remoteAddress,
+      userAgent: req.headers['user-agent'],
+      reason: 'change',
+    };
+
+    // If the user doesn't have a passwordHistory array, create one
+    if (!user.passwordHistory) {
+      user.passwordHistory = [];
+    }
+
+    // Add the event to the user's password history
+    user.passwordHistory.push(passwordChangeEvent);
+
+    // Save the user with both password change and audit log in a single operation
+    await user.save();
+
+    logInfo('Password changed successfully', {
+      userId: user._id,
+      endpoint: '/api/v1/users/change-password',
+      twoFactorUsed: user.isTwoFactorEnabled,
+    });
+
+    res.json({
+      message: 'Password changed successfully',
+    });
+  } catch (error) {
+    logError('Error changing password', error, {
+      userId: req.user?._id,
+      endpoint: '/api/v1/users/change-password',
+    });
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+};
