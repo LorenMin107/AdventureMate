@@ -253,7 +253,19 @@ class RedisCache {
 
     try {
       const info = await this.client.info();
-      const memory = await this.client.memory('USAGE');
+      let memory = 0;
+
+      // Try to get memory usage, but handle gracefully if not available
+      try {
+        // Get memory usage from Redis INFO command instead of MEMORY USAGE
+        const memoryInfo = await this.client.info('memory');
+        const usedMemoryMatch = memoryInfo.match(/used_memory:(\d+)/);
+        memory = usedMemoryMatch ? parseInt(usedMemoryMatch[1]) : 0;
+      } catch (memoryError) {
+        logWarn('Could not fetch memory usage from Redis', { error: memoryError.message });
+        memory = 0;
+      }
+
       const keyspace = await this.client.info('keyspace');
 
       return {

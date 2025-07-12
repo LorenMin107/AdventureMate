@@ -25,7 +25,7 @@ const hasRole = (roles) => {
     if (!hasRequiredRole) {
       return ApiResponse.error(
         'Forbidden',
-        'You do not have permission to access this resource',
+        `You do not have the required role(s): ${roles.join(', ')}. Your roles: ${userRoles.join(', ')}`,
         403
       ).send(res);
     }
@@ -239,6 +239,13 @@ const getUserPermissions = (user) => {
     permissions.push('read:all_bookings', 'update:any_booking', 'cancel:any_booking');
     permissions.push('read:all_reviews', 'update:any_review', 'delete:any_review');
     permissions.push('manage:owner_applications');
+    // New feature permissions
+    permissions.push(
+      'read:all_safety_alerts',
+      'update:any_safety_alert',
+      'delete:any_safety_alert'
+    );
+    permissions.push('read:all_trips', 'delete:any_trip');
   }
 
   return permissions;

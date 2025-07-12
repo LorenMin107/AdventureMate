@@ -387,6 +387,26 @@
   color: var(--color-button-text);
 }
 
+.admin-booking-detail-cancel-button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #dc3545; /* Keep red for cancel button for visibility in both themes */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.admin-booking-detail-cancel-button:hover {
+  background-color: #c82333;
+  text-decoration: none;
+  color: white;
+}
+
 /* Status messages */
 .admin-booking-detail-loading,
 .admin-booking-detail-error,
@@ -439,7 +459,8 @@
   .admin-booking-detail-back-button,
   .admin-booking-detail-user-button,
   .admin-booking-detail-campground-button,
-  .admin-booking-detail-campsite-button {
+  .admin-booking-detail-campsite-button,
+  .admin-booking-detail-cancel-button {
     width: 100%;
     text-align: center;
   }

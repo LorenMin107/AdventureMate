@@ -28,16 +28,12 @@ const AdminLayout = () => {
       const mainHeader = document.querySelector('.header');
       if (mainHeader) {
         const height = mainHeader.offsetHeight;
-        console.log('Main header height:', height); // Debug log
         setHeaderHeight(height);
 
         // Update navbar position dynamically
         if (navbarRef.current) {
           navbarRef.current.style.top = `${height}px`;
-          console.log('Setting navbar top to:', height + 'px'); // Debug log
         }
-      } else {
-        console.log('Main header not found'); // Debug log
       }
     };
 
@@ -46,14 +42,12 @@ const AdminLayout = () => {
       if (navbarRef.current) {
         const height = navbarRef.current.offsetHeight;
         setAdminNavbarHeight(height);
-        console.log('Admin navbar height:', height); // Debug log
 
         // Update content padding dynamically
         if (contentRef.current) {
           const totalOffset = headerHeight + height;
-          contentRef.current.style.paddingTop = `calc(2rem + ${totalOffset}px)`;
+          contentRef.current.style.paddingTop = `calc(1rem + ${totalOffset}px)`;
           contentRef.current.style.minHeight = `calc(100vh - ${totalOffset}px)`;
-          console.log('Setting content padding to:', `calc(2rem + ${totalOffset}px)`); // Debug log
         }
       }
     };
@@ -81,7 +75,6 @@ const AdminLayout = () => {
         if (mutation.type === 'childList') {
           const header = document.querySelector('.header');
           if (header) {
-            console.log('Header found via MutationObserver'); // Debug log
             attemptCalculation();
             observer.disconnect(); // Stop observing once header is found
           }
@@ -147,45 +140,84 @@ const AdminLayout = () => {
         {/* Main navigation section */}
         <div className="admin-navbar-main">
           <nav className="admin-nav">
-            <Link
-              to="/admin"
-              className={`admin-nav-item ${isActive('/admin') && !isActive('/admin/users') && !isActive('/admin/campgrounds') && !isActive('/admin/bookings') && !isActive('/admin/owner-applications') ? 'active' : ''}`}
-            >
-              <span className="admin-nav-icon">📊</span>
-              <span className="admin-nav-text">Dashboard</span>
-            </Link>
+            {/* Core Management Group */}
+            <div className="admin-nav-group">
+              <Link
+                to="/admin"
+                className={`admin-nav-item ${isActive('/admin') && !isActive('/admin/users') && !isActive('/admin/campgrounds') && !isActive('/admin/bookings') && !isActive('/admin/owner-applications') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">📊</span>
+                <span className="admin-nav-text">Dashboard</span>
+              </Link>
 
-            <Link
-              to="/admin/users"
-              className={`admin-nav-item ${isActive('/admin/users') ? 'active' : ''}`}
-            >
-              <span className="admin-nav-icon">👤</span>
-              <span className="admin-nav-text">Users</span>
-            </Link>
+              <Link
+                to="/admin/users"
+                className={`admin-nav-item ${isActive('/admin/users') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">👤</span>
+                <span className="admin-nav-text">Users</span>
+              </Link>
 
-            <Link
-              to="/admin/campgrounds"
-              className={`admin-nav-item ${isActive('/admin/campgrounds') ? 'active' : ''}`}
-            >
-              <span className="admin-nav-icon">🏕️</span>
-              <span className="admin-nav-text">Campgrounds</span>
-            </Link>
+              <Link
+                to="/admin/campgrounds"
+                className={`admin-nav-item ${isActive('/admin/campgrounds') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">🏕️</span>
+                <span className="admin-nav-text">Campgrounds</span>
+              </Link>
 
-            <Link
-              to="/admin/bookings"
-              className={`admin-nav-item ${isActive('/admin/bookings') ? 'active' : ''}`}
-            >
-              <span className="admin-nav-icon">📆</span>
-              <span className="admin-nav-text">Bookings</span>
-            </Link>
+              <Link
+                to="/admin/bookings"
+                className={`admin-nav-item ${isActive('/admin/bookings') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">📆</span>
+                <span className="admin-nav-text">Bookings</span>
+              </Link>
+            </div>
 
-            <Link
-              to="/admin/owner-applications"
-              className={`admin-nav-item ${isActive('/admin/owner-applications') ? 'active' : ''}`}
-            >
-              <span className="admin-nav-icon">📋</span>
-              <span className="admin-nav-text">Applications</span>
-            </Link>
+            {/* Divider */}
+            <div className="admin-nav-divider"></div>
+
+            {/* Applications & Safety Group */}
+            <div className="admin-nav-group">
+              <Link
+                to="/admin/owner-applications"
+                className={`admin-nav-item ${isActive('/admin/owner-applications') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">📋</span>
+                <span className="admin-nav-text">Applications</span>
+              </Link>
+
+              <Link
+                to="/admin/safety-alerts"
+                className={`admin-nav-item ${isActive('/admin/safety-alerts') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">⚠️</span>
+                <span className="admin-nav-text">Safety Alerts</span>
+              </Link>
+            </div>
+
+            {/* Divider */}
+            <div className="admin-nav-divider"></div>
+
+            {/* Content & Monitoring Group */}
+            <div className="admin-nav-group">
+              <Link
+                to="/admin/trips"
+                className={`admin-nav-item ${isActive('/admin/trips') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">🗺️</span>
+                <span className="admin-nav-text">Trips</span>
+              </Link>
+
+              <Link
+                to="/admin/weather"
+                className={`admin-nav-item ${isActive('/admin/weather') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">🌤️</span>
+                <span className="admin-nav-text">Weather</span>
+              </Link>
+            </div>
           </nav>
         </div>
       </div>
@@ -194,7 +226,7 @@ const AdminLayout = () => {
         ref={contentRef}
         className="admin-content"
         style={{
-          paddingTop: `calc(2rem + ${headerHeight + adminNavbarHeight}px)`,
+          paddingTop: `calc(1rem + ${headerHeight + adminNavbarHeight}px)`,
           minHeight: `calc(100vh - ${headerHeight + adminNavbarHeight}px)`,
         }}
       >

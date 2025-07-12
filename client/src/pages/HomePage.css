@@ -222,8 +222,8 @@
   animation: slideInUp 0.8s ease-out both;
   position: relative;
   border: 2px solid transparent;
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .destination-card::before {

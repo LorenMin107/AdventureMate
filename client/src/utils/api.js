@@ -85,6 +85,7 @@ api.interceptors.response.use(
         // Try to refresh the token
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
+          logInfo('Attempting to refresh authentication token...');
           const refreshResponse = await axios.post('/api/v1/auth/refresh-token', {
             token: refreshToken,
           });
@@ -92,6 +93,7 @@ api.interceptors.response.use(
           if (refreshResponse.data && refreshResponse.data.accessToken) {
             // Store the new access token
             localStorage.setItem('accessToken', refreshResponse.data.accessToken);
+            logInfo('Token refreshed successfully, retrying original request');
 
             // Update the Authorization header with the new token
             originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
@@ -105,6 +107,13 @@ api.interceptors.response.use(
         logError('Authentication expired. Please log in again.');
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+
+        // Dispatch auth state change event to notify other components
+        const event = new CustomEvent('authStateChange', {
+          detail: { isAuthenticated: false },
+        });
+        window.dispatchEvent(event);
+
         // Store the current URL to redirect back after login
         if (window.location.pathname !== '/login') {
           sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
@@ -114,6 +123,13 @@ api.interceptors.response.use(
         logError('Failed to refresh authentication token', refreshError);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+
+        // Dispatch auth state change event to notify other components
+        const event = new CustomEvent('authStateChange', {
+          detail: { isAuthenticated: false },
+        });
+        window.dispatchEvent(event);
+
         // Store the current URL to redirect back after login
         if (window.location.pathname !== '/login') {
           sessionStorage.setItem('redirectAfterLogin', window.location.pathname);

@@ -117,28 +117,6 @@ router.post(
 );
 
 /**
- * @route GET /api/v1/admin/cache/stats
- * @desc Get Redis cache statistics
- * @access Admin only
- */
-router.get(
-  '/cache/stats',
-  asyncHandler(async (req, res) => {
-    const stats = await redisCache.getStats();
-
-    if (!stats) {
-      return ApiResponse.error(
-        'Cache not available',
-        'Redis cache is not connected or available',
-        503
-      ).send(res);
-    }
-
-    return ApiResponse.success(stats, 'Cache statistics retrieved successfully').send(res);
-  })
-);
-
-/**
  * @route POST /api/v1/admin/cache/clear
  * @desc Clear all cache
  * @access Admin only
@@ -219,5 +197,44 @@ router.get(
     return ApiResponse.success(status, 'Cache status retrieved successfully').send(res);
   })
 );
+
+// Safety Alert Management Routes
+router.get(
+  '/safety-alerts',
+  hasPermission('read:all_safety_alerts'),
+  catchAsync(admin.getAllSafetyAlerts)
+);
+
+router.put(
+  '/safety-alerts/:id',
+  hasPermission('update:any_safety_alert'),
+  auditLog('update_safety_alert', 'safety_alert', { includeBody: true }),
+  catchAsync(admin.updateSafetyAlert)
+);
+
+router.delete(
+  '/safety-alerts/:id',
+  hasPermission('delete:any_safety_alert'),
+  auditLog('delete_safety_alert', 'safety_alert'),
+  catchAsync(admin.deleteSafetyAlert)
+);
+
+// Trip Management Routes
+router.get('/trips', hasPermission('read:all_trips'), catchAsync(admin.getAllTrips));
+
+router.get('/trips/:id', hasPermission('read:all_trips'), catchAsync(admin.getTripDetails));
+
+router.delete(
+  '/trips/:id',
+  hasPermission('delete:any_trip'),
+  auditLog('delete_trip', 'trip'),
+  catchAsync(admin.deleteTrip)
+);
+
+// Enhanced Analytics Routes
+router.get('/dashboard/enhanced', hasRole(['admin']), catchAsync(admin.getEnhancedDashboardStats));
+
+// Weather System Monitoring Routes
+router.get('/weather/stats', hasRole(['admin']), catchAsync(admin.getWeatherStats));
 
 module.exports = router;

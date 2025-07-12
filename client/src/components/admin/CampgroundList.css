@@ -1,46 +1,49 @@
-.campground-list {
+/* Admin-specific campground list styles to avoid conflicts with main campground list */
+.admin-campground-list {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.campground-list-header {
+.admin-campground-list .campground-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
 }
 
-.campground-list-header h1 {
+.admin-campground-list .campground-list-header h1 {
   font-size: 2rem;
   color: var(--color-text);
   margin: 0;
   transition: color 0.3s ease;
 }
 
-.campground-list-actions {
+.admin-campground-list .campground-list-actions {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
 
-.campground-list-add-button {
+.admin-campground-list .campground-list-add-button {
   display: inline-block;
   padding: 0.5rem 1rem;
   background-color: var(--color-primary);
   color: var(--color-button-text);
   border-radius: 4px;
   text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
-.campground-list-add-button:hover {
+.admin-campground-list .campground-list-add-button:hover {
   background-color: var(--color-primary-hover);
   text-decoration: none;
   color: var(--color-button-text);
 }
 
-.campground-list-limit {
+.admin-campground-list .campground-list-limit {
   padding: 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 4px;
@@ -48,124 +51,148 @@
   color: var(--color-text);
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
-.campground-list-limit:focus {
+.admin-campground-list .campground-list-limit:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 0.2rem var(--color-card-shadow);
 }
 
-.campground-list-table-container {
+.admin-campground-list .campground-list-table-container {
   overflow-x: auto;
   margin-bottom: 2rem;
   background-color: var(--color-card-bg);
   border-radius: 8px;
   box-shadow: 0 2px 10px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.campground-list-table {
+.admin-campground-list .campground-list-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.campground-list-table th,
-.campground-list-table td {
+.admin-campground-list .campground-list-table th,
+.admin-campground-list .campground-list-table td {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid var(--color-border);
   transition: border-color 0.3s ease;
 }
 
-.campground-list-table th {
+.admin-campground-list .campground-list-table th {
   background-color: var(--color-breadcrumb-bg);
   font-weight: bold;
   color: var(--color-breadcrumb-text);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
-.campground-list-table th.sortable {
+.admin-campground-list .campground-list-table th.sortable {
   cursor: pointer;
   position: relative;
 }
 
-.campground-list-table th.sortable:hover {
+.admin-campground-list .campground-list-table th.sortable:hover {
   background-color: var(--color-border);
   transition: background-color 0.3s ease;
 }
 
-.campground-list-table th.sorted-asc::after {
-  content: "▲";
+.admin-campground-list .campground-list-table th.sorted-asc::after {
+  content: '▲';
   margin-left: 0.5rem;
   font-size: 0.75rem;
 }
 
-.campground-list-table th.sorted-desc::after {
-  content: "▼";
+.admin-campground-list .campground-list-table th.sorted-desc::after {
+  content: '▼';
   margin-left: 0.5rem;
   font-size: 0.75rem;
 }
 
-.campground-list-table tr:hover {
+.admin-campground-list .campground-list-table tr:hover {
   background-color: var(--color-breadcrumb-bg);
   transition: background-color 0.3s ease;
 }
 
-.campground-list-actions-cell {
+.admin-campground-list .campground-list-actions-cell {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.campground-list-view-button,
-.campground-list-edit-button,
-.campground-list-delete-button {
+/* Admin-specific button styles - more specific to avoid conflicts */
+.admin-campground-list .campground-list-view-button,
+.admin-campground-list .campground-list-edit-button,
+.admin-campground-list .campground-list-delete-button {
   display: inline-block;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
   text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.campground-list-view-button {
-  background-color: var(--color-primary);
-  color: var(--color-button-text);
-}
-
-.campground-list-view-button:hover {
-  background-color: var(--color-primary-hover);
-  color: var(--color-button-text);
-  text-decoration: none;
-}
-
-.campground-list-edit-button {
-  background-color: #ffc107; /* Keep yellow for edit button */
-  color: #212529; /* Dark text for contrast on yellow */
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.campground-list-edit-button:hover {
-  background-color: #e0a800;
-  color: #212529;
-  text-decoration: none;
-}
-
-.campground-list-delete-button {
-  background-color: #dc3545; /* Keep red for delete button */
-  color: var(--color-button-text);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: inherit;
+  line-height: 1.2;
+  white-space: nowrap;
+  /* Reset any global button styles */
+  transform: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  outline-offset: 0 !important;
 }
 
-.campground-list-delete-button:hover {
-  background-color: #c82333;
+/* Override any global button styles for admin buttons */
+.admin-campground-list .campground-list-view-button {
+  background-color: var(--color-primary) !important;
+  color: var(--color-button-text) !important;
 }
 
-.campground-list-pagination {
+.admin-campground-list .campground-list-view-button:hover {
+  background-color: var(--color-primary-hover) !important;
+  color: var(--color-button-text) !important;
+  text-decoration: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.admin-campground-list .campground-list-edit-button {
+  background-color: #ffc107 !important; /* Keep yellow for edit button */
+  color: #212529 !important; /* Dark text for contrast on yellow */
+}
+
+.admin-campground-list .campground-list-edit-button:hover {
+  background-color: #e0a800 !important;
+  color: #212529 !important;
+  text-decoration: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.admin-campground-list .campground-list-delete-button {
+  background-color: #dc3545 !important; /* Keep red for delete button */
+  color: var(--color-button-text) !important;
+}
+
+.admin-campground-list .campground-list-delete-button:hover {
+  background-color: #c82333 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Admin-specific pagination styles */
+.admin-campground-list .campground-list-pagination {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -173,7 +200,8 @@
   margin-top: 2rem;
 }
 
-.pagination-button {
+/* Admin-specific pagination button styles */
+.admin-campground-list .pagination-button {
   padding: 0.5rem 1rem;
   background-color: var(--color-button-bg);
   color: var(--color-button-text);
@@ -181,53 +209,70 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  font-family: inherit;
+  line-height: 1.2;
+  /* Reset any global button styles */
+  transform: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  outline-offset: 0 !important;
 }
 
-.pagination-button:hover:not(:disabled) {
+.admin-campground-list .pagination-button:hover:not(:disabled) {
   background-color: var(--color-button-hover);
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-.pagination-button:disabled {
+.admin-campground-list .pagination-button:disabled {
   background-color: var(--color-border);
   color: var(--color-text);
   opacity: 0.5;
   cursor: not-allowed;
-  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    opacity 0.3s ease;
 }
 
-.pagination-info {
+.admin-campground-list .pagination-info {
   margin: 0 15px;
   font-size: 0.9rem;
   color: var(--color-text);
   transition: color 0.3s ease;
 }
 
-.campground-list-loading,
-.campground-list-error,
-.campground-list-unauthorized {
+.admin-campground-list .campground-list-loading,
+.admin-campground-list .campground-list-error,
+.admin-campground-list .campground-list-unauthorized {
   padding: 2rem;
   text-align: center;
   background-color: var(--color-card-bg);
   border-radius: 8px;
   box-shadow: 0 2px 8px var(--color-card-shadow);
   margin: 2rem 0;
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.campground-list-loading {
+.admin-campground-list .campground-list-loading {
   color: var(--color-text);
   opacity: 0.7;
   transition: color 0.3s ease;
 }
 
-.campground-list-error {
+.admin-campground-list .campground-list-error {
   color: #dc3545; /* Keep error color red for visibility in both themes */
   background-color: var(--color-card-bg);
   transition: background-color 0.3s ease;
 }
 
-.campground-list-unauthorized {
+.admin-campground-list .campground-list-unauthorized {
   color: #dc3545; /* Keep error text red for visibility in both themes */
   background-color: var(--color-card-bg);
   font-weight: 500;
@@ -235,53 +280,53 @@
 }
 
 @media (max-width: 992px) {
-  .campground-list-table th,
-  .campground-list-table td {
+  .admin-campground-list .campground-list-table th,
+  .admin-campground-list .campground-list-table td {
     padding: 0.75rem 0.5rem;
     font-size: 0.875rem;
   }
 
-  .campground-list-header {
+  .admin-campground-list .campground-list-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
 
-  .campground-list-actions {
+  .admin-campground-list .campground-list-actions {
     width: 100%;
     justify-content: space-between;
   }
 }
 
 @media (max-width: 768px) {
-  .campground-list {
+  .admin-campground-list {
     padding: 1rem;
   }
 
-  .campground-list-table th,
-  .campground-list-table td {
+  .admin-campground-list .campground-list-table th,
+  .admin-campground-list .campground-list-table td {
     padding: 8px 10px;
     font-size: 0.9rem;
   }
 
-  .campground-list-view-button,
-  .campground-list-edit-button,
-  .campground-list-delete-button {
+  .admin-campground-list .campground-list-view-button,
+  .admin-campground-list .campground-list-edit-button,
+  .admin-campground-list .campground-list-delete-button {
     padding: 4px 8px;
     font-size: 0.8rem;
   }
 
-  .pagination-button {
+  .admin-campground-list .pagination-button {
     padding: 6px 12px;
     font-size: 0.8rem;
   }
 
-  .pagination-info {
+  .admin-campground-list .pagination-info {
     font-size: 0.8rem;
     margin: 0 10px;
   }
 
-  .campground-list-pagination {
+  .admin-campground-list .campground-list-pagination {
     flex-wrap: wrap;
   }
 }

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
+import ConfirmDialog from '../common/ConfirmDialog';
 import './AdminBookingDetail.css';
 
 /**
@@ -21,6 +22,10 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
   const [booking, setBooking] = useState(initialBooking);
   const [loading, setLoading] = useState(!initialBooking);
   const [error, setError] = useState(null);
+  const [cancelDialog, setCancelDialog] = useState({
+    open: false,
+    booking: null,
+  });
 
   useEffect(() => {
     // If we have initial booking data, no need to fetch
@@ -80,6 +85,32 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'Not available';
     return new Date(dateString).toLocaleDateString();
+  };
+
+  const handleCancelClick = () => {
+    setCancelDialog({
+      open: true,
+      booking,
+    });
+  };
+
+  const handleCancelConfirm = async () => {
+    try {
+      await apiClient.delete(`/api/v1/admin/bookings/${booking._id}`);
+
+      // Navigate back to bookings list
+      navigate('/admin/bookings');
+
+      // Close the dialog
+      setCancelDialog({ open: false, booking: null });
+    } catch (err) {
+      logError('Error canceling booking', err);
+      alert('Failed to cancel booking. Please try again later.');
+    }
+  };
+
+  const handleCancelCancel = () => {
+    setCancelDialog({ open: false, booking: null });
   };
 
   const {
@@ -292,9 +323,23 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
                 View Campsite
               </Link>
             ) : null}
+
+            <button onClick={handleCancelClick} className="admin-booking-detail-cancel-button">
+              Cancel Booking
+            </button>
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={cancelDialog.open}
+        onClose={handleCancelCancel}
+        onConfirm={handleCancelConfirm}
+        title="Cancel Booking"
+        message={`Are you sure you want to cancel this booking? This action cannot be undone.`}
+        confirmLabel="Cancel Booking"
+        cancelLabel="Keep Booking"
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
+import ConfirmDialog from '../common/ConfirmDialog';
 import './AdminCampsiteList.css';
 
 /**
@@ -26,6 +27,10 @@ const AdminCampsiteList = () => {
   const [sort, setSort] = useState({
     field: 'name',
     order: 'asc',
+  });
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    campsite: null,
   });
 
   // Fetch all campgrounds for the filter dropdown
@@ -133,22 +138,32 @@ const AdminCampsiteList = () => {
     setPagination({ ...pagination, page: 1 });
   };
 
-  const handleDelete = async (id, name) => {
-    if (
-      !window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)
-    ) {
-      return;
-    }
+  const handleDeleteClick = (campsite) => {
+    setDeleteDialog({
+      open: true,
+      campsite,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const { campsite } = deleteDialog;
 
     try {
-      await apiClient.delete(`/campsites/${id}`);
+      await apiClient.delete(`/campsites/${campsite._id}`);
 
       // Update the campsites list
-      setCampsites(campsites.filter((campsite) => campsite._id !== id));
+      setCampsites(campsites.filter((c) => c._id !== campsite._id));
+
+      // Close the dialog
+      setDeleteDialog({ open: false, campsite: null });
     } catch (err) {
       logError('Error deleting campsite', err);
       alert('Failed to delete campsite. Please try again later.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ open: false, campsite: null });
   };
 
   if (!currentUser?.isAdmin) {
@@ -296,7 +311,7 @@ const AdminCampsiteList = () => {
                           Edit
                         </Link>
                         <button
-                          onClick={() => handleDelete(campsite._id, campsite.name)}
+                          onClick={() => handleDeleteClick(campsite)}
                           className="admin-campsite-list-delete-button"
                         >
                           Delete
@@ -363,6 +378,16 @@ const AdminCampsiteList = () => {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Campsite"
+        message={`Are you sure you want to delete "${deleteDialog.campsite?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      />
     </div>
   );
 };

@@ -310,3 +310,57 @@
   background-color: #f8d7da;
   color: #721c24;
 }
+
+/* New Stats Breakdown Items */
+.stat-breakdown-item.active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.stat-breakdown-item.public {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.stat-breakdown-item.days {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+/* New Recent Item Status Styles */
+.admin-recent-item-status.critical {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.admin-recent-item-status.high {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.admin-recent-item-status.medium {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.admin-recent-item-status.low {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.admin-recent-item-status.public {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.admin-recent-item-status.private {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.admin-recent-item-location {
+  color: var(--color-breadcrumb-text);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}

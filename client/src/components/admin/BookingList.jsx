@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
+import ConfirmDialog from '../common/ConfirmDialog';
 import './BookingList.css';
 
 /**
@@ -24,6 +25,10 @@ const BookingList = () => {
   const [sort, setSort] = useState({
     field: 'startDate',
     order: 'desc',
+  });
+  const [cancelDialog, setCancelDialog] = useState({
+    open: false,
+    booking: null,
   });
 
   useEffect(() => {
@@ -69,25 +74,37 @@ const BookingList = () => {
     setSort({ field, order: newOrder });
   };
 
-  const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) {
-      return;
-    }
+  const handleCancelClick = (booking) => {
+    setCancelDialog({
+      open: true,
+      booking,
+    });
+  };
+
+  const handleCancelConfirm = async () => {
+    const { booking } = cancelDialog;
 
     try {
-      await apiClient.delete(`/admin/bookings/${bookingId}`);
+      await apiClient.delete(`/api/v1/admin/bookings/${booking._id}`);
 
       // Remove the booking from the list
-      setBookings(bookings.filter((booking) => booking._id !== bookingId));
+      setBookings(bookings.filter((b) => b._id !== booking._id));
 
       // Update pagination if needed
       if (bookings.length === 1 && pagination.page > 1) {
         setPagination({ ...pagination, page: pagination.page - 1 });
       }
+
+      // Close the dialog
+      setCancelDialog({ open: false, booking: null });
     } catch (err) {
       logError('Error canceling booking', err);
       alert('Failed to cancel booking. Please try again later.');
     }
+  };
+
+  const handleCancelCancel = () => {
+    setCancelDialog({ open: false, booking: null });
   };
 
   // Format date to local string
@@ -205,7 +222,7 @@ const BookingList = () => {
                     View
                   </Link>
                   <button
-                    onClick={() => handleCancelBooking(booking._id)}
+                    onClick={() => handleCancelClick(booking)}
                     className="booking-list-cancel-button"
                   >
                     Cancel
@@ -252,6 +269,16 @@ const BookingList = () => {
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={cancelDialog.open}
+        onClose={handleCancelCancel}
+        onConfirm={handleCancelConfirm}
+        title="Cancel Booking"
+        message={`Are you sure you want to cancel this booking? This action cannot be undone.`}
+        confirmLabel="Cancel Booking"
+        cancelLabel="Keep Booking"
+      />
     </div>
   );
 };

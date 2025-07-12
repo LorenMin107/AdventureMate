@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
+import ConfirmDialog from '../common/ConfirmDialog';
 import './UserDetail.css';
 
 /**
@@ -19,6 +20,18 @@ const UserDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('profile');
+  const [adminDialog, setAdminDialog] = useState({
+    open: false,
+    action: null,
+  });
+  const [ownerDialog, setOwnerDialog] = useState({
+    open: false,
+    action: null,
+  });
+  const [bookingDialog, setBookingDialog] = useState({
+    open: false,
+    booking: null,
+  });
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -45,15 +58,14 @@ const UserDetail = () => {
     }
   }, [id, currentUser]);
 
-  const handleToggleAdmin = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to ${user.isAdmin ? 'remove' : 'grant'} admin privileges for ${user.username}?`
-      )
-    ) {
-      return;
-    }
+  const handleToggleAdminClick = () => {
+    setAdminDialog({
+      open: true,
+      action: user.isAdmin ? 'remove' : 'grant',
+    });
+  };
 
+  const handleToggleAdminConfirm = async () => {
     try {
       const response = await apiClient.patch(`/admin/users/${id}/toggle-admin`, {
         isAdmin: !user.isAdmin,
@@ -63,21 +75,27 @@ const UserDetail = () => {
       const responseData = response.data;
       const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
       setUser(data.user);
+
+      // Close the dialog
+      setAdminDialog({ open: false, action: null });
     } catch (err) {
       logError('Error updating user', err);
       alert(err.response?.data?.message || 'Failed to update user. Please try again later.');
     }
   };
 
-  const handleToggleOwner = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to ${user.isOwner ? 'remove' : 'grant'} owner privileges for ${user.username}?`
-      )
-    ) {
-      return;
-    }
+  const handleToggleAdminCancel = () => {
+    setAdminDialog({ open: false, action: null });
+  };
 
+  const handleToggleOwnerClick = () => {
+    setOwnerDialog({
+      open: true,
+      action: user.isOwner ? 'remove' : 'grant',
+    });
+  };
+
+  const handleToggleOwnerConfirm = async () => {
     try {
       const response = await apiClient.patch(`/admin/users/${id}/toggle-owner`, {
         isOwner: !user.isOwner,
@@ -87,29 +105,48 @@ const UserDetail = () => {
       const responseData = response.data;
       const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
       setUser(data.user);
+
+      // Close the dialog
+      setOwnerDialog({ open: false, action: null });
     } catch (err) {
       logError('Error updating user', err);
       alert(err.response?.data?.message || 'Failed to update user. Please try again later.');
     }
   };
 
-  const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) {
-      return;
-    }
+  const handleToggleOwnerCancel = () => {
+    setOwnerDialog({ open: false, action: null });
+  };
+
+  const handleCancelBookingClick = (booking) => {
+    setBookingDialog({
+      open: true,
+      booking,
+    });
+  };
+
+  const handleCancelBookingConfirm = async () => {
+    const { booking } = bookingDialog;
 
     try {
-      await apiClient.delete(`/admin/bookings/${bookingId}`);
+      await apiClient.delete(`/admin/bookings/${booking._id}`);
 
       // Update user state by removing the canceled booking
       setUser({
         ...user,
-        bookings: user.bookings.filter((booking) => booking._id !== bookingId),
+        bookings: user.bookings.filter((b) => b._id !== booking._id),
       });
+
+      // Close the dialog
+      setBookingDialog({ open: false, booking: null });
     } catch (err) {
       logError('Error canceling booking', err);
       alert(err.response?.data?.message || 'Failed to cancel booking. Please try again later.');
     }
+  };
+
+  const handleCancelBookingCancel = () => {
+    setBookingDialog({ open: false, booking: null });
   };
 
   if (!currentUser?.isAdmin) {
@@ -196,13 +233,13 @@ const UserDetail = () => {
 
         <div className="user-detail-actions">
           <button
-            onClick={handleToggleAdmin}
+            onClick={handleToggleAdminClick}
             className={`user-detail-admin-button ${user.isAdmin ? 'remove' : 'grant'}`}
           >
             {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
           </button>
           <button
-            onClick={handleToggleOwner}
+            onClick={handleToggleOwnerClick}
             className={`user-detail-owner-button ${user.isOwner ? 'remove' : 'grant'}`}
           >
             {user.isOwner ? 'Remove Owner' : 'Make Owner'}
@@ -266,7 +303,7 @@ const UserDetail = () => {
                         View
                       </Link>
                       <button
-                        onClick={() => handleCancelBooking(booking._id)}
+                        onClick={() => handleCancelBookingClick(booking)}
                         className="user-booking-cancel-button"
                       >
                         Cancel
@@ -325,6 +362,36 @@ const UserDetail = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={adminDialog.open}
+        onClose={handleToggleAdminCancel}
+        onConfirm={handleToggleAdminConfirm}
+        title={`${adminDialog.action === 'grant' ? 'Grant' : 'Remove'} Admin Privileges`}
+        message={`Are you sure you want to ${adminDialog.action} admin privileges for ${user?.username}?`}
+        confirmLabel={adminDialog.action === 'grant' ? 'Grant Admin' : 'Remove Admin'}
+        cancelLabel="Cancel"
+      />
+
+      <ConfirmDialog
+        open={ownerDialog.open}
+        onClose={handleToggleOwnerCancel}
+        onConfirm={handleToggleOwnerConfirm}
+        title={`${ownerDialog.action === 'grant' ? 'Grant' : 'Remove'} Owner Privileges`}
+        message={`Are you sure you want to ${ownerDialog.action} owner privileges for ${user?.username}?`}
+        confirmLabel={ownerDialog.action === 'grant' ? 'Grant Owner' : 'Remove Owner'}
+        cancelLabel="Cancel"
+      />
+
+      <ConfirmDialog
+        open={bookingDialog.open}
+        onClose={handleCancelBookingCancel}
+        onConfirm={handleCancelBookingConfirm}
+        title="Cancel Booking"
+        message={`Are you sure you want to cancel this booking for ${user?.username}? This action cannot be undone.`}
+        confirmLabel="Cancel Booking"
+        cancelLabel="Keep Booking"
+      />
     </div>
   );
 };

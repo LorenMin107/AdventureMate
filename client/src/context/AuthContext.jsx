@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   // Dispatch auth state change event
   const dispatchAuthStateChange = (isAuthenticated) => {
     const event = new CustomEvent('authStateChange', {
-      detail: { isAuthenticated }
+      detail: { isAuthenticated },
     });
     window.dispatchEvent(event);
   };
@@ -137,11 +137,23 @@ export const AuthProvider = ({ children }) => {
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
+    // Add event listener for auth state changes from API client
+    const handleAuthStateChange = (event) => {
+      if (event.detail && event.detail.isAuthenticated === false) {
+        logInfo('Auth state change detected, clearing user data');
+        setCurrentUser(null);
+        setRequiresTwoFactor(false);
+        dispatchAuthStateChange(false);
+      }
+    };
+    window.addEventListener('authStateChange', handleAuthStateChange);
+
     // Clean up the interval and event listeners when the component unmounts
     return () => {
       clearInterval(intervalId);
       window.removeEventListener('storage', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('authStateChange', handleAuthStateChange);
     };
   }, []);
 

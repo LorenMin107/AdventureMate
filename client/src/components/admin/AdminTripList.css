@@ -1,0 +1,428 @@
+.admin-trips {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-trips-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.admin-trips-header h1 {
+  font-size: 2rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+  margin: 0 0 0.5rem 0;
+}
+
+.admin-trips-header p {
+  color: var(--color-breadcrumb-text);
+  transition: color 0.3s ease;
+}
+
+.admin-trips-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--color-card-shadow);
+  flex-wrap: wrap;
+  transition: background-color 0.3s ease;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-breadcrumb-bg);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.admin-trips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin-trip-item {
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px var(--color-card-shadow);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background-color 0.3s ease;
+}
+
+.admin-trip-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--color-card-shadow);
+}
+
+.trip-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.trip-title-section {
+  flex: 1;
+}
+
+.trip-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 0.5rem 0;
+  transition: color 0.3s ease;
+}
+
+.trip-meta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.trip-visibility {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.trip-visibility.public {
+  background: #4caf50;
+  color: white;
+}
+
+.trip-visibility.private {
+  background: #6c757d;
+  color: white;
+}
+
+.trip-duration,
+.trip-activities {
+  padding: 0.25rem 0.75rem;
+  background-color: var(--color-breadcrumb-bg);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: var(--color-breadcrumb-text);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.trip-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.trip-action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.trip-action-btn.view-btn {
+  background-color: var(--color-primary);
+  color: var(--color-button-text);
+}
+
+.trip-action-btn.view-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.trip-action-btn.delete-btn {
+  background: #e53935;
+  color: white;
+}
+
+.trip-action-btn.delete-btn:hover {
+  background: #c62828;
+}
+
+.trip-content {
+  margin-top: 1rem;
+}
+
+.trip-description {
+  color: var(--color-breadcrumb-text);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+.trip-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: var(--color-breadcrumb-bg);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.trip-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.trip-owner a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.trip-owner a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.user-email {
+  color: var(--color-breadcrumb-text);
+  transition: color 0.3s ease;
+}
+
+.trip-collaborators {
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.trip-collaborators a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.trip-collaborators a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.trip-stats {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.trip-days-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-breadcrumb-bg);
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.trip-days-preview h4 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.day-preview {
+  padding: 0.5rem;
+  background-color: var(--color-card-bg);
+  border-radius: 4px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.day-date {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+  transition: color 0.3s ease;
+}
+
+.day-activities-count {
+  color: var(--color-breadcrumb-text);
+  font-size: 0.8rem;
+  transition: color 0.3s ease;
+}
+
+.more-days {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 0.5rem;
+  color: var(--color-breadcrumb-text);
+  font-style: italic;
+  transition: color 0.3s ease;
+}
+
+.admin-trips-empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-breadcrumb-text);
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.admin-trips-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px var(--color-card-shadow);
+  transition: background-color 0.3s ease;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-primary);
+  color: var(--color-button-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  color: var(--color-breadcrumb-text);
+  transition: color 0.3s ease;
+}
+
+.admin-trips-loading,
+.admin-trips-error,
+.admin-trips-unauthorized {
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  margin: 2rem 0;
+  font-size: 1.1rem;
+  color: var(--color-breadcrumb-text);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.admin-trips-error {
+  color: #dc3545;
+}
+
+.admin-trips-unauthorized {
+  color: var(--color-breadcrumb-text);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-trips {
+    padding: 1rem;
+  }
+
+  .admin-trips-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .admin-trips-filters {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    min-width: auto;
+  }
+
+  .trip-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .trip-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .trip-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .trip-details {
+    gap: 0.25rem;
+  }
+
+  .days-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .admin-trips-pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

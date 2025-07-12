@@ -15,7 +15,7 @@ const redisCache = require('../../utils/redis');
 
 module.exports.index = asyncHandler(async (req, res) => {
   // Try to get from cache first
-  const cacheKey = 'campgrounds:all';
+  const cacheKey = 'campgrounds:all:v2'; // Updated cache key to force refresh with author population
   let cachedData = null;
 
   if (redisCache.isReady()) {
@@ -27,8 +27,10 @@ module.exports.index = asyncHandler(async (req, res) => {
     return ApiResponse.success(cachedData, 'Campgrounds retrieved successfully (cached)').send(res);
   }
 
-  // Fetch from database with campsites populated
-  const campgrounds = await Campground.find({}).populate('campsites', 'name price availability');
+  // Fetch from database with campsites and author populated
+  const campgrounds = await Campground.find({})
+    .populate('campsites', 'name price availability')
+    .populate('author', 'username email');
   const locations = await Campground.distinct('location');
 
   const data = { campgrounds, locations };

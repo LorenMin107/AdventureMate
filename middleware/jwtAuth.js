@@ -44,7 +44,7 @@ const authenticateJWT = async (req, res, next) => {
     const token = extractTokenFromHeader(req);
 
     if (!token) {
-      // No token provided, continue without authentication
+      // No token provided
       // Check if this is an API endpoint that requires authentication
       if (
         req.originalUrl.includes('/api/v1/') &&
@@ -53,11 +53,23 @@ const authenticateJWT = async (req, res, next) => {
         !isPublicApiEndpoint(req)
       ) {
         // Log the missing token for debugging
-        logDebug('JWT authentication failed: No token provided', { 
+        logDebug('JWT authentication failed: No token provided', {
           method: req.method,
           url: req.originalUrl,
-          ip: req.ip 
+          ip: req.ip,
         });
+
+        // For API endpoints that require authentication, return 401
+        if (
+          req.headers['x-requested-with'] === 'XMLHttpRequest' ||
+          req.headers.accept?.includes('application/json')
+        ) {
+          return ApiResponse.error(
+            'Authentication required',
+            'No authentication token provided',
+            401
+          ).send(res);
+        }
       }
       return next();
     }
@@ -71,11 +83,24 @@ const authenticateJWT = async (req, res, next) => {
       const user = await User.findById(decoded.sub);
 
       if (!user) {
-        logWarn('JWT authentication failed: User not found', { 
+        logWarn('JWT authentication failed: User not found', {
           tokenSubject: decoded.sub,
           method: req.method,
-          url: req.originalUrl 
+          url: req.originalUrl,
         });
+
+        // For API endpoints that require authentication, return 401
+        if (
+          req.originalUrl.includes('/api/v1/') &&
+          !req.originalUrl.includes('/auth/') &&
+          !req.originalUrl.includes('/public/') &&
+          !isPublicApiEndpoint(req) &&
+          (req.headers['x-requested-with'] === 'XMLHttpRequest' ||
+            req.headers.accept?.includes('application/json'))
+        ) {
+          return ApiResponse.error('Authentication failed', 'User not found', 401).send(res);
+        }
+
         return next(); // User not found, continue without authentication
       }
 
@@ -90,10 +115,10 @@ const authenticateJWT = async (req, res, next) => {
     } catch (tokenError) {
       // Provide detailed error information based on the type of error
       if (tokenError.name === 'TokenExpiredError') {
-        logWarn('JWT authentication failed: Token expired', { 
+        logWarn('JWT authentication failed: Token expired', {
           method: req.method,
           url: req.originalUrl,
-          ip: req.ip 
+          ip: req.ip,
         });
         // For API endpoints that explicitly require authentication, return 401
         if (
@@ -107,10 +132,10 @@ const authenticateJWT = async (req, res, next) => {
           ).send(res);
         }
       } else if (tokenError.name === 'RevokedTokenError') {
-        logWarn('JWT authentication failed: Token revoked', { 
+        logWarn('JWT authentication failed: Token revoked', {
           method: req.method,
           url: req.originalUrl,
-          ip: req.ip 
+          ip: req.ip,
         });
         // For API endpoints that explicitly require authentication, return 401
         if (
@@ -124,18 +149,18 @@ const authenticateJWT = async (req, res, next) => {
           ).send(res);
         }
       } else if (tokenError.name === 'JsonWebTokenError') {
-        logWarn('JWT authentication failed: Invalid token', { 
+        logWarn('JWT authentication failed: Invalid token', {
           method: req.method,
           url: req.originalUrl,
           error: tokenError.message,
-          ip: req.ip 
+          ip: req.ip,
         });
       } else {
-        logWarn('JWT authentication failed', { 
+        logWarn('JWT authentication failed', {
           errorName: tokenError.name,
           errorMessage: tokenError.message,
           method: req.method,
-          url: req.originalUrl 
+          url: req.originalUrl,
         });
       }
 
@@ -143,11 +168,11 @@ const authenticateJWT = async (req, res, next) => {
       next();
     }
   } catch (error) {
-    logError('Error in JWT authentication middleware', error, { 
-          method: req.method,
-          url: req.originalUrl,
-          ip: req.ip 
-        });
+    logError('Error in JWT authentication middleware', error, {
+      method: req.method,
+      url: req.originalUrl,
+      ip: req.ip,
+    });
     next();
   }
 };

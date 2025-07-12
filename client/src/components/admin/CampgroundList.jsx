@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError, logInfo } from '../../utils/logger';
+import ConfirmDialog from '../common/ConfirmDialog';
 import './CampgroundList.css';
 
 /**
@@ -25,6 +26,10 @@ const CampgroundList = () => {
     field: 'title',
     order: 'asc',
   });
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    campground: null,
+  });
 
   useEffect(() => {
     const fetchCampgrounds = async () => {
@@ -46,7 +51,16 @@ const CampgroundList = () => {
         // Check if the response is in the new standardized format
         const responseData = data.status && data.data ? data.data : data;
 
-        setCampgrounds(responseData.campgrounds || []);
+        const campgroundsData = responseData.campgrounds || [];
+
+        // Debug: Log the first campground to see the data structure
+        if (campgroundsData.length > 0) {
+          console.log('First campground data:', campgroundsData[0]);
+          console.log('Author field:', campgroundsData[0].author);
+          console.log('Owner field:', campgroundsData[0].owner);
+        }
+
+        setCampgrounds(campgroundsData);
         setPagination(responseData.pagination || pagination);
         setSort(responseData.sort || sort);
         setError(null);
@@ -74,23 +88,33 @@ const CampgroundList = () => {
     setSort({ field, order: newOrder });
   };
 
-  const handleDelete = async (id, title) => {
-    if (
-      !window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)
-    ) {
-      return;
-    }
+  const handleDeleteClick = (campground) => {
+    setDeleteDialog({
+      open: true,
+      campground,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const { campground } = deleteDialog;
 
     try {
-      const response = await apiClient.delete(`/campgrounds/${id}`);
+      const response = await apiClient.delete(`/campgrounds/${campground._id}`);
       logInfo('Delete response', response.data);
 
       // Update the campgrounds list
-      setCampgrounds(campgrounds.filter((campground) => campground._id !== id));
+      setCampgrounds(campgrounds.filter((c) => c._id !== campground._id));
+
+      // Close the dialog
+      setDeleteDialog({ open: false, campground: null });
     } catch (err) {
       logError('Error deleting campground', err);
       alert('Failed to delete campground. Please try again later.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ open: false, campground: null });
   };
 
   if (!currentUser?.isAdmin) {
@@ -110,7 +134,7 @@ const CampgroundList = () => {
   }
 
   return (
-    <div className="campground-list">
+    <div className="admin-campground-list">
       <div className="campground-list-header">
         <h1>Campground Management</h1>
         <div className="campground-list-actions">
@@ -160,8 +184,27 @@ const CampgroundList = () => {
               <tr key={campground._id}>
                 <td>{campground.title}</td>
                 <td>{campground.location}</td>
-                <td>See campsites</td>
-                <td>{campground.author?.username || 'Unknown'}</td>
+                <td>
+                  {campground.campsites && campground.campsites.length > 0
+                    ? (() => {
+                        const prices = campground.campsites
+                          .map((c) => c.price)
+                          .filter((price) => price && price > 0);
+
+                        if (prices.length === 0) {
+                          return 'Contact for pricing';
+                        }
+
+                        const minPrice = Math.min(...prices);
+                        const maxPrice = Math.max(...prices);
+
+                        return minPrice === maxPrice
+                          ? `$${minPrice}/night`
+                          : `$${minPrice} - $${maxPrice}/night`;
+                      })()
+                    : 'No campsites'}
+                </td>
+                <td>{campground.author?.username || campground.owner?.username || 'Unknown'}</td>
                 <td>{campground.reviews?.length || 0}</td>
                 <td>{campground.bookings?.length || 0}</td>
                 <td className="campground-list-actions-cell">
@@ -178,7 +221,7 @@ const CampgroundList = () => {
                     Edit
                   </Link>
                   <button
-                    onClick={() => handleDelete(campground._id, campground.title)}
+                    onClick={() => handleDeleteClick(campground)}
                     className="campground-list-delete-button"
                   >
                     Delete
@@ -225,6 +268,16 @@ const CampgroundList = () => {
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Campground"
+        message={`Are you sure you want to delete "${deleteDialog.campground?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      />
     </div>
   );
 };

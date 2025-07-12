@@ -16,6 +16,8 @@ const AdminDashboard = () => {
   const [recentBookings, setRecentBookings] = useState([]);
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentApplications, setRecentApplications] = useState([]);
+  const [recentSafetyAlerts, setRecentSafetyAlerts] = useState([]);
+  const [recentTrips, setRecentTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -30,7 +32,7 @@ const AdminDashboard = () => {
         setLoading(true);
       }
 
-      const response = await apiClient.get('/admin/dashboard');
+      const response = await apiClient.get('/admin/dashboard/enhanced');
 
       // Handle the ApiResponse format
       const responseData = response.data;
@@ -39,6 +41,8 @@ const AdminDashboard = () => {
       setRecentBookings(data.recentBookings || []);
       setRecentUsers(data.recentUsers || []);
       setRecentApplications(data.recentApplications || []);
+      setRecentSafetyAlerts(data.recentSafetyAlerts || []);
+      setRecentTrips(data.recentTrips || []);
       setError(null);
       setLastRefreshed(new Date());
     } catch (err) {
@@ -49,10 +53,16 @@ const AdminDashboard = () => {
         err.message ||
         'Failed to load dashboard data. Please try again later.';
       setError(errorMessage);
+
+      // If it's an authentication error, return false to stop auto-refresh
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        return false;
+      }
     } finally {
       setRefreshing(false);
       setLoading(false);
     }
+    return true;
   }, []);
 
   // Initial data fetch
@@ -62,8 +72,11 @@ const AdminDashboard = () => {
 
   // Set up auto-refresh interval (every 30 seconds)
   useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      fetchDashboardData(true);
+    const refreshInterval = setInterval(async () => {
+      const shouldContinue = await fetchDashboardData(true);
+      if (!shouldContinue) {
+        clearInterval(refreshInterval);
+      }
     }, 30000); // 30 seconds
 
     return () => clearInterval(refreshInterval);
@@ -157,6 +170,31 @@ const AdminDashboard = () => {
           </div>
           <Link to="/admin/owner-applications" className="admin-stat-link">
             Manage Applications
+          </Link>
+        </div>
+
+        <div className="admin-stat-card">
+          <h3>Safety Alerts</h3>
+          <div className="admin-stat-value">{stats?.totalSafetyAlerts || 0}</div>
+          <div className="admin-stat-breakdown">
+            <span className="stat-breakdown-item active">
+              {stats?.activeSafetyAlerts || 0} Active
+            </span>
+          </div>
+          <Link to="/admin/safety-alerts" className="admin-stat-link">
+            Manage Alerts
+          </Link>
+        </div>
+
+        <div className="admin-stat-card">
+          <h3>User Trips</h3>
+          <div className="admin-stat-value">{stats?.totalTrips || 0}</div>
+          <div className="admin-stat-breakdown">
+            <span className="stat-breakdown-item public">{stats?.publicTrips || 0} Public</span>
+            <span className="stat-breakdown-item days">{stats?.totalTripDays || 0} Days</span>
+          </div>
+          <Link to="/admin/trips" className="admin-stat-link">
+            Manage Trips
           </Link>
         </div>
       </div>
@@ -263,6 +301,81 @@ const AdminDashboard = () => {
           )}
           <Link to="/admin/owner-applications" className="admin-view-all-link">
             View All Applications
+          </Link>
+        </div>
+
+        <div className="admin-recent-section">
+          <h2>Recent Safety Alerts</h2>
+          {recentSafetyAlerts && recentSafetyAlerts.length > 0 ? (
+            <div className="admin-recent-list">
+              {recentSafetyAlerts.map((alert) => (
+                <div key={alert._id} className="admin-recent-item">
+                  <div className="admin-recent-item-header">
+                    <span className="admin-recent-item-title">{alert.title}</span>
+                    <span className={`admin-recent-item-status ${alert.severity}`}>
+                      {alert.severity.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="admin-recent-item-details">
+                    <span>Type: {alert.type}</span>
+                    <span>Status: {alert.status}</span>
+                  </div>
+                  <div className="admin-recent-item-location">
+                    Location: {alert.campground ? alert.campground.title : 'Unknown'}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '0.9rem',
+                      color: '#6c757d',
+                      fontStyle: 'italic',
+                      marginTop: '0.5rem',
+                    }}
+                  >
+                    Use Safety Alerts page to manage
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="admin-no-data">No recent safety alerts</p>
+          )}
+          <Link to="/admin/safety-alerts" className="admin-view-all-link">
+            View All Safety Alerts
+          </Link>
+        </div>
+
+        <div className="admin-recent-section">
+          <h2>Recent User Trips</h2>
+          {recentTrips && recentTrips.length > 0 ? (
+            <div className="admin-recent-list">
+              {recentTrips.map((trip) => (
+                <div key={trip._id} className="admin-recent-item">
+                  <div className="admin-recent-item-header">
+                    <span className="admin-recent-item-title">{trip.title}</span>
+                    <span
+                      className={`admin-recent-item-status ${trip.isPublic ? 'public' : 'private'}`}
+                    >
+                      {trip.isPublic ? 'Public' : 'Private'}
+                    </span>
+                  </div>
+                  <div className="admin-recent-item-details">
+                    <span>Owner: {trip.user ? trip.user.username : 'Unknown'}</span>
+                    <span>
+                      {new Date(trip.startDate).toLocaleDateString()} -{' '}
+                      {new Date(trip.endDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <Link to={`/admin/trips/${trip._id}`} className="admin-recent-item-link">
+                    View Details
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="admin-no-data">No recent trips</p>
+          )}
+          <Link to="/admin/trips" className="admin-view-all-link">
+            View All Trips
           </Link>
         </div>
       </div>

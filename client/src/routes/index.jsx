@@ -43,6 +43,9 @@ const AdminBookingList = lazy(() => import('../components/admin/AdminBookingList
 const AdminBookingDetail = lazy(() => import('../components/admin/AdminBookingDetail'));
 const OwnerApplicationList = lazy(() => import('../components/admin/OwnerApplicationList'));
 const OwnerApplicationDetail = lazy(() => import('../components/admin/OwnerApplicationDetail'));
+const AdminSafetyAlertList = lazy(() => import('../components/admin/AdminSafetyAlertList'));
+const AdminTripList = lazy(() => import('../components/admin/AdminTripList'));
+const AdminWeatherMonitor = lazy(() => import('../components/admin/AdminWeatherMonitor'));
 
 // Owner components
 const OwnerLayout = lazy(() => import('../components/owner/OwnerLayout'));
@@ -479,6 +482,43 @@ const routes = [
                     ),
                   },
                 ],
+              },
+              {
+                path: 'safety-alerts',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <AdminSafetyAlertList />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'trips',
+                children: [
+                  {
+                    index: true,
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <AdminTripList />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: ':id',
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <AdminTripList />
+                      </Suspense>
+                    ),
+                  },
+                ],
+              },
+              {
+                path: 'weather',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <AdminWeatherMonitor />
+                  </Suspense>
+                ),
               },
             ],
           },

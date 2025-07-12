@@ -7,7 +7,8 @@ const Review = require('../../models/review');
 const mongoose = require('mongoose');
 const { revokeAllUserTokens } = require('../../utils/jwtUtils');
 const ApiResponse = require('../../utils/ApiResponse');
-const { logError } = require('../../utils/logger');
+const { logError, logInfo, logWarn } = require('../../utils/logger');
+const redisCache = require('../../utils/redis');
 
 module.exports.getDashboardStats = async (req, res) => {
   try {
@@ -1061,5 +1062,494 @@ module.exports.revokeOwnerStatus = async (req, res) => {
       ownerId: req.params.id,
     });
     return ApiResponse.error('Failed to revoke owner status', error.message, 500).send(res);
+  }
+};
+
+// Safety Alert Management Functions
+
+module.exports.getAllSafetyAlerts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const { status, severity, type, campgroundId, requiresAcknowledgement } = req.query;
+
+    // Build query
+    let query = {};
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (severity) {
+      query.severity = severity;
+    }
+
+    if (type) {
+      query.type = type;
+    }
+
+    if (campgroundId) {
+      query.campground = campgroundId;
+    }
+
+    if (requiresAcknowledgement !== undefined && requiresAcknowledgement !== '') {
+      query.requiresAcknowledgement = requiresAcknowledgement === 'true';
+    }
+
+    const totalAlerts = await mongoose.model('SafetyAlert').countDocuments(query);
+
+    const alerts = await mongoose
+      .model('SafetyAlert')
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .populate('createdBy', 'username email')
+      .populate('updatedBy', 'username email')
+      .populate('campground', 'title location')
+      .populate('campsite', 'name')
+      .populate('acknowledgedBy.user', 'username email')
+      .sort({ createdAt: -1 });
+
+    const totalPages = Math.ceil(totalAlerts / limit);
+
+    const data = {
+      alerts,
+      pagination: {
+        total: totalAlerts,
+        page,
+        limit,
+        totalPages,
+      },
+    };
+
+    return ApiResponse.success(data, 'Safety alerts retrieved successfully').send(res);
+  } catch (error) {
+    logError('Error fetching safety alerts', error, {
+      endpoint: '/api/v1/admin/safety-alerts',
+      userId: req.user?._id,
+      query: req.query,
+    });
+    return ApiResponse.error('Failed to fetch safety alerts', error.message, 500).send(res);
+  }
+};
+
+module.exports.updateSafetyAlert = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const alert = await mongoose.model('SafetyAlert').findById(id);
+    if (!alert) {
+      return ApiResponse.error(
+        'Safety alert not found',
+        'The requested safety alert could not be found',
+        404
+      ).send(res);
+    }
+
+    // Update fields
+    if (updateData.title !== undefined) alert.title = updateData.title.trim();
+    if (updateData.description !== undefined) alert.description = updateData.description.trim();
+    if (updateData.severity !== undefined) alert.severity = updateData.severity;
+    if (updateData.type !== undefined) alert.type = updateData.type;
+    if (updateData.status !== undefined) alert.status = updateData.status;
+    if (updateData.startDate !== undefined) alert.startDate = updateData.startDate;
+    if (updateData.endDate !== undefined) alert.endDate = updateData.endDate;
+    if (updateData.isPublic !== undefined) alert.isPublic = updateData.isPublic;
+    if (updateData.requiresAcknowledgement !== undefined) {
+      alert.requiresAcknowledgement = updateData.requiresAcknowledgement;
+    }
+
+    alert.updatedBy = req.user._id;
+
+    await alert.save();
+
+    // Populate user information for response
+    await alert.populate('createdBy', 'username');
+    await alert.populate('updatedBy', 'username');
+    await alert.populate('campground', 'title');
+    await alert.populate('campsite', 'name');
+
+    logInfo('Admin updated safety alert', {
+      alertId: alert._id,
+      adminId: req.user._id,
+    });
+
+    return ApiResponse.success({ alert }, 'Safety alert updated successfully').send(res);
+  } catch (error) {
+    logError('Error updating safety alert', error, {
+      endpoint: '/api/v1/admin/safety-alerts/:id',
+      userId: req.user?._id,
+      alertId: req.params.id,
+    });
+    return ApiResponse.error('Failed to update safety alert', error.message, 500).send(res);
+  }
+};
+
+module.exports.deleteSafetyAlert = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const alert = await mongoose.model('SafetyAlert').findById(id);
+    if (!alert) {
+      return ApiResponse.error(
+        'Safety alert not found',
+        'The requested safety alert could not be found',
+        404
+      ).send(res);
+    }
+
+    await alert.deleteOne();
+
+    logInfo('Admin deleted safety alert', {
+      alertId: id,
+      adminId: req.user._id,
+    });
+
+    return ApiResponse.success({ alertId: id }, 'Safety alert deleted successfully').send(res);
+  } catch (error) {
+    logError('Error deleting safety alert', error, {
+      endpoint: '/api/v1/admin/safety-alerts/:id',
+      userId: req.user?._id,
+      alertId: req.params.id,
+    });
+    return ApiResponse.error('Failed to delete safety alert', error.message, 500).send(res);
+  }
+};
+
+// Trip Management Functions
+
+module.exports.getAllTrips = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const { userId, isPublic } = req.query;
+
+    // Build query
+    let query = {};
+
+    if (userId) {
+      query.user = userId;
+    }
+
+    if (isPublic !== undefined) {
+      query.isPublic = isPublic === 'true';
+    }
+
+    const totalTrips = await mongoose.model('Trip').countDocuments(query);
+
+    const trips = await mongoose
+      .model('Trip')
+      .find(query)
+      .skip(skip)
+      .limit(limit)
+      .populate('user', 'username email')
+      .populate('collaborators', 'username email')
+      .populate('days')
+      .sort({ createdAt: -1 });
+
+    const totalPages = Math.ceil(totalTrips / limit);
+
+    const data = {
+      trips,
+      pagination: {
+        total: totalTrips,
+        page,
+        limit,
+        totalPages,
+      },
+    };
+
+    return ApiResponse.success(data, 'Trips retrieved successfully').send(res);
+  } catch (error) {
+    logError('Error fetching trips', error, {
+      endpoint: '/api/v1/admin/trips',
+      userId: req.user?._id,
+      query: req.query,
+    });
+    return ApiResponse.error('Failed to fetch trips', error.message, 500).send(res);
+  }
+};
+
+module.exports.getTripDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const trip = await mongoose
+      .model('Trip')
+      .findById(id)
+      .populate('user', 'username email')
+      .populate('collaborators', 'username email')
+      .populate({
+        path: 'days',
+        populate: {
+          path: 'activities.campground',
+          select: 'title location',
+        },
+      });
+
+    if (!trip) {
+      return ApiResponse.error('Trip not found', 'The requested trip could not be found', 404).send(
+        res
+      );
+    }
+
+    return ApiResponse.success({ trip }, 'Trip details retrieved successfully').send(res);
+  } catch (error) {
+    logError('Error fetching trip details', error, {
+      endpoint: '/api/v1/admin/trips/:id',
+      userId: req.user?._id,
+      tripId: req.params.id,
+    });
+    return ApiResponse.error('Failed to fetch trip details', error.message, 500).send(res);
+  }
+};
+
+module.exports.deleteTrip = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const trip = await mongoose.model('Trip').findById(id);
+    if (!trip) {
+      return ApiResponse.error('Trip not found', 'The requested trip could not be found', 404).send(
+        res
+      );
+    }
+
+    // Delete associated trip days
+    await mongoose.model('TripDay').deleteMany({ trip: trip._id });
+
+    // Remove trip from user's trips
+    await User.findByIdAndUpdate(trip.user, {
+      $pull: { trips: trip._id },
+    });
+
+    await trip.deleteOne();
+
+    logInfo('Admin deleted trip', {
+      tripId: id,
+      adminId: req.user._id,
+    });
+
+    return ApiResponse.success({ tripId: id }, 'Trip deleted successfully').send(res);
+  } catch (error) {
+    logError('Error deleting trip', error, {
+      endpoint: '/api/v1/admin/trips/:id',
+      userId: req.user?._id,
+      tripId: req.params.id,
+    });
+    return ApiResponse.error('Failed to delete trip', error.message, 500).send(res);
+  }
+};
+
+// Enhanced Analytics Functions
+
+module.exports.getEnhancedDashboardStats = async (req, res) => {
+  try {
+    // Get basic counts
+    const totalUsers = await User.countDocuments();
+    const totalBookings = await Booking.countDocuments();
+    const totalCampgrounds = await Campground.countDocuments();
+    const totalReviews = await Review.countDocuments();
+    const totalCampsites = await mongoose.model('Campsite').countDocuments();
+
+    // Get safety alert statistics
+    const totalSafetyAlerts = await mongoose.model('SafetyAlert').countDocuments();
+    const activeSafetyAlerts = await mongoose.model('SafetyAlert').countDocuments({
+      status: 'active',
+      startDate: { $lte: new Date() },
+      endDate: { $gte: new Date() },
+    });
+
+    // Get trip statistics
+    const totalTrips = await mongoose.model('Trip').countDocuments();
+    const publicTrips = await mongoose.model('Trip').countDocuments({ isPublic: true });
+    const totalTripDays = await mongoose.model('TripDay').countDocuments();
+
+    // Get owner application statistics
+    const pendingApplications = await OwnerApplication.countDocuments({ status: 'pending' });
+    const underReviewApplications = await OwnerApplication.countDocuments({
+      status: 'under_review',
+    });
+    const approvedApplications = await OwnerApplication.countDocuments({ status: 'approved' });
+    const rejectedApplications = await OwnerApplication.countDocuments({ status: 'rejected' });
+    const totalApplications =
+      pendingApplications + underReviewApplications + approvedApplications + rejectedApplications;
+
+    // Get recent activity
+    const recentBookings = await Booking.find({
+      status: { $ne: 'cancelled' },
+    })
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('user', 'username email')
+      .populate('campground', 'title location')
+      .populate('campsite', 'name price capacity');
+
+    const recentUsers = await User.find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('username email createdAt');
+
+    const recentApplications = await OwnerApplication.find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('user', 'username email')
+      .select('businessName status createdAt');
+
+    const recentSafetyAlerts = await mongoose
+      .model('SafetyAlert')
+      .find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('createdBy', 'username')
+      .populate('campground', 'title')
+      .select('title severity type status createdAt');
+
+    const recentTrips = await mongoose
+      .model('Trip')
+      .find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('user', 'username')
+      .select('title isPublic startDate endDate createdAt');
+
+    const data = {
+      stats: {
+        totalUsers,
+        totalBookings,
+        totalCampgrounds,
+        totalCampsites,
+        totalReviews,
+        totalApplications,
+        pendingApplications,
+        underReviewApplications,
+        approvedApplications,
+        rejectedApplications,
+        totalSafetyAlerts,
+        activeSafetyAlerts,
+        totalTrips,
+        publicTrips,
+        totalTripDays,
+      },
+      recentBookings,
+      recentUsers,
+      recentApplications,
+      recentSafetyAlerts,
+      recentTrips,
+    };
+
+    return ApiResponse.success(data, 'Enhanced dashboard statistics retrieved successfully').send(
+      res
+    );
+  } catch (error) {
+    logError('Error fetching enhanced dashboard stats', error, {
+      endpoint: '/api/v1/admin/dashboard/enhanced',
+      userId: req.user?._id,
+    });
+    return ApiResponse.error(
+      'Failed to fetch enhanced dashboard statistics',
+      error.message,
+      500
+    ).send(res);
+  }
+};
+
+// Weather System Monitoring
+
+module.exports.getWeatherStats = async (req, res) => {
+  try {
+    // Get weather API usage statistics from Redis
+    const weatherStats = await redisCache.get('weather:stats');
+    const weatherCacheStats = await redisCache.get('weather:cache:stats');
+
+    // Get recent weather requests (if tracked)
+    const recentWeatherRequests = await redisCache.get('weather:recent:requests');
+
+    // Initialize default stats if none exist
+    const defaultApiStats = {
+      totalRequests: 0,
+      successfulRequests: 0,
+      failedRequests: 0,
+      totalResponseTime: 0,
+      avgResponseTime: 0,
+      errorRate: 0,
+      lastRequest: null,
+      lastError: null,
+    };
+
+    const defaultCacheStats = {
+      hits: 0,
+      misses: 0,
+      hitRate: 0,
+      size: 0,
+      keys: 0,
+      memoryUsage: 0,
+    };
+
+    // Get Redis connection status and basic info
+    const cacheStatus = {
+      isConnected: redisCache.isReady(),
+      host: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+    };
+
+    // If Redis is connected, try to get additional info
+    if (redisCache.isReady()) {
+      try {
+        const info = await redisCache.client.info();
+        let memory = 0;
+
+        // Try to get memory usage, but handle gracefully if not available
+        try {
+          memory = await redisCache.client.memory('USAGE');
+        } catch (memoryError) {
+          logWarn('Could not fetch Redis info for weather stats', memoryError);
+        }
+
+        const keyspace = await redisCache.client.info('keyspace');
+
+        // Parse keyspace info to get number of keys
+        const keysMatch = keyspace.match(/keys=(\d+)/);
+        const totalKeys = keysMatch ? parseInt(keysMatch[1]) : 0;
+
+        // Count weather-related keys
+        const weatherKeys = await redisCache.client.keys('weather:*');
+        const weatherKeyCount = weatherKeys.length;
+
+        // Update default cache stats with real data
+        defaultCacheStats.keys = weatherKeyCount;
+        defaultCacheStats.memoryUsage = memory || 0;
+        defaultCacheStats.size = weatherKeyCount * 1024; // Rough estimate
+
+        cacheStatus.totalKeys = totalKeys;
+        cacheStatus.weatherKeys = weatherKeyCount;
+        cacheStatus.memoryUsage = memory;
+      } catch (redisError) {
+        logWarn('Could not fetch Redis info for weather stats', redisError);
+      }
+    }
+
+    const data = {
+      apiStats: weatherStats ? JSON.parse(weatherStats) : defaultApiStats,
+      cacheStats: weatherCacheStats ? JSON.parse(weatherCacheStats) : defaultCacheStats,
+      recentRequests: recentWeatherRequests ? JSON.parse(recentWeatherRequests) : [],
+      cacheStatus,
+      systemInfo: {
+        openWeatherKeyConfigured: !!process.env.OPENWEATHER_KEY,
+        redisConfigured: !!process.env.REDIS_HOST,
+        lastUpdated: new Date().toISOString(),
+      },
+    };
+
+    return ApiResponse.success(data, 'Weather statistics retrieved successfully').send(res);
+  } catch (error) {
+    logError('Error fetching weather stats', error, {
+      endpoint: '/api/v1/admin/weather/stats',
+      userId: req.user?._id,
+    });
+    return ApiResponse.error('Failed to fetch weather statistics', error.message, 500).send(res);
   }
 };
