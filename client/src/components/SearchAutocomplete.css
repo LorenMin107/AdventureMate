@@ -1,0 +1,255 @@
+.search-autocomplete {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  z-index: 99999;
+}
+
+.search-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--color-background);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.search-input-container:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.search-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.search-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.search-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0 6px 6px 0;
+}
+
+.search-button:hover:not(:disabled) {
+  background: var(--primary-color-dark);
+  transform: translateY(-1px);
+}
+
+.search-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.search-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.search-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Suggestions Dropdown */
+.suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-card-bg);
+  border: 2px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 16px var(--color-card-shadow);
+  z-index: 99999;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: -2px;
+}
+
+.suggestions-section {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.suggestions-section:last-child {
+  border-bottom: none;
+}
+
+.suggestions-header {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  min-height: 44px;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.suggestion-item:hover,
+.suggestion-item.highlighted {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--color-primary);
+}
+
+.suggestion-item:active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.suggestion-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: 1.4;
+  padding: 5px 10px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popular-badge {
+  background: var(--accent-color);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  flex-basis: auto;
+  white-space: nowrap;
+}
+
+.suggestion-item.loading,
+.suggestion-item.no-results {
+  cursor: default;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  padding: 12px 16px;
+  text-align: center;
+  justify-content: center;
+}
+
+.suggestion-item.loading:hover,
+.suggestion-item.no-results:hover {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+/* Scrollbar styling */
+.suggestions-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-track {
+  background: var(--color-background);
+  border-radius: 3px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .search-autocomplete {
+    max-width: 100%;
+  }
+
+  .search-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .suggestions-dropdown {
+    max-height: 250px;
+  }
+
+  .suggestion-item {
+    padding: 10px 12px;
+  }
+
+  .suggestion-text {
+    font-size: 14px;
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .suggestions-dropdown {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Focus styles for accessibility */
+.search-input:focus {
+  outline: none;
+}
+
+.suggestion-item:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* Animation for dropdown */
+.suggestions-dropdown {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

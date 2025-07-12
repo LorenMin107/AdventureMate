@@ -82,6 +82,23 @@ CampgroundSchema.index({ author: 1 });
 CampgroundSchema.index({ location: 'text' });
 CampgroundSchema.index({ 'geometry.coordinates': '2dsphere' });
 
+// Full-text search index for comprehensive search across multiple fields
+CampgroundSchema.index(
+  {
+    title: 'text',
+    description: 'text',
+    location: 'text',
+  },
+  {
+    weights: {
+      title: 10,
+      description: 5,
+      location: 8,
+    },
+    name: 'campground_text_search',
+  }
+);
+
 CampgroundSchema.post('findOneAndDelete', async function (doc) {
   if (doc) {
     await Review.deleteMany({

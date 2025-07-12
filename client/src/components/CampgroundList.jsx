@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import CampgroundCard from './CampgroundCard';
-import ClusterMap from './maps/ClusterMap';
 import useCampgrounds from '../hooks/useCampgrounds';
 import apiClient from '../utils/api';
 import './CampgroundList.css';
@@ -12,11 +11,8 @@ import './CampgroundList.css';
  * @param {Object} props - Component props
  * @param {string} props.searchTerm - Search term for filtering campgrounds
  * @param {string} props.locationFilter - Location filter for filtering campgrounds
- * @param {boolean} props.hideMapView - Whether to hide the map view option (default: false)
  */
-const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = false }) => {
-  const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', or 'map'
-
+const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
   // Use the custom hook to fetch all campgrounds
   const { useAllCampgrounds } = useCampgrounds();
   const { data, isLoading, isError, error, refetch } = useAllCampgrounds({
@@ -44,10 +40,7 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
     return matchesSearchTerm && matchesLocation;
   });
 
-  // Toggle between grid and list view
-  const toggleViewMode = () => {
-    setViewMode((prevMode) => (prevMode === 'grid' ? 'list' : 'grid'));
-  };
+  // No view toggle needed - only grid view is supported
 
   // Handle loading state
   if (isLoading) {
@@ -88,45 +81,15 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '', hideMapView = fa
         <div className="results-count">
           Found {filteredCampgrounds.length} campground{filteredCampgrounds.length !== 1 ? 's' : ''}
         </div>
-
-        <div className="view-toggle">
-          <button
-            className={`view-toggle-button ${viewMode === 'grid' ? 'active' : ''}`}
-            onClick={() => setViewMode('grid')}
-            aria-label="Grid view"
-          >
-            Grid
-          </button>
-          <button
-            className={`view-toggle-button ${viewMode === 'list' ? 'active' : ''}`}
-            onClick={() => setViewMode('list')}
-            aria-label="List view"
-          >
-            List
-          </button>
-          {!hideMapView && (
-            <button
-              className={`view-toggle-button ${viewMode === 'map' ? 'active' : ''}`}
-              onClick={() => setViewMode('map')}
-              aria-label="Map view"
-            >
-              Map
-            </button>
-          )}
-        </div>
       </div>
 
-      {viewMode === 'map' ? (
-        <ClusterMap campgrounds={filteredCampgrounds} />
-      ) : (
-        <div className={`campground-list ${viewMode}`}>
-          {filteredCampgrounds.map((campground) => (
-            <div className="campground-item" key={campground._id}>
-              <CampgroundCard campground={campground} />
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="campground-list grid">
+        {filteredCampgrounds.map((campground) => (
+          <div className="campground-item" key={campground._id}>
+            <CampgroundCard campground={campground} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

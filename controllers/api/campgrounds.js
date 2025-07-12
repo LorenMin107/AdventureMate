@@ -27,8 +27,8 @@ module.exports.index = asyncHandler(async (req, res) => {
     return ApiResponse.success(cachedData, 'Campgrounds retrieved successfully (cached)').send(res);
   }
 
-  // Fetch from database
-  const campgrounds = await Campground.find({});
+  // Fetch from database with campsites populated
+  const campgrounds = await Campground.find({}).populate('campsites', 'name price availability');
   const locations = await Campground.distinct('location');
 
   const data = { campgrounds, locations };
@@ -232,15 +232,18 @@ module.exports.showCampground = asyncHandler(async (req, res) => {
 });
 
 module.exports.searchCampgrounds = asyncHandler(async (req, res) => {
-  const { search } = req.query;
+  const { search, sort = 'relevance', limit = 20, page = 1 } = req.query;
 
   if (!search || search.trim() === '') {
     logWarn('Empty search term provided');
     throw validationError('Search term is required');
   }
 
+  const searchTerm = search.trim();
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
   // Try to get from cache first
-  const cacheKey = `search:campgrounds:${search.toLowerCase()}`;
+  const cacheKey = `search:campgrounds:${searchTerm.toLowerCase()}:${sort}:${limit}:${page}`;
   let cachedData = null;
 
   if (redisCache.isReady()) {
@@ -249,36 +252,240 @@ module.exports.searchCampgrounds = asyncHandler(async (req, res) => {
 
   if (cachedData) {
     logInfo('Serving search results from cache', {
-      searchTerm: search,
+      searchTerm,
       resultsCount: cachedData.campgrounds.length,
+      sort,
+      page,
     });
     return ApiResponse.success(
       cachedData,
-      `Found ${cachedData.campgrounds.length} campgrounds matching "${search}" (cached)`
+      `Found ${cachedData.campgrounds.length} campgrounds matching "${searchTerm}" (cached)`
     ).send(res);
   }
 
-  // Fetch from database
-  const campgrounds = await Campground.find({
-    title: { $regex: new RegExp(search, 'i') },
+  // Build search query using full-text search
+  const searchQuery = {
+    $text: { $search: searchTerm },
+  };
+
+  // Build sort options
+  let sortOptions = {};
+  switch (sort) {
+    case 'relevance':
+      sortOptions = { score: { $meta: 'textScore' } };
+      break;
+    case 'title':
+      sortOptions = { title: 1 };
+      break;
+    case 'location':
+      sortOptions = { location: 1 };
+      break;
+    case 'newest':
+      sortOptions = { createdAt: -1 };
+      break;
+    case 'oldest':
+      sortOptions = { createdAt: 1 };
+      break;
+    default:
+      sortOptions = { score: { $meta: 'textScore' } };
+  }
+
+  // Execute search with pagination
+  const [campgrounds, total] = await Promise.all([
+    Campground.find(searchQuery, { score: { $meta: 'textScore' } })
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate('reviews', 'rating')
+      .populate('campsites', 'name price availability'),
+    Campground.countDocuments(searchQuery),
+  ]);
+
+  // Calculate additional data for each campground
+  const campgroundsWithStats = campgrounds.map((campground) => {
+    const avgRating =
+      campground.reviews.length > 0
+        ? campground.reviews.reduce((sum, review) => sum + review.rating, 0) /
+          campground.reviews.length
+        : 0;
+
+    const startingPrice =
+      campground.campsites.length > 0
+        ? Math.min(...campground.campsites.map((site) => site.price || 0))
+        : 0;
+
+    return {
+      ...campground.toObject(),
+      avgRating: Math.round(avgRating * 10) / 10,
+      reviewCount: campground.reviews.length,
+      startingPrice,
+      availableCampsites: campground.campsites.filter((site) => site.availability).length,
+    };
   });
 
-  const data = { campgrounds, searchTerm: search };
+  const data = {
+    campgrounds: campgroundsWithStats,
+    searchTerm,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      totalPages: Math.ceil(total / parseInt(limit)),
+    },
+    sort,
+    searchAnalytics: {
+      totalResults: total,
+      searchTerm,
+      timestamp: new Date().toISOString(),
+    },
+  };
 
   // Cache the result with shorter TTL for search results
   if (redisCache.isReady()) {
     await redisCache.setWithDefaultTTL(cacheKey, data, 'searchResults');
   }
 
-  logInfo('Performed campground search from database', {
-    searchTerm: search,
+  // Log search analytics
+  logInfo('Performed enhanced campground search', {
+    searchTerm,
     resultsCount: campgrounds.length,
+    totalResults: total,
+    sort,
+    page,
+    limit,
+    userId: req.user?._id,
   });
 
-  return ApiResponse.success(
-    data,
-    `Found ${campgrounds.length} campgrounds matching "${search}"`
-  ).send(res);
+  return ApiResponse.success(data, `Found ${total} campgrounds matching "${searchTerm}"`).send(res);
+});
+
+module.exports.getSearchSuggestions = asyncHandler(async (req, res) => {
+  const { q, limit = 10 } = req.query;
+
+  if (!q || q.trim() === '') {
+    return ApiResponse.success(
+      { suggestions: [], popularTerms: [] },
+      'No search term provided'
+    ).send(res);
+  }
+
+  const searchTerm = q.trim();
+
+  // Try to get from cache first
+  const cacheKey = `search:suggestions:${searchTerm.toLowerCase()}:${limit}`;
+  let cachedData = null;
+
+  if (redisCache.isReady()) {
+    cachedData = await redisCache.get(cacheKey);
+  }
+
+  if (cachedData) {
+    logInfo('Serving search suggestions from cache', {
+      searchTerm,
+      suggestionsCount: cachedData.suggestions.length,
+    });
+    return ApiResponse.success(cachedData, 'Search suggestions retrieved (cached)').send(res);
+  }
+
+  // Get title suggestions using aggregation instead of distinct with limit
+  const titleSuggestions = await Campground.aggregate([
+    {
+      $match: {
+        title: { $regex: new RegExp(searchTerm, 'i') },
+      },
+    },
+    {
+      $group: {
+        _id: '$title',
+      },
+    },
+    {
+      $limit: parseInt(limit),
+    },
+    {
+      $project: {
+        _id: 0,
+        title: '$_id',
+      },
+    },
+  ]);
+
+  // Get location suggestions using aggregation instead of distinct with limit
+  const locationSuggestions = await Campground.aggregate([
+    {
+      $match: {
+        location: { $regex: new RegExp(searchTerm, 'i') },
+      },
+    },
+    {
+      $group: {
+        _id: '$location',
+      },
+    },
+    {
+      $limit: parseInt(limit),
+    },
+    {
+      $project: {
+        _id: 0,
+        location: '$_id',
+      },
+    },
+  ]);
+
+  // Extract values from aggregation results
+  const titleValues = titleSuggestions.map((item) => item.title);
+  const locationValues = locationSuggestions.map((item) => item.location);
+
+  // Combine and deduplicate suggestions
+  const allSuggestions = [...titleValues, ...locationValues];
+  const uniqueSuggestions = [...new Set(allSuggestions)].slice(0, parseInt(limit));
+
+  // Get popular search terms (based on matching locations)
+  const popularTerms = await Campground.aggregate([
+    {
+      $match: {
+        $or: [
+          { title: { $regex: new RegExp(searchTerm, 'i') } },
+          { location: { $regex: new RegExp(searchTerm, 'i') } },
+          { description: { $regex: new RegExp(searchTerm, 'i') } },
+        ],
+      },
+    },
+    {
+      $group: {
+        _id: '$location',
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+    {
+      $limit: 5,
+    },
+  ]);
+
+  const data = {
+    suggestions: uniqueSuggestions,
+    popularTerms: popularTerms.map((term) => term._id),
+    searchTerm,
+  };
+
+  // Cache the result with shorter TTL for suggestions
+  if (redisCache.isReady()) {
+    await redisCache.setWithDefaultTTL(cacheKey, data, 'searchSuggestions');
+  }
+
+  logInfo('Generated search suggestions', {
+    searchTerm,
+    suggestionsCount: uniqueSuggestions.length,
+    popularTermsCount: popularTerms.length,
+    titleSuggestionsCount: titleValues.length,
+    locationSuggestionsCount: locationValues.length,
+  });
+
+  return ApiResponse.success(data, 'Search suggestions retrieved successfully').send(res);
 });
 
 module.exports.updateCampground = asyncHandler(async (req, res) => {

@@ -76,6 +76,17 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
             onClick={(e) => {
               e.originalEvent.stopPropagation();
               setSelectedCampground(campground);
+              // Pan the map so the marker is visible with enough space for the popup
+              const map = mapRef.current && mapRef.current.getMap ? mapRef.current.getMap() : null;
+              if (map) {
+                // Offset upward by 180px to make room for the popup
+                map.easeTo({
+                  center: [campground.geometry.coordinates[0], campground.geometry.coordinates[1]],
+                  offset: [0, -180],
+                  duration: 800,
+                  essential: true,
+                });
+              }
             }}
           />
         ))}
@@ -84,7 +95,23 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
           <Popup
             longitude={selectedCampground.geometry.coordinates[0]}
             latitude={selectedCampground.geometry.coordinates[1]}
-            anchor="bottom"
+            anchor={(() => {
+              const map = mapRef.current && mapRef.current.getMap ? mapRef.current.getMap() : null;
+              if (!map) return 'top';
+              const markerLngLat = [
+                selectedCampground.geometry.coordinates[0],
+                selectedCampground.geometry.coordinates[1],
+              ];
+              const point = map.project(markerLngLat);
+              const mapSize = map.getContainer();
+              const width = mapSize.offsetWidth;
+              const height = mapSize.offsetHeight;
+              const edgeBuffer = 80; // px
+              if (point.y > height - edgeBuffer) return 'bottom'; // near bottom - show popup above
+              if (point.x < edgeBuffer) return 'right'; // near left
+              if (point.x > width - edgeBuffer) return 'left'; // near right
+              return 'top'; // default - show popup below
+            })()}
             onClose={() => setSelectedCampground(null)}
             closeButton={false}
             closeOnClick={false}
@@ -113,7 +140,14 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
 
               <div className="popup-info">
                 <p>{selectedCampground.location}</p>
-                <p className="popup-price">View pricing</p>
+                {selectedCampground.campsites && selectedCampground.campsites.length > 0 ? (
+                  <p className="popup-price">
+                    From ${Math.min(...selectedCampground.campsites.map((cs) => cs.price || 0))}/
+                    night
+                  </p>
+                ) : (
+                  <p className="popup-no-campsites">No campsites available yet.</p>
+                )}
                 <Link to={`/campgrounds/${selectedCampground._id}`} className="popup-view-button">
                   View Campground
                 </Link>

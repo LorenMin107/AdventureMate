@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import CampgroundList from '../components/CampgroundList';
 import ClusterMap from '../components/maps/ClusterMap';
+import SearchAutocomplete from '../components/SearchAutocomplete';
 import { useAuth } from '../context/AuthContext';
 import useCampgrounds from '../hooks/useCampgrounds';
 import './CampgroundsPage.css';
@@ -62,30 +63,60 @@ const CampgroundsPage = () => {
 
   return (
     <div className="campgrounds-page">
-      <div className="campgrounds-header">
-        <h1>All Campgrounds</h1>
-        <p>Discover and explore campgrounds in Myanmar</p>
-
-        {currentUser && currentUser.isAdmin && (
-          <Link to="/campgrounds/new" className="new-campground-button">
-            Add New Campground
-          </Link>
-        )}
-      </div>
-
+      {/* Remove the campgrounds-header section */}
       <div className="campgrounds-search-container">
-        <form onSubmit={handleSearch} className="campgrounds-search-form">
+        <div className="search-section-header">
+          <h3>Find Your Perfect Campground</h3>
+          <p>Search by name, description, or location, then filter by specific areas</p>
+        </div>
+
+        <div className="campgrounds-search-form">
           <div className="search-input-group">
-            <input
-              type="text"
-              placeholder="Search campgrounds..."
+            <SearchAutocomplete
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
+              onChange={setSearchTerm}
+              onSearch={(term) => {
+                setSearchTerm(term);
+                setIsSearching(true);
+              }}
+              placeholder="Search campgrounds..."
+              className="enhanced-search-input"
             />
           </div>
 
-          <div className="search-input-group">
+          <div className="search-buttons">
+            {isSearching && (
+              <button type="button" className="clear-search-button" onClick={handleClearSearch}>
+                Clear Filters
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content with Map and List Side by Side */}
+      <div className="campgrounds-main-content">
+        {/* Map Section */}
+        <div className="map-section">
+          {isLoading ? (
+            <div className="map-loading">Loading map...</div>
+          ) : isError ? (
+            <div className="map-error">
+              Error loading map: {error?.message || 'Failed to load map data'}
+            </div>
+          ) : filteredCampgrounds.length === 0 ? (
+            <div className="map-empty">No campgrounds match your search criteria</div>
+          ) : (
+            <div className="map-container">
+              <ClusterMap campgrounds={filteredCampgrounds} />
+            </div>
+          )}
+        </div>
+
+        {/* Campground List Section */}
+        <div className="campgrounds-content">
+          {/* Location Filter */}
+          <div className="location-filter-container">
             <select
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
@@ -105,44 +136,11 @@ const CampgroundsPage = () => {
             </select>
           </div>
 
-          <div className="search-buttons">
-            <button type="submit" className="search-button">
-              Search
-            </button>
-
-            {isSearching && (
-              <button type="button" className="clear-search-button" onClick={handleClearSearch}>
-                Clear
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
-
-      {/* Map Section */}
-      <div className="map-section">
-        {isLoading ? (
-          <div className="map-loading">Loading map...</div>
-        ) : isError ? (
-          <div className="map-error">
-            Error loading map: {error?.message || 'Failed to load map data'}
-          </div>
-        ) : filteredCampgrounds.length === 0 ? (
-          <div className="map-empty">No campgrounds match your search criteria</div>
-        ) : (
-          <div className="map-container">
-            <ClusterMap campgrounds={filteredCampgrounds} />
-          </div>
-        )}
-      </div>
-
-      {/* Campground List Section */}
-      <div className="campgrounds-content">
-        <CampgroundList
-          searchTerm={isSearching ? searchTerm : ''}
-          locationFilter={isSearching ? locationFilter : ''}
-          hideMapView={true} // Hide map view in list since we have a dedicated map section
-        />
+          <CampgroundList
+            searchTerm={isSearching ? searchTerm : ''}
+            locationFilter={isSearching ? locationFilter : ''}
+          />
+        </div>
       </div>
     </div>
   );

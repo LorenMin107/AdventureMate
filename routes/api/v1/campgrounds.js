@@ -19,6 +19,13 @@ router.get(
   catchAsync(campgrounds.searchCampgrounds)
 );
 
+// Get search suggestions/autocomplete
+router.get(
+  '/suggestions',
+  validate(campgroundValidators.suggestions),
+  catchAsync(campgrounds.getSearchSuggestions)
+);
+
 // Create a new campground
 router.post(
   '/',

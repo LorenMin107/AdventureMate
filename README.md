@@ -1,6 +1,6 @@
 # AdventureMate - Campground Booking Platform
 
-AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application for discovering, booking, and reviewing campgrounds. Built with modern technologies including Node.js, Express, MongoDB, React, and Vite, the platform provides a seamless experience for campers, campground owners, and administrators.
+AdventureMate is a comprehensive full-stack web application for discovering, booking, and reviewing campgrounds. Built with modern technologies including Node.js, Express, MongoDB, React, and Vite, the platform provides a seamless experience for campers, campground owners, and administrators.
 
 ## 🚀 Features
 
@@ -66,6 +66,9 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 
 ### 🗺️ Enhanced Map Popup System
 
+- **Smart Pricing Display**: Intelligent pricing information based on campground status
+  - Shows "From $X / night" for campgrounds with available campsites
+  - Displays "No campsites available yet." for campgrounds without campsites
 - **Custom Popup Layout**: Professional popup design with custom close buttons
 - **Weather Integration**: Weather information prominently displayed at the top of popups
 - **Responsive Design**: Popups auto-expand to fit content without clipping
@@ -73,6 +76,8 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 - **Flexible Layout**: Clean vertical stacking with proper spacing and typography
 - **Interactive Elements**: Hover effects and smooth transitions for better UX
 - **Content Management**: Proper text truncation and overflow handling for long addresses
+- **Dynamic Positioning**: Smart popup positioning to avoid edge clipping
+- **Performance Optimized**: Efficient data loading with backend campsite population
 
 ### For Campground Owners
 
@@ -140,56 +145,6 @@ AdventureMate (formerly MyanCamp) is a comprehensive full-stack web application 
 - **Real-time Validation**: Immediate feedback on location data
 - **Cache Management**: Redis-based caching for improved performance
 - **Error Handling**: Detailed validation error reporting for better user experience
-
-### 🌤️ Weather Integration Implementation
-
-The weather feature provides real-time weather information for campground locations:
-
-#### Backend Implementation
-
-- **Weather API Route**: `/api/v1/weather` with lat/lng query parameters
-- **OpenWeatherMap Integration**: Uses free API endpoints for current weather and 5-day forecast
-- **Data Transformation**: Combines current weather and forecast data into unified response
-- **Redis Caching**: 15-minute cache to reduce API calls and improve performance
-- **Error Handling**: Graceful fallback when weather data is unavailable
-- **Input Validation**: Latitude (-90 to 90) and longitude (-180 to 180) validation
-
-#### Frontend Implementation
-
-- **WeatherBox Component**: Reusable component with compact and full-size variants
-- **React Query Integration**: Efficient data fetching with caching and error handling
-- **useWeather Hook**: Custom hook for weather data management
-- **Theme Integration**: Weather components follow app's dark/light theme
-- **Responsive Design**: Adapts to different screen sizes and popup layouts
-
-#### Weather Data Structure
-
-```json
-{
-  "current": {
-    "temp": 25,
-    "feels_like": 27,
-    "humidity": 65,
-    "description": "Partly cloudy",
-    "icon": "02d"
-  },
-  "forecast": [
-    {
-      "date": "2024-01-15",
-      "temp": { "max": 28, "min": 22 },
-      "description": "Sunny",
-      "icon": "01d"
-    }
-  ]
-}
-```
-
-#### Map Popup Integration
-
-- **Weather at Top**: Weather information displayed prominently in popup header
-- **Compact Layout**: Optimized weather display for map popups
-- **Auto-expansion**: Popup height adjusts to accommodate weather content
-- **Custom Styling**: Consistent with app's design language and theme
 
 ## 🛠 Technology Stack
 
@@ -365,7 +320,7 @@ npm test                # Run tests
 
 ### Project Structure
 
-```bash
+```
 AdventureMate/
 ├── client/                 # React frontend (Vite + React 18)
 │   ├── src/
@@ -421,7 +376,7 @@ The application provides a comprehensive RESTful API with full OpenAPI 3.0 docum
 ### API Access
 
 - **Development**: http://localhost:3001/api/docs
-- **Production**: https://myancamp.com/api/docs
+- **Production**: https://adventuremate.com/api/docs
 
 ### Key Endpoints
 
@@ -631,7 +586,7 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 For support and questions:
 
-- **Email**: support@myancamp.com
+- **Email**: support@adventuremate.com
 - **Documentation**: [API Docs](http://localhost:3001/api/docs)
 - **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
 

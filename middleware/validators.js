@@ -72,6 +72,7 @@ const campgroundValidators = {
   show: [param('id').isMongoId().withMessage('Invalid campground ID format')],
 
   search: [query('search').notEmpty().withMessage('Search term is required')],
+  suggestions: [query('q').optional().isString().withMessage('Query must be a string')],
 };
 
 /**
