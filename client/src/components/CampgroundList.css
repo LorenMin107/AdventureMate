@@ -1,5 +1,8 @@
 .campground-list-container {
   width: 100%;
+  position: relative;
+  z-index: 1;
+  isolation: isolate; /* Create a new stacking context */
 }
 
 .campground-list-header {
@@ -23,6 +26,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 /* List view removed - only grid view is supported */
@@ -80,4 +85,11 @@
   .campground-list.grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Additional isolation for campground items */
+.campground-item {
+  position: relative;
+  z-index: 1;
+  isolation: isolate; /* Create a new stacking context for each card */
 }

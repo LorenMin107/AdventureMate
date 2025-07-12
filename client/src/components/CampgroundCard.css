@@ -18,6 +18,10 @@
   display: flex;
   flex-direction: column;
   min-height: 400px; /* Ensure consistent height */
+
+  /* Prevent conflicts with owner/admin styles */
+  position: relative;
+  z-index: 1;
 }
 
 .campground-list-container .campground-card:hover,
@@ -31,6 +35,8 @@
 .campgrounds-page .campground-card-image {
   height: 160px;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .campground-list-container .campground-card-image img,
@@ -52,6 +58,8 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .campground-list-container .campground-card-title,
@@ -95,6 +103,8 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
+  position: relative;
+  z-index: 2; /* Ensure buttons are above other content */
 }
 
 .campground-list-container .campground-card-price,
@@ -150,6 +160,10 @@
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+  position: relative;
+  z-index: 3; /* Ensure button is clickable */
+  white-space: nowrap; /* Prevent text wrapping */
+  /* Button sizing handled by padding and content */
 }
 
 .campground-list-container .view-button:hover,
@@ -205,4 +219,20 @@
 .campgrounds-page .campground-card:hover {
   transform: translateY(-5px) !important;
   box-shadow: 0 4px 15px var(--color-card-shadow) !important;
+}
+
+/* Additional isolation for button interactions */
+.campground-list-container .campground-card .view-button,
+.campgrounds-page .campground-card .view-button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  -webkit-user-select: none !important; /* Support Safari */
+  user-select: none !important;
+}
+
+/* Prevent any grid layout conflicts */
+.campground-list-container .campground-card,
+.campgrounds-page .campground-card {
+  grid-column: auto !important;
+  grid-row: auto !important;
 }

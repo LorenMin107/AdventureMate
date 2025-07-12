@@ -4,13 +4,11 @@ const Owner = require('../../models/owner');
 const Booking = require('../../models/booking');
 const Review = require('../../models/review');
 const ExpressError = require('../../utils/ExpressError');
-const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const mapboxCache = require('../../utils/mapboxCache');
 const config = require('../../config');
 const { cloudinary } = require('../../cloudinary');
 const { logError, logInfo, logDebug } = require('../../utils/logger');
 const redisCache = require('../../utils/redis');
-
-const geocoder = mbxGeocoding({ accessToken: config.mapbox.token });
 
 /**
  * Get all campgrounds owned by the current owner
@@ -143,24 +141,32 @@ const createCampground = async (req, res) => {
     // If geometry is provided, use it; otherwise geocode location
     let finalGeometry = geometry;
     if (!finalGeometry && location) {
-      const geoData = await geocoder
-        .forwardGeocode({
-          query: location,
-          limit: 1,
-        })
-        .send();
-      if (!geoData.body.features || geoData.body.features.length === 0) {
-        return res.status(400).json({
+      try {
+        const geoData = await mapboxCache.geocode(location, { limit: 1 });
+        if (!geoData.features || geoData.features.length === 0) {
+          return res.status(400).json({
+            status: 'error',
+            error: {
+              errors: [
+                { field: 'location', message: 'Invalid location. Please provide a valid address.' },
+              ],
+            },
+            message: 'Validation failed',
+          });
+        }
+        finalGeometry = geoData.features[0].geometry;
+      } catch (error) {
+        logError('Geocoding failed', error, { location });
+        return res.status(500).json({
           status: 'error',
           error: {
             errors: [
-              { field: 'location', message: 'Invalid location. Please provide a valid address.' },
+              { field: 'location', message: 'Unable to geocode location. Please try again.' },
             ],
           },
-          message: 'Validation failed',
+          message: 'Geocoding failed',
         });
       }
-      finalGeometry = geoData.body.features[0].geometry;
     }
 
     // Create campground

@@ -63,35 +63,38 @@
   margin-top: 1.5rem;
 }
 
-.campground-card {
+/* Owner-specific campground card - scoped to prevent conflicts */
+.owner-campground-list .campground-card {
   background: var(--color-card-bg);
   border-radius: 12px;
   box-shadow: 0 4px 20px var(--color-card-shadow);
   overflow: hidden;
   transition: all 0.3s ease;
   border: 1px solid var(--color-border);
+  position: relative;
+  z-index: 1;
 }
 
-.campground-card:hover {
+.owner-campground-list .campground-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px var(--color-card-shadow);
 }
 
 /* Campground Image */
-.campground-image {
+.owner-campground-list .campground-image {
   height: 200px;
   overflow: hidden;
   position: relative;
 }
 
-.campground-image img {
+.owner-campground-list .campground-image img {
   width: 100%;
   height: 200px;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-.campground-card:hover .campground-image img {
+.owner-campground-list .campground-card:hover .campground-image img {
   transform: scale(1.05);
 }
 
@@ -107,15 +110,15 @@
 }
 
 /* Campground Content */
-.campground-content {
+.owner-campground-list .campground-content {
   padding: 1.5rem;
 }
 
-.campground-header {
+.owner-campground-list .campground-header {
   margin-bottom: 1.5rem;
 }
 
-.campground-header h3 {
+.owner-campground-list .campground-header h3 {
   margin: 0 0 0.5rem 0;
   color: var(--color-text);
   font-size: 1.25rem;
@@ -124,7 +127,7 @@
   transition: color 0.3s ease;
 }
 
-.campground-location {
+.owner-campground-list .campground-location {
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.95rem;
@@ -134,13 +137,13 @@
   transition: color 0.3s ease;
 }
 
-.campground-location::before {
+.owner-campground-list .campground-location::before {
   content: '📍';
   font-size: 0.9rem;
 }
 
 /* Campground Stats */
-.campground-stats {
+.owner-campground-list .campground-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -176,18 +179,22 @@
 }
 
 /* Campground Actions */
-.campground-actions {
+.owner-campground-list .campground-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+  position: relative;
+  z-index: 2; /* Ensure buttons are above other content */
 }
 
-.campground-actions .owner-btn {
+.owner-campground-list .campground-actions .owner-btn {
   padding: 0.6rem 1rem;
   font-size: 0.85rem;
   text-align: center;
   justify-content: center;
   border-radius: 6px;
+  position: relative;
+  z-index: 3; /* Ensure button is clickable */
 }
 
 /* Button Variants */
@@ -339,7 +346,7 @@
     text-align: left;
   }
 
-  .campground-actions .owner-btn {
+  .owner-campground-list .campground-actions .owner-btn {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
   }
@@ -405,19 +412,19 @@
   }
 }
 
-.campground-card {
+.owner-campground-list .campground-card {
   animation: fadeInUp 0.5s ease-out;
 }
 
-.campground-card:nth-child(2) {
+.owner-campground-list .campground-card:nth-child(2) {
   animation-delay: 0.1s;
 }
 
-.campground-card:nth-child(3) {
+.owner-campground-list .campground-card:nth-child(3) {
   animation-delay: 0.2s;
 }
 
-.campground-card:nth-child(4) {
+.owner-campground-list .campground-card:nth-child(4) {
   animation-delay: 0.3s;
 }
 
@@ -441,7 +448,7 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .campground-card {
+  .owner-campground-list .campground-card {
     break-inside: avoid;
     box-shadow: none;
     border: 1px solid var(--color-border);

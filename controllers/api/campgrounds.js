@@ -1,8 +1,7 @@
 const Campground = require('../../models/campground');
 const { cloudinary } = require('../../cloudinary');
-const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const mapboxCache = require('../../utils/mapboxCache');
 const config = require('../../config');
-const geocoder = mbxGeocoding({ accessToken: config.mapbox.token });
 const ApiResponse = require('../../utils/ApiResponse');
 const {
   asyncHandler,
@@ -79,37 +78,44 @@ module.exports.createCampground = asyncHandler(async (req, res) => {
 
   // If geometry is not provided, geocode the location string
   if (!finalGeometry && location) {
-    const geoData = await geocoder
-      .forwardGeocode({
-        query: location,
-        limit: 1,
-      })
-      .send();
-    if (!geoData.body.features.length) {
-      logWarn('Invalid location provided', { location });
+    try {
+      const geoData = await mapboxCache.geocode(location, { limit: 1 });
+      if (!geoData.features.length) {
+        logWarn('Invalid location provided', { location });
+        return ApiResponse.error(
+          {
+            errors: [
+              { field: 'location', message: 'Invalid location. Please provide a valid address.' },
+            ],
+          },
+          'Validation failed',
+          400
+        ).send(res);
+      }
+      finalGeometry = geoData.features[0].geometry;
+    } catch (error) {
+      logError('Geocoding failed', error, { location });
       return ApiResponse.error(
         {
-          errors: [
-            { field: 'location', message: 'Invalid location. Please provide a valid address.' },
-          ],
+          errors: [{ field: 'location', message: 'Unable to geocode location. Please try again.' }],
         },
-        'Validation failed',
-        400
+        'Geocoding failed',
+        500
       ).send(res);
     }
-    finalGeometry = geoData.body.features[0].geometry;
   }
 
   // If geometry is provided but location is not, reverse geocode to get address
   if (finalGeometry && !finalLocation) {
-    const reverseGeo = await geocoder
-      .reverseGeocode({
-        query: finalGeometry.coordinates,
-        limit: 1,
-      })
-      .send();
-    if (reverseGeo.body.features && reverseGeo.body.features.length > 0) {
-      finalLocation = reverseGeo.body.features[0].place_name;
+    try {
+      const [lng, lat] = finalGeometry.coordinates;
+      const reverseGeo = await mapboxCache.reverseGeocode(lng, lat, { limit: 1 });
+      if (reverseGeo.features && reverseGeo.features.length > 0) {
+        finalLocation = reverseGeo.features[0].place_name;
+      }
+    } catch (error) {
+      logError('Reverse geocoding failed', error, { coordinates: finalGeometry.coordinates });
+      // Continue without reverse geocoding
     }
   }
 
@@ -184,34 +190,16 @@ module.exports.showCampground = asyncHandler(async (req, res) => {
   if (missingFields.length > 0 && campground.geometry && campground.geometry.coordinates) {
     // Perform reverse geocoding
     try {
-      const reverseGeo = await geocoder
-        .reverseGeocode({
-          query: campground.geometry.coordinates,
-          limit: 1,
-        })
-        .send();
-      if (reverseGeo.body.features && reverseGeo.body.features.length > 0) {
-        const components = reverseGeo.body.features[0].context || [];
-        // Mapbox context array contains address components
-        let street = '',
-          city = '',
-          state = '',
-          country = '';
-        for (const comp of components) {
-          if (comp.id.startsWith('place')) city = comp.text;
-          if (comp.id.startsWith('region')) state = comp.text;
-          if (comp.id.startsWith('country')) country = comp.text;
-          if (comp.id.startsWith('address')) street = comp.text;
-        }
-        // Sometimes street is in feature.text
-        if (!street && reverseGeo.body.features[0].place_type.includes('address')) {
-          street = reverseGeo.body.features[0].text;
-        }
+      const [lng, lat] = campground.geometry.coordinates;
+      const reverseGeo = await mapboxCache.reverseGeocode(lng, lat, { limit: 1 });
+      if (reverseGeo.features && reverseGeo.features.length > 0) {
+        const addressComponents = mapboxCache.extractAddressComponents(reverseGeo.features[0]);
+
         // Patch missing fields
-        if (!campground.street) campground.street = street;
-        if (!campground.city) campground.city = city;
-        if (!campground.state) campground.state = state;
-        if (!campground.country) campground.country = country;
+        if (!campground.street) campground.street = addressComponents.street;
+        if (!campground.city) campground.city = addressComponents.city;
+        if (!campground.state) campground.state = addressComponents.state;
+        if (!campground.country) campground.country = addressComponents.country;
       }
     } catch (err) {
       logError('Reverse geocoding failed for campground', { id, err });

@@ -47,6 +47,14 @@ const redis = {
     adminStats: 300, // 5 minutes
     searchResults: 120, // 2 minutes
     session: 3600, // 1 hour
+    // Mapbox API caching
+    mapboxGeocode: 86400, // 24 hours (geocoding results rarely change)
+    mapboxReverse: 86400, // 24 hours (reverse geocoding results rarely change)
+    mapboxSuggestions: 3600, // 1 hour (suggestions change more frequently)
+    // Cloudinary caching
+    cloudinaryUrls: 3600, // 1 hour (URLs can change with transformations)
+    cloudinaryMetadata: 86400, // 24 hours (metadata rarely changes)
+    cloudinaryResponsive: 3600, // 1 hour (responsive URLs)
   },
 };
 
