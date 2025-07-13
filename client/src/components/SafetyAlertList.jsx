@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import apiClient from '../utils/api';
 import { logError, logInfo } from '../utils/logger';
 import './SafetyAlertList.css';
@@ -28,6 +29,7 @@ const SafetyAlertList = ({
   const [loading, setLoading] = useState(!initialAlerts.length);
   const [error, setError] = useState(null);
   const { currentUser } = useAuth();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -97,6 +99,10 @@ const SafetyAlertList = ({
         // If it's a 404 (campground not found) or other expected error, just show empty state
         if (err.response?.status === 404) {
           setAlerts([]);
+        } else if (err.response?.status === 401) {
+          // Authentication error - don't show error message, just empty state
+          setAlerts([]);
+          // We don't set an error here, so the component will just render empty
         } else {
           setError('Failed to load safety alerts. Please try again later.');
         }
@@ -399,12 +405,21 @@ const SafetyAlertList = ({
     }
   };
 
+  // Modify the render logic to show a message for non-authenticated users when no alerts are available
   if (loading) {
-    return <div className="safety-alert-list-loading">Loading safety alerts...</div>;
+    return (
+      <div className={`safety-alert-list ${theme}`}>
+        <div className="safety-alert-loading">Loading safety alerts...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="safety-alert-list-error">{error}</div>;
+    return (
+      <div className={`safety-alert-list ${theme}`}>
+        <div className="safety-alert-error">{error}</div>
+      </div>
+    );
   }
 
   console.log('SafetyAlertList render state:', {
@@ -419,11 +434,22 @@ const SafetyAlertList = ({
   });
 
   if (!alerts || alerts.length === 0) {
+    // Check if user is authenticated
+    if (!currentUser && !initialAlerts?.length) {
+      return (
+        <div className={`safety-alert-list ${theme}`}>
+          <div className="safety-alert-empty">
+            <p>Sign in to view safety alerts</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className="safety-alert-list-empty">
-        {showActiveOnly && !showAllForAcknowledgment
-          ? 'No active safety alerts at this time.'
-          : 'No safety alerts found for this campground.'}
+      <div className={`safety-alert-list ${theme}`}>
+        <div className="safety-alert-empty">
+          <p>No safety alerts at this time</p>
+        </div>
       </div>
     );
   }

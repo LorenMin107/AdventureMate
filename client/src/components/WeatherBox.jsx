@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWeather } from '../hooks/useWeather';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import './WeatherBox.css';
 
 /**
@@ -16,6 +17,7 @@ import './WeatherBox.css';
  */
 const WeatherBox = ({ coordinates, lat, lng, showForecast = true, compact = false }) => {
   const { theme } = useTheme();
+  const { currentUser } = useAuth();
 
   // Use coordinates object if provided, otherwise use lat/lng props
   const weatherCoordinates = coordinates || (lat && lng ? { lat, lng } : null);
@@ -34,10 +36,17 @@ const WeatherBox = ({ coordinates, lat, lng, showForecast = true, compact = fals
   }
 
   if (error) {
+    // Check if the error is due to authentication (401)
+    const isAuthError = error.response && error.response.status === 401;
+
     return (
       <div className={`weather-box ${theme} ${compact ? 'compact' : ''}`}>
         <div className="weather-error">
-          <span>Weather unavailable</span>
+          {isAuthError ? (
+            <span>Sign in to view weather data</span>
+          ) : (
+            <span>Weather unavailable</span>
+          )}
         </div>
       </div>
     );

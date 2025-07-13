@@ -68,6 +68,13 @@ api.interceptors.response.use(
       }
     }
 
+    // Define public endpoints that should not trigger a redirect to login
+    const isPublicEndpoint =
+      originalRequest.url &&
+      (originalRequest.url.includes('/weather') ||
+        originalRequest.url.includes('/campgrounds') ||
+        originalRequest.url.includes('/safety-alerts'));
+
     // Handle token expiration and refresh
     // Don't handle 401 errors for authentication endpoints (login, register, etc.)
     // These are expected authentication failures, not token expiration issues
@@ -78,7 +85,13 @@ api.interceptors.response.use(
         originalRequest.url.includes('/auth/refresh-token') ||
         originalRequest.url.includes('/2fa/verify-login'));
 
-    if (response && response.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+    if (
+      response &&
+      response.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint &&
+      !isPublicEndpoint
+    ) {
       originalRequest._retry = true;
 
       try {
@@ -104,21 +117,24 @@ api.interceptors.response.use(
         }
 
         // If refresh token is missing or refresh fails, redirect to login
-        logError('Authentication expired. Please log in again.');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        // But only if it's not a public endpoint
+        if (!isPublicEndpoint) {
+          logError('Authentication expired. Please log in again.');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
 
-        // Dispatch auth state change event to notify other components
-        const event = new CustomEvent('authStateChange', {
-          detail: { isAuthenticated: false },
-        });
-        window.dispatchEvent(event);
+          // Dispatch auth state change event to notify other components
+          const event = new CustomEvent('authStateChange', {
+            detail: { isAuthenticated: false },
+          });
+          window.dispatchEvent(event);
 
-        // Store the current URL to redirect back after login
-        if (window.location.pathname !== '/login') {
-          sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+          // Store the current URL to redirect back after login
+          if (window.location.pathname !== '/login') {
+            sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+          }
+          window.location.href = '/login';
         }
-        window.location.href = '/login';
       } catch (refreshError) {
         logError('Failed to refresh authentication token', refreshError);
         localStorage.removeItem('accessToken');
@@ -131,10 +147,13 @@ api.interceptors.response.use(
         window.dispatchEvent(event);
 
         // Store the current URL to redirect back after login
-        if (window.location.pathname !== '/login') {
-          sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+        // But only if it's not a public endpoint
+        if (!isPublicEndpoint) {
+          if (window.location.pathname !== '/login') {
+            sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+          }
+          window.location.href = '/login';
         }
-        window.location.href = '/login';
       }
     }
 

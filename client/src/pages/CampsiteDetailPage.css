@@ -322,99 +322,120 @@
   text-align: center;
   color: var(--color-text);
   opacity: 0.7;
-  transition: color 0.3s ease;
+  padding: 1rem;
 }
 
-.booking-form-container {
-  margin-top: 1rem;
+.campsite-booking-form-container {
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  margin-top: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.booking-form {
+.campsite-booking-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.booking-form-dates {
-  margin-bottom: 0.5rem;
-}
-
-.booking-form-date-field {
+  gap: 0.75rem;
   width: 100%;
+  box-sizing: border-box;
 }
 
-.booking-form-date-field .date-range-picker-label {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+.campsite-booking-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.campsite-booking-date-field {
+  flex: 1;
+  min-width: 180px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-sizing: border-box;
+}
+
+.campsite-booking-date-field .date-range-picker-label {
+  font-weight: bold;
   color: var(--color-text);
   transition: color 0.3s ease;
 }
 
-.booking-form-date-field .date-range-picker-input {
-  width: 100%;
-  padding: 0.75rem;
+.campsite-booking-date-field .date-range-picker-input {
+  padding: 0.6rem;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background-color: var(--color-input-bg);
+  font-family: inherit;
+  font-size: 0.95rem;
+  background-color: var(--color-background);
   color: var(--color-text);
   transition:
     border-color 0.3s ease,
     background-color 0.3s ease,
     color 0.3s ease;
-  box-sizing: border-box;
 }
 
-.booking-form-date-field .date-range-picker-input:hover {
+.campsite-booking-date-field .date-range-picker-input:hover {
   border-color: var(--color-primary);
 }
 
-.booking-form-guests {
-  margin-bottom: 0.5rem;
+.campsite-booking-guests {
+  margin-bottom: 0.75rem;
 }
 
-.booking-form-guests-field {
+.campsite-booking-guests-field {
   width: 100%;
+  max-width: 200px;
+  box-sizing: border-box;
 }
 
-.booking-form-guests-field label {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+.campsite-booking-guests-field label {
+  font-weight: bold;
   color: var(--color-text);
   transition: color 0.3s ease;
 }
 
-.booking-form-guests-field input {
-  width: 100%;
-  padding: 0.75rem;
+.campsite-booking-guests-field input {
+  padding: 0.6rem;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background-color: var(--color-input-bg);
+  font-family: inherit;
+  font-size: 0.95rem;
+  background-color: var(--color-background);
   color: var(--color-text);
   transition:
     border-color 0.3s ease,
     background-color 0.3s ease,
     color 0.3s ease;
-  box-sizing: border-box;
 }
 
-.booking-form-guests-field input:hover,
-.booking-form-guests-field input:focus {
-  border-color: var(--color-primary);
+.campsite-booking-guests-field input:hover,
+.campsite-booking-guests-field input:focus {
   outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem var(--color-primary-hover);
 }
 
-.booking-form-price {
-  text-align: center;
-  padding: 0.75rem;
-  background-color: var(--color-card-bg);
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-  transition: background-color 0.3s ease;
+.campsite-booking-price {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: var(--color-text);
+  transition: color 0.3s ease;
 }
 
-.booking-form-price p {
+.campsite-booking-price p {
   margin: 0;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: bold;
   color: var(--color-text);
   transition: color 0.3s ease;
 }
@@ -429,99 +450,115 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.9rem;
-  color: var(--color-text);
-  transition: color 0.3s ease;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
 }
 
 .price-line.total {
-  font-weight: 600;
+  font-weight: bold;
   font-size: 1.1rem;
-  color: var(--color-primary);
-  border-top: 1px solid var(--color-border);
+  border-bottom: none;
+  border-top: 2px solid var(--color-primary);
   padding-top: 0.5rem;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
 }
 
-.booking-form button[type='submit'] {
-  width: 100%;
-  padding: 1rem;
-  background-color: var(--color-primary);
-  color: white;
+.campsite-booking-form button[type='submit'] {
+  background-color: var(--color-button-bg);
+  color: var(--color-button-text);
   border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  border-radius: 4px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-bottom: 0.5rem;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  margin-top: 0.4rem;
 }
 
-.booking-form button[type='submit']:hover {
-  background-color: var(--color-primary-dark);
+.campsite-booking-form button[type='submit']:hover {
+  background-color: var(--color-button-hover);
 }
 
-.booking-form button[type='submit']:active {
+.campsite-booking-form button[type='submit']:active {
   transform: translateY(1px);
 }
 
 .cancel-booking-button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #6b7280;
-  color: white;
+  background-color: var(--color-breadcrumb-text);
+  color: var(--color-button-text);
   border: none;
   border-radius: 4px;
-  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  margin-top: 0.4rem;
 }
 
 .cancel-booking-button:hover {
-  background-color: #4b5563;
+  background-color: var(--color-breadcrumb-text);
+  opacity: 0.8;
 }
 
 /* Constrain form inputs within booking section */
 .booking-section .form-field {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  margin-bottom: 0.75rem;
 }
 
 .booking-section .form-input,
-.booking-section .form-select,
-.booking-section .form-textarea {
+.booking-section .form-select {
   width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  padding: 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .booking-section .date-range-picker {
   width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
 }
 
 .booking-section .date-range-picker-input {
   width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  padding: 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .booking-section .date-range-picker-calendar {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px var(--color-card-shadow);
 }
 
-/* Safety Warning Styles */
-.booking-form-safety-warning {
-  background-color: #fef3c7;
-  border: 1px solid #f59e0b;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
+/* Safety Warning Styles - using campsite-booking-safety-warning class */
+
+.campsite-booking-safety-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: #856404;
 }
 
 .safety-warning-header {
@@ -537,33 +574,32 @@
 
 .safety-warning-header h4 {
   margin: 0;
-  color: #92400e;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
-.booking-form-safety-warning p {
-  margin: 0.25rem 0;
-  color: #92400e;
-  font-size: 0.9rem;
-  line-height: 1.4;
+.campsite-booking-safety-warning p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
 }
 
 .safety-warning-note {
   font-style: italic;
   opacity: 0.8;
-  margin-top: 0.5rem !important;
+  font-size: 0.9rem;
 }
 
-/* Dark theme support for safety warning */
-.dark-theme .booking-form-safety-warning {
-  background-color: #451a03;
-  border-color: #f59e0b;
+/* Dark theme styles for safety warnings are now defined with campsite-booking-safety-warning class */
+
+.dark-theme .campsite-booking-safety-warning {
+  background-color: #2d3748;
+  border-color: #4a5568;
+  color: #e2e8f0;
 }
 
 .dark-theme .safety-warning-header h4,
-.dark-theme .booking-form-safety-warning p {
-  color: #fbbf24;
+.dark-theme .campsite-booking-safety-warning p {
+  color: #e2e8f0;
 }
 
 .back-to-campground {
@@ -665,7 +701,7 @@
   }
 
   .admin-actions {
-    align-self: flex-end;
+    align-self: flex-start;
   }
 
   .edit-button,
@@ -681,29 +717,31 @@
 
   .campsite-main-content {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   .campsite-booking-column {
     position: static;
-    order: -1;
   }
 
   .booking-section {
-    max-width: 100%;
-  }
-
-  .booking-form-container {
     margin-top: 1rem;
   }
 
-  .booking-form {
-    gap: 1rem;
+  .campsite-booking-form-container {
+    margin-top: 0.25rem;
   }
 
-  .booking-form-date-field .date-range-picker-calendar {
-    width: 100%;
-    max-width: 300px;
+  .campsite-booking-form {
+    padding: 0.75rem;
+  }
+
+  .campsite-booking-date-field .date-range-picker-calendar {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
   }
 }
 
@@ -721,23 +759,23 @@
     height: 45px;
   }
 
-  .booking-form-container {
-    margin-top: 1rem;
+  .campsite-booking-form-container {
+    padding: 0.5rem;
   }
 
-  .booking-form {
-    gap: 0.75rem;
+  .campsite-booking-form {
+    gap: 0.5rem;
   }
 
-  .booking-form-date-field .date-range-picker-label,
-  .booking-form-date-field .date-range-picker-input,
-  .booking-form-guests-field label,
-  .booking-form-guests-field input {
+  .campsite-booking-date-field .date-range-picker-label,
+  .campsite-booking-date-field .date-range-picker-input,
+  .campsite-booking-guests-field label,
+  .campsite-booking-guests-field input {
     font-size: 0.9rem;
   }
 
-  .booking-form-price {
-    padding: 0.5rem;
+  .campsite-booking-price {
+    font-size: 1rem;
   }
 
   .price-breakdown {
@@ -745,29 +783,29 @@
   }
 
   .price-line {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   .price-line.total {
     font-size: 1rem;
   }
 
-  .booking-form-price p {
-    font-size: 0.9rem;
-  }
-
-  .booking-form button[type='submit'] {
-    padding: 0.75rem;
+  .campsite-booking-price p {
     font-size: 1rem;
   }
 
+  .campsite-booking-form button[type='submit'] {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
   .cancel-booking-button {
-    padding: 0.5rem;
+    padding: 0.5rem 0.6rem;
     font-size: 0.9rem;
   }
 
   .cancel-booking-button,
-  .book-button {
-    font-size: 1rem;
+  .campsite-booking-form button[type='submit'] {
+    width: 100%;
   }
 }

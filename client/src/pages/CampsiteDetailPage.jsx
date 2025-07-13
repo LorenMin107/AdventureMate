@@ -454,7 +454,7 @@ const CampsiteDetailPage = () => {
 
                 {currentUser ? (
                   showBookingForm ? (
-                    <div className="booking-form-container">
+                    <div className="campsite-booking-form-container">
                       {/* Show only one error message at a time - prioritize safety alerts */}
                       {(() => {
                         const { hasAcknowledgedAll, unacknowledgedAlerts } =
@@ -466,7 +466,7 @@ const CampsiteDetailPage = () => {
                         // Show safety alert warning if there are unacknowledged alerts
                         if (hasRequiredAlerts && !hasAcknowledgedAll) {
                           return (
-                            <div className="booking-form-safety-warning">
+                            <div className="campsite-booking-safety-warning">
                               <div className="safety-warning-header">
                                 <span className="safety-warning-icon">⚠️</span>
                                 <h4>Safety Alert Required</h4>
@@ -501,23 +501,23 @@ const CampsiteDetailPage = () => {
                         onSubmit={handleBookingSubmit}
                         submitButtonText="Book Now"
                         showSubmitButton={true}
-                        className="booking-form"
+                        className="campsite-booking-form"
                         errorMessage="" // Prevent Form component from showing its own error
                       >
-                        <div className="booking-form-dates">
+                        <div className="campsite-booking-dates">
                           <DateRangePicker
                             startDateName="startDate"
                             endDateName="endDate"
                             label="Select Check-in and Check-out Dates"
                             minDate={tomorrow}
                             required
-                            className="booking-form-date-field"
+                            className="campsite-booking-date-field"
                             onStartDateChange={(date) => setSelectedStartDate(date)}
                             onEndDateChange={(date) => setSelectedEndDate(date)}
                           />
                         </div>
 
-                        <div className="booking-form-guests">
+                        <div className="campsite-booking-guests">
                           <Input
                             type="number"
                             name="guests"
@@ -526,11 +526,11 @@ const CampsiteDetailPage = () => {
                             max={campsite.capacity || 10}
                             defaultValue={1}
                             onChange={(e) => setGuests(parseInt(e.target.value, 10))}
-                            className="booking-form-guests-field"
+                            className="campsite-booking-guests-field"
                           />
                         </div>
 
-                        <div className="booking-form-price">
+                        <div className="campsite-booking-price">
                           <div className="price-breakdown">
                             <div className="price-line">
                               <span>Price per night:</span>
