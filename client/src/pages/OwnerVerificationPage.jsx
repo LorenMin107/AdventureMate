@@ -48,7 +48,7 @@ const OwnerVerificationPage = () => {
       <div className="verification-container">
         <div className="verification-header">
           <h1>Owner Account Verification</h1>
-          <p>Thank you for applying to become a campground owner on MyanCamp.</p>
+          <p>Thank you for applying to become a campground owner on AdventureMate.</p>
         </div>
 
         <div className={`verification-status ${status}`}>
@@ -127,7 +127,7 @@ const OwnerVerificationPage = () => {
                 <Link to="/owner/register" className="btn btn-primary">
                   Update Application
                 </Link>
-                <a href="mailto:support@myancamp.com" className="btn btn-secondary">
+                <a href="mailto:support@adventuremate.com" className="btn btn-secondary">
                   Contact Support
                 </a>
               </div>
@@ -146,7 +146,7 @@ const OwnerVerificationPage = () => {
                 <Link to="/owner/register" className="btn btn-primary">
                   Apply as Owner
                 </Link>
-                <a href="mailto:support@myancamp.com" className="btn btn-secondary">
+                <a href="mailto:support@adventuremate.com" className="btn btn-secondary">
                   Contact Support
                 </a>
               </div>
@@ -156,7 +156,7 @@ const OwnerVerificationPage = () => {
 
         <div className="verification-footer">
           <p>
-            Have questions? <a href="mailto:support@myancamp.com">Contact our support team</a>
+            Have questions? <a href="mailto:support@adventuremate.com">Contact our support team</a>
           </p>
         </div>
       </div>

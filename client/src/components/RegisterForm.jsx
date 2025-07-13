@@ -215,7 +215,7 @@ const RegisterForm = () => {
         navigate('/verify-email-required');
       } else {
         // This case is unlikely but handled for completeness
-        addSuccessMessage('Registration successful! Welcome to MyanCamp.');
+        addSuccessMessage('Registration successful! Welcome to AdventureMate.');
         navigate('/');
       }
     } catch (err) {
@@ -259,10 +259,10 @@ const RegisterForm = () => {
   return (
     <div className="register-form-container">
       <div className="form-logo">
-        <span className="logo-text">MyanCamp</span>
+        <span className="logo-text">AdventureMate</span>
       </div>
 
-      <h2>Sign up for MyanCamp</h2>
+      <h2>Sign up for AdventureMate</h2>
 
       {(formError || error) && <div className="error-message">{formError || error}</div>}
 

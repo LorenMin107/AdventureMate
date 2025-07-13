@@ -648,7 +648,7 @@ const OwnerCreateProfilePage = () => {
                 Already have an owner account? <Link to="/owner/dashboard">Go to Dashboard</Link>
               </p>
               <p>
-                Need help? <a href="mailto:support@myancamp.com">Contact Support</a>
+                Need help? <a href="mailto:support@adventuremate.com">Contact Support</a>
               </p>
             </div>
           </div>

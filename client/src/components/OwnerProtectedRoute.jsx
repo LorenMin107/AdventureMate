@@ -123,7 +123,7 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
           {ownerProfile?.verificationStatus === 'suspended' && (
             <div className="verification-message">
               <p>Your owner account has been suspended. Please contact support for assistance.</p>
-              <a href="mailto:support@myancamp.com" className="support-link">
+              <a href="mailto:support@adventuremate.com" className="support-link">
                 Contact Support
               </a>
             </div>
@@ -139,7 +139,7 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
       <div className="owner-account-suspended">
         <h2>Account Suspended</h2>
         <p>Your owner account has been suspended. Please contact support for assistance.</p>
-        <a href="mailto:support@myancamp.com" className="support-link">
+        <a href="mailto:support@adventuremate.com" className="support-link">
           Contact Support
         </a>
       </div>

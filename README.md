@@ -64,6 +64,16 @@ AdventureMate is a comprehensive full-stack web application for discovering, boo
 - **Location-based**: Weather data fetched based on campground coordinates
 - **Error Handling**: Graceful fallback when weather data is unavailable
 
+### 🚨 Safety Alerts System
+
+- **Safety Alert Management**: Complete CRUD operations for safety alerts with role-based permissions
+- **Alert Acknowledgment**: Users must acknowledge safety alerts before booking campsites
+- **Permission System**: Only campground owners and admins can create and manage alerts
+- **Integration**: Safety alerts prominently displayed on campground and campsite pages
+- **Caching**: Redis-based caching for improved performance and reduced database load
+- **Validation**: Comprehensive input validation and error handling for all alert operations
+- **User Experience**: Clear alert display with acknowledgment tracking and management
+
 ### 🗺️ Enhanced Map Popup System
 
 - **Smart Pricing Display**: Intelligent pricing information based on campground status
@@ -78,6 +88,7 @@ AdventureMate is a comprehensive full-stack web application for discovering, boo
 - **Content Management**: Proper text truncation and overflow handling for long addresses
 - **Dynamic Positioning**: Smart popup positioning to avoid edge clipping
 - **Performance Optimized**: Efficient data loading with backend campsite population
+- **Backend Integration**: Optimized API endpoints with campsite data population for efficient frontend rendering
 
 ### For Campground Owners
 
@@ -101,6 +112,13 @@ AdventureMate is a comprehensive full-stack web application for discovering, boo
   - Accept, reject, or modify reservations
   - Customer communication tools
   - Calendar view for availability
+
+- **Safety Alerts Management**
+
+  - Create and manage safety alerts for campgrounds
+  - Set alert acknowledgment requirements
+  - Track user acknowledgments
+  - Alert history and management
 
 - **Owner Verification System**
   - Secure owner registration process
@@ -129,6 +147,7 @@ AdventureMate is a comprehensive full-stack web application for discovering, boo
   - Moderate user reviews and comments
   - Handle reports and disputes
   - Quality control and standards enforcement
+  - Manage safety alerts across all campgrounds
 
 - **Platform Management**
   - System configuration and settings
@@ -326,6 +345,8 @@ AdventureMate/
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
 │   │   │   ├── MapPicker.jsx  # Interactive location picker
+│   │   │   ├── SafetyAlertList.jsx  # Safety alerts display
+│   │   │   ├── SafetyAlertForm.jsx  # Safety alert creation/editing
 │   │   │   └── maps/       # Map-related components
 │   │   ├── pages/          # Page components
 │   │   ├── context/        # React context providers
@@ -338,7 +359,8 @@ AdventureMate/
 ├── config/                # Configuration management
 ├── controllers/           # Route controllers
 │   ├── api/               # API controllers
-│   │   ├── campgrounds.js # Enhanced with location validation
+│   │   ├── campgrounds.js # Enhanced with location validation and campsite population
+│   │   ├── safetyAlerts.js # Safety alerts management
 │   │   └── ownerCampgrounds.js # Owner-specific with cache invalidation
 │   ├── bookings.js        # Booking logic
 │   └── users.js           # User management
@@ -352,10 +374,12 @@ AdventureMate/
 │   ├── Booking.js        # Booking schema
 │   ├── Campground.js     # Enhanced with geometry and location fields
 │   ├── Review.js         # Review schema
+│   ├── SafetyAlert.js    # Safety alerts schema
 │   └── User.js           # User schema
 │
 ├── routes/                # Route definitions
 │   ├── api/              # API routes
+│   │   ├── safetyAlerts.js # Safety alerts routes
 │   ├── bookings.js       # Booking routes
 │   ├── campgrounds.js    # Campground routes
 │   └── users.js          # User routes
@@ -424,6 +448,15 @@ The application provides a comprehensive RESTful API with full OpenAPI 3.0 docum
   - Returns current weather and 3-day forecast
   - Cached for 15 minutes to improve performance
   - Requires valid latitude (-90 to 90) and longitude (-180 to 180)
+
+#### Safety Alerts
+
+- `GET /api/v1/safety-alerts` - List safety alerts (with optional campground filter)
+- `GET /api/v1/safety-alerts/:id` - Get safety alert details
+- `POST /api/v1/safety-alerts` - Create safety alert (owner/admin only)
+- `PUT /api/v1/safety-alerts/:id` - Update safety alert (owner/admin only)
+- `DELETE /api/v1/safety-alerts/:id` - Delete safety alert (owner/admin only)
+- `POST /api/v1/safety-alerts/:id/acknowledge` - Acknowledge safety alert (user)
 
 #### Admin
 
@@ -528,6 +561,7 @@ Ensure all required environment variables are set:
 - **Log Levels**: Error, Warn, Info, Debug
 - **Security Logging**: Authentication and authorization events
 - **Validation Error Logging**: Detailed field-level error reporting
+- **Safety Alert Logging**: Comprehensive tracking of alert creation, updates, and acknowledgments
 
 ### Monitoring
 
@@ -536,6 +570,7 @@ Ensure all required environment variables are set:
 - **Errors**: Error tracking and alerting
 - **Usage**: API usage analytics
 - **Cache Performance**: Redis cache hit/miss monitoring
+- **Safety Alerts**: Monitoring of alert effectiveness and user acknowledgment rates
 
 ## 🤝 Contributing
 
@@ -589,6 +624,9 @@ For support and questions:
 - **Email**: support@adventuremate.com
 - **Documentation**: [API Docs](http://localhost:3001/api/docs)
 - **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+- **Feature Documentation**:
+  - [Weather Integration](WEATHER-FEATURE-README.md)
+  - [Safety Alerts System](SAFETY-ALERTS-README.md)
 
 ---
 

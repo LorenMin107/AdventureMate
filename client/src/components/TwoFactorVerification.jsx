@@ -39,7 +39,7 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
   return (
     <div className="two-factor-verification-container">
       <div className="form-logo">
-        <span className="logo-text">MyanCamp</span>
+        <span className="logo-text">AdventureMate</span>
       </div>
 
       <h2>Two-Factor Authentication</h2>

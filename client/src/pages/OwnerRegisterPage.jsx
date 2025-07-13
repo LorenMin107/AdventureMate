@@ -577,7 +577,8 @@ const OwnerRegisterPage = () => {
           <div className="register-header">
             <h1>Become a Campground Owner</h1>
             <p>
-              Join MyanCamp as a verified campground owner and start earning from your property.
+              Join AdventureMate as a verified campground owner and start earning from your
+              property.
             </p>
           </div>
 
@@ -596,7 +597,7 @@ const OwnerRegisterPage = () => {
 
           <div className="register-footer">
             <p>
-              Need help? <a href="mailto:support@myancamp.com">Contact Support</a>
+              Need help? <a href="mailto:support@adventuremate.com">Contact Support</a>
             </p>
           </div>
         </div>
@@ -609,7 +610,9 @@ const OwnerRegisterPage = () => {
       <div className="register-container">
         <div className="register-header">
           <h1>Become a Campground Owner</h1>
-          <p>Join MyanCamp as a verified campground owner and start earning from your property.</p>
+          <p>
+            Join AdventureMate as a verified campground owner and start earning from your property.
+          </p>
         </div>
 
         <div className="progress-bar">
@@ -668,7 +671,7 @@ const OwnerRegisterPage = () => {
             Already have an owner account? <Link to="/owner/dashboard">Go to Dashboard</Link>
           </p>
           <p>
-            Need help? <a href="mailto:support@myancamp.com">Contact Support</a>
+            Need help? <a href="mailto:support@adventuremate.com">Contact Support</a>
           </p>
         </div>
       </div>
