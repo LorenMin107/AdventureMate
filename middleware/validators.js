@@ -28,16 +28,25 @@ const validate = (validations) => {
       return next();
     }
 
+    // Log validation errors for debugging
+    console.log('Validation errors:', errors.array());
+    console.log('Request body:', req.body);
+
     // Format validation errors
     const extractedErrors = errors.array().map((err) => ({
       field: err.param,
       message: err.msg,
     }));
 
-    // Return standardized error response
-    return ApiResponse.error('Validation Error', 'The request data failed validation', 400, {
-      errors: extractedErrors,
-    }).send(res);
+    // Return validation error response with details
+    return res.status(400).json({
+      status: 'error',
+      message: 'The request data failed validation',
+      error: 'Validation Error',
+      data: {
+        errors: extractedErrors,
+      },
+    });
   };
 };
 
@@ -178,10 +187,171 @@ const bookingValidators = {
   show: [param('id').isMongoId().withMessage('Invalid booking ID format')],
 };
 
+/**
+ * Validation schemas for forum operations
+ */
+const forumValidators = {
+  create: [
+    body('title')
+      .notEmpty()
+      .withMessage('Title is required')
+      .isLength({ min: 5, max: 200 })
+      .withMessage('Title must be between 5 and 200 characters'),
+    body('content')
+      .notEmpty()
+      .withMessage('Content is required')
+      .isLength({ min: 10, max: 5000 })
+      .withMessage('Content must be between 10 and 5000 characters'),
+    body('category')
+      .notEmpty()
+      .withMessage('Category is required')
+      .isIn([
+        'general',
+        'camping-tips',
+        'equipment',
+        'destinations',
+        'safety',
+        'reviews',
+        'questions',
+        'announcements',
+      ])
+      .withMessage('Invalid category'),
+    body('type')
+      .notEmpty()
+      .withMessage('Type is required')
+      .isIn(['discussion', 'question'])
+      .withMessage('Type must be either discussion or question'),
+    body('tags')
+      .optional()
+      .isArray()
+      .withMessage('Tags must be an array')
+      .custom((tags) => {
+        if (tags && tags.length > 10) {
+          throw new Error('Maximum 10 tags allowed');
+        }
+        if (tags) {
+          for (const tag of tags) {
+            if (typeof tag !== 'string' || tag.length > 20) {
+              throw new Error('Each tag must be a string with maximum 20 characters');
+            }
+          }
+        }
+        return true;
+      }),
+  ],
+
+  update: [
+    param('id').isMongoId().withMessage('Invalid forum post ID format'),
+    body('title')
+      .optional()
+      .isLength({ min: 5, max: 200 })
+      .withMessage('Title must be between 5 and 200 characters'),
+    body('content')
+      .optional()
+      .isLength({ min: 10, max: 5000 })
+      .withMessage('Content must be between 10 and 5000 characters'),
+    body('category')
+      .optional()
+      .isIn([
+        'general',
+        'camping-tips',
+        'equipment',
+        'destinations',
+        'safety',
+        'reviews',
+        'questions',
+        'announcements',
+      ])
+      .withMessage('Invalid category'),
+    body('tags')
+      .optional()
+      .isArray()
+      .withMessage('Tags must be an array')
+      .custom((tags) => {
+        if (tags && tags.length > 10) {
+          throw new Error('Maximum 10 tags allowed');
+        }
+        if (tags) {
+          for (const tag of tags) {
+            if (typeof tag !== 'string' || tag.length > 20) {
+              throw new Error('Each tag must be a string with maximum 20 characters');
+            }
+          }
+        }
+        return true;
+      }),
+  ],
+
+  delete: [param('id').isMongoId().withMessage('Invalid forum post ID format')],
+
+  show: [param('id').isMongoId().withMessage('Invalid forum post ID format')],
+
+  vote: [
+    param('id').isMongoId().withMessage('Invalid forum post ID format'),
+    body('voteType')
+      .notEmpty()
+      .withMessage('Vote type is required')
+      .isIn(['upvote', 'downvote'])
+      .withMessage('Vote type must be either upvote or downvote'),
+  ],
+
+  reply: [
+    param('id').isMongoId().withMessage('Invalid forum post ID format'),
+    body('content')
+      .notEmpty()
+      .withMessage('Reply content is required')
+      .isLength({ min: 5, max: 2000 })
+      .withMessage('Reply content must be between 5 and 2000 characters'),
+  ],
+
+  replyVote: [
+    param('id').isMongoId().withMessage('Invalid forum post ID format'),
+    param('replyIndex')
+      .notEmpty()
+      .withMessage('Reply index is required')
+      .isInt({ min: 0 })
+      .withMessage('Reply index must be a non-negative integer'),
+    body('voteType')
+      .notEmpty()
+      .withMessage('Vote type is required')
+      .isIn(['upvote', 'downvote'])
+      .withMessage('Vote type must be either upvote or downvote'),
+  ],
+
+  acceptAnswer: [
+    param('id').isMongoId().withMessage('Invalid forum post ID format'),
+    param('replyIndex')
+      .notEmpty()
+      .withMessage('Reply index is required')
+      .isInt({ min: 0 })
+      .withMessage('Reply index must be a non-negative integer'),
+  ],
+
+  moderate: [
+    param('id').isMongoId().withMessage('Invalid forum post ID format'),
+    body('action')
+      .notEmpty()
+      .withMessage('Moderation action is required')
+      .isIn(['pin', 'sticky', 'lock', 'close', 'delete'])
+      .withMessage('Invalid moderation action'),
+    body('reason')
+      .optional()
+      .isLength({ max: 500 })
+      .withMessage('Reason must not exceed 500 characters'),
+  ],
+};
+
+// Individual validation functions for forum
+const validateForumPost = validate(forumValidators.create);
+const validateReply = validate(forumValidators.reply);
+
 module.exports = {
   validate,
   campgroundValidators,
   reviewValidators,
   userValidators,
   bookingValidators,
+  forumValidators,
+  validateForumPost,
+  validateReply,
 };

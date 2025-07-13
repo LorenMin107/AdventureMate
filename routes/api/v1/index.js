@@ -16,6 +16,7 @@ const safetyAlertRoutes = require('./safetyAlerts');
 const campsiteSafetyAlertRoutes = require('./campsiteSafetyAlerts');
 const mapboxRoutes = require('./mapbox');
 const cloudinaryRoutes = require('./cloudinary');
+const forumRoutes = require('./forum');
 
 // Mount routes
 router.use('/campgrounds/:id/reviews', reviewRoutes);
@@ -34,5 +35,6 @@ router.use('/trips', require('./trips'));
 router.use('/weather', weatherRoutes);
 router.use('/mapbox', mapboxRoutes);
 router.use('/cloudinary', cloudinaryRoutes);
+router.use('/forum', forumRoutes);
 
 module.exports = router;

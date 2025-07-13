@@ -64,6 +64,12 @@ const OwnerCampgroundNewPage = lazy(() => import('../pages/OwnerCampgroundNewPag
 // Trip Planner page
 const TripPlannerPage = lazy(() => import('../pages/TripPlannerPage'));
 
+// Forum pages
+const ForumPage = lazy(() => import('../pages/ForumPage'));
+const ForumPostPage = lazy(() => import('../pages/ForumPostPage'));
+const ForumNewPostPage = lazy(() => import('../pages/ForumNewPostPage'));
+const ForumEditPage = lazy(() => import('../pages/ForumEditPage'));
+
 // Add InviteRedirect component
 const InviteRedirect = () => {
   const { tripId } = useParams();
@@ -551,6 +557,52 @@ const routes = [
             element: (
               <Suspense fallback={<LoadingFallback />}>
                 <TripPlannerPage />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+
+      // Forum routes
+      {
+        path: 'forum',
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <ForumPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: ':id',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <ForumPostPage />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+
+      // Protected forum routes
+      {
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: 'forum/new',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <ForumNewPostPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'forum/:id/edit',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <ForumEditPage />
               </Suspense>
             ),
           },

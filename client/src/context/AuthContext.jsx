@@ -143,7 +143,7 @@ export const AuthProvider = ({ children }) => {
         logInfo('Auth state change detected, clearing user data');
         setCurrentUser(null);
         setRequiresTwoFactor(false);
-        dispatchAuthStateChange(false);
+        // REMOVED: dispatchAuthStateChange(false); - This was causing infinite loop
       }
     };
     window.addEventListener('authStateChange', handleAuthStateChange);

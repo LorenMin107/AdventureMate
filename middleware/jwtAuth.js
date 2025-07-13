@@ -20,6 +20,12 @@ const publicApiEndpoints = [
 
   // Reviews
   { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/reviews\/?$/ },
+
+  // Forum (read-only access for guests)
+  { method: 'GET', pattern: /^\/api\/v1\/forum\/?(\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/forum\/categories\/?(\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/forum\/stats\/?(\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/forum\/[^\/]+\/?(\?.*)?$/ },
 ];
 
 /**
