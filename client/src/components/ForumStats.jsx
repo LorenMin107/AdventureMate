@@ -1,5 +1,6 @@
 import { useTheme } from '../context/ThemeContext';
 import { getRelativeTime } from '../utils/formatDate';
+import { forumCSS } from '../utils/cssIsolation';
 import './ForumStats.css';
 
 const ForumStats = ({ stats, error, isLoading }) => {
@@ -9,8 +10,8 @@ const ForumStats = ({ stats, error, isLoading }) => {
   if (isLoading) {
     return (
       <div className={`forum-stats ${theme}`}>
-        <div className="stats-loading">
-          <div className="loading-spinner"></div>
+        <div className="forum-stats-loading">
+          <div className="forum-loading-spinner"></div>
           <p>Loading stats...</p>
         </div>
       </div>
@@ -21,8 +22,8 @@ const ForumStats = ({ stats, error, isLoading }) => {
   if (error) {
     return (
       <div className={`forum-stats ${theme}`}>
-        <div className="stats-loading">
-          <div className="stats-error-icon">⚠️</div>
+        <div className="forum-stats-loading">
+          <div className="forum-stats-error-icon">⚠️</div>
           <p>Unable to load stats</p>
         </div>
       </div>
@@ -33,8 +34,8 @@ const ForumStats = ({ stats, error, isLoading }) => {
   if (!stats || !stats.stats) {
     return (
       <div className={`forum-stats ${theme}`}>
-        <div className="stats-loading">
-          <div className="loading-spinner"></div>
+        <div className="forum-stats-loading">
+          <div className="forum-loading-spinner"></div>
           <p>Loading stats...</p>
         </div>
       </div>
@@ -45,52 +46,52 @@ const ForumStats = ({ stats, error, isLoading }) => {
 
   return (
     <div className={`forum-stats ${theme}`}>
-      <div className="stats-header">
+      <div className="forum-stats-header">
         <h3>Forum Statistics</h3>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📝</div>
-          <div className="stat-content">
-            <div className="stat-value">{forumStats.totalPosts}</div>
-            <div className="stat-label">Total Posts</div>
+      <div className="forum-stats-grid">
+        <div className="forum-stat-card">
+          <div className="forum-stat-icon">📝</div>
+          <div className="forum-stat-content">
+            <div className="forum-stat-value">{forumStats.totalPosts}</div>
+            <div className="forum-stat-label">Total Posts</div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon">💬</div>
-          <div className="stat-content">
-            <div className="stat-value">{forumStats.totalReplies}</div>
-            <div className="stat-label">Total Replies</div>
+        <div className="forum-stat-card">
+          <div className="forum-stat-icon">💬</div>
+          <div className="forum-stat-content">
+            <div className="forum-stat-value">{forumStats.totalReplies}</div>
+            <div className="forum-stat-label">Total Replies</div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon">👁️</div>
-          <div className="stat-content">
-            <div className="stat-value">{forumStats.totalViews}</div>
-            <div className="stat-label">Total Views</div>
+        <div className="forum-stat-card">
+          <div className="forum-stat-icon">👁️</div>
+          <div className="forum-stat-content">
+            <div className="forum-stat-value">{forumStats.totalViews}</div>
+            <div className="forum-stat-label">Total Views</div>
           </div>
         </div>
 
-        <div className="stat-card">
-          <div className="stat-icon">👍</div>
-          <div className="stat-content">
-            <div className="stat-value">{forumStats.totalVotes}</div>
-            <div className="stat-label">Total Votes</div>
+        <div className="forum-stat-card">
+          <div className="forum-stat-icon">👍</div>
+          <div className="forum-stat-content">
+            <div className="forum-stat-value">{forumStats.totalVotes}</div>
+            <div className="forum-stat-label">Total Votes</div>
           </div>
         </div>
       </div>
 
       {categoryStats && categoryStats.length > 0 && (
-        <div className="category-stats">
+        <div className="forum-category-stats">
           <h4>Popular Categories</h4>
-          <div className="category-list">
+          <div className="forum-category-list">
             {categoryStats.slice(0, 5).map((category) => (
-              <div key={category._id} className="category-item">
-                <span className="category-name">{category._id.replace('-', ' ')}</span>
-                <span className="category-count">{category.count}</span>
+              <div key={category._id} className="forum-category-item">
+                <span className="forum-category-name">{category._id.replace('-', ' ')}</span>
+                <span className="forum-category-count">{category.count}</span>
               </div>
             ))}
           </div>
@@ -98,19 +99,21 @@ const ForumStats = ({ stats, error, isLoading }) => {
       )}
 
       {recentActivity && recentActivity.length > 0 && (
-        <div className="recent-activity">
+        <div className="forum-recent-activity">
           <h4>Recent Activity</h4>
-          <div className="activity-list">
+          <div className="forum-activity-list">
             {recentActivity.map((activity, index) => (
-              <div key={index} className="activity-item">
-                <div className="activity-title">
+              <div key={index} className="forum-activity-item">
+                <div className="forum-activity-title">
                   {activity.title.length > 50
                     ? `${activity.title.substring(0, 50)}...`
                     : activity.title}
                 </div>
-                <div className="activity-meta">
-                  <span className="activity-author">by {activity.author?.username}</span>
-                  <span className="activity-time">{getRelativeTime(activity.lastActivity)}</span>
+                <div className="forum-activity-meta">
+                  <span className="forum-activity-author">by {activity.author?.username}</span>
+                  <span className="forum-activity-time">
+                    {getRelativeTime(activity.lastActivity)}
+                  </span>
                 </div>
               </div>
             ))}

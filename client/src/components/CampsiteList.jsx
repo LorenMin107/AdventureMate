@@ -153,13 +153,16 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
             </Link>
 
             <div className="campsite-actions">
-              <Link to={`/campsites/${campsite._id}`} className="book-button">
+              <Link to={`/campsites/${campsite._id}`} className="common-btn common-btn-primary">
                 View
               </Link>
 
               {isOwner && (
                 <>
-                  <Link to={`/campsites/${campsite._id}/edit`} className="edit-button">
+                  <Link
+                    to={`/campsites/${campsite._id}/edit`}
+                    className="common-btn common-btn-secondary"
+                  >
                     Edit
                   </Link>
                   <button
@@ -167,7 +170,7 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
                       e.stopPropagation();
                       handleDeleteCampsite(campsite._id);
                     }}
-                    className="delete-button"
+                    className="common-btn common-btn-danger"
                   >
                     Delete
                   </button>

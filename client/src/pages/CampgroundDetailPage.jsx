@@ -401,10 +401,10 @@ const CampgroundDetailPage = () => {
 
         {isOwner && (
           <div className="admin-actions">
-            <Link to={`/campgrounds/${id}/edit`} className="edit-button">
+            <Link to={`/campgrounds/${id}/edit`} className="common-btn common-btn-secondary">
               Edit
             </Link>
-            <button onClick={handleDelete} className="delete-button">
+            <button onClick={handleDelete} className="common-btn common-btn-danger">
               Delete
             </button>
           </div>
@@ -538,7 +538,10 @@ const CampgroundDetailPage = () => {
 
             {!currentUser && (
               <div className="login-to-book">
-                <Link to={`/login?redirect=/campgrounds/${id}`} className="book-button">
+                <Link
+                  to={`/login?redirect=/campgrounds/${id}`}
+                  className="common-btn common-btn-primary"
+                >
                   Log in to book
                 </Link>
                 <p className="login-message">You need to be logged in to book a campsite</p>

@@ -1,4 +1,4 @@
-/* Forum Post Card Styles */
+/* Forum Post Card Styles - Scoped to prevent conflicts */
 .forum-post-card {
   background-color: var(--color-card-bg);
   border: 1px solid var(--color-border);
@@ -7,6 +7,9 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  /* Add CSS isolation */
+  isolation: isolate;
+  contain: layout style paint;
 }
 
 .forum-post-card:hover {
@@ -196,7 +199,7 @@
   gap: 1rem;
 }
 
-.stat-item {
+.forum-stat-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -205,7 +208,7 @@
   font-size: 0.85rem;
 }
 
-.stat-icon {
+.forum-stat-icon {
   font-size: 1rem;
 }
 

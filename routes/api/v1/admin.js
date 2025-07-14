@@ -233,6 +233,7 @@ router.delete(
 
 // Enhanced Analytics Routes
 router.get('/dashboard/enhanced', hasRole(['admin']), catchAsync(admin.getEnhancedDashboardStats));
+router.get('/analytics/business', hasRole(['admin']), catchAsync(admin.getBusinessAnalytics));
 
 // Weather System Monitoring Routes
 router.get('/weather/stats', hasRole(['admin']), catchAsync(admin.getWeatherStats));

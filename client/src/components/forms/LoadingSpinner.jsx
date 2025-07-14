@@ -4,7 +4,7 @@ import './FormStyles.css';
 
 /**
  * Reusable loading spinner component
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.size - Size of the spinner (small, medium, large)
  * @param {string} props.color - Color of the spinner
@@ -19,7 +19,7 @@ const LoadingSpinner = ({
   label = 'Loading...',
 }) => {
   return (
-    <div 
+    <div
       className={`spinner spinner-${size} spinner-${color} ${className}`}
       role="status"
       aria-label={label}

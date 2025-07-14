@@ -102,11 +102,19 @@ const useOwners = () => {
   };
 
   // Get owner analytics
-  const useOwnerAnalytics = (period = '30d', options = {}) => {
+  const useOwnerAnalytics = (params = {}, options = {}) => {
+    const { period = '30d', campground } = params;
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('period', period);
+    if (campground) {
+      queryParams.append('campgroundId', campground);
+    }
+
     return useQuery({
-      queryKey: ['owner', 'analytics', period],
+      queryKey: ['owner', 'analytics', period, campground],
       queryFn: async () => {
-        const { data } = await apiClient.get(`/owners/analytics?period=${period}`);
+        const { data } = await apiClient.get(`/owners/analytics?${queryParams}`);
         return data;
       },
       ...options,

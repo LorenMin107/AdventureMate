@@ -7,7 +7,6 @@ import apiClient from '../utils/api';
 import ForumPostCard from '../components/ForumPostCard';
 import ForumFilter from '../components/ForumFilter';
 import ForumStats from '../components/ForumStats';
-import CSSIsolationWrapper from '../components/CSSIsolationWrapper';
 import { logError } from '../utils/logger';
 import './ForumPage.css';
 
@@ -101,26 +100,26 @@ const ForumPage = () => {
   if (error) {
     logError('Error loading forum posts', error);
     return (
-      <CSSIsolationWrapper section="forum" className={`forum-page ${theme}`}>
+      <div className={`forum-page forum-page-scope ${theme}`}>
         <div className="forum-error">
           <h2>Error Loading Forum</h2>
           <p>Failed to load forum posts. Please try again.</p>
-          <button onClick={() => refetch()} className="forum-btn forum-btn-primary">
+          <button onClick={() => refetch()} className="btn btn-primary">
             Retry
           </button>
         </div>
-      </CSSIsolationWrapper>
+      </div>
     );
   }
 
   return (
-    <CSSIsolationWrapper section="forum" className={`forum-page ${theme}`}>
+    <div className={`forum-page forum-page-scope ${theme}`}>
       <div className="forum-header">
         <div className="forum-header-content">
           <h1>Community Forum</h1>
           <p>Connect with fellow campers, share tips, and get answers to your questions</p>
           {isAuthenticated && (
-            <Link to="/forum/new" className="forum-btn forum-btn-primary">
+            <Link to="/forum/new" className="btn btn-primary">
               Create New Post
             </Link>
           )}
@@ -187,7 +186,7 @@ const ForumPage = () => {
                     : 'Be the first to start a discussion!'}
                 </p>
                 {isAuthenticated && (
-                  <Link to="/forum/new" className="forum-btn forum-btn-primary">
+                  <Link to="/forum/new" className="btn btn-primary">
                     Create First Post
                   </Link>
                 )}
@@ -228,7 +227,7 @@ const ForumPage = () => {
           </div>
         </div>
       </div>
-    </CSSIsolationWrapper>
+    </div>
   );
 };
 

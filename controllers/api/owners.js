@@ -461,7 +461,7 @@ const getOwnerDashboard = async (req, res) => {
  */
 const getOwnerAnalytics = async (req, res) => {
   try {
-    const { period = '30d', startDate, endDate } = req.query;
+    const { period = '30d', startDate, endDate, campgroundId } = req.query;
 
     const owner = await Owner.findOne({ user: req.user._id });
     if (!owner) {
@@ -469,6 +469,18 @@ const getOwnerAnalytics = async (req, res) => {
         error: 'Not Found',
         message: 'Owner profile not found',
       });
+    }
+
+    // Determine which campgrounds to analyze
+    let campgroundsToAnalyze = owner.campgrounds;
+    if (campgroundId) {
+      campgroundsToAnalyze = owner.campgrounds.filter((camp) => camp.toString() === campgroundId);
+      if (campgroundsToAnalyze.length === 0) {
+        return res.status(404).json({
+          error: 'Not Found',
+          message: 'Campground not found or not owned by you',
+        });
+      }
     }
 
     // Calculate date range
@@ -486,11 +498,19 @@ const getOwnerAnalytics = async (req, res) => {
       dateFilter = { createdAt: { $gte: startOfPeriod } };
     }
 
-    // Revenue analytics
-    const revenueAnalytics = await Booking.aggregate([
+    // Calculate previous period for comparison
+    const days = period === '7d' ? 7 : period === '30d' ? 30 : period === '90d' ? 90 : 365;
+    const previousPeriodStart = new Date(Date.now() - days * 2 * 24 * 60 * 60 * 1000);
+    const currentPeriodStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const previousPeriodFilter = {
+      createdAt: { $gte: previousPeriodStart, $lt: currentPeriodStart },
+    };
+
+    // Current period revenue and bookings
+    const currentPeriodStats = await Booking.aggregate([
       {
         $match: {
-          campground: { $in: owner.campgrounds },
+          campground: { $in: campgroundsToAnalyze },
           status: 'confirmed',
           paid: true,
           ...dateFilter,
@@ -498,25 +518,50 @@ const getOwnerAnalytics = async (req, res) => {
       },
       {
         $group: {
-          _id: {
-            year: { $year: '$createdAt' },
-            month: { $month: '$createdAt' },
-            day: { $dayOfMonth: '$createdAt' },
-          },
-          revenue: { $sum: '$totalPrice' },
-          bookings: { $sum: 1 },
+          _id: null,
+          totalRevenue: { $sum: '$totalPrice' },
+          totalBookings: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Previous period revenue and bookings
+    const previousPeriodStats = await Booking.aggregate([
+      {
+        $match: {
+          campground: { $in: campgroundsToAnalyze },
+          status: 'confirmed',
+          paid: true,
+          ...previousPeriodFilter,
         },
       },
       {
-        $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 },
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$totalPrice' },
+          totalBookings: { $sum: 1 },
+        },
       },
     ]);
+
+    const current = currentPeriodStats[0] || { totalRevenue: 0, totalBookings: 0 };
+    const previous = previousPeriodStats[0] || { totalRevenue: 0, totalBookings: 0 };
+
+    // Calculate percentage changes
+    const revenueChange =
+      previous.totalRevenue > 0
+        ? ((current.totalRevenue - previous.totalRevenue) / previous.totalRevenue) * 100
+        : 0;
+    const bookingsChange =
+      previous.totalBookings > 0
+        ? ((current.totalBookings - previous.totalBookings) / previous.totalBookings) * 100
+        : 0;
 
     // Booking status distribution
     const bookingStatusStats = await Booking.aggregate([
       {
         $match: {
-          campground: { $in: owner.campgrounds },
+          campground: { $in: campgroundsToAnalyze },
           ...dateFilter,
         },
       },
@@ -528,11 +573,17 @@ const getOwnerAnalytics = async (req, res) => {
       },
     ]);
 
+    // Convert to object format
+    const bookingStatus = {};
+    bookingStatusStats.forEach((stat) => {
+      bookingStatus[stat._id] = stat.count;
+    });
+
     // Campground performance
     const campgroundPerformance = await Booking.aggregate([
       {
         $match: {
-          campground: { $in: owner.campgrounds },
+          campground: { $in: campgroundsToAnalyze },
           status: 'confirmed',
           paid: true,
           ...dateFilter,
@@ -569,14 +620,133 @@ const getOwnerAnalytics = async (req, res) => {
       },
     ]);
 
-    res.json({
-      period,
-      analytics: {
-        revenue: revenueAnalytics,
-        bookingStatus: bookingStatusStats,
-        campgroundPerformance,
+    // Get campground list for dropdown
+    const campgroundsList = await Campground.find(
+      { _id: { $in: owner.campgrounds } },
+      'title _id'
+    ).sort({ title: 1 });
+
+    // Get reviews data
+    const reviewsStats = await Review.aggregate([
+      {
+        $lookup: {
+          from: 'campgrounds',
+          localField: 'campground',
+          foreignField: '_id',
+          as: 'campgroundData',
+        },
       },
-    });
+      {
+        $match: {
+          'campgroundData._id': { $in: campgroundsToAnalyze },
+          ...dateFilter,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: '$rating' },
+          totalReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const reviews = reviewsStats[0] || { averageRating: 0, totalReviews: 0 };
+
+    // Calculate average booking value and duration
+    const bookingMetrics = await Booking.aggregate([
+      {
+        $match: {
+          campground: { $in: campgroundsToAnalyze },
+          status: 'confirmed',
+          paid: true,
+          ...dateFilter,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          averageValue: { $avg: '$totalPrice' },
+          totalBookings: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const bookingMetricsData = bookingMetrics[0] || { averageValue: 0, totalBookings: 0 };
+
+    // Calculate cancellation rate
+    const cancellationStats = await Booking.aggregate([
+      {
+        $match: {
+          campground: { $in: campgroundsToAnalyze },
+          ...dateFilter,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalBookings: { $sum: 1 },
+          cancelledBookings: {
+            $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
+          },
+        },
+      },
+    ]);
+
+    const cancellationData = cancellationStats[0] || { totalBookings: 0, cancelledBookings: 0 };
+    const cancellationRate =
+      cancellationData.totalBookings > 0
+        ? (cancellationData.cancelledBookings / cancellationData.totalBookings) * 100
+        : 0;
+
+    // Prepare response data
+    const responseData = {
+      overview: {
+        occupancyRate: 0, // Would need campsite data to calculate
+        occupancyChange: 0,
+      },
+      revenue: {
+        total: current.totalRevenue,
+        change: revenueChange,
+        byCampground: campgroundPerformance.map((camp) => ({
+          name: camp.campgroundName,
+          amount: camp.revenue,
+        })),
+      },
+      bookings: {
+        total: current.totalBookings,
+        change: bookingsChange,
+        confirmed: bookingStatus.confirmed || 0,
+        pending: bookingStatus.pending || 0,
+        cancelled: bookingStatus.cancelled || 0,
+        completed: bookingStatus.completed || 0,
+        averageValue: bookingMetricsData.averageValue,
+        averageDuration: 1, // Would need check-in/check-out dates to calculate
+        cancellationRate: cancellationRate,
+        repeatCustomerRate: 0, // Would need user analysis to calculate
+      },
+      campgrounds: {
+        list: campgroundsList,
+      },
+      reviews: {
+        averageRating: reviews.averageRating,
+        totalReviews: reviews.totalReviews,
+      },
+      trends: {
+        // Would need time-series data to calculate trends
+      },
+      topPerformers: {
+        campgrounds: campgroundPerformance.slice(0, 5).map((camp) => ({
+          name: camp.campgroundName,
+          revenue: camp.revenue,
+          bookings: camp.bookings,
+          rating: reviews.averageRating,
+          occupancyRate: 0, // Would need campsite data to calculate
+        })),
+      },
+    };
+
+    res.json(responseData);
   } catch (error) {
     logError('Error fetching owner analytics', error, {
       endpoint: '/api/owners/analytics',

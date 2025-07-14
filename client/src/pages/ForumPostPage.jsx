@@ -249,7 +249,7 @@ const ForumPostPage = () => {
             Failed to load the forum post. It may have been deleted or you may not have permission
             to view it.
           </p>
-          <Link to="/forum" className="btn btn-primary">
+          <Link to="/forum" className="forum-btn forum-btn-primary">
             Back to Forum
           </Link>
         </div>
@@ -345,22 +345,22 @@ const ForumPostPage = () => {
           </div>
 
           <div className="post-stats">
-            <div className="stat-item">
-              <span className="stat-icon">👁️</span>
-              <span className="stat-value">{post.views} views</span>
+            <div className="forum-stat-item">
+              <span className="forum-stat-icon">👁️</span>
+              <span className="forum-stat-value">{post.views} views</span>
             </div>
-            <div className="stat-item">
-              <span className="stat-icon">💬</span>
-              <span className="stat-value">{post.replies.length} replies</span>
+            <div className="forum-stat-item">
+              <span className="forum-stat-icon">💬</span>
+              <span className="forum-stat-value">{post.replies.length} replies</span>
             </div>
           </div>
 
           {(currentUser?._id === post.author?._id || currentUser?.isAdmin) && (
             <div className="post-actions-buttons">
-              <Link to={`/forum/${id}/edit`} className="btn btn-secondary">
+              <Link to={`/forum/${id}/edit`} className="forum-btn forum-btn-secondary">
                 Edit
               </Link>
-              <button onClick={handleDeletePost} className="btn btn-danger">
+              <button onClick={handleDeletePost} className="forum-btn forum-btn-danger">
                 Delete
               </button>
             </div>
@@ -446,7 +446,7 @@ const ForumPostPage = () => {
                     {(currentUser?._id === reply.author?._id || currentUser?.isAdmin) && (
                       <button
                         onClick={() => handleDeleteReply(index, reply)}
-                        className="btn btn-danger btn-small"
+                        className="forum-btn forum-btn-danger forum-btn-small"
                         title="Delete Reply"
                       >
                         Delete
@@ -474,7 +474,7 @@ const ForumPostPage = () => {
                 <div className="form-actions">
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="forum-btn forum-btn-primary"
                     disabled={isSubmitting || !replyContent.trim()}
                   >
                     {isSubmitting ? 'Posting...' : 'Post Reply'}

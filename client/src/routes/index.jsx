@@ -36,6 +36,7 @@ const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 // Admin components
 const AdminLayout = lazy(() => import('../components/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('../components/admin/AdminDashboard'));
+const AdminAnalyticsPage = lazy(() => import('../pages/AdminAnalyticsPage'));
 const UserList = lazy(() => import('../components/admin/UserList'));
 const UserDetail = lazy(() => import('../components/admin/UserDetail'));
 const CampgroundList = lazy(() => import('../components/admin/CampgroundList'));
@@ -416,6 +417,14 @@ const routes = [
                 element: (
                   <Suspense fallback={<LoadingFallback />}>
                     <AdminDashboard />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'analytics',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <AdminAnalyticsPage />
                   </Suspense>
                 ),
               },

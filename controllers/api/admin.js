@@ -1553,3 +1553,381 @@ module.exports.getWeatherStats = async (req, res) => {
     return ApiResponse.error('Failed to fetch weather statistics', error.message, 500).send(res);
   }
 };
+
+// Comprehensive Business Analytics for Admin
+module.exports.getBusinessAnalytics = async (req, res) => {
+  try {
+    const { period = '30d', startDate, endDate } = req.query;
+
+    // Calculate date ranges
+    const now = new Date();
+    let currentPeriodStart, currentPeriodEnd, previousPeriodStart, previousPeriodEnd;
+
+    if (startDate && endDate) {
+      currentPeriodStart = new Date(startDate);
+      currentPeriodEnd = new Date(endDate);
+      const periodDuration = currentPeriodEnd - currentPeriodStart;
+      previousPeriodStart = new Date(currentPeriodStart.getTime() - periodDuration);
+      previousPeriodEnd = new Date(currentPeriodStart.getTime());
+    } else {
+      // Default to last 30 days
+      currentPeriodEnd = now;
+      currentPeriodStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      previousPeriodStart = new Date(currentPeriodStart.getTime() - 30 * 24 * 60 * 60 * 1000);
+      previousPeriodEnd = new Date(currentPeriodStart.getTime());
+    }
+
+    const currentPeriodFilter = {
+      createdAt: { $gte: currentPeriodStart, $lte: currentPeriodEnd },
+    };
+    const previousPeriodFilter = {
+      createdAt: { $gte: previousPeriodStart, $lt: previousPeriodEnd },
+    };
+
+    // Platform Revenue Analytics
+    const currentRevenue = await Booking.aggregate([
+      {
+        $match: {
+          status: 'confirmed',
+          paid: true,
+          ...currentPeriodFilter,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$totalPrice' },
+          totalBookings: { $sum: 1 },
+          averageBookingValue: { $avg: '$totalPrice' },
+        },
+      },
+    ]);
+
+    const previousRevenue = await Booking.aggregate([
+      {
+        $match: {
+          status: 'confirmed',
+          paid: true,
+          ...previousPeriodFilter,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$totalPrice' },
+          totalBookings: { $sum: 1 },
+          averageBookingValue: { $avg: '$totalPrice' },
+        },
+      },
+    ]);
+
+    const current = currentRevenue[0] || {
+      totalRevenue: 0,
+      totalBookings: 0,
+      averageBookingValue: 0,
+    };
+    const previous = previousRevenue[0] || {
+      totalRevenue: 0,
+      totalBookings: 0,
+      averageBookingValue: 0,
+    };
+
+    // Calculate percentage changes
+    const revenueChange =
+      previous.totalRevenue > 0
+        ? ((current.totalRevenue - previous.totalRevenue) / previous.totalRevenue) * 100
+        : 0;
+    const bookingsChange =
+      previous.totalBookings > 0
+        ? ((current.totalBookings - previous.totalBookings) / previous.totalBookings) * 100
+        : 0;
+
+    // User Growth Analytics
+    const currentUsers = await User.countDocuments(currentPeriodFilter);
+    const previousUsers = await User.countDocuments(previousPeriodFilter);
+    const userGrowth =
+      previousUsers > 0 ? ((currentUsers - previousUsers) / previousUsers) * 100 : 0;
+
+    // Owner Growth Analytics
+    const currentOwners = await Owner.countDocuments(currentPeriodFilter);
+    const previousOwners = await Owner.countDocuments(previousPeriodFilter);
+    const ownerGrowth =
+      previousOwners > 0 ? ((currentOwners - previousOwners) / previousOwners) * 100 : 0;
+
+    // Campground Performance Analytics
+    const topCampgrounds = await Booking.aggregate([
+      {
+        $match: {
+          status: 'confirmed',
+          paid: true,
+          ...currentPeriodFilter,
+        },
+      },
+      {
+        $group: {
+          _id: '$campground',
+          revenue: { $sum: '$totalPrice' },
+          bookings: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: 'campgrounds',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'campground',
+        },
+      },
+      {
+        $unwind: '$campground',
+      },
+      {
+        $lookup: {
+          from: 'reviews',
+          localField: '_id',
+          foreignField: 'campground',
+          as: 'reviews',
+        },
+      },
+      {
+        $addFields: {
+          averageRating: { $avg: '$reviews.rating' },
+          reviewCount: { $size: '$reviews' },
+        },
+      },
+      {
+        $project: {
+          campgroundId: '$_id',
+          campgroundName: '$campground.title',
+          location: '$campground.location',
+          revenue: 1,
+          bookings: 1,
+          averageRating: 1,
+          reviewCount: 1,
+        },
+      },
+      {
+        $sort: { revenue: -1 },
+      },
+      {
+        $limit: 10,
+      },
+    ]);
+
+    // Revenue by Month (Last 12 months)
+    const monthlyRevenue = await Booking.aggregate([
+      {
+        $match: {
+          status: 'confirmed',
+          paid: true,
+          createdAt: { $gte: new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000) },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+          },
+          revenue: { $sum: '$totalPrice' },
+          bookings: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { '_id.year': 1, '_id.month': 1 },
+      },
+    ]);
+
+    // Booking Status Distribution
+    const bookingStatusStats = await Booking.aggregate([
+      {
+        $match: currentPeriodFilter,
+      },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // User Activity Analytics
+    const activeUsers = await Booking.aggregate([
+      {
+        $match: currentPeriodFilter,
+      },
+      {
+        $group: {
+          _id: '$user',
+          bookingCount: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          uniqueUsers: { $sum: 1 },
+          totalBookings: { $sum: '$bookingCount' },
+        },
+      },
+    ]);
+
+    // Review Analytics - All time (not period-specific)
+    const reviewStats = await Review.aggregate([
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: '$rating' },
+          totalReviews: { $sum: 1 },
+          ratingDistribution: {
+            $push: '$rating',
+          },
+        },
+      },
+    ]);
+
+    // Calculate rating distribution
+    const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    if (reviewStats[0]?.ratingDistribution) {
+      reviewStats[0].ratingDistribution.forEach((rating) => {
+        ratingDistribution[Math.floor(rating)]++;
+      });
+    }
+
+    // Also get period-specific review growth for comparison
+    const periodReviewStats = await Review.aggregate([
+      {
+        $match: currentPeriodFilter,
+      },
+      {
+        $group: {
+          _id: null,
+          periodReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const previousPeriodReviewStats = await Review.aggregate([
+      {
+        $match: previousPeriodFilter,
+      },
+      {
+        $group: {
+          _id: null,
+          periodReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const currentPeriodReviews = periodReviewStats[0]?.periodReviews || 0;
+    const previousPeriodReviews = previousPeriodReviewStats[0]?.periodReviews || 0;
+    const reviewGrowth =
+      previousPeriodReviews > 0
+        ? ((currentPeriodReviews - previousPeriodReviews) / previousPeriodReviews) * 100
+        : 0;
+
+    // Platform Health Metrics
+    const platformHealth = {
+      totalCampgrounds: await Campground.countDocuments(),
+      totalCampsites: await mongoose.model('Campsite').countDocuments(),
+      totalSafetyAlerts: await mongoose.model('SafetyAlert').countDocuments(),
+      activeSafetyAlerts: await mongoose.model('SafetyAlert').countDocuments({
+        status: 'active',
+        startDate: { $lte: now },
+        endDate: { $gte: now },
+      }),
+      totalTrips: await mongoose.model('Trip').countDocuments(),
+      publicTrips: await mongoose.model('Trip').countDocuments({ isPublic: true }),
+    };
+
+    // Application Processing Analytics
+    const applicationStats = await OwnerApplication.aggregate([
+      {
+        $match: currentPeriodFilter,
+      },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const applicationDistribution = {};
+    applicationStats.forEach((stat) => {
+      applicationDistribution[stat._id] = stat.count;
+    });
+
+    // Prepare response data
+    const analyticsData = {
+      overview: {
+        period: {
+          start: currentPeriodStart,
+          end: currentPeriodEnd,
+          label: `${currentPeriodStart.toLocaleDateString()} - ${currentPeriodEnd.toLocaleDateString()}`,
+        },
+      },
+      revenue: {
+        total: current.totalRevenue,
+        change: revenueChange,
+        averageBookingValue: current.averageBookingValue,
+        monthlyTrend: monthlyRevenue.map((item) => ({
+          month: `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`,
+          revenue: item.revenue,
+          bookings: item.bookings,
+        })),
+      },
+      bookings: {
+        total: current.totalBookings,
+        change: bookingsChange,
+        statusDistribution: bookingStatusStats.reduce((acc, stat) => {
+          acc[stat._id] = stat.count;
+          return acc;
+        }, {}),
+        activeUsers: activeUsers[0]?.uniqueUsers || 0,
+      },
+      users: {
+        total: await User.countDocuments(),
+        growth: userGrowth,
+        newUsers: currentUsers,
+        activeUsers: activeUsers[0]?.uniqueUsers || 0,
+      },
+      owners: {
+        total: await Owner.countDocuments(),
+        growth: ownerGrowth,
+        newOwners: currentOwners,
+        applications: applicationDistribution,
+      },
+      campgrounds: {
+        topPerformers: topCampgrounds,
+        total: platformHealth.totalCampgrounds,
+        totalCampsites: platformHealth.totalCampsites,
+      },
+      reviews: {
+        averageRating: reviewStats[0]?.averageRating || 0,
+        totalReviews: reviewStats[0]?.totalReviews || 0,
+        ratingDistribution,
+      },
+      platform: {
+        safetyAlerts: {
+          total: platformHealth.totalSafetyAlerts,
+          active: platformHealth.activeSafetyAlerts,
+        },
+        trips: {
+          total: platformHealth.totalTrips,
+          public: platformHealth.publicTrips,
+        },
+      },
+    };
+
+    return ApiResponse.success(analyticsData, 'Business analytics retrieved successfully').send(
+      res
+    );
+  } catch (error) {
+    logError('Error fetching business analytics', error, {
+      endpoint: '/api/v1/admin/analytics/business',
+      userId: req.user?._id,
+      query: req.query,
+    });
+    return ApiResponse.error('Failed to fetch business analytics', error.message, 500).send(res);
+  }
+};

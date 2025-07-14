@@ -15,9 +15,9 @@ export default defineConfig({
       output: {
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
-      }
-    }
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+      },
+    },
   },
   server: {
     port: 5173,
@@ -27,9 +27,9 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true,
-        rewrite: (path) => path
-      }
-    }
+        rewrite: (path) => path,
+      },
+    },
   },
   resolve: {
     alias: {
@@ -41,10 +41,22 @@ export default defineConfig({
       '@layouts': path.resolve(__dirname, 'client/src/layouts'),
       '@pages': path.resolve(__dirname, 'client/src/pages'),
       '@utils': path.resolve(__dirname, 'client/src/utils'),
-      'react-map-gl': path.resolve(__dirname, 'node_modules/react-map-gl/dist/mapbox.js')
+      'react-map-gl': path.resolve(__dirname, 'node_modules/react-map-gl/dist/mapbox.js'),
     },
-    mainFields: ['module', 'main', 'browser']
+    mainFields: ['module', 'main', 'browser'],
   },
   // Configure static asset handling
-  assetsInclude: ['**/*.jpg', '**/*.png', '**/*.svg', '**/*.gif', '**/*.webp', '**/*.avif', '**/*.woff', '**/*.woff2', '**/*.eot', '**/*.ttf', '**/*.otf']
+  assetsInclude: [
+    '**/*.jpg',
+    '**/*.png',
+    '**/*.svg',
+    '**/*.gif',
+    '**/*.webp',
+    '**/*.avif',
+    '**/*.woff',
+    '**/*.woff2',
+    '**/*.eot',
+    '**/*.ttf',
+    '**/*.otf',
+  ],
 });

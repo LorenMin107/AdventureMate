@@ -52,7 +52,9 @@
   border-radius: 8px;
 }
 
-.resend-loading, .resend-success, .resend-error {
+.resend-loading,
+.resend-success,
+.resend-error {
   margin-top: 1rem;
 }
 
@@ -96,7 +98,9 @@
   text-decoration: none;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .btn-primary {
@@ -124,13 +128,13 @@
   .verification-container {
     padding: 1.5rem;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
   }
-  
+
   .btn {
     width: 100%;
   }

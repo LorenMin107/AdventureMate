@@ -125,13 +125,13 @@ const ForumPostCard = ({ post }) => {
 
       <div className="post-footer">
         <div className="post-stats">
-          <div className="stat-item">
-            <span className="stat-icon">👁️</span>
-            <span className="stat-value">{post.views}</span>
+          <div className="forum-stat-item">
+            <span className="forum-stat-icon">👁️</span>
+            <span className="forum-stat-value">{post.views}</span>
           </div>
-          <div className="stat-item">
-            <span className="stat-icon">💬</span>
-            <span className="stat-value">{post.replyCount}</span>
+          <div className="forum-stat-item">
+            <span className="forum-stat-icon">💬</span>
+            <span className="forum-stat-value">{post.replyCount}</span>
           </div>
         </div>
 

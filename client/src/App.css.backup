@@ -38,7 +38,8 @@
   filter: drop-shadow(0 0 2em var(--color-primary));
 }
 
-.card {
+/* App-specific card styles - scoped to App component */
+.App .card {
   padding: 2em;
   margin: 2em 0;
   background-color: var(--color-card-bg);
@@ -56,7 +57,8 @@
   transition: color 0.3s ease;
 }
 
-button {
+/* App-specific button styles - scoped to App component */
+.App button {
   background-color: var(--color-button-bg);
   color: var(--color-button-text);
   border: none;
@@ -68,7 +70,7 @@ button {
     color 0.3s ease;
 }
 
-button:hover {
+.App button:hover {
   background-color: var(--color-button-hover);
 }
 

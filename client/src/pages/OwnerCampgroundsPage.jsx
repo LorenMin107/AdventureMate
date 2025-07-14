@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
+import CSSIsolationWrapper from '../components/CSSIsolationWrapper';
 import { logError } from '../utils/logger';
 import './OwnerCampgroundsPage.css';
 
@@ -13,7 +14,7 @@ import './OwnerCampgroundsPage.css';
 const OwnerCampgroundsPage = () => {
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
-  const { useOwnerCampgrounds, useDeleteCampground } = useOwners();
+  const { useOwnerCampgrounds } = useOwners();
 
   const [campgrounds, setCampgrounds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,9 +29,6 @@ const OwnerCampgroundsPage = () => {
     field: 'title',
     order: 'asc',
   });
-
-  // Initialize the delete mutation
-  const deleteCampgroundMutation = useDeleteCampground();
 
   // Fetch owner's campgrounds
   const {
@@ -75,22 +73,9 @@ const OwnerCampgroundsPage = () => {
     setSort({ field, order: newOrder });
   };
 
-  const handleDelete = async (id, title) => {
-    if (
-      !window.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)
-    ) {
-      return;
-    }
-
-    try {
-      await deleteCampgroundMutation.mutateAsync(id);
-      showMessage('Campground deleted successfully', 'success');
-      setCampgrounds(campgrounds.filter((campground) => campground._id !== id));
-      refetch();
-    } catch (err) {
-      logError('Error deleting campground', err);
-      showMessage('Failed to delete campground. Please try again later.', 'error');
-    }
+  const handleRowClick = (campgroundId) => {
+    // Navigate to the campground detail page
+    window.open(`/owner/campgrounds/${campgroundId}`, '_blank');
   };
 
   const formatDate = (dateString) => {
@@ -107,27 +92,40 @@ const OwnerCampgroundsPage = () => {
 
   if (loading) {
     return (
-      <div className="owner-loading">
-        <div className="owner-loading-spinner"></div>
-        <p>Loading your campgrounds...</p>
-      </div>
+      <CSSIsolationWrapper
+        section="owner"
+        className={`owner-campgrounds ${theme === 'dark' ? 'dark-theme' : ''}`}
+      >
+        <div className="owner-loading">
+          <div className="owner-loading-spinner"></div>
+          <p>Loading your campgrounds...</p>
+        </div>
+      </CSSIsolationWrapper>
     );
   }
 
   if (error) {
     return (
-      <div className="owner-error">
-        <h4>Error Loading Campgrounds</h4>
-        <p>{error}</p>
-        <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
-          Retry
-        </button>
-      </div>
+      <CSSIsolationWrapper
+        section="owner"
+        className={`owner-campgrounds ${theme === 'dark' ? 'dark-theme' : ''}`}
+      >
+        <div className="owner-error">
+          <h4>Error Loading Campgrounds</h4>
+          <p>{error}</p>
+          <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
+            Retry
+          </button>
+        </div>
+      </CSSIsolationWrapper>
     );
   }
 
   return (
-    <div className={`owner-campgrounds ${theme === 'dark' ? 'dark-theme' : ''}`}>
+    <CSSIsolationWrapper
+      section="owner"
+      className={`owner-campgrounds ${theme === 'dark' ? 'dark-theme' : ''}`}
+    >
       {/* Enhanced Page Header */}
       <div className="owner-page-header">
         <div className="header-content">
@@ -240,12 +238,15 @@ const OwnerCampgroundsPage = () => {
                       <th className="text-center">Bookings</th>
                       <th className="text-center">Status</th>
                       <th className="text-center">Created</th>
-                      <th className="text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {campgrounds.map((campground) => (
-                      <tr key={campground._id} className="campground-row">
+                      <tr
+                        key={campground._id}
+                        className="campground-row"
+                        onClick={() => handleRowClick(campground._id)}
+                      >
                         <td className="campground-info">
                           <div className="campground-title">
                             <div className="title-main">
@@ -307,39 +308,6 @@ const OwnerCampgroundsPage = () => {
                             <span className="date-text">{formatDate(campground.createdAt)}</span>
                           </div>
                         </td>
-                        <td className="actions-cell">
-                          <div className="action-buttons">
-                            <Link
-                              to={`/campgrounds/${campground._id}`}
-                              className="owner-btn owner-btn-secondary owner-btn-sm"
-                              target="_blank"
-                              title="View public page"
-                            >
-                              👁️
-                            </Link>
-                            <Link
-                              to={`/owner/campgrounds/${campground._id}`}
-                              className="owner-btn owner-btn-outline owner-btn-sm"
-                              title="Manage campground"
-                            >
-                              ⚙️
-                            </Link>
-                            <Link
-                              to={`/owner/campgrounds/${campground._id}/edit`}
-                              className="owner-btn owner-btn-primary owner-btn-sm"
-                              title="Edit campground"
-                            >
-                              ✏️
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(campground._id, campground.title)}
-                              className="owner-btn owner-btn-danger owner-btn-sm"
-                              title="Delete campground"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -395,7 +363,7 @@ const OwnerCampgroundsPage = () => {
           </>
         )}
       </div>
-    </div>
+    </CSSIsolationWrapper>
   );
 };
 

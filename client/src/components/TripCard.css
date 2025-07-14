@@ -2,7 +2,10 @@
   background-color: var(--color-card-bg);
   border-radius: 8px;
   box-shadow: 0 2px 10px var(--color-card-shadow);
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s ease;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s,
+    background-color 0.3s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -91,10 +94,12 @@
   border-radius: 4px;
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
-.view-button {
+.trip-card .view-button {
   background-color: var(--color-primary);
   color: #fff;
   flex: 1;
@@ -105,11 +110,11 @@
   white-space: nowrap;
 }
 
-.view-button:hover {
+.trip-card .view-button:hover {
   background-color: var(--color-primary-dark);
 }
 
-.view-button .icon {
+.trip-card .view-button .icon {
   font-size: 1rem;
   opacity: 0.9;
 }
@@ -119,17 +124,17 @@
   .trip-card {
     padding: 1.25rem;
   }
-  
+
   .trip-card-footer {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .trip-card-button {
     width: 100%;
     padding: 0.625rem;
   }
-  
+
   .trip-card-actions {
     width: 100%;
     justify-content: flex-end;

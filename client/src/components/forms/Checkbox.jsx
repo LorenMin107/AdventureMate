@@ -5,7 +5,7 @@ import './FormStyles.css';
 
 /**
  * Reusable Checkbox component that integrates with React Hook Form
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.name - Checkbox field name (required for react-hook-form)
  * @param {string} props.label - Label text for the checkbox
@@ -14,22 +14,18 @@ import './FormStyles.css';
  * @param {string} props.className - Additional CSS class names
  * @returns {JSX.Element} Checkbox component
  */
-const Checkbox = ({
-  name,
-  label,
-  required = false,
-  validation = {},
-  className = '',
-  ...rest
-}) => {
-  const { register, formState: { errors } } = useFormContext();
-  
+const Checkbox = ({ name, label, required = false, validation = {}, className = '', ...rest }) => {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
   // Combine validation rules
   const validationRules = {
     ...validation,
     required: required ? 'This field is required' : false,
   };
-  
+
   return (
     <div className={`form-field form-field-checkbox ${className}`}>
       <div className="checkbox-container">
@@ -40,7 +36,7 @@ const Checkbox = ({
           {...register(name, validationRules)}
           {...rest}
         />
-        
+
         {label && (
           <label htmlFor={name} className="form-checkbox-label">
             {label}
@@ -48,12 +44,8 @@ const Checkbox = ({
           </label>
         )}
       </div>
-      
-      {errors[name] && (
-        <p className="form-error-message">
-          {errors[name].message}
-        </p>
-      )}
+
+      {errors[name] && <p className="form-error-message">{errors[name].message}</p>}
     </div>
   );
 };

@@ -144,10 +144,18 @@ const AdminLayout = () => {
             <div className="admin-nav-group">
               <Link
                 to="/admin"
-                className={`admin-nav-item ${isActive('/admin') && !isActive('/admin/users') && !isActive('/admin/campgrounds') && !isActive('/admin/bookings') && !isActive('/admin/owner-applications') ? 'active' : ''}`}
+                className={`admin-nav-item ${isActive('/admin') && !isActive('/admin/users') && !isActive('/admin/campgrounds') && !isActive('/admin/bookings') && !isActive('/admin/owner-applications') && !isActive('/admin/analytics') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">📊</span>
                 <span className="admin-nav-text">Dashboard</span>
+              </Link>
+
+              <Link
+                to="/admin/analytics"
+                className={`admin-nav-item ${isActive('/admin/analytics') ? 'active' : ''}`}
+              >
+                <span className="admin-nav-icon">📈</span>
+                <span className="admin-nav-text">Analytics</span>
               </Link>
 
               <Link

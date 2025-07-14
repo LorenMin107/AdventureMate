@@ -5,7 +5,7 @@ import './FormStyles.css';
 
 /**
  * Reusable DatePicker component that integrates with React Hook Form
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.name - DatePicker field name (required for react-hook-form)
  * @param {string} props.label - Label text for the date picker
@@ -26,14 +26,17 @@ const DatePicker = ({
   className = '',
   ...rest
 }) => {
-  const { register, formState: { errors } } = useFormContext();
-  
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
   // Combine validation rules
   const validationRules = {
     ...validation,
     required: required ? 'This field is required' : false,
   };
-  
+
   return (
     <div className={`form-field ${className}`}>
       {label && (
@@ -42,7 +45,7 @@ const DatePicker = ({
           {required && <span className="required-mark">*</span>}
         </label>
       )}
-      
+
       <input
         id={name}
         type="date"
@@ -52,12 +55,8 @@ const DatePicker = ({
         {...register(name, validationRules)}
         {...rest}
       />
-      
-      {errors[name] && (
-        <p className="form-error-message">
-          {errors[name].message}
-        </p>
-      )}
+
+      {errors[name] && <p className="form-error-message">{errors[name].message}</p>}
     </div>
   );
 };

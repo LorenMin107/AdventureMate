@@ -4,7 +4,7 @@ import './FormStyles.css';
 
 /**
  * Reusable error message component for displaying form errors
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.message - Error message to display
  * @param {string} props.type - Type of error (error, warning, info)
@@ -21,7 +21,7 @@ const ErrorMessage = ({
   className = '',
 }) => {
   if (!message) return null;
-  
+
   return (
     <div className={`form-message form-message-${type} ${className}`}>
       <div className="form-message-content">
@@ -31,11 +31,11 @@ const ErrorMessage = ({
         {type === 'success' && <span className="form-message-icon">✅</span>}
         <p className="form-message-text">{message}</p>
       </div>
-      
+
       {dismissible && (
-        <button 
-          type="button" 
-          className="form-message-dismiss" 
+        <button
+          type="button"
+          className="form-message-dismiss"
           onClick={onDismiss}
           aria-label="Dismiss message"
         >

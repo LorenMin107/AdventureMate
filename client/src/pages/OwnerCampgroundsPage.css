@@ -11,8 +11,20 @@
   min-height: 100vh;
 }
 
+/* CSS Isolation for Owner Campgrounds Page */
+.owner-campgrounds.owner-page {
+  isolation: isolate;
+  contain: layout style paint;
+  position: relative;
+  z-index: 20;
+}
+
+.owner-campgrounds.owner-page * {
+  isolation: inherit;
+}
+
 /* Enhanced Page Header */
-.owner-page-header {
+.owner-campgrounds .owner-page-header {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   color: white;
   padding: 2.5rem;
@@ -24,7 +36,7 @@
   transition: all 0.3s ease;
 }
 
-.owner-page-header::before {
+.owner-campgrounds .owner-page-header::before {
   content: '';
   position: absolute;
   top: 0;
@@ -37,7 +49,7 @@
   transition: all 0.3s ease;
 }
 
-.header-content {
+.owner-campgrounds .header-content {
   position: relative;
   z-index: 1;
   display: grid;
@@ -46,19 +58,19 @@
   align-items: start;
 }
 
-.header-main {
+.owner-campgrounds .header-main {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.greeting-section {
+.owner-campgrounds .greeting-section {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.greeting-section h1 {
+.owner-campgrounds .greeting-section h1 {
   margin: 0;
   font-size: 2.5rem;
   font-weight: 700;
@@ -68,7 +80,7 @@
   transition: all 0.3s ease;
 }
 
-.header-subtitle {
+.owner-campgrounds .header-subtitle {
   margin: 0;
   font-size: 1.1rem;
   opacity: 0.9;
@@ -76,13 +88,13 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.header-stats {
+.owner-campgrounds .header-stats {
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
 }
 
-.header-stat {
+.owner-campgrounds .header-stat {
   text-align: center;
   padding: 1rem 1.25rem;
   background: rgba(255, 255, 255, 0.15);
@@ -95,12 +107,12 @@
   transition: all 0.3s ease;
 }
 
-.header-stat:hover {
+.owner-campgrounds .header-stat:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
 
-.header-stat .stat-label {
+.owner-campgrounds .header-stat .stat-label {
   display: block;
   font-size: 0.85rem;
   opacity: 0.8;
@@ -109,7 +121,7 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.header-stat .stat-value {
+.owner-campgrounds .header-stat .stat-value {
   display: block;
   font-size: 1.5rem;
   font-weight: 700;
@@ -117,7 +129,7 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.header-actions {
+.owner-campgrounds .header-actions {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -125,13 +137,13 @@
   justify-content: flex-start;
 }
 
-.view-controls {
+.owner-campgrounds .view-controls {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
 
-.owner-select {
+.owner-campgrounds .owner-select {
   padding: 0.75rem 1rem;
   border: 2px solid var(--color-border);
   border-radius: 12px;
@@ -144,13 +156,13 @@
   cursor: pointer;
 }
 
-.owner-select:focus {
+.owner-campgrounds .owner-select:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
 }
 
-.owner-select:hover {
+.owner-campgrounds .owner-select:hover {
   border-color: var(--color-primary);
 }
 
@@ -162,21 +174,37 @@
 }
 
 /* Enhanced Table Card */
-.table-card {
+.owner-campgrounds .table-card {
   background: var(--color-card-bg);
   border-radius: 16px;
   box-shadow: 0 4px 20px var(--color-card-shadow);
   overflow: hidden;
   border: 1px solid var(--color-border);
   transition: all 0.3s ease;
+  position: relative;
 }
 
-.table-card:hover {
+.owner-campgrounds .table-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  transition: all 0.3s ease;
+}
+
+.owner-campgrounds .table-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px var(--color-card-shadow);
 }
 
-.card-header {
+.owner-campgrounds .table-card:hover::before {
+  height: 6px;
+}
+
+.owner-campgrounds .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -186,7 +214,7 @@
   transition: all 0.3s ease;
 }
 
-.card-title h3 {
+.owner-campgrounds .card-title h3 {
   margin: 0;
   color: var(--color-text);
   font-size: 1.5rem;
@@ -194,11 +222,28 @@
   transition: color 0.3s ease;
 }
 
-.card-subtitle {
+.owner-campgrounds .card-subtitle {
   margin: 0.25rem 0 0 0;
   color: var(--color-text-muted);
   font-size: 0.9rem;
   transition: color 0.3s ease;
+}
+
+.owner-campgrounds .table-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.owner-campgrounds .sort-info {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.owner-campgrounds .sort-info strong {
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .view-all-link {
@@ -228,14 +273,66 @@
   border-collapse: collapse;
   background: var(--color-card-bg);
   transition: all 0.3s ease;
+  table-layout: fixed;
+  border-spacing: 0;
+  box-sizing: border-box;
+}
+
+/* Table column widths for consistent sizing */
+.owner-table th:nth-child(1),
+.owner-table td:nth-child(1) {
+  width: 28%; /* Campground name */
+}
+
+.owner-table th:nth-child(2),
+.owner-table td:nth-child(2) {
+  width: 18%; /* Location */
+}
+
+.owner-table th:nth-child(3),
+.owner-table td:nth-child(3) {
+  width: 12%; /* Campsites */
+}
+
+.owner-table th:nth-child(4),
+.owner-table td:nth-child(4) {
+  width: 14%; /* Reviews */
+}
+
+.owner-table th:nth-child(5),
+.owner-table td:nth-child(5) {
+  width: 12%; /* Bookings */
+}
+
+.owner-table th:nth-child(6),
+.owner-table td:nth-child(6) {
+  width: 10%; /* Status */
+}
+
+.owner-table th:nth-child(7),
+.owner-table td:nth-child(7) {
+  width: 12%; /* Created */
 }
 
 .owner-table th,
 .owner-table td {
-  padding: 1.25rem 1rem;
+  padding: 1rem;
   text-align: left;
   border-bottom: 1px solid var(--color-border);
   transition: all 0.3s ease;
+  vertical-align: top;
+  box-sizing: border-box;
+}
+
+.owner-table th.text-center,
+.owner-table td.text-center {
+  text-align: center;
+}
+
+.owner-table th:last-child,
+.owner-table td:last-child {
+  text-align: center;
+  vertical-align: top;
 }
 
 .owner-table th {
@@ -248,11 +345,69 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  border-bottom: 2px solid var(--color-primary);
+  transition: all 0.3s ease;
+  vertical-align: top;
+}
+
+.owner-table th.sortable {
+  cursor: pointer;
+}
+
+.owner-table th.sortable:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.owner-table th.sorted-asc,
+.owner-table th.sorted-desc {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 40px;
+}
+
+.sort-indicator {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.owner-table th.sortable:hover .sort-indicator {
+  opacity: 1;
+}
+
+.owner-table th.sorted-asc .sort-indicator,
+.owner-table th.sorted-desc .sort-indicator {
+  opacity: 1;
+  color: var(--color-primary);
+}
+
+.owner-table tr {
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .owner-table tr:hover {
   background: var(--color-card-bg-light);
-  transition: background-color 0.3s ease;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.owner-table tr:hover .campground-title strong {
+  color: var(--color-primary);
+}
+
+.owner-table tr:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .owner-table tr:last-child td {
@@ -266,6 +421,41 @@
   gap: 0.5rem;
 }
 
+.campground-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title-main strong {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+.image-count {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  background: var(--color-card-bg-light);
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.campground-description {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
 .campground-name {
   font-weight: 600;
   color: var(--color-text);
@@ -277,6 +467,26 @@
   color: var(--color-text-muted);
   font-size: 0.85rem;
   transition: color 0.3s ease;
+}
+
+/* Location cell alignment */
+.owner-table td:nth-child(2) {
+  vertical-align: top;
+}
+
+.location-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.location-text {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  font-weight: 500;
+  transition: color 0.3s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .campground-status {
@@ -322,7 +532,110 @@
   gap: 0.25rem;
 }
 
-.stat-item {
+.metric-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  min-height: 60px;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.reviews-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  min-height: 60px;
+}
+
+.rating {
+  font-size: 0.8rem;
+  color: #ffc107;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-cell {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 60px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.status-badge.status-active {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--color-success);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.status-badge.status-inactive {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--color-error);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.status-icon {
+  font-size: 0.7rem;
+}
+
+.date-cell {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 60px;
+}
+
+.date-text {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+}
+
+.owner-campgrounds .stat-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -330,12 +643,12 @@
   transition: color 0.3s ease;
 }
 
-.stat-label {
+.owner-campgrounds .stat-label {
   color: var(--color-text-muted);
   transition: color 0.3s ease;
 }
 
-.stat-value {
+.owner-campgrounds .stat-value {
   color: var(--color-text);
   font-weight: 600;
   transition: color 0.3s ease;
@@ -370,69 +683,22 @@
   transition: color 0.3s ease;
 }
 
-.campground-actions {
+.owner-campgrounds .campground-actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-}
-
-.action-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  min-height: 36px;
-}
-
-.action-btn.view {
-  background: var(--color-primary);
-  color: white;
-}
-
-.action-btn.view:hover {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
-}
-
-.action-btn.edit {
-  background: var(--color-warning);
-  color: white;
-}
-
-.action-btn.edit:hover {
-  background: #e0a800;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
-}
-
-.action-btn.delete {
-  background: var(--color-error);
-  color: white;
-}
-
-.action-btn.delete:hover {
-  background: #c82333;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  justify-content: center;
 }
 
 /* Enhanced Sort Controls */
-.sort-controls {
+.owner-campgrounds .sort-controls {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 
-.sort-btn {
+.owner-campgrounds .sort-btn {
   padding: 0.5rem 1rem;
   border: 2px solid var(--color-border);
   background: var(--color-card-bg);
@@ -447,44 +713,88 @@
   gap: 0.25rem;
 }
 
-.sort-btn:hover {
+.owner-campgrounds .sort-btn:hover {
   border-color: var(--color-primary);
   background: var(--color-card-bg-light);
 }
 
-.sort-btn.active {
+.owner-campgrounds .sort-btn.active {
   background: var(--color-primary);
   color: white;
   border-color: var(--color-primary);
 }
 
-.sort-btn.active:hover {
+.owner-campgrounds .sort-btn.active:hover {
   background: var(--color-primary-hover);
 }
 
-.sort-icon {
+.owner-campgrounds .sort-icon {
   font-size: 0.8rem;
   transition: transform 0.3s ease;
 }
 
-.sort-btn.asc .sort-icon {
+.owner-campgrounds .sort-btn.asc .sort-icon {
   transform: rotate(180deg);
 }
 
 /* Enhanced Empty State */
-.empty-state {
+.owner-campgrounds .empty-state {
   text-align: center;
   padding: 4rem 2rem;
   color: var(--color-text-muted);
+  background: var(--color-card-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--color-card-shadow);
+  border: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.empty-icon {
+.owner-campgrounds .empty-state::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  transition: all 0.3s ease;
+}
+
+.owner-campgrounds .empty-state:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--color-card-shadow);
+}
+
+.owner-campgrounds .empty-state:hover::before {
+  height: 6px;
+}
+
+.owner-campgrounds .empty-icon {
   font-size: 4rem;
   margin-bottom: 1rem;
-  opacity: 0.5;
+  opacity: 0.7;
+  animation: float 3s ease-in-out infinite;
+  transition: all 0.3s ease;
 }
 
-.empty-state h3 {
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.owner-campgrounds .empty-state:hover .empty-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.owner-campgrounds .empty-state h3 {
   margin: 0 0 1rem 0;
   color: var(--color-text);
   font-size: 1.5rem;
@@ -492,7 +802,7 @@
   transition: color 0.3s ease;
 }
 
-.empty-state p {
+.owner-campgrounds .empty-state p {
   margin: 0 0 2rem 0;
   font-size: 1rem;
   line-height: 1.6;
@@ -502,7 +812,7 @@
   transition: color 0.3s ease;
 }
 
-.empty-actions {
+.owner-campgrounds .empty-actions {
   display: flex;
   gap: 1rem;
   justify-content: center;
@@ -580,7 +890,7 @@
 }
 
 /* Enhanced Loading and Error States */
-.owner-loading {
+.owner-campgrounds .owner-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -590,7 +900,7 @@
   font-size: 1.1rem;
 }
 
-.owner-loading-spinner {
+.owner-campgrounds .owner-loading-spinner {
   width: 40px;
   height: 40px;
   border: 4px solid var(--color-border);
@@ -609,7 +919,7 @@
   }
 }
 
-.owner-error {
+.owner-campgrounds .owner-error {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -620,13 +930,13 @@
   padding: 2rem;
 }
 
-.owner-error h4 {
+.owner-campgrounds .owner-error h4 {
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
   color: var(--color-error);
 }
 
-.owner-error p {
+.owner-campgrounds .owner-error p {
   margin: 0 0 2rem 0;
   color: var(--color-text-muted);
   max-width: 500px;
@@ -636,7 +946,43 @@
 @media (max-width: 1200px) {
   .owner-table th,
   .owner-table td {
-    padding: 1rem 0.75rem;
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Adjust column widths for medium screens */
+  .owner-table th:nth-child(1),
+  .owner-table td:nth-child(1) {
+    width: 32%;
+  }
+
+  .owner-table th:nth-child(2),
+  .owner-table td:nth-child(2) {
+    width: 20%;
+  }
+
+  .owner-table th:nth-child(3),
+  .owner-table td:nth-child(3) {
+    width: 10%;
+  }
+
+  .owner-table th:nth-child(4),
+  .owner-table td:nth-child(4) {
+    width: 12%;
+  }
+
+  .owner-table th:nth-child(5),
+  .owner-table td:nth-child(5) {
+    width: 10%;
+  }
+
+  .owner-table th:nth-child(6),
+  .owner-table td:nth-child(6) {
+    width: 8%;
+  }
+
+  .owner-table th:nth-child(7),
+  .owner-table td:nth-child(7) {
+    width: 10%;
   }
 }
 
@@ -646,12 +992,12 @@
     gap: 1.5rem;
   }
 
-  .header-actions {
+  .owner-campgrounds .header-actions {
     flex-direction: row;
     justify-content: flex-start;
   }
 
-  .view-controls {
+  .owner-campgrounds .view-controls {
     flex-direction: column;
     align-items: stretch;
   }
@@ -679,16 +1025,16 @@
     gap: 1rem;
   }
 
-  .header-stats {
+  .owner-campgrounds .header-stats {
     gap: 1rem;
   }
 
-  .header-actions {
+  .owner-campgrounds .header-actions {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .view-controls {
+  .owner-campgrounds .view-controls {
     flex-direction: row;
     justify-content: space-between;
   }
@@ -705,27 +1051,17 @@
     min-width: 200px;
   }
 
-  .campground-actions {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .action-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .sort-controls {
+  .owner-campgrounds .sort-controls {
     flex-direction: column;
     gap: 0.5rem;
   }
 
-  .sort-btn {
+  .owner-campgrounds .sort-btn {
     width: 100%;
     justify-content: center;
   }
 
-  .empty-actions {
+  .owner-campgrounds .empty-actions {
     flex-direction: column;
     align-items: center;
   }
@@ -745,38 +1081,49 @@
     font-size: 1rem;
   }
 
-  .header-stats {
+  .owner-campgrounds .header-stats {
     flex-direction: column;
     gap: 0.75rem;
   }
 
-  .header-stat {
+  .owner-campgrounds .header-stat {
     min-width: auto;
     padding: 0.75rem 1rem;
   }
 
-  .header-actions {
+  .owner-campgrounds .header-actions {
     gap: 0.75rem;
   }
 
-  .view-controls {
+  .owner-campgrounds .view-controls {
     flex-direction: column;
     gap: 0.75rem;
   }
 
-  .owner-select {
+  .owner-campgrounds .owner-select {
     min-width: auto;
   }
 
-  .card-header {
+  .owner-campgrounds .card-header {
     padding: 1rem 1.5rem;
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
   }
 
-  .card-title h3 {
+  .owner-campgrounds .card-title h3 {
     font-size: 1.25rem;
+  }
+
+  .owner-campgrounds .table-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .owner-campgrounds .sort-info {
+    justify-content: center;
+    text-align: center;
   }
 
   .owner-table th,
@@ -805,39 +1152,32 @@
     font-size: 0.75rem;
   }
 
-  .action-btn {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-    min-height: 32px;
-  }
-
-  .sort-btn {
+  .owner-campgrounds .sort-btn {
     padding: 0.375rem 0.75rem;
     font-size: 0.8rem;
   }
 
-  .empty-state {
+  .owner-campgrounds .empty-state {
     padding: 3rem 1rem;
   }
 
-  .empty-icon {
+  .owner-campgrounds .empty-icon {
     font-size: 3rem;
   }
 
-  .empty-state h3 {
+  .owner-campgrounds .empty-state h3 {
     font-size: 1.25rem;
   }
 
-  .empty-state p {
+  .owner-campgrounds .empty-state p {
     font-size: 0.9rem;
   }
 }
 
 /* Focus and Accessibility Improvements */
 .owner-btn:focus,
-.action-btn:focus,
-.sort-btn:focus,
-.owner-select:focus {
+.owner-campgrounds .sort-btn:focus,
+.owner-campgrounds .owner-select:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
@@ -878,9 +1218,8 @@
 
 /* Print Styles */
 @media print {
-  .header-actions,
-  .campground-actions,
-  .sort-controls {
+  .owner-campgrounds .header-actions,
+  .owner-campgrounds .sort-controls {
     display: none;
   }
 
@@ -888,7 +1227,7 @@
     padding: 0;
   }
 
-  .table-card {
+  .owner-campgrounds .table-card {
     box-shadow: none;
     border: 1px solid #ccc;
   }

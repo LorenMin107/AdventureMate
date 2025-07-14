@@ -189,7 +189,10 @@ const ProfilePage = () => {
                       </div>
 
                       <div className="profile-actions">
-                        <button className="edit-button" onClick={() => setIsEditing(true)}>
+                        <button
+                          className="common-btn common-btn-secondary"
+                          onClick={() => setIsEditing(true)}
+                        >
                           {userDetails.phone ? 'Update Phone Number' : 'Add Phone Number'}
                         </button>
                       </div>

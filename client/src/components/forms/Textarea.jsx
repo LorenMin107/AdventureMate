@@ -5,7 +5,7 @@ import './FormStyles.css';
 
 /**
  * Reusable Textarea component that integrates with React Hook Form
- * 
+ *
  * @param {Object} props - Component props
  * @param {string} props.name - Textarea field name (required for react-hook-form)
  * @param {string} props.label - Label text for the textarea
@@ -26,14 +26,17 @@ const Textarea = ({
   className = '',
   ...rest
 }) => {
-  const { register, formState: { errors } } = useFormContext();
-  
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
+
   // Combine validation rules
   const validationRules = {
     ...validation,
     required: required ? 'This field is required' : false,
   };
-  
+
   return (
     <div className={`form-field ${className}`}>
       {label && (
@@ -42,7 +45,7 @@ const Textarea = ({
           {required && <span className="required-mark">*</span>}
         </label>
       )}
-      
+
       <textarea
         id={name}
         placeholder={placeholder}
@@ -51,12 +54,8 @@ const Textarea = ({
         {...register(name, validationRules)}
         {...rest}
       />
-      
-      {errors[name] && (
-        <p className="form-error-message">
-          {errors[name].message}
-        </p>
-      )}
+
+      {errors[name] && <p className="form-error-message">{errors[name].message}</p>}
     </div>
   );
 };

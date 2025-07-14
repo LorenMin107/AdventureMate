@@ -143,10 +143,10 @@ const CampgroundDetail = () => {
 
             {canModify && (
               <div className="campground-detail-actions">
-                <Link to={`/campgrounds/${id}/edit`} className="edit-button">
+                <Link to={`/campgrounds/${id}/edit`} className="common-btn common-btn-secondary">
                   Edit
                 </Link>
-                <button onClick={handleDelete} className="delete-button">
+                <button onClick={handleDelete} className="common-btn common-btn-danger">
                   Delete
                 </button>
               </div>

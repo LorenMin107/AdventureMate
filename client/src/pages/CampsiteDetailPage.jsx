@@ -304,12 +304,12 @@ const CampsiteDetailPage = () => {
 
         {isOwner && (
           <div className="admin-actions">
-            <Link to={`/campsites/${id}/edit`} className="edit-button">
+            <Link to={`/campsites/${id}/edit`} className="common-btn common-btn-secondary">
               Edit
             </Link>
             <button
               onClick={() => navigate(`/campgrounds/${campground._id}`)}
-              className="back-button"
+              className="common-btn common-btn-outline"
             >
               Back to Campground
             </button>
@@ -561,13 +561,19 @@ const CampsiteDetailPage = () => {
                       </Form>
                     </div>
                   ) : (
-                    <button className="book-button" onClick={() => setShowBookingForm(true)}>
+                    <button
+                      className="common-btn common-btn-primary"
+                      onClick={() => setShowBookingForm(true)}
+                    >
                       Book Now
                     </button>
                   )
                 ) : (
                   <div className="login-to-book">
-                    <Link to={`/login?redirect=/campsites/${id}`} className="book-button">
+                    <Link
+                      to={`/login?redirect=/campsites/${id}`}
+                      className="common-btn common-btn-primary"
+                    >
                       Log in to book
                     </Link>
                     <p className="login-message">You need to be logged in to book a campsite</p>
