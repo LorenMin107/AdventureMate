@@ -1,19 +1,22 @@
-.two-factor-verification-container {
+/* Two-factor authentication verification styling with CSS isolation */
+.two-factor-verification-container.common-page {
   max-width: 568px;
   margin: 3rem auto;
   padding: 2.5rem;
   background-color: var(--color-card-bg);
   border-radius: 12px;
   box-shadow: 0 6px 20px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.form-logo {
+.common-form-logo {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.logo-text {
+.common-logo-text {
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--color-primary);
@@ -23,7 +26,7 @@
   transition: color 0.3s ease;
 }
 
-.logo-text::after {
+.common-logo-text::after {
   content: '';
   position: absolute;
   bottom: -8px;
@@ -32,14 +35,16 @@
   height: 2px;
   background-color: var(--color-primary);
   transform: scaleX(0.7);
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
-.logo-text:hover::after {
+.common-logo-text:hover::after {
   transform: scaleX(1);
 }
 
-.two-factor-verification-container h2 {
+.two-factor-verification-container.common-page h2 {
   text-align: left;
   margin-bottom: 1.5rem;
   color: var(--color-text);
@@ -56,26 +61,26 @@
   transition: color 0.3s ease;
 }
 
-.verification-form {
+.common-verification-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.form-group {
+.common-form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group label {
+.common-form-group label {
   font-weight: 600;
   color: var(--color-text);
   font-size: 0.9rem;
   transition: color 0.3s ease;
 }
 
-.form-group input {
+.common-form-group input {
   padding: 1rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -83,16 +88,22 @@
   background-color: var(--color-card-bg);
   color: var(--color-text);
   letter-spacing: 1px;
-  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.form-group input:focus {
+.common-form-group input:focus {
   border-color: var(--color-primary);
   outline: none;
   box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
 }
 
-.error-message {
+.common-error-message {
   background-color: #fff8f8; /* Lighter red background for Airbnb style */
   color: #ff385c; /* Airbnb-like red color */
   padding: 0.75rem;
@@ -111,7 +122,9 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.3s ease;
+  transition:
+    transform 0.1s ease,
+    background-color 0.3s ease;
   margin-top: 0.75rem;
 }
 
@@ -128,7 +141,6 @@
   transform: none;
 }
 
-
 .cancel-button {
   background-color: var(--color-card-bg);
   color: var(--color-text);
@@ -137,7 +149,9 @@
   padding: 1rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.1s ease;
   margin-top: 0.5rem;
 }
 
@@ -153,9 +167,40 @@
 }
 
 @media (max-width: 600px) {
-  .two-factor-verification-container {
+  .two-factor-verification-container.common-page {
     margin: 1.5rem;
     padding: 1.5rem;
     max-width: 100%;
+  }
+
+  .common-logo-text {
+    font-size: 1.5rem;
+  }
+
+  .two-factor-verification-container.common-page h2 {
+    font-size: 1.25rem;
+  }
+
+  .common-form-group input {
+    padding: 0.875rem;
+  }
+
+  .common-btn {
+    padding: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .two-factor-verification-container.common-page {
+    margin: 1rem;
+    padding: 1.25rem;
+  }
+
+  .common-logo-text {
+    font-size: 1.25rem;
+  }
+
+  .two-factor-verification-container.common-page h2 {
+    font-size: 1.125rem;
   }
 }

@@ -39,7 +39,7 @@ module.exports.getDashboardStats = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('user', 'username email')
-      .populate('campground', 'title location')
+      .populate('campground', 'title location images')
       .populate('campsite', 'name price capacity');
 
     // Get recent users
@@ -128,7 +128,7 @@ module.exports.getBookings = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .populate('user', 'username email')
-      .populate('campground', 'title location price')
+      .populate('campground', 'title location price images')
       .populate('campsite', 'name price capacity features')
       .sort(sortOptions);
 
@@ -803,7 +803,7 @@ module.exports.getOwnerDetails = async (req, res) => {
       ).send(res);
     }
 
-    // Get owner's booking statistics
+    // Get owner's booking statistics (include cancelled bookings in revenue since no refunds are given)
     const bookingStats = await Booking.aggregate([
       {
         $match: {
@@ -814,9 +814,25 @@ module.exports.getOwnerDetails = async (req, res) => {
         $group: {
           _id: null,
           totalBookings: { $sum: 1 },
-          totalRevenue: { $sum: '$totalPrice' },
+          totalRevenue: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $in: ['$status', ['confirmed', 'cancelled']] },
+                    { $eq: ['$paid', true] },
+                  ],
+                },
+                '$totalPrice',
+                0,
+              ],
+            },
+          },
           confirmedBookings: {
             $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
+          },
+          cancelledBookings: {
+            $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
           },
         },
       },
@@ -829,6 +845,7 @@ module.exports.getOwnerDetails = async (req, res) => {
             totalBookings: 0,
             totalRevenue: 0,
             confirmedBookings: 0,
+            cancelledBookings: 0,
           };
 
     const data = {
@@ -1106,7 +1123,7 @@ module.exports.getAllSafetyAlerts = async (req, res) => {
       .limit(limit)
       .populate('createdBy', 'username email')
       .populate('updatedBy', 'username email')
-      .populate('campground', 'title location')
+      .populate('campground', 'title location images')
       .populate('campsite', 'name')
       .populate('acknowledgedBy.user', 'username email')
       .sort({ createdAt: -1 });
@@ -1385,7 +1402,7 @@ module.exports.getEnhancedDashboardStats = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('user', 'username email')
-      .populate('campground', 'title location')
+      .populate('campground', 'title location images')
       .populate('campsite', 'name price capacity');
 
     const recentUsers = await User.find({})
@@ -1584,11 +1601,11 @@ module.exports.getBusinessAnalytics = async (req, res) => {
       createdAt: { $gte: previousPeriodStart, $lt: previousPeriodEnd },
     };
 
-    // Platform Revenue Analytics
+    // Platform Revenue Analytics (include cancelled bookings in revenue since no refunds are given)
     const currentRevenue = await Booking.aggregate([
       {
         $match: {
-          status: 'confirmed',
+          status: { $in: ['confirmed', 'cancelled'] },
           paid: true,
           ...currentPeriodFilter,
         },
@@ -1606,7 +1623,7 @@ module.exports.getBusinessAnalytics = async (req, res) => {
     const previousRevenue = await Booking.aggregate([
       {
         $match: {
-          status: 'confirmed',
+          status: { $in: ['confirmed', 'cancelled'] },
           paid: true,
           ...previousPeriodFilter,
         },
@@ -1654,11 +1671,11 @@ module.exports.getBusinessAnalytics = async (req, res) => {
     const ownerGrowth =
       previousOwners > 0 ? ((currentOwners - previousOwners) / previousOwners) * 100 : 0;
 
-    // Campground Performance Analytics
+    // Campground Performance Analytics (include cancelled bookings in revenue since no refunds are given)
     const topCampgrounds = await Booking.aggregate([
       {
         $match: {
-          status: 'confirmed',
+          status: { $in: ['confirmed', 'cancelled'] },
           paid: true,
           ...currentPeriodFilter,
         },
@@ -1714,11 +1731,11 @@ module.exports.getBusinessAnalytics = async (req, res) => {
       },
     ]);
 
-    // Revenue by Month (Last 12 months)
+    // Revenue by Month (Last 12 months) (include cancelled bookings in revenue since no refunds are given)
     const monthlyRevenue = await Booking.aggregate([
       {
         $match: {
-          status: 'confirmed',
+          status: { $in: ['confirmed', 'cancelled'] },
           paid: true,
           createdAt: { $gte: new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000) },
         },

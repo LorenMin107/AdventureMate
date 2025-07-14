@@ -367,7 +367,7 @@ const getOwnerDashboard = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(10);
 
-    // Get booking statistics for the last 30 days
+    // Get booking statistics for the last 30 days (include cancelled bookings in revenue since no refunds are given)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const bookingStats = await Booking.aggregate([
       {
@@ -380,12 +380,28 @@ const getOwnerDashboard = async (req, res) => {
         $group: {
           _id: null,
           totalBookings: { $sum: 1 },
-          totalRevenue: { $sum: '$totalPrice' },
+          totalRevenue: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $in: ['$status', ['confirmed', 'cancelled']] },
+                    { $eq: ['$paid', true] },
+                  ],
+                },
+                '$totalPrice',
+                0,
+              ],
+            },
+          },
           confirmedBookings: {
             $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
           },
           pendingBookings: {
             $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
+          },
+          cancelledBookings: {
+            $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
           },
         },
       },
@@ -420,6 +436,7 @@ const getOwnerDashboard = async (req, res) => {
       totalRevenue: 0,
       confirmedBookings: 0,
       pendingBookings: 0,
+      cancelledBookings: 0,
     };
 
     const ratings = ratingStats[0] || {
@@ -506,12 +523,12 @@ const getOwnerAnalytics = async (req, res) => {
       createdAt: { $gte: previousPeriodStart, $lt: currentPeriodStart },
     };
 
-    // Current period revenue and bookings
+    // Current period revenue and bookings (include cancelled bookings since no refunds are given)
     const currentPeriodStats = await Booking.aggregate([
       {
         $match: {
           campground: { $in: campgroundsToAnalyze },
-          status: 'confirmed',
+          status: { $in: ['confirmed', 'cancelled'] },
           paid: true,
           ...dateFilter,
         },
@@ -525,12 +542,12 @@ const getOwnerAnalytics = async (req, res) => {
       },
     ]);
 
-    // Previous period revenue and bookings
+    // Previous period revenue and bookings (include cancelled bookings since no refunds are given)
     const previousPeriodStats = await Booking.aggregate([
       {
         $match: {
           campground: { $in: campgroundsToAnalyze },
-          status: 'confirmed',
+          status: { $in: ['confirmed', 'cancelled'] },
           paid: true,
           ...previousPeriodFilter,
         },
@@ -579,12 +596,12 @@ const getOwnerAnalytics = async (req, res) => {
       bookingStatus[stat._id] = stat.count;
     });
 
-    // Campground performance
+    // Campground performance (include cancelled bookings in revenue since no refunds are given)
     const campgroundPerformance = await Booking.aggregate([
       {
         $match: {
           campground: { $in: campgroundsToAnalyze },
-          status: 'confirmed',
+          status: { $in: ['confirmed', 'cancelled'] },
           paid: true,
           ...dateFilter,
         },
@@ -653,12 +670,12 @@ const getOwnerAnalytics = async (req, res) => {
 
     const reviews = reviewsStats[0] || { averageRating: 0, totalReviews: 0 };
 
-    // Calculate average booking value and duration
+    // Calculate average booking value and duration (include cancelled bookings since no refunds are given)
     const bookingMetrics = await Booking.aggregate([
       {
         $match: {
           campground: { $in: campgroundsToAnalyze },
-          status: 'confirmed',
+          status: { $in: ['confirmed', 'cancelled'] },
           paid: true,
           ...dateFilter,
         },
@@ -761,6 +778,123 @@ const getOwnerAnalytics = async (req, res) => {
 };
 
 /**
+ * Get owner booking details
+ * GET /api/owners/bookings/:id
+ */
+const getOwnerBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const owner = await Owner.findOne({ user: req.user._id });
+    if (!owner) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Owner profile not found',
+      });
+    }
+
+    const booking = await Booking.findById(id)
+      .populate('user', 'username email phone')
+      .populate('campground', 'title location images')
+      .populate('campsite', 'name type description features price capacity images');
+
+    if (!booking) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Booking not found',
+      });
+    }
+
+    // Check if the booking belongs to one of the owner's campgrounds
+    if (!owner.campgrounds.includes(booking.campground._id)) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'You do not have permission to view this booking',
+      });
+    }
+
+    res.json({
+      booking,
+    });
+  } catch (error) {
+    logError('Error fetching owner booking', error, {
+      endpoint: '/api/owners/bookings/:id',
+      userId: req.user?._id,
+      bookingId: req.params.id,
+    });
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to fetch booking',
+    });
+  }
+};
+
+/**
+ * Update owner booking status
+ * PATCH /api/owners/bookings/:id/status
+ */
+const updateOwnerBookingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Validate status
+    const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Invalid status. Must be one of: pending, confirmed, cancelled, completed',
+      });
+    }
+
+    const owner = await Owner.findOne({ user: req.user._id });
+    if (!owner) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Owner profile not found',
+      });
+    }
+
+    const booking = await Booking.findById(id)
+      .populate('campground', 'title location images')
+      .populate('user', 'username email');
+
+    if (!booking) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Booking not found',
+      });
+    }
+
+    // Check if the booking belongs to one of the owner's campgrounds
+    if (!owner.campgrounds.includes(booking.campground._id)) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'You do not have permission to update this booking',
+      });
+    }
+
+    booking.status = status;
+    await booking.save();
+
+    res.json({
+      message: 'Booking status updated successfully',
+      booking,
+    });
+  } catch (error) {
+    logError('Error updating owner booking status', error, {
+      endpoint: '/api/owners/bookings/:id/status',
+      userId: req.user?._id,
+      bookingId: req.params.id,
+    });
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to update booking status',
+    });
+  }
+};
+
+/**
  * Get owner bookings
  * GET /api/owners/bookings
  */
@@ -793,7 +927,7 @@ const getOwnerBookings = async (req, res) => {
 
     const bookings = await Booking.find(query)
       .populate('user', 'username email phone')
-      .populate('campground', 'title location')
+      .populate('campground', 'title location images')
       .populate('campsite', 'name type')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -1079,7 +1213,9 @@ module.exports = {
   uploadVerificationDocuments,
   getOwnerDashboard,
   getOwnerAnalytics,
+  getOwnerBooking,
   getOwnerBookings,
+  updateOwnerBookingStatus,
   applyToBeOwner,
   getOwnerApplication,
   updateOwnerApplication,

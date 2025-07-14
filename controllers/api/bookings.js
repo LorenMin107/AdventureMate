@@ -664,3 +664,69 @@ module.exports.handlePaymentSuccess = async (req, res) => {
     res.status(500).json({ error: 'Failed to process payment confirmation' });
   }
 };
+
+module.exports.cancelBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findById(id)
+      .populate('campground', 'title')
+      .populate('user', 'username email');
+
+    if (!booking) {
+      return res.status(404).json({
+        error: 'Booking not found',
+        message: 'The requested booking could not be found',
+      });
+    }
+
+    // Check if the booking belongs to the current user
+    if (booking.user._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        error: 'Not authorized',
+        message: 'You can only cancel your own bookings',
+      });
+    }
+
+    // Check if booking is already cancelled
+    if (booking.status === 'cancelled') {
+      return res.status(400).json({
+        error: 'Booking already cancelled',
+        message: 'This booking has already been cancelled',
+      });
+    }
+
+    // Update the booking status to cancelled
+    booking.status = 'cancelled';
+    await booking.save();
+
+    // Log the cancellation
+    logInfo('Booking cancelled by user', {
+      bookingId: booking._id,
+      userId: req.user._id,
+      campgroundId: booking.campground._id,
+      totalPrice: booking.totalPrice,
+      timestamp: new Date().toISOString(),
+    });
+
+    res.json({
+      message:
+        'Booking cancelled successfully. Please note that no refunds will be issued for cancelled bookings.',
+      booking: {
+        id: booking._id,
+        status: booking.status,
+        campground: booking.campground.title,
+      },
+    });
+  } catch (error) {
+    logError('Error cancelling booking', error, {
+      endpoint: '/api/v1/bookings/:id/cancel',
+      userId: req.user?._id,
+      bookingId: req.params.id,
+    });
+    res.status(500).json({
+      error: 'Failed to cancel booking',
+      message: 'An error occurred while cancelling your booking. Please try again.',
+    });
+  }
+};

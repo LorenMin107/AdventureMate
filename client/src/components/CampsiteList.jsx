@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
+import ConfirmDialog from './common/ConfirmDialog';
 import './CampsiteList.css';
 
 /**
@@ -16,6 +18,10 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
   const [campsites, setCampsites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    campsite: null,
+  });
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -44,22 +50,33 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
     fetchCampsites();
   }, [campgroundId]);
 
-  const handleDeleteCampsite = async (campsiteId) => {
-    if (!window.confirm('Are you sure you want to delete this campsite?')) {
-      return;
-    }
+  const handleDeleteClick = (campsiteId) => {
+    const campsite = campsites.find((c) => c._id === campsiteId);
+    setDeleteDialog({
+      open: true,
+      campsite,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const { campsite } = deleteDialog;
 
     try {
-      await apiClient.delete(`/campsites/${campsiteId}`);
+      await apiClient.delete(`/campsites/${campsite._id}`);
 
       // Remove the deleted campsite from the state
-      setCampsites((prevCampsites) =>
-        prevCampsites.filter((campsite) => campsite._id !== campsiteId)
-      );
+      setCampsites((prevCampsites) => prevCampsites.filter((c) => c._id !== campsite._id));
+
+      // Close the dialog
+      setDeleteDialog({ open: false, campsite: null });
     } catch (err) {
       logError('Error deleting campsite', err);
       alert('Failed to delete campsite. Please try again later.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ open: false, campsite: null });
   };
 
   if (loading) {
@@ -168,7 +185,7 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDeleteCampsite(campsite._id);
+                      handleDeleteClick(campsite._id);
                     }}
                     className="common-btn common-btn-danger"
                   >
@@ -180,6 +197,16 @@ const CampsiteList = ({ campgroundId, isOwner }) => {
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Campsite"
+        message={`Are you sure you want to delete "${deleteDialog.campsite?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      />
     </div>
   );
 };

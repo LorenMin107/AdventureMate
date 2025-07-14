@@ -71,6 +71,10 @@ const ForumPostPage = lazy(() => import('../pages/ForumPostPage'));
 const ForumNewPostPage = lazy(() => import('../pages/ForumNewPostPage'));
 const ForumEditPage = lazy(() => import('../pages/ForumEditPage'));
 
+// About and Contact pages
+const AboutPage = lazy(() => import('../pages/AboutPage'));
+const ContactPage = lazy(() => import('../pages/ContactPage'));
+
 // Add InviteRedirect component
 const InviteRedirect = () => {
   const { tripId } = useParams();
@@ -152,6 +156,22 @@ const routes = [
             ),
           },
         ],
+      },
+      {
+        path: 'about',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <AboutPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'contact',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <ContactPage />
+          </Suspense>
+        ),
       },
       {
         path: 'campsites/:id',
@@ -369,11 +389,24 @@ const routes = [
               },
               {
                 path: 'bookings',
-                element: (
-                  <Suspense fallback={<LoadingFallback />}>
-                    <OwnerBookingsPage />
-                  </Suspense>
-                ),
+                children: [
+                  {
+                    index: true,
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <OwnerBookingsPage />
+                      </Suspense>
+                    ),
+                  },
+                  {
+                    path: ':id',
+                    element: (
+                      <Suspense fallback={<LoadingFallback />}>
+                        <BookingDetailPage />
+                      </Suspense>
+                    ),
+                  },
+                ],
               },
               {
                 path: 'analytics',

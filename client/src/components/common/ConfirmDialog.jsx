@@ -30,7 +30,7 @@ const ConfirmDialog = ({
         </div>
         <div className="export-dialog-content">
           <div style={{ padding: '1.5rem 1.75rem', textAlign: 'center' }}>
-            <p style={{ marginBottom: '2rem' }}>{message}</p>
+            <div style={{ marginBottom: '2rem' }}>{message}</div>
             <button
               className="export-button"
               style={{ background: 'var(--color-error)', marginRight: 12 }}

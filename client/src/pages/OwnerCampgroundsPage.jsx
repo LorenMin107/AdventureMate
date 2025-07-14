@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
@@ -9,12 +10,13 @@ import './OwnerCampgroundsPage.css';
 
 /**
  * Owner Campgrounds Page
- * Modern dashboard for campground owners to manage their listings
+ * Modern dashboard for campground owners to manage their campgrounds
  */
 const OwnerCampgroundsPage = () => {
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
   const { useOwnerCampgrounds } = useOwners();
+  const navigate = useNavigate();
 
   const [campgrounds, setCampgrounds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,8 +28,8 @@ const OwnerCampgroundsPage = () => {
     totalPages: 0,
   });
   const [sort, setSort] = useState({
-    field: 'title',
-    order: 'asc',
+    field: 'createdAt',
+    order: 'desc',
   });
 
   // Fetch owner's campgrounds
@@ -39,8 +41,7 @@ const OwnerCampgroundsPage = () => {
   } = useOwnerCampgrounds({
     page: pagination.page,
     limit: pagination.limit,
-    sortField: sort.field,
-    sortOrder: sort.order,
+    sort: `${sort.field}:${sort.order}`,
   });
 
   useEffect(() => {
@@ -69,13 +70,13 @@ const OwnerCampgroundsPage = () => {
   };
 
   const handleSortChange = (field) => {
-    const newOrder = field === sort.field && sort.order === 'asc' ? 'desc' : 'asc';
+    const newOrder = sort.field === field && sort.order === 'asc' ? 'desc' : 'asc';
     setSort({ field, order: newOrder });
+    setPagination({ ...pagination, page: 1 });
   };
 
   const handleRowClick = (campgroundId) => {
-    // Navigate to the campground detail page
-    window.open(`/owner/campgrounds/${campgroundId}`, '_blank');
+    navigate(`/owner/campgrounds/${campgroundId}`);
   };
 
   const formatDate = (dateString) => {
@@ -86,37 +87,23 @@ const OwnerCampgroundsPage = () => {
     });
   };
 
-  const getStatusIcon = (isActive) => {
-    return isActive ? '🟢' : '🔴';
-  };
-
   if (loading) {
     return (
-      <CSSIsolationWrapper
-        section="owner"
-        className={`owner-campgrounds ${theme === 'dark' ? 'dark-theme' : ''}`}
-      >
-        <div className="owner-loading">
-          <div className="owner-loading-spinner"></div>
-          <p>Loading your campgrounds...</p>
-        </div>
+      <CSSIsolationWrapper section="owner" className="owner-loading">
+        <div className="owner-loading-spinner"></div>
+        <p>Loading your campgrounds...</p>
       </CSSIsolationWrapper>
     );
   }
 
   if (error) {
     return (
-      <CSSIsolationWrapper
-        section="owner"
-        className={`owner-campgrounds ${theme === 'dark' ? 'dark-theme' : ''}`}
-      >
-        <div className="owner-error">
-          <h4>Error Loading Campgrounds</h4>
-          <p>{error}</p>
-          <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
-            Retry
-          </button>
-        </div>
+      <CSSIsolationWrapper section="owner" className="owner-error">
+        <h4>Error Loading Campgrounds</h4>
+        <p>{error}</p>
+        <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
+          Retry
+        </button>
       </CSSIsolationWrapper>
     );
   }
@@ -236,7 +223,6 @@ const OwnerCampgroundsPage = () => {
                       <th className="text-center">Campsites</th>
                       <th className="text-center">Reviews</th>
                       <th className="text-center">Bookings</th>
-                      <th className="text-center">Status</th>
                       <th className="text-center">Created</th>
                     </tr>
                   </thead>
@@ -289,18 +275,6 @@ const OwnerCampgroundsPage = () => {
                           <div className="metric-cell">
                             <span className="count-badge">{campground.bookings?.length || 0}</span>
                             <span className="metric-label">bookings</span>
-                          </div>
-                        </td>
-                        <td className="text-center">
-                          <div className="status-cell">
-                            <span
-                              className={`status-badge ${campground.isActive ? 'status-active' : 'status-inactive'}`}
-                            >
-                              <span className="status-icon">
-                                {getStatusIcon(campground.isActive)}
-                              </span>
-                              {campground.isActive ? 'Active' : 'Inactive'}
-                            </span>
                           </div>
                         </td>
                         <td className="text-center">

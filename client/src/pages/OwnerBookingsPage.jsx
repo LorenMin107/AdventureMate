@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
 import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
+import CSSIsolationWrapper from '../components/CSSIsolationWrapper';
 import './OwnerBookingsPage.css';
 
 /**
@@ -88,7 +89,16 @@ const OwnerBookingsPage = () => {
 
   const handleStatusUpdate = async (bookingId, newStatus) => {
     try {
-      await apiClient.patch(`/owner/bookings/${bookingId}/status`, { status: newStatus });
+      console.log('Updating booking status:', { bookingId, newStatus });
+
+      // Show loading message
+      showMessage('Updating booking status...', 'info');
+
+      const response = await apiClient.patch(`/owner/bookings/${bookingId}/status`, {
+        status: newStatus,
+      });
+
+      console.log('Status update response:', response);
 
       showMessage(`Booking ${newStatus} successfully`, 'success');
 
@@ -99,10 +109,25 @@ const OwnerBookingsPage = () => {
         )
       );
 
+      // Refetch to get updated data
       refetch();
     } catch (err) {
+      console.error('Error updating booking status:', err);
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+      });
+
       logError('Error updating booking status', err);
-      showMessage('Failed to update booking status. Please try again.', 'error');
+
+      // Show more specific error message
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to update booking status. Please try again.';
+      showMessage(errorMessage, 'error');
     }
   };
 
@@ -136,6 +161,10 @@ const OwnerBookingsPage = () => {
     }
   };
 
+  const isBookingPast = (endDate) => {
+    return new Date(endDate) < new Date();
+  };
+
   const getBookingStats = () => {
     const stats = {
       total: bookings.length,
@@ -149,29 +178,32 @@ const OwnerBookingsPage = () => {
 
   if (loading) {
     return (
-      <div className="owner-loading">
+      <CSSIsolationWrapper section="owner" className="owner-loading">
         <div className="owner-loading-spinner"></div>
         <p>Loading your bookings...</p>
-      </div>
+      </CSSIsolationWrapper>
     );
   }
 
   if (error) {
     return (
-      <div className="owner-error">
+      <CSSIsolationWrapper section="owner" className="owner-error">
         <h4>Error Loading Bookings</h4>
         <p>{error}</p>
         <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
           Retry
         </button>
-      </div>
+      </CSSIsolationWrapper>
     );
   }
 
   const stats = getBookingStats();
 
   return (
-    <div className={`owner-bookings ${theme === 'dark' ? 'dark-theme' : ''}`}>
+    <CSSIsolationWrapper
+      section="owner"
+      className={`owner-bookings ${theme === 'dark' ? 'dark-theme' : ''}`}
+    >
       {/* Enhanced Page Header */}
       <div className="owner-page-header">
         <div className="header-content">
@@ -278,7 +310,7 @@ const OwnerBookingsPage = () => {
         </div>
 
         {/* Enhanced Filters Section */}
-        <div className="owner-card filters-card">
+        <div className="owner-card owner-filters-card">
           <div className="card-header">
             <div className="card-title">
               <h3>Filter & Search</h3>
@@ -340,7 +372,7 @@ const OwnerBookingsPage = () => {
         ) : (
           <>
             {/* Enhanced Bookings Table */}
-            <div className="owner-card table-card">
+            <div className="owner-card owner-table-card">
               <div className="card-header">
                 <div className="card-title">
                   <h3>Booking Listings</h3>
@@ -354,10 +386,9 @@ const OwnerBookingsPage = () => {
                   <table className="owner-table">
                     <thead>
                       <tr>
-                        <th>Booking Details</th>
-                        <th>Guest Information</th>
+                        <th>Guest & Booking</th>
                         <th>Campground & Site</th>
-                        <th>Stay Period</th>
+                        <th>Stay Details</th>
                         <th>Financial</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -367,101 +398,131 @@ const OwnerBookingsPage = () => {
                       {bookings.map((booking) => (
                         <tr key={booking._id}>
                           <td>
-                            <div className="booking-details">
-                              <div className="booking-id">
-                                <strong>#{booking._id.substring(0, 8)}</strong>
+                            <div className="guest-booking-info">
+                              <div className="guest-primary">
+                                <div className="guest-name">
+                                  <strong>{booking.user?.username || 'Unknown'}</strong>
+                                </div>
+                                <div className="guest-email">{booking.user?.email}</div>
                               </div>
-                              <div className="booking-date">
-                                Created {formatDate(booking.createdAt)}
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="guest-info">
-                              <div className="guest-name">
-                                <strong>{booking.user?.username || 'Unknown'}</strong>
-                              </div>
-                              <div className="guest-email">{booking.user?.email}</div>
-                              <div className="guest-count">
-                                {booking.numberOfGuests || 1} guest
-                                {booking.numberOfGuests > 1 ? 's' : ''}
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="campground-info">
-                              <div className="campground-name">
-                                <strong>{booking.campground?.title || 'Unknown'}</strong>
-                              </div>
-                              <div className="campground-location">
-                                {booking.campground?.location}
-                              </div>
-                              <div className="campsite-name">
-                                Site: {booking.campsite?.name || 'N/A'}
+                              <div className="booking-secondary">
+                                <div className="booking-id">
+                                  <small>#{booking._id.substring(0, 8)}</small>
+                                </div>
+                                <div className="booking-date">
+                                  <small>Created {formatDate(booking.createdAt)}</small>
+                                </div>
+                                <div className="guest-count">
+                                  <small>
+                                    {booking.numberOfGuests || 1} guest
+                                    {(booking.numberOfGuests || 1) > 1 ? 's' : ''}
+                                  </small>
+                                </div>
                               </div>
                             </div>
                           </td>
                           <td>
-                            <div className="stay-period">
-                              <div className="check-in">
-                                <span className="date-label">Check-in:</span>
-                                <span className="date-value">{formatDate(booking.startDate)}</span>
+                            <div className="campground-site-info">
+                              <div className="campground-primary">
+                                <div className="campground-name">
+                                  <strong>{booking.campground?.title || 'Unknown'}</strong>
+                                </div>
+                                <div className="campground-location">
+                                  📍 {booking.campground?.location}
+                                </div>
                               </div>
-                              <div className="check-out">
-                                <span className="date-label">Check-out:</span>
-                                <span className="date-value">{formatDate(booking.endDate)}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="financial-info">
-                              <div className="booking-total">
-                                <strong>{formatCurrency(booking.totalPrice)}</strong>
+                              <div className="campsite-info">
+                                <div className="campsite-name">
+                                  <small>🏕️ {booking.campsite?.name || 'Standard Site'}</small>
+                                </div>
                               </div>
                             </div>
                           </td>
                           <td>
-                            <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
-                              {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) ||
-                                'Pending'}
-                            </span>
+                            <div className="stay-details">
+                              <div className="dates-primary">
+                                <div className="check-in">
+                                  <strong>Check-in:</strong> {formatDate(booking.startDate)}
+                                </div>
+                                <div className="check-out">
+                                  <strong>Check-out:</strong> {formatDate(booking.endDate)}
+                                </div>
+                              </div>
+                              <div className="stay-summary">
+                                <div className="nights">
+                                  <small>
+                                    📅 {booking.totalDays || 1} night
+                                    {(booking.totalDays || 1) > 1 ? 's' : ''}
+                                  </small>
+                                </div>
+                              </div>
+                            </div>
                           </td>
-                          <td className="actions-cell">
-                            <div className="action-buttons">
-                              <Link
-                                to={`/owner/bookings/${booking._id}`}
-                                className="owner-btn owner-btn-secondary owner-btn-sm"
-                                title="View details"
-                              >
-                                👁️
-                              </Link>
-                              {booking.status === 'pending' && (
-                                <>
-                                  <button
-                                    onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
-                                    className="owner-btn owner-btn-primary owner-btn-sm"
-                                    title="Confirm booking"
-                                  >
-                                    ✅
-                                  </button>
-                                  <button
-                                    onClick={() => handleStatusUpdate(booking._id, 'cancelled')}
-                                    className="owner-btn owner-btn-danger owner-btn-sm"
-                                    title="Cancel booking"
-                                  >
-                                    ❌
-                                  </button>
-                                </>
-                              )}
-                              {booking.status === 'confirmed' && (
-                                <button
-                                  onClick={() => handleStatusUpdate(booking._id, 'completed')}
-                                  className="owner-btn owner-btn-outline owner-btn-sm"
-                                  title="Mark as completed"
+                          <td>
+                            <div className="financial-summary">
+                              <div className="amount-primary">
+                                <div className="total-amount">
+                                  <strong>{formatCurrency(booking.totalPrice)}</strong>
+                                </div>
+                              </div>
+                              <div className="payment-info">
+                                <div className="payment-status">
+                                  {booking.paid ? (
+                                    <span className="payment-paid">✅ Paid</span>
+                                  ) : (
+                                    <span className="payment-pending">⏳ Pending</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="status-cell">
+                              <div className="status-primary">
+                                <span
+                                  className={`status-badge ${getStatusBadgeClass(booking.status)}`}
                                 >
-                                  🏁
-                                </button>
-                              )}
+                                  {booking.status}
+                                </span>
+                              </div>
+                              {isBookingPast(booking.endDate) &&
+                                booking.status !== 'completed' &&
+                                booking.status !== 'cancelled' && (
+                                  <div className="past-booking-indicator">
+                                    <small>⏰ Past due</small>
+                                  </div>
+                                )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="actions-cell">
+                              <div className="action-buttons">
+                                {booking.status === 'pending' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
+                                      className="owner-btn owner-btn-success owner-btn-small"
+                                      title="Confirm this booking"
+                                    >
+                                      ✓ Confirm
+                                    </button>
+                                    <button
+                                      onClick={() => handleStatusUpdate(booking._id, 'cancelled')}
+                                      className="owner-btn owner-btn-danger owner-btn-small"
+                                      title="Decline this booking"
+                                    >
+                                      ✗ Decline
+                                    </button>
+                                  </>
+                                )}
+                                <Link
+                                  to={`/owner/bookings/${booking._id}`}
+                                  className="owner-btn owner-btn-outline owner-btn-small"
+                                  title="View detailed booking information"
+                                >
+                                  👁️ Details
+                                </Link>
+                              </div>
                             </div>
                           </td>
                         </tr>
@@ -474,51 +535,30 @@ const OwnerBookingsPage = () => {
 
             {/* Enhanced Pagination */}
             {pagination.totalPages > 1 && (
-              <div className="owner-card pagination-card">
-                <div className="owner-pagination">
-                  <div className="pagination-info">
-                    <span className="page-info">
-                      Page {pagination.page} of {pagination.totalPages}
-                    </span>
-                    <span className="total-info">({pagination.total} total bookings)</span>
-                  </div>
-                  <div className="pagination-controls">
-                    <button
-                      onClick={() => handlePageChange(1)}
-                      disabled={pagination.page === 1}
-                      className="owner-btn owner-btn-outline"
-                    >
-                      First
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(pagination.page - 1)}
-                      disabled={pagination.page === 1}
-                      className="owner-btn owner-btn-outline"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(pagination.page + 1)}
-                      disabled={pagination.page >= pagination.totalPages}
-                      className="owner-btn owner-btn-outline"
-                    >
-                      Next
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(pagination.totalPages)}
-                      disabled={pagination.page >= pagination.totalPages}
-                      className="owner-btn owner-btn-outline"
-                    >
-                      Last
-                    </button>
-                  </div>
+              <div className="owner-pagination">
+                <button
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                  disabled={pagination.page === 1}
+                  className="owner-btn owner-btn-outline"
+                >
+                  Previous
+                </button>
+                <div className="pagination-info">
+                  Page {pagination.page} of {pagination.totalPages}
                 </div>
+                <button
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                  disabled={pagination.page === pagination.totalPages}
+                  className="owner-btn owner-btn-outline"
+                >
+                  Next
+                </button>
               </div>
             )}
           </>
         )}
       </div>
-    </div>
+    </CSSIsolationWrapper>
   );
 };
 

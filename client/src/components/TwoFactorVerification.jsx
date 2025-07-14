@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { logError } from '../utils/logger';
+import CSSIsolationWrapper from './CSSIsolationWrapper';
 import './TwoFactorVerification.css';
 
 /**
@@ -37,9 +38,9 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
   };
 
   return (
-    <div className="two-factor-verification-container">
-      <div className="form-logo">
-        <span className="logo-text">AdventureMate</span>
+    <CSSIsolationWrapper section="common" className="two-factor-verification-container">
+      <div className="common-form-logo">
+        <span className="common-logo-text">AdventureMate</span>
       </div>
 
       <h2>Two-Factor Authentication</h2>
@@ -47,10 +48,10 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
         Enter the verification code from your authenticator app.
       </p>
 
-      {(formError || error) && <div className="error-message">{formError || error}</div>}
+      {(formError || error) && <div className="common-error-message">{formError || error}</div>}
 
-      <form onSubmit={handleSubmit} className="verification-form">
-        <div className="form-group">
+      <form onSubmit={handleSubmit} className="common-verification-form">
+        <div className="common-form-group">
           <label htmlFor="token">Verification Code</label>
           <input
             type="text"
@@ -64,17 +65,22 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
           />
         </div>
 
-        <button type="submit" className="verify-button" disabled={loading}>
+        <button type="submit" className="common-btn common-btn-primary" disabled={loading}>
           {loading ? 'Verifying...' : 'Verify'}
         </button>
 
         {onCancel && (
-          <button type="button" className="cancel-button" onClick={onCancel} disabled={loading}>
+          <button
+            type="button"
+            className="common-btn common-btn-secondary"
+            onClick={onCancel}
+            disabled={loading}
+          >
             Cancel
           </button>
         )}
       </form>
-    </div>
+    </CSSIsolationWrapper>
   );
 };
 

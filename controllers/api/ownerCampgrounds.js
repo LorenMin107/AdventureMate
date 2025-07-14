@@ -46,7 +46,7 @@ const getOwnerCampgrounds = async (req, res) => {
           {
             $match: {
               campground: campground._id,
-              status: 'confirmed',
+              status: { $in: ['confirmed', 'cancelled'] },
               paid: true,
             },
           },
@@ -528,6 +528,15 @@ const updateBookingStatus = async (req, res) => {
   try {
     const { status } = req.body;
     const { id: campgroundId, bookingId } = req.params;
+
+    // Validate status
+    const validStatuses = ['pending', 'confirmed', 'cancelled', 'completed'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Invalid status. Must be one of: pending, confirmed, cancelled, completed',
+      });
+    }
 
     // Verify ownership
     const campground = await Campground.findOne({

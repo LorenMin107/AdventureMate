@@ -264,11 +264,11 @@
 }
 
 /* Enhanced Table */
-.table-container {
+.owner-campgrounds .table-container {
   overflow-x: auto;
 }
 
-.owner-table {
+.owner-campgrounds .owner-table {
   width: 100%;
   border-collapse: collapse;
   background: var(--color-card-bg);
@@ -279,43 +279,43 @@
 }
 
 /* Table column widths for consistent sizing */
-.owner-table th:nth-child(1),
-.owner-table td:nth-child(1) {
+.owner-campgrounds .owner-table th:nth-child(1),
+.owner-campgrounds .owner-table td:nth-child(1) {
   width: 28%; /* Campground name */
 }
 
-.owner-table th:nth-child(2),
-.owner-table td:nth-child(2) {
+.owner-campgrounds .owner-table th:nth-child(2),
+.owner-campgrounds .owner-table td:nth-child(2) {
   width: 18%; /* Location */
 }
 
-.owner-table th:nth-child(3),
-.owner-table td:nth-child(3) {
+.owner-campgrounds .owner-table th:nth-child(3),
+.owner-campgrounds .owner-table td:nth-child(3) {
   width: 12%; /* Campsites */
 }
 
-.owner-table th:nth-child(4),
-.owner-table td:nth-child(4) {
+.owner-campgrounds .owner-table th:nth-child(4),
+.owner-campgrounds .owner-table td:nth-child(4) {
   width: 14%; /* Reviews */
 }
 
-.owner-table th:nth-child(5),
-.owner-table td:nth-child(5) {
+.owner-campgrounds .owner-table th:nth-child(5),
+.owner-campgrounds .owner-table td:nth-child(5) {
   width: 12%; /* Bookings */
 }
 
-.owner-table th:nth-child(6),
-.owner-table td:nth-child(6) {
+.owner-campgrounds .owner-table th:nth-child(6),
+.owner-campgrounds .owner-table td:nth-child(6) {
   width: 10%; /* Status */
 }
 
-.owner-table th:nth-child(7),
-.owner-table td:nth-child(7) {
+.owner-campgrounds .owner-table th:nth-child(7),
+.owner-campgrounds .owner-table td:nth-child(7) {
   width: 12%; /* Created */
 }
 
-.owner-table th,
-.owner-table td {
+.owner-campgrounds .owner-table th,
+.owner-campgrounds .owner-table td {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid var(--color-border);
@@ -324,18 +324,18 @@
   box-sizing: border-box;
 }
 
-.owner-table th.text-center,
-.owner-table td.text-center {
+.owner-campgrounds .owner-table th.text-center,
+.owner-campgrounds .owner-table td.text-center {
   text-align: center;
 }
 
-.owner-table th:last-child,
-.owner-table td:last-child {
+.owner-campgrounds .owner-table th:last-child,
+.owner-campgrounds .owner-table td:last-child {
   text-align: center;
   vertical-align: top;
 }
 
-.owner-table th {
+.owner-campgrounds .owner-table th {
   background: var(--color-card-bg-light);
   color: var(--color-text);
   font-weight: 600;
@@ -350,17 +350,17 @@
   vertical-align: top;
 }
 
-.owner-table th.sortable {
+.owner-campgrounds .owner-table th.sortable {
   cursor: pointer;
 }
 
-.owner-table th.sortable:hover {
+.owner-campgrounds .owner-table th.sortable:hover {
   background: var(--color-primary-light);
   color: var(--color-primary);
 }
 
-.owner-table th.sorted-asc,
-.owner-table th.sorted-desc {
+.owner-campgrounds .owner-table th.sorted-asc,
+.owner-campgrounds .owner-table th.sorted-desc {
   background: var(--color-primary-light);
   color: var(--color-primary);
   border-bottom-color: var(--color-primary);
@@ -380,37 +380,37 @@
   transition: all 0.3s ease;
 }
 
-.owner-table th.sortable:hover .sort-indicator {
+.owner-campgrounds .owner-table th.sortable:hover .sort-indicator {
   opacity: 1;
 }
 
-.owner-table th.sorted-asc .sort-indicator,
-.owner-table th.sorted-desc .sort-indicator {
+.owner-campgrounds .owner-table th.sorted-asc .sort-indicator,
+.owner-campgrounds .owner-table th.sorted-desc .sort-indicator {
   opacity: 1;
   color: var(--color-primary);
 }
 
-.owner-table tr {
+.owner-campgrounds .owner-table tr {
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
-.owner-table tr:hover {
+.owner-campgrounds .owner-table tr:hover {
   background: var(--color-card-bg-light);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.owner-table tr:hover .campground-title strong {
+.owner-campgrounds .owner-table tr:hover .campground-title strong {
   color: var(--color-primary);
 }
 
-.owner-table tr:active {
+.owner-campgrounds .owner-table tr:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.owner-table tr:last-child td {
+.owner-campgrounds .owner-table tr:last-child td {
   border-bottom: none;
 }
 
@@ -470,7 +470,7 @@
 }
 
 /* Location cell alignment */
-.owner-table td:nth-child(2) {
+.owner-campgrounds .owner-table td:nth-child(2) {
   vertical-align: top;
 }
 
@@ -944,44 +944,44 @@
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .owner-table th,
-  .owner-table td {
+  .owner-campgrounds .owner-table th,
+  .owner-campgrounds .owner-table td {
     padding: 0.75rem 0.5rem;
   }
 
   /* Adjust column widths for medium screens */
-  .owner-table th:nth-child(1),
-  .owner-table td:nth-child(1) {
+  .owner-campgrounds .owner-table th:nth-child(1),
+  .owner-campgrounds .owner-table td:nth-child(1) {
     width: 32%;
   }
 
-  .owner-table th:nth-child(2),
-  .owner-table td:nth-child(2) {
+  .owner-campgrounds .owner-table th:nth-child(2),
+  .owner-campgrounds .owner-table td:nth-child(2) {
     width: 20%;
   }
 
-  .owner-table th:nth-child(3),
-  .owner-table td:nth-child(3) {
+  .owner-campgrounds .owner-table th:nth-child(3),
+  .owner-campgrounds .owner-table td:nth-child(3) {
     width: 10%;
   }
 
-  .owner-table th:nth-child(4),
-  .owner-table td:nth-child(4) {
+  .owner-campgrounds .owner-table th:nth-child(4),
+  .owner-campgrounds .owner-table td:nth-child(4) {
     width: 12%;
   }
 
-  .owner-table th:nth-child(5),
-  .owner-table td:nth-child(5) {
+  .owner-campgrounds .owner-table th:nth-child(5),
+  .owner-campgrounds .owner-table td:nth-child(5) {
     width: 10%;
   }
 
-  .owner-table th:nth-child(6),
-  .owner-table td:nth-child(6) {
+  .owner-campgrounds .owner-table th:nth-child(6),
+  .owner-campgrounds .owner-table td:nth-child(6) {
     width: 8%;
   }
 
-  .owner-table th:nth-child(7),
-  .owner-table td:nth-child(7) {
+  .owner-campgrounds .owner-table th:nth-child(7),
+  .owner-campgrounds .owner-table td:nth-child(7) {
     width: 10%;
   }
 }
@@ -1039,11 +1039,11 @@
     justify-content: space-between;
   }
 
-  .table-container {
+  .owner-campgrounds .table-container {
     overflow-x: auto;
   }
 
-  .owner-table {
+  .owner-campgrounds .owner-table {
     min-width: 800px;
   }
 
@@ -1126,8 +1126,8 @@
     text-align: center;
   }
 
-  .owner-table th,
-  .owner-table td {
+  .owner-campgrounds .owner-table th,
+  .owner-campgrounds .owner-table td {
     padding: 0.75rem 0.5rem;
     font-size: 0.85rem;
   }
@@ -1182,8 +1182,8 @@
   outline-offset: 2px;
 }
 
-.owner-table th:focus,
-.owner-table td:focus {
+.owner-campgrounds .owner-table th:focus,
+.owner-campgrounds .owner-table td:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: -2px;
 }
@@ -1212,7 +1212,7 @@
   animation-delay: 0.2s;
 }
 
-.owner-table tr {
+.owner-campgrounds .owner-table tr {
   animation: fadeIn 0.4s ease-out;
 }
 
@@ -1232,12 +1232,12 @@
     border: 1px solid #ccc;
   }
 
-  .owner-table th {
+  .owner-campgrounds .owner-table th {
     background: #f8f9fa !important;
     color: #000 !important;
   }
 
-  .owner-table td {
+  .owner-campgrounds .owner-table td {
     border-bottom: 1px solid #ccc;
   }
 }

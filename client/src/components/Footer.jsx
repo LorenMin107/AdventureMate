@@ -1,28 +1,43 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import './Footer.css';
 
-/**
- * Footer component for the application
- * Contains links, contact information, and copyright notice
- */
 const Footer = () => {
-  const { currentUser, isAuthenticated } = useAuth();
-
-  // Hide "List your campground" link for admin users
+  const { currentUser } = useAuth();
+  const { theme } = useTheme();
   const showListCampgroundLink = !currentUser?.isAdmin;
 
+  // Scroll to top handler
+  const handleBackToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <footer className="footer">
+    <footer className={`footer footer--${theme}`} role="contentinfo">
       <div className="container">
         <div className="footer-content">
-          <div className="footer-section">
-            <h3>AdventureMate</h3>
-            <p>Discover, book, and review campgrounds in Thailand</p>
+          {/* About Section */}
+          <div className="footer-section about">
+            <h3 className="footer-title">AdventureMate</h3>
+            <p className="footer-description">Discover, book, and review campgrounds in Thailand</p>
+            <div className="footer-social">
+              {/* Placeholder social icons (replace with real icons as needed) */}
+              <a href="#" aria-label="Facebook" className="footer-social-link" tabIndex={0}>
+                FB
+              </a>
+              <a href="#" aria-label="Twitter" className="footer-social-link" tabIndex={0}>
+                TW
+              </a>
+              <a href="#" aria-label="Instagram" className="footer-social-link" tabIndex={0}>
+                IG
+              </a>
+            </div>
           </div>
 
-          <div className="footer-section">
-            <h3>Links</h3>
+          {/* Links Section */}
+          <div className="footer-section links">
+            <h3 className="footer-title">Links</h3>
             <ul className="footer-links">
               <li>
                 <Link to="/">Home</Link>
@@ -44,13 +59,26 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div className="footer-section">
-            <h3>Contact</h3>
-            <p>Email: info@adventuremate.com</p>
-            <p>Phone: +95 123 456 789</p>
+          {/* Contact Section */}
+          <div className="footer-section contact">
+            <h3 className="footer-title">Contact</h3>
+            <p>
+              Email:{' '}
+              <a href="mailto:info@adventuremate.com" className="footer-link">
+                info@adventuremate.com
+              </a>
+            </p>
+            <p>
+              Phone:{' '}
+              <a href="tel:+95123456789" className="footer-link">
+                +95 123 456 789
+              </a>
+            </p>
+            <button className="footer-top-btn" onClick={handleBackToTop} aria-label="Back to top">
+              ↑ Back to top
+            </button>
           </div>
         </div>
-
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} AdventureMate. All rights reserved.</p>
         </div>

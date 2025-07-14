@@ -24,7 +24,27 @@ const BookingDetailPage = () => {
       }
 
       try {
-        const response = await apiClient.get(`/bookings/${id}`);
+        // Try owner endpoint first if user is an owner
+        let endpoint = `/bookings/${id}`;
+        let response;
+
+        if (currentUser.isOwner) {
+          try {
+            // First try the owner endpoint (for bookings on their campgrounds)
+            response = await apiClient.get(`/owners/bookings/${id}`);
+          } catch (ownerErr) {
+            if (ownerErr.response?.status === 403) {
+              // If 403, it means the owner doesn't own this campground
+              // So this is likely their own booking as a customer
+              response = await apiClient.get(`/bookings/${id}`);
+            } else {
+              throw ownerErr;
+            }
+          }
+        } else {
+          response = await apiClient.get(endpoint);
+        }
+
         const data = response.data;
         setBooking(data.booking);
       } catch (err) {

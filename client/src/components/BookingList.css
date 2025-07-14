@@ -8,7 +8,9 @@
   color: var(--color-text);
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.5rem;
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .booking-list-table-container {
@@ -21,7 +23,9 @@
   border-collapse: collapse;
   box-shadow: 0 1px 3px var(--color-card-shadow);
   background-color: var(--color-card-bg);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .booking-list-table th,
@@ -37,7 +41,9 @@
   font-weight: bold;
   color: var(--color-text);
   opacity: 0.8;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .booking-list-table tr:hover {
@@ -64,21 +70,106 @@
   transition: color 0.3s ease;
 }
 
-.booking-list-view-button {
+/* Status Badges */
+.status-badge {
   display: inline-block;
-  background-color: var(--color-button-bg);
-  color: var(--color-button-text);
-  padding: 0.5rem 0.75rem;
-  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-confirmed {
+  background: var(--color-success-light);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.status-pending {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+.status-cancelled {
+  background: var(--color-error-light);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+.status-default {
+  background: var(--color-text-light);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+/* Actions Column */
+.booking-list-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.booking-list-view-button {
+  background: var(--color-primary);
+  color: white;
   text-decoration: none;
-  font-size: 0.875rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
 }
 
 .booking-list-view-button:hover {
-  background-color: var(--color-button-hover);
-  text-decoration: none;
-  color: var(--color-button-text);
+  background: var(--color-primary-hover);
+  color: white;
+}
+
+.booking-list-cancel-button {
+  background: var(--color-error);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.booking-list-cancel-button:hover:not(:disabled) {
+  background: var(--color-error-dark);
+}
+
+.booking-list-cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Cancel Warning in Dialog */
+.cancel-warning {
+  background: var(--color-warning-light);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.cancel-warning p {
+  margin: 0.5rem 0;
+  color: var(--color-text);
+}
+
+.cancel-warning p:first-child {
+  margin-top: 0;
+}
+
+.cancel-warning p:last-child {
+  margin-bottom: 0;
 }
 
 .booking-list-loading,
@@ -113,7 +204,9 @@
   border-radius: 4px;
   text-decoration: none;
   margin-top: 1rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .booking-list-browse-link:hover {
@@ -126,7 +219,9 @@
   background-color: var(--color-card-bg);
   color: var(--color-text);
   opacity: 0.9;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .booking-list-login-message a {
@@ -145,5 +240,23 @@
   .booking-list-view-button {
     padding: 0.4rem 0.6rem;
     font-size: 0.8rem;
+  }
+
+  /* Responsive design for actions */
+  .booking-list-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .booking-list-view-button,
+  .booking-list-cancel-button {
+    width: 100%;
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .status-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
   }
 }

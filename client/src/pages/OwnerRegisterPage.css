@@ -398,6 +398,111 @@
   text-decoration: underline;
 }
 
+/* Auth Required State Styles */
+.auth-required-card {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.auth-required-content {
+  padding: 2rem;
+}
+
+.auth-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-required-content h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.auth-description {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.auth-benefits {
+  background: var(--color-card-bg-light);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.auth-benefits h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.auth-benefits ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.auth-benefits li {
+  padding: 0.5rem 0;
+  color: var(--color-text);
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.auth-benefits li:before {
+  content: '✓';
+  color: var(--color-success);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.auth-buttons .btn {
+  min-width: 140px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.auth-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.auth-footer p {
+  margin: 0.5rem 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.auth-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .header-content {
@@ -611,4 +716,50 @@
 
 .owner-register-page.dark-theme .step-label {
   color: var(--color-text-muted);
+}
+
+/* Dark theme support for auth required state */
+.owner-register-page.dark-theme .auth-benefits {
+  background: var(--color-card-bg-light);
+}
+
+.owner-register-page.dark-theme .auth-footer {
+  border-color: var(--color-border);
+}
+
+/* Responsive design for auth required state */
+@media (max-width: 768px) {
+  .auth-required-content {
+    padding: 1.5rem;
+  }
+
+  .auth-icon {
+    font-size: 3rem;
+  }
+
+  .auth-required-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .auth-description {
+    font-size: 1rem;
+  }
+
+  .auth-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .auth-buttons .btn {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .auth-benefits {
+    padding: 1rem;
+  }
+
+  .auth-benefits li {
+    font-size: 0.95rem;
+  }
 }

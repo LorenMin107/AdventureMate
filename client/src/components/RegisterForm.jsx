@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { logError } from '../utils/logger';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import CSSIsolationWrapper from './CSSIsolationWrapper';
 import './RegisterForm.css';
 import apiClient from '../utils/api';
 
@@ -242,32 +243,32 @@ const RegisterForm = () => {
 
   if (isAuthenticated && inviteToken) {
     return (
-      <div className="register-container">
+      <CSSIsolationWrapper section="common" className="register-container">
         {inviteError ? (
-          <div className="form-error">{inviteError}</div>
+          <div className="common-form-error">{inviteError}</div>
         ) : inviteTripId ? (
-          <div className="form-success">
+          <div className="common-form-success">
             You are already logged in. Redirecting you to the trip...
           </div>
         ) : (
-          <div className="form-success">Checking your invite...</div>
+          <div className="common-form-success">Checking your invite...</div>
         )}
-      </div>
+      </CSSIsolationWrapper>
     );
   }
 
   return (
-    <div className="register-form-container">
-      <div className="form-logo">
-        <span className="logo-text">AdventureMate</span>
+    <CSSIsolationWrapper section="common" className="register-form-container">
+      <div className="common-form-logo">
+        <span className="common-logo-text">AdventureMate</span>
       </div>
 
       <h2>Sign up for AdventureMate</h2>
 
-      {(formError || error) && <div className="error-message">{formError || error}</div>}
+      {(formError || error) && <div className="common-error-message">{formError || error}</div>}
 
-      <form onSubmit={handleSubmit} className="register-form">
-        <div className="form-group">
+      <form onSubmit={handleSubmit} className="common-register-form">
+        <div className="common-form-group">
           <label htmlFor="username">Username</label>
           <input
             type="text"
@@ -281,7 +282,7 @@ const RegisterForm = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="common-form-group">
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -295,7 +296,7 @@ const RegisterForm = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="common-form-group">
           <label htmlFor="phone">Phone</label>
           <input
             type="tel"
@@ -309,9 +310,9 @@ const RegisterForm = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="common-form-group">
           <label htmlFor="password">Password</label>
-          <div className="password-input-container">
+          <div className="common-password-input-container">
             <input
               type={showPassword ? 'text' : 'password'}
               id="password"
@@ -321,11 +322,11 @@ const RegisterForm = () => {
               disabled={loading}
               required
               placeholder="Create a password"
-              className="password-input"
+              className="common-password-input"
             />
             <button
               type="button"
-              className="password-toggle"
+              className="common-password-toggle"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
@@ -334,23 +335,26 @@ const RegisterForm = () => {
           </div>
 
           {formData.password && (
-            <div className="password-strength">
-              <div className="password-strength-bar">
+            <div className="common-password-strength">
+              <div className="common-password-strength-bar">
                 <div
-                  className="password-strength-progress"
+                  className="common-password-strength-progress"
                   style={{
                     width: `${(passwordStrength.score / 5) * 100}%`,
                     backgroundColor: passwordStrength.color,
                   }}
                 ></div>
               </div>
-              <div className="password-strength-text" style={{ color: passwordStrength.color }}>
+              <div
+                className="common-password-strength-text"
+                style={{ color: passwordStrength.color }}
+              >
                 {passwordStrength.message}
               </div>
             </div>
           )}
 
-          <div className="password-requirements">
+          <div className="common-password-requirements">
             <p>Password must:</p>
             <ul>
               <li className={formData.password.length >= 8 ? 'met' : ''}>
@@ -372,9 +376,9 @@ const RegisterForm = () => {
           </div>
         </div>
 
-        <div className="form-group">
+        <div className="common-form-group">
           <label htmlFor="confirmPassword">Confirm Password</label>
-          <div className="password-input-container">
+          <div className="common-password-input-container">
             <input
               type={showConfirmPassword ? 'text' : 'password'}
               id="confirmPassword"
@@ -384,11 +388,11 @@ const RegisterForm = () => {
               disabled={loading}
               required
               placeholder="Confirm your password"
-              className="password-input"
+              className="common-password-input"
             />
             <button
               type="button"
-              className="password-toggle"
+              className="common-password-toggle"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
             >
@@ -399,19 +403,19 @@ const RegisterForm = () => {
 
         <button
           type="submit"
-          className="register-button"
+          className="common-btn common-btn-primary"
           disabled={loading || (formData.password && passwordStrength.score < 3)}
         >
           {loading ? 'Creating Account...' : 'Sign up'}
         </button>
       </form>
 
-      <div className="form-footer">
+      <div className="common-form-footer">
         <p>
           Already have an account? <Link to="/login">Log in</Link>
         </p>
       </div>
-    </div>
+    </CSSIsolationWrapper>
   );
 };
 

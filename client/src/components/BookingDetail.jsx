@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import { useFlashMessage } from '../context/FlashMessageContext';
+import { useCancelBooking } from '../hooks/useBookings';
 import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
+import ConfirmDialog from './common/ConfirmDialog';
 import './BookingDetail.css';
 
 /**
@@ -17,10 +20,16 @@ const BookingDetail = ({ initialBooking = null }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useAuth();
+  const { addSuccessMessage, addErrorMessage } = useFlashMessage();
+  const cancelBookingMutation = useCancelBooking();
 
   const [booking, setBooking] = useState(initialBooking);
   const [loading, setLoading] = useState(!initialBooking);
   const [error, setError] = useState(null);
+  const [cancelDialog, setCancelDialog] = useState({
+    open: false,
+    booking: null,
+  });
 
   useEffect(() => {
     // If we have initial booking data, no need to fetch
@@ -39,7 +48,27 @@ const BookingDetail = ({ initialBooking = null }) => {
     const fetchBooking = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get(`/bookings/${id}`);
+
+        // Try owner endpoint first if user is an owner
+        let response;
+
+        if (currentUser?.isOwner) {
+          try {
+            // First try the owner endpoint (for bookings on their campgrounds)
+            response = await apiClient.get(`/owners/bookings/${id}`);
+          } catch (ownerErr) {
+            if (ownerErr.response?.status === 403) {
+              // If 403, it means the owner doesn't own this campground
+              // So this is likely their own booking as a customer
+              response = await apiClient.get(`/bookings/${id}`);
+            } else {
+              throw ownerErr;
+            }
+          }
+        } else {
+          response = await apiClient.get(`/bookings/${id}`);
+        }
+
         const data = response.data;
         setBooking(data.booking);
         setError(null);
@@ -53,6 +82,38 @@ const BookingDetail = ({ initialBooking = null }) => {
 
     fetchBooking();
   }, [id, initialBooking, isAuthenticated]);
+
+  const handleCancelClick = () => {
+    setCancelDialog({
+      open: true,
+      booking,
+    });
+  };
+
+  const handleCancelConfirm = async () => {
+    try {
+      await cancelBookingMutation.mutateAsync(booking._id);
+
+      // Update the booking status locally
+      setBooking((prev) => ({ ...prev, status: 'cancelled' }));
+
+      addSuccessMessage(
+        'Booking cancelled successfully. Please note that no refunds will be issued for cancelled bookings.'
+      );
+
+      // Close the dialog
+      setCancelDialog({ open: false, booking: null });
+    } catch (error) {
+      logError('Error cancelling booking', error);
+      addErrorMessage(
+        error.response?.data?.message || 'Failed to cancel booking. Please try again.'
+      );
+    }
+  };
+
+  const handleCancelCancel = () => {
+    setCancelDialog({ open: false, booking: null });
+  };
 
   if (!isAuthenticated) {
     return (
@@ -75,7 +136,9 @@ const BookingDetail = ({ initialBooking = null }) => {
   }
 
   // Check if user is authorized to view this booking
-  const isAuthorized = currentUser && (currentUser._id === booking.user._id || currentUser.isAdmin);
+  const isAuthorized =
+    currentUser &&
+    (currentUser._id === booking.user._id || currentUser.isAdmin || currentUser.isOwner);
 
   if (!isAuthorized) {
     return (
@@ -91,7 +154,15 @@ const BookingDetail = ({ initialBooking = null }) => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const { campground, campsite, startDate, endDate, totalDays, totalPrice, sessionId } = booking;
+  const { campground, campsite, startDate, endDate, totalDays, totalPrice, sessionId, status } =
+    booking;
+
+  // Check if booking can be cancelled (not already cancelled and not in the past)
+  // Only the booking owner can cancel, not campground owners
+  const canCancel =
+    status !== 'cancelled' &&
+    new Date(startDate) > new Date() &&
+    currentUser._id === booking.user._id;
 
   return (
     <div className="booking-detail">
@@ -109,6 +180,11 @@ const BookingDetail = ({ initialBooking = null }) => {
           <div className="booking-detail-campground-info">
             <h3>{campground.title}</h3>
             <p className="booking-detail-location">{campground.location}</p>
+            {status && (
+              <div className={`booking-detail-status booking-detail-status-${status}`}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </div>
+            )}
           </div>
 
           {campsite && (
@@ -229,9 +305,46 @@ const BookingDetail = ({ initialBooking = null }) => {
                 View Campsite
               </Link>
             )}
+
+            {canCancel && (
+              <button
+                onClick={handleCancelClick}
+                className="booking-detail-cancel-button"
+                disabled={cancelBookingMutation.isLoading}
+              >
+                {cancelBookingMutation.isLoading ? 'Cancelling...' : 'Cancel Booking'}
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={cancelDialog.open}
+        onClose={handleCancelCancel}
+        onConfirm={handleCancelConfirm}
+        title="Cancel Booking"
+        message={
+          <div>
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>Are you sure you want to cancel this booking?</strong>
+            </div>
+            <div style={{ marginBottom: '1rem' }}>This action cannot be undone.</div>
+            <div className="cancel-warning">
+              <div style={{ marginBottom: '0.5rem' }}>
+                <strong>⚠️ Important: No Refunds</strong>
+              </div>
+              <div>
+                Please note that cancelled bookings are not eligible for refunds. The full amount
+                paid will not be returned.
+              </div>
+            </div>
+          </div>
+        }
+        confirmLabel="Cancel Booking (No Refund)"
+        cancelLabel="Keep Booking"
+        confirmButtonClass="danger"
+      />
     </div>
   );
 };

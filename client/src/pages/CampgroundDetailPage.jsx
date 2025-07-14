@@ -9,6 +9,7 @@ import SafetyAlertForm from '../components/SafetyAlertForm';
 import ReviewList from '../components/ReviewList';
 import ReviewForm from '../components/ReviewForm';
 import CampsiteList from '../components/CampsiteList';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 import { logError, logInfo } from '../utils/logger';
 import './CampgroundDetailPage.css';
 
@@ -39,6 +40,10 @@ const CampgroundDetailPage = () => {
   const [safetyAlertsKey, setSafetyAlertsKey] = useState(0);
   const [campsites, setCampsites] = useState([]);
   const [loadingCampsites, setLoadingCampsites] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    campground: null,
+  });
 
   // Fetch campground data
   useEffect(() => {
@@ -245,11 +250,14 @@ const CampgroundDetailPage = () => {
   }, [loading, campground]);
 
   // Handle campground deletion
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this campground?')) {
-      return;
-    }
+  const handleDeleteClick = () => {
+    setDeleteDialog({
+      open: true,
+      campground,
+    });
+  };
 
+  const handleDeleteConfirm = async () => {
     try {
       const response = await apiClient.delete(`/campgrounds/${id}`);
 
@@ -261,6 +269,10 @@ const CampgroundDetailPage = () => {
       logError('Error deleting campground', err);
       alert(err.response?.data?.message || 'Failed to delete campground. Please try again later.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ open: false, campground: null });
   };
 
   // Handle review submission
@@ -404,7 +416,7 @@ const CampgroundDetailPage = () => {
             <Link to={`/campgrounds/${id}/edit`} className="common-btn common-btn-secondary">
               Edit
             </Link>
-            <button onClick={handleDelete} className="common-btn common-btn-danger">
+            <button onClick={handleDeleteClick} className="common-btn common-btn-danger">
               Delete
             </button>
           </div>
@@ -564,6 +576,16 @@ const CampgroundDetailPage = () => {
         />
         <ReviewForm campgroundId={id} onReviewSubmitted={handleReviewSubmitted} />
       </div>
+
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Campground"
+        message={`Are you sure you want to delete "${deleteDialog.campground?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      />
     </div>
   );
 };

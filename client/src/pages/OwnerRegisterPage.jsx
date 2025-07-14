@@ -573,32 +573,75 @@ const OwnerRegisterPage = () => {
   if (!isAuthenticated) {
     return (
       <div className={`owner-register-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
-        <div className="register-container">
-          <div className="register-header">
-            <h1>Become a Campground Owner</h1>
-            <p>
-              Join AdventureMate as a verified campground owner and start earning from your
-              property.
-            </p>
-          </div>
+        <div className="owner-page-header">
+          <div className="header-content">
+            <div className="greeting-section">
+              <h1>Become a Campground Owner</h1>
+              <p className="header-subtitle">
+                Join AdventureMate as a verified campground owner and start earning from your
+                property.
+              </p>
+            </div>
 
-          <div className="auth-required-message">
-            <h2>Create an Account or Sign In</h2>
-            <p>You need to have an account to register as a campground owner.</p>
-            <div className="auth-buttons">
-              <Link to="/register" className="btn btn-primary">
-                Create Account
-              </Link>
-              <Link to="/login" className="btn btn-secondary">
-                Sign In
-              </Link>
+            <div className="header-stats">
+              <div className="header-stat">
+                <div className="stat-value">1000+</div>
+                <div className="stat-label">Active Owners</div>
+              </div>
+              <div className="header-stat">
+                <div className="stat-value">95%</div>
+                <div className="stat-label">Approval Rate</div>
+              </div>
+              <div className="header-stat">
+                <div className="stat-value">24h</div>
+                <div className="stat-label">Response Time</div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="register-footer">
-            <p>
-              Need help? <a href="mailto:support@adventuremate.com">Contact Support</a>
-            </p>
+        <div className="profile-content">
+          <div className="owner-card auth-required-card">
+            <div className="auth-required-content">
+              <div className="auth-icon">
+                <span>🔐</span>
+              </div>
+
+              <h2>Create an Account or Sign In</h2>
+              <p className="auth-description">
+                To register as a campground owner, you need to have an AdventureMate account. This
+                helps us verify your identity and provide you with the best owner experience.
+              </p>
+
+              <div className="auth-benefits">
+                <h3>Why become an owner?</h3>
+                <ul>
+                  <li>💰 Earn money from your campground</li>
+                  <li>📈 Access to detailed analytics and insights</li>
+                  <li>🔧 Easy-to-use management tools</li>
+                  <li>📱 Mobile-friendly dashboard</li>
+                  <li>🎯 Reach thousands of potential campers</li>
+                </ul>
+              </div>
+
+              <div className="auth-buttons">
+                <Link to="/register" className="btn btn-primary">
+                  Create Account
+                </Link>
+                <Link to="/login" className="btn btn-secondary">
+                  Sign In
+                </Link>
+              </div>
+
+              <div className="auth-footer">
+                <p>
+                  Already have an owner account? <Link to="/owner/dashboard">Go to Dashboard</Link>
+                </p>
+                <p>
+                  Need help? <a href="mailto:support@adventuremate.com">Contact Support</a>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

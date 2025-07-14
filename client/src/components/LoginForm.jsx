@@ -5,6 +5,7 @@ import { useFlashMessage } from '../context/FlashMessageContext';
 import TwoFactorVerification from './TwoFactorVerification';
 import { logError } from '../utils/logger';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import CSSIsolationWrapper from './CSSIsolationWrapper';
 import './LoginForm.css';
 
 /**
@@ -115,17 +116,17 @@ const LoginForm = () => {
 
   // Otherwise, show the login form
   return (
-    <div className="login-form-container">
-      <div className="form-logo">
-        <span className="logo-text">AdventureMate</span>
+    <CSSIsolationWrapper section="common" className="login-form-container">
+      <div className="common-form-logo">
+        <span className="common-logo-text">AdventureMate</span>
       </div>
 
       <h2>Log in to your account</h2>
 
-      {(formError || error) && <div className="error-message">{formError || error}</div>}
+      {(formError || error) && <div className="common-error-message">{formError || error}</div>}
 
-      <form onSubmit={handleSubmit} className="login-form">
-        <div className="form-group">
+      <form onSubmit={handleSubmit} className="common-login-form">
+        <div className="common-form-group">
           <label htmlFor="username">Username</label>
           <input
             type="text"
@@ -137,9 +138,9 @@ const LoginForm = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="common-form-group">
           <label htmlFor="password">Password</label>
-          <div className="password-input-container">
+          <div className="common-password-input-container">
             <input
               type={showPassword ? 'text' : 'password'}
               id="password"
@@ -147,24 +148,24 @@ const LoginForm = () => {
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
               placeholder="Enter your password"
-              className="password-input"
+              className="common-password-input"
             />
             <button
               type="button"
-              className="password-toggle"
+              className="common-password-toggle"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
           </div>
-          <div className="forgot-password-link">
+          <div className="common-forgot-password-link">
             <Link to="/forgot-password">Forgot password?</Link>
           </div>
         </div>
 
-        <div className="form-group checkbox-group">
-          <label className="checkbox-label">
+        <div className="common-form-group common-checkbox-group">
+          <label className="common-checkbox-label">
             <input
               type="checkbox"
               checked={rememberMe}
@@ -175,17 +176,17 @@ const LoginForm = () => {
           </label>
         </div>
 
-        <button type="submit" className="login-button" disabled={loading}>
+        <button type="submit" className="common-btn common-btn-primary" disabled={loading}>
           {loading ? 'Logging in...' : 'Continue'}
         </button>
       </form>
 
-      <div className="form-footer">
+      <div className="common-form-footer">
         <p>
           Don't have an account? <Link to="/register">Sign up</Link>
         </p>
       </div>
-    </div>
+    </CSSIsolationWrapper>
   );
 };
 

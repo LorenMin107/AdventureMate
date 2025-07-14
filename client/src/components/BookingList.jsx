@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import { useFlashMessage } from '../context/FlashMessageContext';
+import { useCancelBooking } from '../hooks/useBookings';
 import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
+import ConfirmDialog from './common/ConfirmDialog';
 import './BookingList.css';
 
 /**
@@ -18,6 +21,13 @@ const BookingList = ({ initialBookings = [] }) => {
   const [loading, setLoading] = useState(!initialBookings.length);
   const [error, setError] = useState(null);
   const { currentUser, isAuthenticated } = useAuth();
+  const { addSuccessMessage, addErrorMessage } = useFlashMessage();
+  const cancelBookingMutation = useCancelBooking();
+
+  const [cancelDialog, setCancelDialog] = useState({
+    open: false,
+    booking: null,
+  });
 
   useEffect(() => {
     // If we have initial bookings, no need to fetch
@@ -58,6 +68,42 @@ const BookingList = ({ initialBookings = [] }) => {
     fetchBookings();
   }, [initialBookings, isAuthenticated]);
 
+  const handleCancelClick = (booking) => {
+    setCancelDialog({
+      open: true,
+      booking,
+    });
+  };
+
+  const handleCancelConfirm = async () => {
+    const { booking } = cancelDialog;
+
+    try {
+      await cancelBookingMutation.mutateAsync(booking._id);
+
+      // Update the booking status locally
+      setBookings((prev) =>
+        prev.map((b) => (b._id === booking._id ? { ...b, status: 'cancelled' } : b))
+      );
+
+      addSuccessMessage(
+        'Booking cancelled successfully. Please note that no refunds will be issued for cancelled bookings.'
+      );
+
+      // Close the dialog
+      setCancelDialog({ open: false, booking: null });
+    } catch (error) {
+      logError('Error cancelling booking', error);
+      addErrorMessage(
+        error.response?.data?.message || 'Failed to cancel booking. Please try again.'
+      );
+    }
+  };
+
+  const handleCancelCancel = () => {
+    setCancelDialog({ open: false, booking: null });
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="booking-list-login-message">
@@ -91,6 +137,25 @@ const BookingList = ({ initialBookings = [] }) => {
     return new Date(dateString).toLocaleDateString();
   };
 
+  // Check if booking can be cancelled
+  const canCancelBooking = (booking) => {
+    return booking.status !== 'cancelled' && new Date(booking.startDate) > new Date();
+  };
+
+  // Get status badge class
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'confirmed':
+        return 'status-confirmed';
+      case 'pending':
+        return 'status-pending';
+      case 'cancelled':
+        return 'status-cancelled';
+      default:
+        return 'status-default';
+    }
+  };
+
   return (
     <div className="booking-list">
       <h2 className="booking-list-title">{currentUser.username}'s Bookings</h2>
@@ -105,6 +170,7 @@ const BookingList = ({ initialBookings = [] }) => {
               <th>Check-out</th>
               <th>Days</th>
               <th>Total</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -126,15 +192,59 @@ const BookingList = ({ initialBookings = [] }) => {
                 <td>{booking.totalDays}</td>
                 <td className="booking-list-price">${booking.totalPrice.toFixed(2)}</td>
                 <td>
+                  <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
+                    {booking.status
+                      ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1)
+                      : 'Pending'}
+                  </span>
+                </td>
+                <td className="booking-list-actions">
                   <Link to={`/bookings/${booking._id}`} className="booking-list-view-button">
-                    View Details
+                    View
                   </Link>
+                  {canCancelBooking(booking) && (
+                    <button
+                      onClick={() => handleCancelClick(booking)}
+                      className="booking-list-cancel-button"
+                      disabled={cancelBookingMutation.isLoading}
+                      title="Cancel booking (no refunds)"
+                    >
+                      {cancelBookingMutation.isLoading ? '...' : 'Cancel'}
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        open={cancelDialog.open}
+        onClose={handleCancelCancel}
+        onConfirm={handleCancelConfirm}
+        title="Cancel Booking"
+        message={
+          <div>
+            <div style={{ marginBottom: '1rem' }}>
+              <strong>Are you sure you want to cancel this booking?</strong>
+            </div>
+            <div style={{ marginBottom: '1rem' }}>This action cannot be undone.</div>
+            <div className="cancel-warning">
+              <div style={{ marginBottom: '0.5rem' }}>
+                <strong>⚠️ Important: No Refunds</strong>
+              </div>
+              <div>
+                Please note that cancelled bookings are not eligible for refunds. The full amount
+                paid will not be returned.
+              </div>
+            </div>
+          </div>
+        }
+        confirmLabel="Cancel Booking (No Refund)"
+        cancelLabel="Keep Booking"
+        confirmButtonClass="danger"
+      />
     </div>
   );
 };

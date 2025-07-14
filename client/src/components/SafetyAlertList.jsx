@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import apiClient from '../utils/api';
 import { logError, logInfo } from '../utils/logger';
+import ConfirmDialog from './common/ConfirmDialog';
 import './SafetyAlertList.css';
 
 /**
@@ -28,6 +29,10 @@ const SafetyAlertList = ({
   const [alerts, setAlerts] = useState(initialAlerts);
   const [loading, setLoading] = useState(!initialAlerts.length);
   const [error, setError] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    alert: null,
+  });
   const { currentUser } = useAuth();
   const { theme } = useTheme();
 
@@ -122,26 +127,39 @@ const SafetyAlertList = ({
     }
   }, [initialAlerts]);
 
-  const handleDeleteAlert = async (alertId) => {
-    if (!window.confirm('Are you sure you want to delete this safety alert?')) {
-      return;
-    }
+  const handleDeleteClick = (alertId) => {
+    const alert = alerts.find((a) => a._id === alertId);
+    setDeleteDialog({
+      open: true,
+      alert,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const { alert } = deleteDialog;
 
     try {
       const entityPath = entityType === 'campsite' ? 'campsite-safety-alerts' : 'campgrounds';
-      await apiClient.delete(`/${entityPath}/${entityId}/safety-alerts/${alertId}`);
+      await apiClient.delete(`/${entityPath}/${entityId}/safety-alerts/${alert._id}`);
 
       // Update local state
-      setAlerts(alerts.filter((alert) => alert._id !== alertId));
+      setAlerts(alerts.filter((a) => a._id !== alert._id));
 
       // Notify parent component
       if (onAlertDeleted) {
-        onAlertDeleted(alertId);
+        onAlertDeleted(alert._id);
       }
+
+      // Close the dialog
+      setDeleteDialog({ open: false, alert: null });
     } catch (err) {
       logError('Error deleting safety alert', err);
       alert('Failed to delete safety alert. Please try again later.');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ open: false, alert: null });
   };
 
   const handleAcknowledgeAlert = async (alertId) => {
@@ -592,7 +610,7 @@ const SafetyAlertList = ({
 
                   {canDelete && (
                     <button
-                      onClick={() => handleDeleteAlert(alert._id)}
+                      onClick={() => handleDeleteClick(alert._id)}
                       className="safety-alert-delete-button"
                       aria-label="Delete alert"
                     >
@@ -604,6 +622,16 @@ const SafetyAlertList = ({
             </div>
           );
         })}
+
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Safety Alert"
+        message={`Are you sure you want to delete "${deleteDialog.alert?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      />
     </div>
   );
 };

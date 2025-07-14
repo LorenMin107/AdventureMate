@@ -1,20 +1,22 @@
-/* Airbnb-inspired register form styling */
-.register-form-container {
+/* Airbnb-inspired register form styling with CSS isolation */
+.register-form-container.common-page {
   max-width: 568px;
   margin: 3rem auto;
   padding: 2.5rem;
   background-color: var(--color-card-bg);
   border-radius: 12px;
   box-shadow: 0 6px 20px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-.form-logo {
+.common-form-logo {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.logo-text {
+.common-logo-text {
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--color-primary);
@@ -24,7 +26,7 @@
   transition: color 0.3s ease;
 }
 
-.logo-text::after {
+.common-logo-text::after {
   content: '';
   position: absolute;
   bottom: -8px;
@@ -33,14 +35,16 @@
   height: 2px;
   background-color: var(--color-primary);
   transform: scaleX(0.7);
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
-.logo-text:hover::after {
+.common-logo-text:hover::after {
   transform: scaleX(1);
 }
 
-.register-form-container h2 {
+.register-form-container.common-page h2 {
   text-align: left;
   margin-bottom: 1.5rem;
   color: var(--color-text);
@@ -49,7 +53,7 @@
   transition: color 0.3s ease;
 }
 
-.error-message {
+.common-error-message {
   background-color: #fff8f8; /* Lighter red background for Airbnb style */
   color: #ff385c; /* Airbnb-like red color */
   padding: 0.75rem;
@@ -59,58 +63,62 @@
   border: 1px solid #ffb4bc;
 }
 
-.register-form {
+.common-register-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.form-group {
+.common-form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group label {
+.common-form-group label {
   font-weight: 600;
   color: var(--color-text);
   font-size: 0.9rem;
   transition: color 0.3s ease;
 }
 
-.form-group input {
+.common-form-group input {
   padding: 1rem;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 1rem;
   background-color: var(--color-card-bg);
   color: var(--color-text);
-  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
   width: 100%;
   box-sizing: border-box;
 }
 
-.form-group input:focus {
+.common-form-group input:focus {
   border-color: var(--color-primary);
   outline: none;
   box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2); /* Using primary color with transparency */
 }
 
 /* Password input container */
-.password-input-container {
+.common-password-input-container {
   position: relative;
   width: 100%;
   display: flex;
   align-items: center;
 }
 
-.password-input {
+.common-password-input {
   flex: 1;
   padding-right: 2.5rem; /* Make room for the toggle button */
   width: 100%;
 }
 
-.password-toggle {
+.common-password-toggle {
   position: absolute;
   right: 8px;
   top: 50%;
@@ -132,10 +140,10 @@
 }
 
 /* Completely disable all hover and active states */
-.password-toggle:hover,
-.password-toggle:active,
-.password-toggle:focus,
-.password-toggle:focus-visible {
+.common-password-toggle:hover,
+.common-password-toggle:active,
+.common-password-toggle:focus,
+.common-password-toggle:focus-visible {
   background: transparent !important;
   color: var(--color-text-secondary) !important;
   outline: none !important;
@@ -143,38 +151,12 @@
   transform: translateY(-50%) !important;
 }
 
-.password-toggle:focus {
+.common-password-toggle:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
 }
 
-.register-button {
-  background-color: var(--color-button-bg);
-  color: var(--color-button-text);
-  padding: 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.3s ease;
-  margin-top: 0.75rem;
-}
-
-.register-button:hover {
-  background-color: var(--color-button-hover);
-  transform: scale(1.01);
-}
-
-.register-button:disabled {
-  background-color: var(--color-border);
-  color: var(--color-text);
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.form-footer {
+.common-form-footer {
   margin-top: 2rem;
   text-align: center;
   font-size: 1rem;
@@ -185,24 +167,24 @@
   border-top: 1px solid var(--color-border);
 }
 
-.form-footer a {
+.common-form-footer a {
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
-.form-footer a:hover {
+.common-form-footer a:hover {
   color: var(--color-primary-hover);
   text-decoration: underline;
 }
 
 /* Password strength indicator */
-.password-strength {
+.common-password-strength {
   margin-top: 1rem;
 }
 
-.password-strength-bar {
+.common-password-strength-bar {
   height: 8px;
   background-color: #e9ecef;
   border-radius: 4px;
@@ -210,19 +192,21 @@
   margin-bottom: 0.5rem;
 }
 
-.password-strength-progress {
+.common-password-strength-progress {
   height: 100%;
   border-radius: 4px;
-  transition: width 0.3s ease, background-color 0.3s ease;
+  transition:
+    width 0.3s ease,
+    background-color 0.3s ease;
 }
 
-.password-strength-text {
+.common-password-strength-text {
   font-size: 0.875rem;
   text-align: right;
 }
 
 /* Password requirements */
-.password-requirements {
+.common-password-requirements {
   margin-top: 1rem;
   padding: 1rem;
   background-color: var(--color-card-bg-light);
@@ -230,34 +214,90 @@
   font-size: 0.875rem;
 }
 
-.password-requirements p {
+.common-password-requirements p {
   margin-top: 0;
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
-.password-requirements ul {
+.common-password-requirements ul {
   margin: 0;
   padding-left: 1.5rem;
 }
 
-.password-requirements li {
+.common-password-requirements li {
   margin-bottom: 0.25rem;
   color: var(--color-text-muted, #6c757d);
 }
 
-.password-requirements li.met {
+.common-password-requirements li.met {
   color: var(--color-success);
 }
 
-.password-requirements li.met::before {
+.common-password-requirements li.met::before {
   content: '✓ ';
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+/* Form success and error states */
+.common-form-success {
+  background-color: #f8fff9;
+  color: var(--color-success);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  border: 1px solid #c3e6cb;
+  text-align: center;
+}
+
+.common-form-error {
+  background-color: #fff8f8;
+  color: #ff385c;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  border: 1px solid #ffb4bc;
+  text-align: center;
 }
 
 @media (max-width: 600px) {
-  .register-form-container {
+  .register-form-container.common-page {
     margin: 1.5rem;
     padding: 1.5rem;
     max-width: 100%;
+  }
+
+  .common-logo-text {
+    font-size: 1.5rem;
+  }
+
+  .register-form-container.common-page h2 {
+    font-size: 1.25rem;
+  }
+
+  .common-form-group input {
+    padding: 0.875rem;
+  }
+
+  .common-btn {
+    padding: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-form-container.common-page {
+    margin: 1rem;
+    padding: 1.25rem;
+  }
+
+  .common-logo-text {
+    font-size: 1.25rem;
+  }
+
+  .register-form-container.common-page h2 {
+    font-size: 1.125rem;
   }
 }
