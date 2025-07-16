@@ -1,24 +1,26 @@
 import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import './ForumFilter.css';
 
 const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const sortOptions = [
-    { value: 'latest', label: 'Latest' },
-    { value: 'oldest', label: 'Oldest' },
-    { value: 'most_voted', label: 'Most Voted' },
-    { value: 'most_replied', label: 'Most Replied' },
-    { value: 'most_viewed', label: 'Most Viewed' },
-    { value: 'trending', label: 'Trending' },
+    { value: 'latest', label: t('forum.sortOptions.latest') },
+    { value: 'oldest', label: t('forum.sortOptions.oldest') },
+    { value: 'most_voted', label: t('forum.sortOptions.mostVoted') },
+    { value: 'most_replied', label: t('forum.sortOptions.mostReplied') },
+    { value: 'most_viewed', label: t('forum.sortOptions.mostViewed') },
+    { value: 'trending', label: t('forum.sortOptions.trending') },
   ];
 
   const typeOptions = [
-    { value: '', label: 'All Types' },
-    { value: 'discussion', label: 'Discussion' },
-    { value: 'question', label: 'Question' },
+    { value: '', label: t('forum.typeOptions.allTypes') },
+    { value: 'discussion', label: t('forum.typeOptions.discussion') },
+    { value: 'question', label: t('forum.typeOptions.question') },
   ];
 
   const handleFilterChange = (key, value) => {
@@ -52,11 +54,11 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
   return (
     <div className={`forum-filter ${theme}`}>
       <div className="filter-header">
-        <h3>Filters</h3>
+        <h3>{t('forum.filters')}</h3>
         <button
           className="expand-btn"
           onClick={() => setIsExpanded(!isExpanded)}
-          aria-label={isExpanded ? 'Collapse filters' : 'Expand filters'}
+          aria-label={isExpanded ? t('forum.collapseFilters') : t('forum.expandFilters')}
         >
           {isExpanded ? '−' : '+'}
         </button>
@@ -66,14 +68,14 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
         {/* Search */}
         <div className="filter-section">
           <label htmlFor="search" className="filter-label">
-            Search Posts
+            {t('forum.searchPosts')}
           </label>
           <form onSubmit={handleSearch} className="search-form">
             <input
               type="text"
               id="search"
               name="search"
-              placeholder="Search posts, tags, or content..."
+              placeholder={t('forum.searchPostsPlaceholder')}
               defaultValue={currentFilters.search}
               className="search-input"
             />
@@ -86,7 +88,7 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
         {/* Category Filter */}
         <div className="filter-section">
           <label htmlFor="category" className="filter-label">
-            Category
+            {t('forum.category')}
           </label>
           <select
             id="category"
@@ -94,7 +96,7 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
             onChange={(e) => handleFilterChange('category', e.target.value)}
             className="filter-select"
           >
-            <option value="">All Categories</option>
+            <option value="">{t('forum.allCategories')}</option>
             {categories?.map((category) => (
               <option key={category.value} value={category.value}>
                 {category.icon} {category.label}
@@ -106,7 +108,7 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
         {/* Type Filter */}
         <div className="filter-section">
           <label htmlFor="type" className="filter-label">
-            Post Type
+            {t('forum.postType')}
           </label>
           <select
             id="type"
@@ -125,7 +127,7 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
         {/* Sort Options */}
         <div className="filter-section">
           <label htmlFor="sort" className="filter-label">
-            Sort By
+            {t('forum.sortBy')}
           </label>
           <select
             id="sort"
@@ -144,12 +146,12 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
         {/* Tags Filter */}
         <div className="filter-section">
           <label htmlFor="tags" className="filter-label">
-            Tags (comma-separated)
+            {t('forum.tagsCommaSeparated')}
           </label>
           <input
             type="text"
             id="tags"
-            placeholder="camping, equipment, tips..."
+            placeholder={t('forum.tagsPlaceholder')}
             value={currentFilters.tags}
             onChange={(e) => handleFilterChange('tags', e.target.value)}
             className="filter-input"
@@ -160,7 +162,7 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
         {hasActiveFilters && (
           <div className="filter-section">
             <button onClick={clearFilters} className="clear-filters-btn">
-              Clear All Filters
+              {t('forum.clearAllFilters')}
             </button>
           </div>
         )}
@@ -168,11 +170,11 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
         {/* Active Filters Display */}
         {hasActiveFilters && (
           <div className="active-filters">
-            <h4>Active Filters:</h4>
+            <h4>{t('forum.activeFilters')}</h4>
             <div className="filter-tags">
               {currentFilters.category && (
                 <span className="filter-tag">
-                  Category:{' '}
+                  {t('forum.filterTagCategory')}{' '}
                   {categories?.find((c) => c.value === currentFilters.category)?.label ||
                     currentFilters.category}
                   <button
@@ -185,7 +187,8 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
               )}
               {currentFilters.type && (
                 <span className="filter-tag">
-                  Type: {typeOptions.find((t) => t.value === currentFilters.type)?.label}
+                  {t('forum.filterTagType')}{' '}
+                  {typeOptions.find((t) => t.value === currentFilters.type)?.label}
                   <button onClick={() => handleFilterChange('type', '')} className="remove-filter">
                     ×
                   </button>
@@ -193,7 +196,7 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
               )}
               {currentFilters.search && (
                 <span className="filter-tag">
-                  Search: "{currentFilters.search}"
+                  {t('forum.filterTagSearch')} "{currentFilters.search}"
                   <button
                     onClick={() => handleFilterChange('search', '')}
                     className="remove-filter"
@@ -204,7 +207,7 @@ const ForumFilter = ({ currentFilters, onFilterChange, categories }) => {
               )}
               {currentFilters.tags && (
                 <span className="filter-tag">
-                  Tags: {currentFilters.tags}
+                  {t('forum.filterTagTags')} {currentFilters.tags}
                   <button onClick={() => handleFilterChange('tags', '')} className="remove-filter">
                     ×
                   </button>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -13,6 +14,7 @@ import { Link } from 'react-router-dom';
  * Modern settings dashboard for campground owners
  */
 const OwnerSettingsPage = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
@@ -82,7 +84,7 @@ const OwnerSettingsPage = () => {
 
   useEffect(() => {
     if (fetchError) {
-      setError('Failed to load profile data. Please try again later.');
+      setError(t('commonErrors.failedToLoad', { item: 'profile data' }));
       setLoading(false);
     }
   }, [fetchError]);
@@ -122,7 +124,7 @@ const OwnerSettingsPage = () => {
 
       setIsEditing(false);
       setUpdateSuccess(true);
-      showMessage('Profile updated successfully!', 'success');
+      showMessage(t('ownerSettings.changesSaved'), 'success');
 
       // Hide success message after 3 seconds
       setTimeout(() => {
@@ -130,8 +132,8 @@ const OwnerSettingsPage = () => {
       }, 3000);
     } catch (err) {
       logError('Error updating profile', err);
-      setUpdateError('Failed to update profile. Please try again.');
-      showMessage('Failed to update profile. Please try again.', 'error');
+      setUpdateError(t('ownerSettings.saveError'));
+      showMessage(t('ownerSettings.saveError'), 'error');
     }
   };
 
@@ -139,7 +141,7 @@ const OwnerSettingsPage = () => {
     return (
       <div className="owner-loading">
         <div className="owner-loading-spinner"></div>
-        <p>Loading your settings...</p>
+        <p>{t('ownerSettings.loading')}</p>
       </div>
     );
   }
@@ -147,10 +149,10 @@ const OwnerSettingsPage = () => {
   if (error) {
     return (
       <div className="owner-error">
-        <h4>Error Loading Settings</h4>
+        <h4>{t('ownerSettings.errorTitle')}</h4>
         <p>{error}</p>
         <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
-          Retry
+          {t('ownerSettings.retry')}
         </button>
       </div>
     );
@@ -163,18 +165,16 @@ const OwnerSettingsPage = () => {
         <div className="header-content">
           <div className="header-main">
             <div className="greeting-section">
-              <h1>Owner Settings</h1>
-              <p className="header-subtitle">
-                Manage your business profile, preferences, and account settings
-              </p>
+              <h1>{t('ownerSettings.title')}</h1>
+              <p className="header-subtitle">{t('ownerSettings.subtitle')}</p>
             </div>
             <div className="header-stats">
               <div className="header-stat">
-                <span className="stat-label">Status</span>
-                <span className="stat-value">Active</span>
+                <span className="stat-label">{t('ownerSettings.status')}</span>
+                <span className="stat-value">{t('ownerSettings.active')}</span>
               </div>
               <div className="header-stat">
-                <span className="stat-label">Member Since</span>
+                <span className="stat-label">{t('ownerSettings.memberSince')}</span>
                 <span className="stat-value">
                   {new Date(ownerProfile?.createdAt || Date.now()).toLocaleDateString()}
                 </span>
@@ -185,11 +185,11 @@ const OwnerSettingsPage = () => {
             <div className="action-controls">
               {isEditing ? (
                 <button onClick={handleSubmit} className="owner-btn owner-btn-primary">
-                  Save Changes
+                  {t('ownerSettings.saveChanges')}
                 </button>
               ) : (
                 <button onClick={() => setIsEditing(true)} className="owner-btn owner-btn-outline">
-                  Edit Profile
+                  {t('ownerSettings.editProfile')}
                 </button>
               )}
             </div>
@@ -207,28 +207,28 @@ const OwnerSettingsPage = () => {
               onClick={() => setActiveSection('profile')}
             >
               <span className="nav-icon">👤</span>
-              <span className="nav-label">Business Profile</span>
+              <span className="nav-label">{t('ownerSettings.businessProfile')}</span>
             </button>
             <button
               className={`nav-item ${activeSection === 'settings' ? 'active' : ''}`}
               onClick={() => setActiveSection('settings')}
             >
               <span className="nav-icon">⚙️</span>
-              <span className="nav-label">Business Settings</span>
+              <span className="nav-label">{t('ownerSettings.businessSettings')}</span>
             </button>
             <button
               className={`nav-item ${activeSection === 'security' ? 'active' : ''}`}
               onClick={() => setActiveSection('security')}
             >
               <span className="nav-icon">🔒</span>
-              <span className="nav-label">Security</span>
+              <span className="nav-label">{t('ownerSettings.security')}</span>
             </button>
             <button
               className={`nav-item ${activeSection === 'notifications' ? 'active' : ''}`}
               onClick={() => setActiveSection('notifications')}
             >
               <span className="nav-icon">🔔</span>
-              <span className="nav-label">Notifications</span>
+              <span className="nav-label">{t('ownerSettings.notifications')}</span>
             </button>
           </div>
         </div>
@@ -243,7 +243,7 @@ const OwnerSettingsPage = () => {
 
           {updateSuccess && (
             <div className="settings-success">
-              <p>Settings updated successfully!</p>
+              <p>{t('ownerSettings.changesSaved')}</p>
             </div>
           )}
 
@@ -251,15 +251,13 @@ const OwnerSettingsPage = () => {
           {activeSection === 'profile' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2>Business Profile</h2>
-                <p className="section-subtitle">
-                  Manage your business information and contact details
-                </p>
+                <h2>{t('ownerSettings.businessProfile')}</h2>
+                <p className="section-subtitle">{t('ownerSettings.businessProfileSubtitle')}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="settings-form">
                 <div className="form-group">
-                  <label htmlFor="businessName">Business Name *</label>
+                  <label htmlFor="businessName">{t('ownerSettings.businessNameRequired')}</label>
                   <input
                     type="text"
                     id="businessName"
@@ -267,13 +265,13 @@ const OwnerSettingsPage = () => {
                     value={formData.businessName}
                     onChange={handleInputChange}
                     disabled={!isEditing}
-                    placeholder="Enter your business name"
+                    placeholder={t('ownerSettings.businessNamePlaceholder')}
                   />
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="businessType">Business Type</label>
+                    <label htmlFor="businessType">{t('ownerSettings.businessType')}</label>
                     <select
                       id="businessType"
                       name="businessType"
@@ -281,14 +279,18 @@ const OwnerSettingsPage = () => {
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     >
-                      <option value="individual">Individual</option>
-                      <option value="company">Company</option>
-                      <option value="organization">Organization</option>
+                      <option value="individual">
+                        {t('ownerSettings.businessTypeIndividual')}
+                      </option>
+                      <option value="company">{t('ownerSettings.businessTypeCompany')}</option>
+                      <option value="organization">
+                        {t('ownerSettings.businessTypeOrganization')}
+                      </option>
                     </select>
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="businessPhone">Business Phone</label>
+                    <label htmlFor="businessPhone">{t('ownerSettings.businessPhone')}</label>
                     <input
                       type="tel"
                       id="businessPhone"
@@ -302,7 +304,7 @@ const OwnerSettingsPage = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="businessEmail">Business Email</label>
+                  <label htmlFor="businessEmail">{t('ownerSettings.businessEmail')}</label>
                   <input
                     type="email"
                     id="businessEmail"
@@ -315,9 +317,9 @@ const OwnerSettingsPage = () => {
                 </div>
 
                 <div className="address-section">
-                  <h3>Business Address</h3>
+                  <h3>{t('ownerSettings.businessAddress')}</h3>
                   <div className="form-group">
-                    <label htmlFor="businessAddress.street">Street Address</label>
+                    <label htmlFor="businessAddress.street">{t('ownerSettings.street')}</label>
                     <input
                       type="text"
                       id="businessAddress.street"
@@ -331,7 +333,7 @@ const OwnerSettingsPage = () => {
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label htmlFor="businessAddress.city">City</label>
+                      <label htmlFor="businessAddress.city">{t('ownerSettings.city')}</label>
                       <input
                         type="text"
                         id="businessAddress.city"
@@ -339,12 +341,12 @@ const OwnerSettingsPage = () => {
                         value={formData.businessAddress.city}
                         onChange={handleInputChange}
                         disabled={!isEditing}
-                        placeholder="Yangon"
+                        placeholder={t('ownerSettings.cityPlaceholder')}
                       />
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="businessAddress.state">State/Region</label>
+                      <label htmlFor="businessAddress.state">{t('ownerSettings.state')}</label>
                       <input
                         type="text"
                         id="businessAddress.state"
@@ -352,14 +354,14 @@ const OwnerSettingsPage = () => {
                         value={formData.businessAddress.state}
                         onChange={handleInputChange}
                         disabled={!isEditing}
-                        placeholder="Yangon Region"
+                        placeholder={t('ownerSettings.statePlaceholder')}
                       />
                     </div>
                   </div>
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label htmlFor="businessAddress.zipCode">ZIP Code</label>
+                      <label htmlFor="businessAddress.zipCode">{t('ownerSettings.zipCode')}</label>
                       <input
                         type="text"
                         id="businessAddress.zipCode"
@@ -372,7 +374,7 @@ const OwnerSettingsPage = () => {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="businessAddress.country">Country</label>
+                      <label htmlFor="businessAddress.country">{t('ownerSettings.country')}</label>
                       <input
                         type="text"
                         id="businessAddress.country"
@@ -380,7 +382,7 @@ const OwnerSettingsPage = () => {
                         value={formData.businessAddress.country}
                         onChange={handleInputChange}
                         disabled={!isEditing}
-                        placeholder="Myanmar"
+                        placeholder={t('ownerSettings.countryPlaceholder')}
                       />
                     </div>
                   </div>
@@ -393,14 +395,14 @@ const OwnerSettingsPage = () => {
           {activeSection === 'settings' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2>Business Settings</h2>
-                <p className="section-subtitle">Configure your default business preferences</p>
+                <h2>{t('ownerSettings.businessSettings')}</h2>
+                <p className="section-subtitle">{t('ownerSettings.businessSettingsSubtitle')}</p>
               </div>
 
               <form onSubmit={handleSubmit} className="settings-form">
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="settings.checkInTime">Check-in Time</label>
+                    <label htmlFor="settings.checkInTime">{t('ownerSettings.checkInTime')}</label>
                     <input
                       type="time"
                       id="settings.checkInTime"
@@ -412,7 +414,7 @@ const OwnerSettingsPage = () => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="settings.checkOutTime">Check-out Time</label>
+                    <label htmlFor="settings.checkOutTime">{t('ownerSettings.checkOutTime')}</label>
                     <input
                       type="time"
                       id="settings.checkOutTime"
@@ -426,7 +428,7 @@ const OwnerSettingsPage = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="settings.minimumStay">Minimum Stay (nights)</label>
+                    <label htmlFor="settings.minimumStay">{t('ownerSettings.minimumStay')}</label>
                     <input
                       type="number"
                       id="settings.minimumStay"
@@ -440,7 +442,7 @@ const OwnerSettingsPage = () => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="settings.maximumStay">Maximum Stay (nights)</label>
+                    <label htmlFor="settings.maximumStay">{t('ownerSettings.maximumStay')}</label>
                     <input
                       type="number"
                       id="settings.maximumStay"
@@ -455,7 +457,9 @@ const OwnerSettingsPage = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="settings.cancellationPolicy">Cancellation Policy</label>
+                  <label htmlFor="settings.cancellationPolicy">
+                    {t('ownerSettings.cancellationPolicy')}
+                  </label>
                   <select
                     id="settings.cancellationPolicy"
                     name="settings.cancellationPolicy"
@@ -463,11 +467,9 @@ const OwnerSettingsPage = () => {
                     onChange={handleInputChange}
                     disabled={!isEditing}
                   >
-                    <option value="flexible">
-                      Flexible - Full refund 24 hours before check-in
-                    </option>
-                    <option value="moderate">Moderate - Full refund 5 days before check-in</option>
-                    <option value="strict">Strict - 50% refund up to 1 week before check-in</option>
+                    <option value="flexible">{t('ownerSettings.flexible')}</option>
+                    <option value="moderate">{t('ownerSettings.moderate')}</option>
+                    <option value="strict">{t('ownerSettings.strict')}</option>
                   </select>
                 </div>
 
@@ -480,8 +482,8 @@ const OwnerSettingsPage = () => {
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
-                    Auto-approve bookings
-                    <small>Automatically approve new booking requests</small>
+                    {t('ownerSettings.autoApproveBookings')}
+                    <small>{t('ownerSettings.autoApproveBookingsDescription')}</small>
                   </label>
                 </div>
 
@@ -494,8 +496,8 @@ const OwnerSettingsPage = () => {
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
-                    Allow instant booking
-                    <small>Allow guests to book immediately without approval</small>
+                    {t('ownerSettings.allowInstantBooking')}
+                    <small>{t('ownerSettings.allowInstantBookingDescription')}</small>
                   </label>
                 </div>
               </form>
@@ -506,8 +508,8 @@ const OwnerSettingsPage = () => {
           {activeSection === 'security' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2>Security</h2>
-                <p className="section-subtitle">Manage your account security and privacy</p>
+                <h2>{t('ownerSettings.security')}</h2>
+                <p className="section-subtitle">{t('ownerSettings.securitySubtitle')}</p>
               </div>
 
               <PasswordChangeForm />
@@ -515,19 +517,21 @@ const OwnerSettingsPage = () => {
               <div className="security-options">
                 <div className="security-option">
                   <div className="option-info">
-                    <h4>Two-Factor Authentication</h4>
-                    <p>Add an extra layer of security to your account</p>
+                    <h4>{t('ownerSettings.twoFactorAuthentication')}</h4>
+                    <p>{t('ownerSettings.twoFactorAuthenticationDescription')}</p>
                   </div>
-                  <button className="owner-btn owner-btn-outline">Setup 2FA</button>
+                  <button className="owner-btn owner-btn-outline">
+                    {t('ownerSettings.setup2FA')}
+                  </button>
                 </div>
 
                 <div className="security-option">
                   <div className="option-info">
-                    <h4>Password Change</h4>
-                    <p>Update your password to keep your account secure</p>
+                    <h4>{t('ownerSettings.passwordChange')}</h4>
+                    <p>{t('ownerSettings.passwordChangeDescription')}</p>
                   </div>
                   <Link to="/password-change" className="owner-btn owner-btn-outline">
-                    Change Password
+                    {t('ownerSettings.changePassword')}
                   </Link>
                 </div>
               </div>
@@ -538,15 +542,17 @@ const OwnerSettingsPage = () => {
           {activeSection === 'notifications' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2>Notification Preferences</h2>
-                <p className="section-subtitle">Manage how you receive notifications</p>
+                <h2>{t('ownerSettings.notificationPreferences')}</h2>
+                <p className="section-subtitle">
+                  {t('ownerSettings.notificationPreferencesSubtitle')}
+                </p>
               </div>
 
               <div className="notification-options">
                 <div className="notification-item">
                   <div className="notification-info">
-                    <h3>New Bookings</h3>
-                    <p>Get notified when you receive new booking requests</p>
+                    <h3>{t('ownerSettings.newBookings')}</h3>
+                    <p>{t('ownerSettings.newBookingsDescription')}</p>
                   </div>
                   <label className="toggle-switch">
                     <input type="checkbox" defaultChecked />
@@ -556,8 +562,8 @@ const OwnerSettingsPage = () => {
 
                 <div className="notification-item">
                   <div className="notification-info">
-                    <h3>Booking Updates</h3>
-                    <p>Receive updates when booking status changes</p>
+                    <h3>{t('ownerSettings.bookingUpdates')}</h3>
+                    <p>{t('ownerSettings.bookingUpdatesDescription')}</p>
                   </div>
                   <label className="toggle-switch">
                     <input type="checkbox" defaultChecked />
@@ -567,8 +573,8 @@ const OwnerSettingsPage = () => {
 
                 <div className="notification-item">
                   <div className="notification-info">
-                    <h3>New Reviews</h3>
-                    <p>Get notified when guests leave reviews</p>
+                    <h3>{t('ownerSettings.newReviews')}</h3>
+                    <p>{t('ownerSettings.newReviewsDescription')}</p>
                   </div>
                   <label className="toggle-switch">
                     <input type="checkbox" defaultChecked />
@@ -578,8 +584,8 @@ const OwnerSettingsPage = () => {
 
                 <div className="notification-item">
                   <div className="notification-info">
-                    <h3>System Updates</h3>
-                    <p>Receive important system and maintenance updates</p>
+                    <h3>{t('ownerSettings.systemUpdates')}</h3>
+                    <p>{t('ownerSettings.systemUpdatesDescription')}</p>
                   </div>
                   <label className="toggle-switch">
                     <input type="checkbox" defaultChecked />

@@ -1,11 +1,14 @@
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { logError } from '../utils/logger';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './common/LanguageSwitcher';
 import './Header.css';
 
 const Header = () => {
   const { currentUser, isAuthenticated, logout } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   // Check if user is authenticated but email is not verified
   const isEmailVerified = currentUser?.isEmailVerified ?? false;
@@ -27,6 +30,9 @@ const Header = () => {
           AdventureMate
         </Link>
         <nav className="nav">
+          <div className="nav-controls">
+            <LanguageSwitcher className="header-language-switcher" />
+          </div>
           <ul className="nav-list">
             <li className="nav-item">
               <NavLink
@@ -34,7 +40,7 @@ const Header = () => {
                 className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                 end
               >
-                Home
+                {t('navigation.home')}
               </NavLink>
             </li>
             <li className="nav-item">
@@ -42,7 +48,7 @@ const Header = () => {
                 to="/campgrounds"
                 className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
               >
-                Campgrounds
+                {t('navigation.campgrounds')}
               </NavLink>
             </li>
             <li className="nav-item">
@@ -50,7 +56,7 @@ const Header = () => {
                 to="/forum"
                 className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
               >
-                Forum
+                {t('navigation.forum')}
               </NavLink>
             </li>
             {showAuthenticatedLinks && (
@@ -59,7 +65,7 @@ const Header = () => {
                   to="/trips"
                   className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                 >
-                  Trip Planner
+                  {t('navigation.tripPlanner')}
                 </NavLink>
               </li>
             )}
@@ -72,7 +78,7 @@ const Header = () => {
                         to="/profile"
                         className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                       >
-                        Profile
+                        {t('navigation.profile')}
                       </NavLink>
                     </li>
                     {!currentUser?.isAdmin && (
@@ -81,7 +87,7 @@ const Header = () => {
                           to="/bookings"
                           className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                         >
-                          My Bookings
+                          {t('navigation.bookings')}
                         </NavLink>
                       </li>
                     )}
@@ -91,7 +97,7 @@ const Header = () => {
                           to="/admin"
                           className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                         >
-                          Admin
+                          {t('navigation.admin')}
                         </NavLink>
                       </li>
                     )}
@@ -101,13 +107,13 @@ const Header = () => {
                           to="/owner"
                           className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                         >
-                          Owner Dashboard
+                          {t('navigation.owner')}
                         </NavLink>
                       </li>
                     )}
                     <li className="nav-item">
                       <a href="#" onClick={handleLogout} className="nav-link">
-                        Logout
+                        {t('navigation.logout')}
                       </a>
                     </li>
                   </>
@@ -117,7 +123,7 @@ const Header = () => {
                       to="/verify-email-required"
                       className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                     >
-                      Verify Email
+                      {t('auth.verifyEmail')}
                     </NavLink>
                   </li>
                 )}
@@ -129,7 +135,7 @@ const Header = () => {
                     to="/login"
                     className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                   >
-                    Login
+                    {t('navigation.login')}
                   </NavLink>
                 </li>
                 <li className="nav-item">
@@ -137,7 +143,7 @@ const Header = () => {
                     to="/register"
                     className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                   >
-                    Register
+                    {t('navigation.register')}
                   </NavLink>
                 </li>
               </>

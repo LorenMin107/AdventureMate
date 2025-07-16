@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
@@ -13,6 +14,7 @@ import './OwnerBookingsPage.css';
  * Modern dashboard for campground owners to manage bookings
  */
 const OwnerBookingsPage = () => {
+  const { t } = useTranslation();
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
   const { useOwnerBookings } = useOwners();
@@ -54,10 +56,10 @@ const OwnerBookingsPage = () => {
 
   useEffect(() => {
     if (fetchError) {
-      setError('Failed to load bookings. Please try again later.');
+      setError(t('ownerBookings.errorTitle'));
       setLoading(false);
     }
-  }, [fetchError]);
+  }, [fetchError, t]);
 
   useEffect(() => {
     setLoading(isLoading);
@@ -92,7 +94,7 @@ const OwnerBookingsPage = () => {
       console.log('Updating booking status:', { bookingId, newStatus });
 
       // Show loading message
-      showMessage('Updating booking status...', 'info');
+      showMessage(t('ownerBookings.updatingStatus'), 'info');
 
       const response = await apiClient.patch(`/owner/bookings/${bookingId}/status`, {
         status: newStatus,
@@ -100,7 +102,7 @@ const OwnerBookingsPage = () => {
 
       console.log('Status update response:', response);
 
-      showMessage(`Booking ${newStatus} successfully`, 'success');
+      showMessage(t('ownerBookings.statusUpdated', { status: newStatus }), 'success');
 
       // Update the booking in the local state
       setBookings(
@@ -124,9 +126,7 @@ const OwnerBookingsPage = () => {
 
       // Show more specific error message
       const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        'Failed to update booking status. Please try again.';
+        err.response?.data?.message || err.message || t('ownerBookings.updateError');
       showMessage(errorMessage, 'error');
     }
   };
@@ -180,7 +180,7 @@ const OwnerBookingsPage = () => {
     return (
       <CSSIsolationWrapper section="owner" className="owner-loading">
         <div className="owner-loading-spinner"></div>
-        <p>Loading your bookings...</p>
+        <p>{t('ownerBookings.loading')}</p>
       </CSSIsolationWrapper>
     );
   }
@@ -188,10 +188,10 @@ const OwnerBookingsPage = () => {
   if (error) {
     return (
       <CSSIsolationWrapper section="owner" className="owner-error">
-        <h4>Error Loading Bookings</h4>
+        <h4>{t('ownerBookings.errorTitle')}</h4>
         <p>{error}</p>
         <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
-          Retry
+          {t('ownerBookings.retry')}
         </button>
       </CSSIsolationWrapper>
     );
@@ -209,18 +209,18 @@ const OwnerBookingsPage = () => {
         <div className="header-content">
           <div className="header-main">
             <div className="greeting-section">
-              <h1>Booking Management</h1>
+              <h1>{t('ownerBookings.bookingManagement')}</h1>
               <p className="header-subtitle">
-                Manage reservations and track booking performance for your campgrounds
+                {t('ownerBookings.manageReservationsTrackPerformance')}
               </p>
             </div>
             <div className="header-stats">
               <div className="header-stat">
-                <span className="stat-label">Total Bookings</span>
+                <span className="stat-label">{t('ownerBookings.totalBookings')}</span>
                 <span className="stat-value">{stats.total}</span>
               </div>
               <div className="header-stat">
-                <span className="stat-label">Pending Actions</span>
+                <span className="stat-label">{t('ownerBookings.pendingActions')}</span>
                 <span className="stat-value">{stats.pending}</span>
               </div>
             </div>
@@ -234,10 +234,10 @@ const OwnerBookingsPage = () => {
                 }
                 className="owner-select"
               >
-                <option value="10">10 per page</option>
-                <option value="25">25 per page</option>
-                <option value="50">50 per page</option>
-                <option value="100">100 per page</option>
+                <option value="10">{t('ownerBookings.perPage10')}</option>
+                <option value="25">{t('ownerBookings.perPage25')}</option>
+                <option value="50">{t('ownerBookings.perPage50')}</option>
+                <option value="100">{t('ownerBookings.perPage100')}</option>
               </select>
             </div>
           </div>
@@ -252,60 +252,60 @@ const OwnerBookingsPage = () => {
             <div className="stat-header">
               <div className="stat-icon">📅</div>
               <div className="stat-trend">
-                <span className="trend-indicator neutral">All time</span>
+                <span className="trend-indicator neutral">{t('ownerBookings.allTime')}</span>
               </div>
             </div>
             <div className="stat-value">{stats.total}</div>
-            <div className="stat-label">Total Bookings</div>
-            <div className="stat-period">All time</div>
+            <div className="stat-label">{t('ownerBookings.totalBookings')}</div>
+            <div className="stat-period">{t('ownerBookings.allTime')}</div>
           </div>
 
           <div className="owner-stat-card pending-bookings-card">
             <div className="stat-header">
               <div className="stat-icon">⏳</div>
               <div className="stat-trend">
-                <span className="trend-indicator warning">Needs attention</span>
+                <span className="trend-indicator warning">{t('ownerBookings.needsAttention')}</span>
               </div>
             </div>
             <div className="stat-value">{stats.pending}</div>
-            <div className="stat-label">Pending Review</div>
-            <div className="stat-period">Awaiting confirmation</div>
+            <div className="stat-label">{t('ownerBookings.pendingReview')}</div>
+            <div className="stat-period">{t('ownerBookings.awaitingConfirmation')}</div>
           </div>
 
           <div className="owner-stat-card confirmed-bookings-card">
             <div className="stat-header">
               <div className="stat-icon">✅</div>
               <div className="stat-trend">
-                <span className="trend-indicator positive">Confirmed</span>
+                <span className="trend-indicator positive">{t('ownerBookings.confirmed')}</span>
               </div>
             </div>
             <div className="stat-value">{stats.confirmed}</div>
-            <div className="stat-label">Confirmed</div>
-            <div className="stat-period">Ready for guests</div>
+            <div className="stat-label">{t('ownerBookings.confirmed')}</div>
+            <div className="stat-period">{t('ownerBookings.readyForGuests')}</div>
           </div>
 
           <div className="owner-stat-card completed-bookings-card">
             <div className="stat-header">
               <div className="stat-icon">🏁</div>
               <div className="stat-trend">
-                <span className="trend-indicator success">Completed</span>
+                <span className="trend-indicator success">{t('ownerBookings.completed')}</span>
               </div>
             </div>
             <div className="stat-value">{stats.completed}</div>
-            <div className="stat-label">Completed</div>
-            <div className="stat-period">Past stays</div>
+            <div className="stat-label">{t('ownerBookings.completed')}</div>
+            <div className="stat-period">{t('ownerBookings.pastStays')}</div>
           </div>
 
           <div className="owner-stat-card cancelled-bookings-card">
             <div className="stat-header">
               <div className="stat-icon">❌</div>
               <div className="stat-trend">
-                <span className="trend-indicator negative">Cancelled</span>
+                <span className="trend-indicator negative">{t('ownerBookings.cancelled')}</span>
               </div>
             </div>
             <div className="stat-value">{stats.cancelled}</div>
-            <div className="stat-label">Cancelled</div>
-            <div className="stat-period">Cancelled bookings</div>
+            <div className="stat-label">{t('ownerBookings.cancelled')}</div>
+            <div className="stat-period">{t('ownerBookings.cancelledBookings')}</div>
           </div>
         </div>
 
@@ -313,36 +313,36 @@ const OwnerBookingsPage = () => {
         <div className="owner-card owner-filters-card">
           <div className="card-header">
             <div className="card-title">
-              <h3>Filter & Search</h3>
-              <p className="card-subtitle">Refine your booking view</p>
+              <h3>{t('ownerBookings.filterSearch')}</h3>
+              <p className="card-subtitle">{t('ownerBookings.refineBookingView')}</p>
             </div>
           </div>
           <div className="card-content">
             <div className="filters-grid">
               <div className="filter-group">
-                <label htmlFor="statusFilter">Booking Status</label>
+                <label htmlFor="statusFilter">{t('ownerBookings.bookingStatus')}</label>
                 <select
                   id="statusFilter"
                   value={statusFilter}
                   onChange={handleStatusChange}
                   className="owner-select"
                 >
-                  <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="all">{t('ownerBookings.allStatuses')}</option>
+                  <option value="pending">{t('ownerBookings.pending')}</option>
+                  <option value="confirmed">{t('ownerBookings.confirmed')}</option>
+                  <option value="completed">{t('ownerBookings.completed')}</option>
+                  <option value="cancelled">{t('ownerBookings.cancelled')}</option>
                 </select>
               </div>
               <div className="filter-group">
-                <label htmlFor="campgroundFilter">Campground</label>
+                <label htmlFor="campgroundFilter">{t('ownerBookings.campground')}</label>
                 <select
                   id="campgroundFilter"
                   value={campgroundFilter}
                   onChange={handleCampgroundChange}
                   className="owner-select"
                 >
-                  <option value="all">All Campgrounds</option>
+                  <option value="all">{t('ownerBookings.allCampgrounds')}</option>
                   {/* This would be populated with owner's campgrounds */}
                 </select>
               </div>
@@ -354,18 +354,18 @@ const OwnerBookingsPage = () => {
         {bookings.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">📅</div>
-            <h3>No Bookings Found</h3>
+            <h3>{t('ownerBookings.noBookingsFound')}</h3>
             <p>
               {statusFilter !== 'all'
-                ? `No ${statusFilter} bookings found. Try adjusting your filters.`
-                : "You don't have any bookings yet. Bookings will appear here once guests start booking your campgrounds."}
+                ? `${t('ownerBookings.no')} ${statusFilter} ${t('ownerBookings.bookingsFound')}. ${t('ownerBookings.tryAdjustingFilters')}`
+                : `${t('ownerBookings.no')} ${t('ownerBookings.bookingsFound')}. ${t('ownerBookings.bookingsWillAppearHereOnceGuestsStartBooking')}`}
             </p>
             {statusFilter !== 'all' && (
               <button
                 onClick={() => setStatusFilter('all')}
                 className="owner-btn owner-btn-outline"
               >
-                Show All Bookings
+                {t('ownerBookings.showAllBookings')}
               </button>
             )}
           </div>
@@ -375,9 +375,10 @@ const OwnerBookingsPage = () => {
             <div className="owner-card owner-table-card">
               <div className="card-header">
                 <div className="card-title">
-                  <h3>Booking Listings</h3>
+                  <h3>{t('ownerBookings.bookingListings')}</h3>
                   <p className="card-subtitle">
-                    Showing {bookings.length} of {pagination.total} bookings
+                    {t('ownerBookings.showing')} {bookings.length} {t('ownerBookings.of')}{' '}
+                    {pagination.total} {t('ownerBookings.bookings')}
                   </p>
                 </div>
               </div>
@@ -386,12 +387,12 @@ const OwnerBookingsPage = () => {
                   <table className="owner-table">
                     <thead>
                       <tr>
-                        <th>Guest & Booking</th>
-                        <th>Campground & Site</th>
-                        <th>Stay Details</th>
-                        <th>Financial</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>{t('ownerBookings.guestBooking')}</th>
+                        <th>{t('ownerBookings.campgroundSite')}</th>
+                        <th>{t('ownerBookings.stayDetails')}</th>
+                        <th>{t('ownerBookings.financial')}</th>
+                        <th>{t('ownerBookings.status')}</th>
+                        <th>{t('ownerBookings.actions')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -401,7 +402,9 @@ const OwnerBookingsPage = () => {
                             <div className="guest-booking-info">
                               <div className="guest-primary">
                                 <div className="guest-name">
-                                  <strong>{booking.user?.username || 'Unknown'}</strong>
+                                  <strong>
+                                    {booking.user?.username || t('ownerBookings.unknown')}
+                                  </strong>
                                 </div>
                                 <div className="guest-email">{booking.user?.email}</div>
                               </div>
@@ -410,12 +413,14 @@ const OwnerBookingsPage = () => {
                                   <small>#{booking._id.substring(0, 8)}</small>
                                 </div>
                                 <div className="booking-date">
-                                  <small>Created {formatDate(booking.createdAt)}</small>
+                                  <small>
+                                    {t('ownerBookings.created')} {formatDate(booking.createdAt)}
+                                  </small>
                                 </div>
                                 <div className="guest-count">
                                   <small>
-                                    {booking.numberOfGuests || 1} guest
-                                    {(booking.numberOfGuests || 1) > 1 ? 's' : ''}
+                                    {booking.numberOfGuests || 1} {t('ownerBookings.guest')}
+                                    {(booking.numberOfGuests || 1) > 1 ? t('ownerBookings.s') : ''}
                                   </small>
                                 </div>
                               </div>
@@ -425,7 +430,9 @@ const OwnerBookingsPage = () => {
                             <div className="campground-site-info">
                               <div className="campground-primary">
                                 <div className="campground-name">
-                                  <strong>{booking.campground?.title || 'Unknown'}</strong>
+                                  <strong>
+                                    {booking.campground?.title || t('ownerBookings.unknown')}
+                                  </strong>
                                 </div>
                                 <div className="campground-location">
                                   📍 {booking.campground?.location}
@@ -433,7 +440,9 @@ const OwnerBookingsPage = () => {
                               </div>
                               <div className="campsite-info">
                                 <div className="campsite-name">
-                                  <small>🏕️ {booking.campsite?.name || 'Standard Site'}</small>
+                                  <small>
+                                    🏕️ {booking.campsite?.name || t('ownerBookings.standardSite')}
+                                  </small>
                                 </div>
                               </div>
                             </div>
@@ -442,17 +451,19 @@ const OwnerBookingsPage = () => {
                             <div className="stay-details">
                               <div className="dates-primary">
                                 <div className="check-in">
-                                  <strong>Check-in:</strong> {formatDate(booking.startDate)}
+                                  <strong>{t('ownerBookings.checkIn')}:</strong>{' '}
+                                  {formatDate(booking.startDate)}
                                 </div>
                                 <div className="check-out">
-                                  <strong>Check-out:</strong> {formatDate(booking.endDate)}
+                                  <strong>{t('ownerBookings.checkOut')}:</strong>{' '}
+                                  {formatDate(booking.endDate)}
                                 </div>
                               </div>
                               <div className="stay-summary">
                                 <div className="nights">
                                   <small>
-                                    📅 {booking.totalDays || 1} night
-                                    {(booking.totalDays || 1) > 1 ? 's' : ''}
+                                    📅 {booking.totalDays || 1} {t('ownerBookings.night')}
+                                    {(booking.totalDays || 1) > 1 ? t('ownerBookings.s') : ''}
                                   </small>
                                 </div>
                               </div>
@@ -468,9 +479,13 @@ const OwnerBookingsPage = () => {
                               <div className="payment-info">
                                 <div className="payment-status">
                                   {booking.paid ? (
-                                    <span className="payment-paid">✅ Paid</span>
+                                    <span className="payment-paid">
+                                      ✅ {t('ownerBookings.paid')}
+                                    </span>
                                   ) : (
-                                    <span className="payment-pending">⏳ Pending</span>
+                                    <span className="payment-pending">
+                                      ⏳ {t('ownerBookings.pending')}
+                                    </span>
                                   )}
                                 </div>
                               </div>
@@ -489,7 +504,7 @@ const OwnerBookingsPage = () => {
                                 booking.status !== 'completed' &&
                                 booking.status !== 'cancelled' && (
                                   <div className="past-booking-indicator">
-                                    <small>⏰ Past due</small>
+                                    <small>⏰ {t('ownerBookings.pastDue')}</small>
                                   </div>
                                 )}
                             </div>
@@ -502,25 +517,25 @@ const OwnerBookingsPage = () => {
                                     <button
                                       onClick={() => handleStatusUpdate(booking._id, 'confirmed')}
                                       className="owner-btn owner-btn-success owner-btn-small"
-                                      title="Confirm this booking"
+                                      title={t('ownerBookings.confirmBooking')}
                                     >
-                                      ✓ Confirm
+                                      {t('ownerBookings.confirm')} ✓
                                     </button>
                                     <button
                                       onClick={() => handleStatusUpdate(booking._id, 'cancelled')}
                                       className="owner-btn owner-btn-danger owner-btn-small"
-                                      title="Decline this booking"
+                                      title={t('ownerBookings.declineBooking')}
                                     >
-                                      ✗ Decline
+                                      {t('ownerBookings.decline')} ✗
                                     </button>
                                   </>
                                 )}
                                 <Link
                                   to={`/owner/bookings/${booking._id}`}
                                   className="owner-btn owner-btn-outline owner-btn-small"
-                                  title="View detailed booking information"
+                                  title={t('ownerBookings.viewDetails')}
                                 >
-                                  👁️ Details
+                                  {t('ownerBookings.viewDetails')} 👁️
                                 </Link>
                               </div>
                             </div>
@@ -541,17 +556,18 @@ const OwnerBookingsPage = () => {
                   disabled={pagination.page === 1}
                   className="owner-btn owner-btn-outline"
                 >
-                  Previous
+                  {t('ownerBookings.previous')}
                 </button>
                 <div className="pagination-info">
-                  Page {pagination.page} of {pagination.totalPages}
+                  {t('ownerBookings.page')} {pagination.page} {t('ownerBookings.of')}{' '}
+                  {pagination.totalPages}
                 </div>
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.totalPages}
                   className="owner-btn owner-btn-outline"
                 >
-                  Next
+                  {t('ownerBookings.next')}
                 </button>
               </div>
             )}

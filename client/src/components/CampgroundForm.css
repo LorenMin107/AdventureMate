@@ -5,7 +5,9 @@
   background-color: var(--color-card-bg);
   border-radius: 16px;
   box-shadow: 0 4px 20px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
   animation: slideUp 0.5s ease-out;
 }
 
@@ -145,7 +147,7 @@
   margin-bottom: 1.5rem;
 }
 
-.image-upload input[type="file"] {
+.image-upload input[type='file'] {
   display: none;
 }
 
@@ -177,6 +179,53 @@
   font-weight: 600;
   color: var(--color-text);
   transition: color 0.3s ease;
+}
+
+/* Address fields grid styling */
+.address-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.address-fields-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.address-fields-grid label {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: color 0.3s ease;
+  margin-bottom: 0.5rem;
+}
+
+.address-fields-grid input {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  transition: all 0.3s ease;
+}
+
+.address-fields-grid input:hover {
+  border-color: var(--color-primary);
+}
+
+.address-fields-grid input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+.address-fields-grid input.error {
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.05);
 }
 
 .image-preview-container {

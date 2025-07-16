@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFlashMessage } from '../../context/FlashMessageContext';
 import { useTheme } from '../../context/ThemeContext';
 import useOwners from '../../hooks/useOwners';
@@ -10,6 +11,7 @@ import './OwnerCampgroundList.css';
  * OwnerCampgroundList component displays and manages campgrounds owned by the current owner
  */
 const OwnerCampgroundList = () => {
+  const { t } = useTranslation();
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
   const { useOwnerCampgrounds, useDeleteCampground } = useOwners();
@@ -33,24 +35,17 @@ const OwnerCampgroundList = () => {
   };
 
   const handleDelete = async (campgroundId, campgroundTitle) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete "${campgroundTitle}"? This action cannot be undone.`
-      )
-    ) {
+    if (!window.confirm(t('ownerCampgroundList.deleteConfirm', { title: campgroundTitle }))) {
       return;
     }
 
     try {
       await deleteCampgroundMutation.mutateAsync(campgroundId);
-      showMessage('Campground deleted successfully', 'success');
+      showMessage(t('ownerCampgroundList.deleteSuccess'), 'success');
       refetch();
     } catch (error) {
       logError('Error deleting campground', error);
-      showMessage(
-        error.response?.data?.message || 'Failed to delete campground. Please try again.',
-        'error'
-      );
+      showMessage(error.response?.data?.message || t('ownerCampgroundList.deleteError'), 'error');
     }
   };
 
@@ -65,7 +60,7 @@ const OwnerCampgroundList = () => {
     return (
       <div className="owner-loading">
         <div className="owner-loading-spinner"></div>
-        <p>Loading your campgrounds...</p>
+        <p>{t('ownerCampgroundList.loading')}</p>
       </div>
     );
   }
@@ -73,10 +68,10 @@ const OwnerCampgroundList = () => {
   if (error) {
     return (
       <div className="owner-error">
-        <h4>Error Loading Campgrounds</h4>
-        <p>There was an error loading your campgrounds. Please try again later.</p>
+        <h4>{t('ownerCampgroundList.errorTitle')}</h4>
+        <p>{t('ownerCampgroundList.errorMessage')}</p>
         <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
-          Retry
+          {t('ownerCampgroundList.retry')}
         </button>
       </div>
     );
@@ -90,13 +85,13 @@ const OwnerCampgroundList = () => {
       <div className="owner-page-header">
         <div className="header-content">
           <div>
-            <h1>My Campgrounds</h1>
-            <p>Manage your campground listings and track their performance.</p>
+            <h1>{t('ownerCampgroundList.title')}</h1>
+            <p>{t('ownerCampgroundList.subtitle')}</p>
           </div>
           <div className="header-actions">
             <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-primary">
               <span>➕</span>
-              Add New Campground
+              {t('ownerCampgroundList.addNewCampground')}
             </Link>
           </div>
         </div>
@@ -106,11 +101,11 @@ const OwnerCampgroundList = () => {
       <div className="owner-card">
         <div className="filters-container">
           <div className="filter-group">
-            <label htmlFor="search">Search Campgrounds</label>
+            <label htmlFor="search">{t('ownerCampgroundList.searchCampgrounds')}</label>
             <input
               type="text"
               id="search"
-              placeholder="Search by title, description, or location..."
+              placeholder={t('ownerCampgroundList.searchPlaceholder')}
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
               className="filter-input"
@@ -118,17 +113,17 @@ const OwnerCampgroundList = () => {
           </div>
 
           <div className="filter-group">
-            <label htmlFor="limit">Items per page</label>
+            <label htmlFor="limit">{t('ownerCampgroundList.itemsPerPage')}</label>
             <select
               id="limit"
               value={filters.limit}
               onChange={(e) => handleFilterChange('limit', Number(e.target.value))}
               className="filter-select"
             >
-              <option value="5">5 per page</option>
-              <option value="10">10 per page</option>
-              <option value="25">25 per page</option>
-              <option value="50">50 per page</option>
+              <option value="5">{t('ownerCampgroundList.perPage', { count: 5 })}</option>
+              <option value="10">{t('ownerCampgroundList.perPage', { count: 10 })}</option>
+              <option value="25">{t('ownerCampgroundList.perPage', { count: 25 })}</option>
+              <option value="50">{t('ownerCampgroundList.perPage', { count: 50 })}</option>
             </select>
           </div>
         </div>
@@ -139,17 +134,14 @@ const OwnerCampgroundList = () => {
         {campgrounds.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">🏕️</div>
-            <h3>No Campgrounds Found</h3>
+            <h3>{t('ownerCampgroundList.noCampgroundsFound')}</h3>
             {filters.search ? (
-              <p>No campgrounds match your search criteria. Try adjusting your search terms.</p>
+              <p>{t('ownerCampgroundList.noSearchResults')}</p>
             ) : (
-              <p>
-                You haven't added any campgrounds yet. Start by creating your first campground
-                listing.
-              </p>
+              <p>{t('ownerCampgroundList.noCampgroundsYet')}</p>
             )}
             <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-primary">
-              Add Your First Campground
+              {t('ownerCampgroundList.addFirstCampground')}
             </Link>
           </div>
         ) : (
@@ -181,25 +173,25 @@ const OwnerCampgroundList = () => {
 
                     <div className="campground-stats">
                       <div className="stat-item">
-                        <span className="stat-label">Campsites</span>
+                        <span className="stat-label">{t('ownerCampgroundList.campsites')}</span>
                         <span className="stat-value">{campground.stats?.totalCampsites || 0}</span>
                       </div>
                       <div className="stat-item">
-                        <span className="stat-label">Bookings</span>
+                        <span className="stat-label">{t('ownerCampgroundList.bookings')}</span>
                         <span className="stat-value">{campground.stats?.totalBookings || 0}</span>
                       </div>
                       <div className="stat-item">
-                        <span className="stat-label">Revenue</span>
+                        <span className="stat-label">{t('ownerCampgroundList.revenue')}</span>
                         <span className="stat-value">
                           {formatCurrency(campground.stats?.totalRevenue)}
                         </span>
                       </div>
                       <div className="stat-item">
-                        <span className="stat-label">Rating</span>
+                        <span className="stat-label">{t('ownerCampgroundList.rating')}</span>
                         <span className="stat-value">
                           {campground.stats?.averageRating
                             ? `⭐ ${campground.stats.averageRating}`
-                            : 'No ratings'}
+                            : t('ownerCampgroundList.noRatings')}
                         </span>
                       </div>
                     </div>
@@ -210,26 +202,26 @@ const OwnerCampgroundList = () => {
                         className="owner-btn owner-btn-outline"
                         target="_blank"
                       >
-                        View Public
+                        {t('ownerCampgroundList.viewPublic')}
                       </Link>
                       <Link
                         to={`/owner/campgrounds/${campground._id}`}
                         className="owner-btn owner-btn-secondary"
                       >
-                        Manage
+                        {t('ownerCampgroundList.manage')}
                       </Link>
                       <Link
                         to={`/owner/campgrounds/${campground._id}/edit`}
                         className="owner-btn owner-btn-primary"
                       >
-                        Edit
+                        {t('ownerCampgroundList.edit')}
                       </Link>
                       <button
                         onClick={() => handleDelete(campground._id, campground.title)}
                         className="owner-btn owner-btn-danger"
                         disabled={deleteCampgroundMutation.isLoading}
                       >
-                        Delete
+                        {t('ownerCampgroundList.delete')}
                       </button>
                     </div>
                   </div>
@@ -245,11 +237,15 @@ const OwnerCampgroundList = () => {
                   disabled={pagination.page <= 1}
                   className="owner-btn owner-btn-secondary"
                 >
-                  Previous
+                  {t('ownerCampgroundList.previous')}
                 </button>
 
                 <span className="pagination-info">
-                  Page {pagination.page} of {pagination.pages}({pagination.total} total campgrounds)
+                  {t('ownerCampgroundList.paginationInfo', {
+                    current: pagination.page,
+                    total: pagination.pages,
+                    count: pagination.total,
+                  })}
                 </span>
 
                 <button
@@ -257,7 +253,7 @@ const OwnerCampgroundList = () => {
                   disabled={pagination.page >= pagination.pages}
                   className="owner-btn owner-btn-secondary"
                 >
-                  Next
+                  {t('ownerCampgroundList.next')}
                 </button>
               </div>
             )}

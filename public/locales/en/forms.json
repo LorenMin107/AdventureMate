@@ -1,0 +1,82 @@
+{
+  "labels": {
+    "email": "Email Address",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "username": "Username",
+    "phone": "Phone Number",
+    "businessName": "Business Name",
+    "businessType": "Business Type",
+    "businessPhone": "Business Phone",
+    "businessEmail": "Business Email",
+    "street": "Street Address",
+    "city": "City",
+    "state": "State/Region",
+    "zipCode": "ZIP Code",
+    "country": "Country",
+    "title": "Title",
+    "description": "Description",
+    "content": "Content",
+    "category": "Category",
+    "tags": "Tags",
+    "checkInDate": "Check-in Date",
+    "checkOutDate": "Check-out Date",
+    "guests": "Number of Guests",
+    "campsite": "Campsite",
+    "price": "Price",
+    "capacity": "Capacity",
+    "features": "Features",
+    "amenities": "Amenities"
+  },
+  "placeholders": {
+    "email": "Enter your email",
+    "password": "Enter your password",
+    "confirmPassword": "Confirm your password",
+    "firstName": "Enter your first name",
+    "lastName": "Enter your last name",
+    "username": "Choose a username",
+    "phone": "Enter your phone number",
+    "businessName": "Enter your business name",
+    "businessPhone": "Enter business phone number",
+    "businessEmail": "Enter business email",
+    "street": "Enter street address",
+    "city": "Enter city",
+    "state": "Enter state or region",
+    "zipCode": "Enter ZIP code",
+    "country": "Select country",
+    "title": "Enter title",
+    "description": "Enter description",
+    "content": "Enter content",
+    "searchCampgrounds": "Search campgrounds...",
+    "searchCampsites": "Search campsites...",
+    "writeReview": "Write your review...",
+    "writeReply": "Write your reply..."
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "minLength": "Must be at least {{min}} characters",
+    "maxLength": "Must be no more than {{max}} characters",
+    "passwordMatch": "Passwords must match",
+    "passwordStrength": "Password must be at least 8 characters with uppercase, lowercase, number, and special character",
+    "phoneFormat": "Please enter a valid phone number",
+    "positiveNumber": "Must be a positive number",
+    "futureDate": "Date must be in the future",
+    "validUrl": "Please enter a valid URL"
+  },
+  "options": {
+    "businessTypes": {
+      "individual": "Individual",
+      "partnership": "Partnership",
+      "corporation": "Corporation",
+      "llc": "LLC"
+    },
+    "cancellationPolicies": {
+      "flexible": "Flexible",
+      "moderate": "Moderate",
+      "strict": "Strict"
+    }
+  }
+}

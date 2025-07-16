@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import apiClient from '../utils/api';
 import { getRelativeTime } from '../utils/formatDate';
 import { logError } from '../utils/logger';
@@ -9,6 +10,7 @@ import './ForumPostCard.css';
 
 const ForumPostCard = ({ post }) => {
   const { currentUser, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isVoting, setIsVoting] = useState(false);
 
@@ -59,11 +61,21 @@ const ForumPostCard = ({ post }) => {
   };
 
   const getStatusBadge = () => {
-    if (post.isSticky) return { text: 'Sticky', class: 'sticky' };
-    if (post.isPinned) return { text: 'Pinned', class: 'pinned' };
-    if (post.isLocked) return { text: 'Locked', class: 'locked' };
-    if (post.status === 'closed') return { text: 'Closed', class: 'closed' };
+    if (post.isSticky) return { text: t('forum.postCard.sticky'), class: 'sticky' };
+    if (post.isPinned) return { text: t('forum.postCard.pinned'), class: 'pinned' };
+    if (post.isLocked) return { text: t('forum.postCard.locked'), class: 'locked' };
+    if (post.status === 'closed') return { text: t('forum.postCard.closed'), class: 'closed' };
     return null;
+  };
+
+  const getCategoryName = (category) => {
+    return t(`forum.postCard.categoryNames.${category}`, {
+      defaultValue: category.replace('-', ' '),
+    });
+  };
+
+  const getTypeName = (type) => {
+    return t(`forum.postCard.typeNames.${type}`, { defaultValue: type });
   };
 
   const statusBadge = getStatusBadge();
@@ -78,11 +90,11 @@ const ForumPostCard = ({ post }) => {
         <div className="post-meta">
           <div className="post-category">
             <span className="category-icon">{getCategoryIcon(post.category)}</span>
-            <span className="category-name">{post.category.replace('-', ' ')}</span>
+            <span className="category-name">{getCategoryName(post.category)}</span>
           </div>
           <div className="post-type">
             <span className="type-icon">{getTypeIcon(post.type)}</span>
-            <span className="type-name">{post.type}</span>
+            <span className="type-name">{getTypeName(post.type)}</span>
           </div>
         </div>
 
@@ -141,7 +153,7 @@ const ForumPostCard = ({ post }) => {
               className={`vote-btn upvote ${post.userVote === 'upvote' ? 'active' : ''}`}
               onClick={() => handleVote('upvote')}
               disabled={isVoting}
-              title="Upvote"
+              title={t('forum.postCard.upvote')}
             >
               <span className="vote-icon">👍</span>
               <span className="vote-count">{post.upvotes}</span>
@@ -153,7 +165,7 @@ const ForumPostCard = ({ post }) => {
               className={`vote-btn downvote ${post.userVote === 'downvote' ? 'active' : ''}`}
               onClick={() => handleVote('downvote')}
               disabled={isVoting}
-              title="Downvote"
+              title={t('forum.postCard.downvote')}
             >
               <span className="vote-icon">👎</span>
               <span className="vote-count">{post.downvotes}</span>
@@ -161,14 +173,16 @@ const ForumPostCard = ({ post }) => {
           </div>
 
           <Link to={`/forum/${post._id}`} className="view-post-btn">
-            View Post
+            {t('forum.postCard.viewPost')}
           </Link>
         </div>
       </div>
 
       {post.lastActivity && (
         <div className="post-activity">
-          <span className="activity-text">Last activity {getRelativeTime(post.lastActivity)}</span>
+          <span className="activity-text">
+            {t('forum.postCard.lastActivity', { time: getRelativeTime(post.lastActivity) })}
+          </span>
         </div>
       )}
     </div>

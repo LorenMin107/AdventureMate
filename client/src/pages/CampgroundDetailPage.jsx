@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import CampgroundMap from '../components/maps/CampgroundMap';
@@ -25,6 +26,7 @@ import './CampgroundDetailPage.css';
  */
 const CampgroundDetailPage = () => {
   const { id } = useParams();
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -121,7 +123,7 @@ const CampgroundDetailPage = () => {
         }
       } catch (err) {
         logError('Error fetching campground', err);
-        setError('Failed to load campground. Please try again later.');
+        setError(t('commonErrors.failedToLoad', { item: 'campground' }));
       } finally {
         setLoading(false);
       }
@@ -414,10 +416,10 @@ const CampgroundDetailPage = () => {
         {isOwner && (
           <div className="admin-actions">
             <Link to={`/campgrounds/${id}/edit`} className="common-btn common-btn-secondary">
-              Edit
+              {t('bookings.edit')}
             </Link>
             <button onClick={handleDeleteClick} className="common-btn common-btn-danger">
-              Delete
+              {t('bookings.delete')}
             </button>
           </div>
         )}
@@ -450,7 +452,7 @@ const CampgroundDetailPage = () => {
             </>
           ) : (
             <div className="no-image">
-              <p>No images available</p>
+              <p>{t('bookings.noImagesAvailable')}</p>
             </div>
           )}
         </div>
@@ -473,7 +475,7 @@ const CampgroundDetailPage = () => {
       {/* Weather Section - moved outside the media container */}
       {geometry && geometry.coordinates && (
         <div className="weather-section">
-          <h2>Weather Forecast for this Campground</h2>
+          <h2>{t('bookings.weatherForecast')}</h2>
           <WeatherBox
             lat={geometry.coordinates[1]}
             lng={geometry.coordinates[0]}
@@ -486,13 +488,13 @@ const CampgroundDetailPage = () => {
       {/* Safety Alerts Section */}
       <div className="safety-alerts-section">
         <div className="safety-alerts-header">
-          <h2>Safety Alerts</h2>
+          <h2>{t('bookings.safetyAlerts')}</h2>
           {isOwner && (
             <button
               onClick={() => setShowSafetyAlertForm(!showSafetyAlertForm)}
               className="create-alert-button"
             >
-              {showSafetyAlertForm ? 'Cancel' : 'Create Alert'}
+              {showSafetyAlertForm ? t('bookings.cancel') : t('bookings.createAlert')}
             </button>
           )}
         </div>
@@ -530,22 +532,24 @@ const CampgroundDetailPage = () => {
       <div className="campground-info-container">
         <div className="campground-info">
           <div className="info-section">
-            <h2>About this campground</h2>
+            <h2>{t('bookings.aboutCampground')}</h2>
             <p className="description">{description}</p>
           </div>
 
           <div className="info-section">
-            <h2>Details</h2>
+            <h2>{t('bookings.details')}</h2>
             <div className="detail-item">
-              <span className="detail-label">Hosted by:</span>
-              <span className="detail-value">{author ? author.username : 'Unknown'}</span>
+              <span className="detail-label">{t('bookings.hostedBy')}</span>
+              <span className="detail-value">
+                {author ? author.username : t('bookings.unknown')}
+              </span>
             </div>
           </div>
 
           <div className="booking-section">
             <div className="price-display">
               <span className="price">${startingPrice}</span>
-              <span className="price-unit">starting price per night</span>
+              <span className="price-unit">{t('bookings.startingPricePerNight')}</span>
             </div>
 
             {!currentUser && (
@@ -554,9 +558,9 @@ const CampgroundDetailPage = () => {
                   to={`/login?redirect=/campgrounds/${id}`}
                   className="common-btn common-btn-primary"
                 >
-                  Log in to book
+                  {t('bookings.loginToBook')}
                 </Link>
-                <p className="login-message">You need to be logged in to book a campsite</p>
+                <p className="login-message">{t('bookings.loginToBookMessage')}</p>
               </div>
             )}
           </div>
@@ -568,7 +572,7 @@ const CampgroundDetailPage = () => {
 
       {/* Reviews Section */}
       <div className="reviews-section">
-        <h2>Reviews</h2>
+        <h2>{t('bookings.reviews')}</h2>
         <ReviewList
           campgroundId={id}
           initialReviews={reviews}
@@ -581,10 +585,10 @@ const CampgroundDetailPage = () => {
         open={deleteDialog.open}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Campground"
-        message={`Are you sure you want to delete "${deleteDialog.campground?.title}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('bookings.deleteCampground')}
+        message={t('bookings.deleteConfirmation', { title: deleteDialog.campground?.title })}
+        confirmLabel={t('bookings.delete')}
+        cancelLabel={t('bookings.cancel')}
       />
     </div>
   );

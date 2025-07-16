@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
 import './AdminWeatherMonitor.css';
 
 const AdminWeatherMonitor = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [weatherStats, setWeatherStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -68,14 +70,14 @@ const AdminWeatherMonitor = () => {
   if (!currentUser?.isAdmin) {
     return (
       <div className="admin-weather-unauthorized">
-        <h2>Access Denied</h2>
-        <p>You do not have permission to access this page.</p>
+        <h2>{t('adminWeatherMonitor.accessDeniedTitle')}</h2>
+        <p>{t('adminWeatherMonitor.accessDeniedMessage')}</p>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="admin-weather-loading">Loading weather statistics...</div>;
+    return <div className="admin-weather-loading">{t('adminWeatherMonitor.loadingMessage')}</div>;
   }
 
   if (error) {
@@ -85,12 +87,14 @@ const AdminWeatherMonitor = () => {
   return (
     <div className="admin-weather-monitor">
       <div className="admin-weather-header">
-        <h1>Weather System Monitor</h1>
-        <p>Monitor weather API performance and recent requests</p>
+        <h1>{t('adminWeatherMonitor.title')}</h1>
+        <p>{t('adminWeatherMonitor.subtitle')}</p>
         <div className="last-updated">
-          Last updated: {lastUpdated ? lastUpdated.toLocaleTimeString() : 'Never'}
+          {t('adminWeatherMonitor.lastUpdated', {
+            time: lastUpdated ? lastUpdated.toLocaleTimeString() : 'Never',
+          })}
           <button onClick={fetchWeatherStats} className="refresh-btn">
-            Refresh
+            {t('adminWeatherMonitor.refreshButton')}
           </button>
         </div>
       </div>
@@ -98,26 +102,26 @@ const AdminWeatherMonitor = () => {
       {/* API Statistics */}
       {weatherStats?.apiStats && (
         <div className="weather-section">
-          <h2>API Statistics</h2>
+          <h2>{t('adminWeatherMonitor.apiStatistics.title')}</h2>
           <div className="api-stats-grid">
             <div className="stat-card">
-              <h3>Total Requests</h3>
+              <h3>{t('adminWeatherMonitor.apiStatistics.totalRequests')}</h3>
               <div className="stat-value">{formatNumber(weatherStats.apiStats.totalRequests)}</div>
             </div>
             <div className="stat-card">
-              <h3>Successful Requests</h3>
+              <h3>{t('adminWeatherMonitor.apiStatistics.successfulRequests')}</h3>
               <div className="stat-value success">
                 {formatNumber(weatherStats.apiStats.successfulRequests)}
               </div>
             </div>
             <div className="stat-card">
-              <h3>Failed Requests</h3>
+              <h3>{t('adminWeatherMonitor.apiStatistics.failedRequests')}</h3>
               <div className="stat-value error">
                 {formatNumber(weatherStats.apiStats.failedRequests)}
               </div>
             </div>
             <div className={`stat-card ${getApiStatusColor(weatherStats.apiStats)}`}>
-              <h3>Error Rate</h3>
+              <h3>{t('adminWeatherMonitor.apiStatistics.errorRate')}</h3>
               <div className="stat-value">
                 {weatherStats.apiStats.errorRate
                   ? `${weatherStats.apiStats.errorRate.toFixed(2)}%`
@@ -125,7 +129,7 @@ const AdminWeatherMonitor = () => {
               </div>
             </div>
             <div className="stat-card">
-              <h3>Average Response Time</h3>
+              <h3>{t('adminWeatherMonitor.apiStatistics.averageResponseTime')}</h3>
               <div className="stat-value">
                 {weatherStats.apiStats.avgResponseTime
                   ? `${weatherStats.apiStats.avgResponseTime.toFixed(2)}ms`
@@ -133,7 +137,7 @@ const AdminWeatherMonitor = () => {
               </div>
             </div>
             <div className="stat-card">
-              <h3>Last Request</h3>
+              <h3>{t('adminWeatherMonitor.apiStatistics.lastRequest')}</h3>
               <div className="stat-value">
                 {weatherStats.apiStats.lastRequest
                   ? new Date(weatherStats.apiStats.lastRequest).toLocaleString()
@@ -147,22 +151,24 @@ const AdminWeatherMonitor = () => {
       {/* Recent Requests */}
       {weatherStats?.recentRequests && weatherStats.recentRequests.length > 0 && (
         <div className="weather-section">
-          <h2>Recent Weather Requests</h2>
+          <h2>{t('adminWeatherMonitor.recentRequests.title')}</h2>
           <div className="recent-requests-list">
             {weatherStats.recentRequests.map((req, idx) => (
               <div key={idx} className="recent-request-item">
                 <div>
-                  <strong>Lat:</strong> {req.lat}, <strong>Lng:</strong> {req.lng}
+                  <strong>{t('adminWeatherMonitor.recentRequests.latitude')}</strong> {req.lat},{' '}
+                  <strong>{t('adminWeatherMonitor.recentRequests.longitude')}</strong> {req.lng}
                 </div>
                 <div>
-                  <strong>Source:</strong> {req.source || 'api'}
+                  <strong>{t('adminWeatherMonitor.recentRequests.source')}</strong>{' '}
+                  {req.source || 'api'}
                 </div>
                 <div>
-                  <strong>Response Time:</strong>{' '}
+                  <strong>{t('adminWeatherMonitor.recentRequests.responseTime')}</strong>{' '}
                   {req.responseTime ? `${req.responseTime}ms` : 'N/A'}
                 </div>
                 <div>
-                  <strong>Timestamp:</strong>{' '}
+                  <strong>{t('adminWeatherMonitor.recentRequests.timestamp')}</strong>{' '}
                   {req.timestamp ? new Date(req.timestamp).toLocaleString() : 'N/A'}
                 </div>
               </div>
@@ -173,16 +179,18 @@ const AdminWeatherMonitor = () => {
 
       {/* System Health */}
       <div className="weather-section">
-        <h2>System Health</h2>
+        <h2>{t('adminWeatherMonitor.systemHealth.title')}</h2>
         <div className="health-indicators">
           <div className={`health-indicator ${getApiStatusColor(weatherStats?.apiStats)}`}>
-            <span className="indicator-label">API Performance</span>
+            <span className="indicator-label">
+              {t('adminWeatherMonitor.systemHealth.apiPerformance')}
+            </span>
             <span className="indicator-status">
               {weatherStats?.apiStats?.errorRate < 5
-                ? '✅ Good'
+                ? t('adminWeatherMonitor.systemHealth.status.good')
                 : weatherStats?.apiStats?.errorRate < 15
-                  ? '⚠️ Warning'
-                  : '❌ Poor'}
+                  ? t('adminWeatherMonitor.systemHealth.status.warning')
+                  : t('adminWeatherMonitor.systemHealth.status.poor')}
             </span>
           </div>
         </div>
@@ -192,11 +200,8 @@ const AdminWeatherMonitor = () => {
       {!weatherStats?.apiStats && (
         <div className="weather-section">
           <div className="no-data-message">
-            <h3>No Weather Statistics Available</h3>
-            <p>
-              The weather system may not be actively collecting statistics or the Redis cache may be
-              unavailable.
-            </p>
+            <h3>{t('adminWeatherMonitor.noData.title')}</h3>
+            <p>{t('adminWeatherMonitor.noData.message')}</p>
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useWeather } from '../hooks/useWeather';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +17,7 @@ import './WeatherBox.css';
  * @param {boolean} props.compact - Whether to show a compact version for map popups (default: false)
  */
 const WeatherBox = ({ coordinates, lat, lng, showForecast = true, compact = false }) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { currentUser } = useAuth();
 
@@ -29,7 +31,7 @@ const WeatherBox = ({ coordinates, lat, lng, showForecast = true, compact = fals
       <div className={`weather-box ${theme} ${compact ? 'compact' : ''}`}>
         <div className="weather-loading">
           <div className="weather-loading-spinner"></div>
-          <span>Loading weather...</span>
+          <span>{t('weather.loading')}</span>
         </div>
       </div>
     );
@@ -43,9 +45,9 @@ const WeatherBox = ({ coordinates, lat, lng, showForecast = true, compact = fals
       <div className={`weather-box ${theme} ${compact ? 'compact' : ''}`}>
         <div className="weather-error">
           {isAuthError ? (
-            <span>Sign in to view weather data</span>
+            <span>{t('weather.signInToView')}</span>
           ) : (
-            <span>Weather unavailable</span>
+            <span>{t('weather.unavailable')}</span>
           )}
         </div>
       </div>
@@ -138,8 +140,8 @@ const WeatherBox = ({ coordinates, lat, lng, showForecast = true, compact = fals
         <div className="weather-details">
           <div className="weather-description">{weather.current.description}</div>
           <div className="weather-meta">
-            <span>Feels like {weather.current.feels_like}°</span>
-            <span>Humidity {weather.current.humidity}%</span>
+            <span>{t('weather.feelsLike', { temp: weather.current.feels_like })}</span>
+            <span>{t('weather.humidity', { humidity: weather.current.humidity })}</span>
           </div>
         </div>
       </div>
@@ -147,7 +149,7 @@ const WeatherBox = ({ coordinates, lat, lng, showForecast = true, compact = fals
       {/* 3-Day Forecast */}
       {showForecast && weather.forecast && weather.forecast.length > 0 && (
         <div className="weather-forecast">
-          <div className="forecast-title">3-Day Forecast</div>
+          <div className="forecast-title">{t('weather.forecast')}</div>
           <div className="forecast-days">
             {weather.forecast.map((day, index) => (
               <div key={index} className="forecast-day">

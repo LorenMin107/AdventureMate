@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import '../TripExportDialog.css';
+import { useTranslation } from 'react-i18next';
 
 const ConfirmDialog = ({
   open,
@@ -11,6 +12,7 @@ const ConfirmDialog = ({
   confirmLabel = 'Delete',
   cancelLabel = 'Cancel',
 }) => {
+  const { t } = useTranslation();
   if (!open) return null;
   return createPortal(
     <div className="export-dialog-overlay">
@@ -24,7 +26,11 @@ const ConfirmDialog = ({
           <div className="header-content">
             <h2 id="confirm-dialog-title">{title}</h2>
           </div>
-          <button className="close-button" onClick={onClose} aria-label="Close dialog">
+          <button
+            className="close-button"
+            onClick={onClose}
+            aria-label={t('confirmDialog.closeDialog')}
+          >
             &times;
           </button>
         </div>

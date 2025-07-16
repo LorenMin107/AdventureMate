@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import './FormStyles.css';
 
 /**
@@ -26,6 +27,7 @@ const Textarea = ({
   className = '',
   ...rest
 }) => {
+  const { t } = useTranslation();
   const {
     register,
     formState: { errors },
@@ -34,7 +36,7 @@ const Textarea = ({
   // Combine validation rules
   const validationRules = {
     ...validation,
-    required: required ? 'This field is required' : false,
+    required: required ? t('forms.fieldRequired') : false,
   };
 
   return (

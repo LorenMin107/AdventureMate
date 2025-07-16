@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { logError } from '../utils/logger';
@@ -11,6 +12,7 @@ import './TwoFactorVerification.css';
  * Allows users to enter a TOTP code to complete login
  */
 const TwoFactorVerification = ({ userId, onCancel }) => {
+  const { t } = useTranslation();
   const [token, setToken] = useState('');
   const [formError, setFormError] = useState('');
   const { verifyTwoFactor, error, loading } = useAuth();
@@ -23,17 +25,17 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
 
     // Validate form
     if (!token.trim()) {
-      setFormError('Verification code is required');
+      setFormError(t('twoFactorVerification.verificationCodeRequired'));
       return;
     }
 
     try {
       await verifyTwoFactor(token, false);
-      addSuccessMessage('Two-factor authentication successful! Welcome back.');
+      addSuccessMessage(t('twoFactorVerification.verificationSuccessful'));
       navigate('/'); // Redirect to home page after successful login
     } catch (err) {
       logError('2FA verification error', err);
-      addErrorMessage(err.message || 'Verification failed. Please try again.');
+      addErrorMessage(err.message || t('twoFactorVerification.verificationFailed'));
     }
   };
 
@@ -43,30 +45,28 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
         <span className="common-logo-text">AdventureMate</span>
       </div>
 
-      <h2>Two-Factor Authentication</h2>
-      <p className="verification-instruction">
-        Enter the verification code from your authenticator app.
-      </p>
+      <h2>{t('twoFactorVerification.title')}</h2>
+      <p className="verification-instruction">{t('twoFactorVerification.instruction')}</p>
 
       {(formError || error) && <div className="common-error-message">{formError || error}</div>}
 
       <form onSubmit={handleSubmit} className="common-verification-form">
         <div className="common-form-group">
-          <label htmlFor="token">Verification Code</label>
+          <label htmlFor="token">{t('twoFactorVerification.verificationCode')}</label>
           <input
             type="text"
             id="token"
             value={token}
             onChange={(e) => setToken(e.target.value)}
             disabled={loading}
-            placeholder="Enter 6-digit code"
+            placeholder={t('twoFactorVerification.enter6DigitCode')}
             autoComplete="one-time-code"
             autoFocus
           />
         </div>
 
         <button type="submit" className="common-btn common-btn-primary" disabled={loading}>
-          {loading ? 'Verifying...' : 'Verify'}
+          {loading ? t('twoFactorVerification.verifying') : t('twoFactorVerification.verify')}
         </button>
 
         {onCancel && (
@@ -76,7 +76,7 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
             onClick={onCancel}
             disabled={loading}
           >
-            Cancel
+            {t('twoFactorVerification.cancel')}
           </button>
         )}
       </form>

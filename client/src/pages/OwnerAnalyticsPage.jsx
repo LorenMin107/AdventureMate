@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
@@ -9,6 +10,7 @@ import './OwnerAnalyticsPage.css';
  * Modern analytics dashboard for campground owners
  */
 const OwnerAnalyticsPage = () => {
+  const { t } = useTranslation();
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
   const { useOwnerAnalytics } = useOwners();
@@ -38,10 +40,10 @@ const OwnerAnalyticsPage = () => {
 
   useEffect(() => {
     if (fetchError) {
-      setError('Failed to load analytics data. Please try again later.');
+      setError(t('ownerAnalytics.errorTitle'));
       setLoading(false);
     }
-  }, [fetchError]);
+  }, [fetchError, t]);
 
   useEffect(() => {
     setLoading(isLoading);
@@ -71,25 +73,14 @@ const OwnerAnalyticsPage = () => {
   };
 
   const getPeriodLabel = (period) => {
-    switch (period) {
-      case '7d':
-        return 'Last 7 Days';
-      case '30d':
-        return 'Last 30 Days';
-      case '90d':
-        return 'Last 3 Months';
-      case '1y':
-        return 'Last Year';
-      default:
-        return 'Last 30 Days';
-    }
+    return t(`ownerAnalytics.periods.${period}`);
   };
 
   if (loading) {
     return (
       <div className="owner-loading">
         <div className="owner-loading-spinner"></div>
-        <p>Loading analytics data...</p>
+        <p>{t('ownerAnalytics.loading')}</p>
       </div>
     );
   }
@@ -97,10 +88,10 @@ const OwnerAnalyticsPage = () => {
   if (error) {
     return (
       <div className="owner-error">
-        <h4>Error Loading Analytics</h4>
+        <h4>{t('ownerAnalytics.errorTitle')}</h4>
         <p>{error}</p>
         <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
-          Retry
+          {t('ownerAnalytics.retry')}
         </button>
       </div>
     );
@@ -123,18 +114,16 @@ const OwnerAnalyticsPage = () => {
         <div className="header-content">
           <div className="header-main">
             <div className="greeting-section">
-              <h1>Analytics & Reports</h1>
-              <p className="header-subtitle">
-                Track your campground performance and gain valuable insights
-              </p>
+              <h1>{t('ownerAnalytics.title')}</h1>
+              <p className="header-subtitle">{t('ownerAnalytics.subtitle')}</p>
             </div>
             <div className="header-stats">
               <div className="header-stat">
-                <span className="stat-label">Total Revenue</span>
+                <span className="stat-label">{t('ownerAnalytics.totalRevenue')}</span>
                 <span className="stat-value">{formatCurrency(revenue.total)}</span>
               </div>
               <div className="header-stat">
-                <span className="stat-label">Total Bookings</span>
+                <span className="stat-label">{t('ownerAnalytics.totalBookings')}</span>
                 <span className="stat-value">{formatNumber(bookings.total)}</span>
               </div>
             </div>
@@ -146,7 +135,7 @@ const OwnerAnalyticsPage = () => {
                 onChange={handleCampgroundChange}
                 className="owner-select"
               >
-                <option value="all">All Campgrounds</option>
+                <option value="all">{t('ownerAnalytics.allCampgrounds')}</option>
                 {campgrounds.list?.map((campground) => (
                   <option key={campground._id} value={campground._id}>
                     {campground.title}
@@ -154,10 +143,10 @@ const OwnerAnalyticsPage = () => {
                 ))}
               </select>
               <select value={selectedPeriod} onChange={handlePeriodChange} className="owner-select">
-                <option value="7d">Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-                <option value="90d">Last 3 Months</option>
-                <option value="1y">Last Year</option>
+                <option value="7d">{t('ownerAnalytics.periods.7d')}</option>
+                <option value="30d">{t('ownerAnalytics.periods.30d')}</option>
+                <option value="90d">{t('ownerAnalytics.periods.90d')}</option>
+                <option value="1y">{t('ownerAnalytics.periods.1y')}</option>
               </select>
             </div>
           </div>
@@ -169,7 +158,7 @@ const OwnerAnalyticsPage = () => {
         {/* Enhanced Overview Stats */}
         <div className="analytics-section">
           <div className="section-header">
-            <h2>Performance Overview</h2>
+            <h2>{t('ownerAnalytics.performanceOverview.title')}</h2>
             <p className="section-subtitle">{getPeriodLabel(selectedPeriod)}</p>
           </div>
           <div className="analytics-stats-grid">
@@ -177,12 +166,16 @@ const OwnerAnalyticsPage = () => {
               <div className="stat-icon">💰</div>
               <div className="stat-content">
                 <div className="stat-value">{formatCurrency(revenue.total)}</div>
-                <div className="stat-label">Total Revenue</div>
+                <div className="stat-label">
+                  {t('ownerAnalytics.performanceOverview.totalRevenue')}
+                </div>
                 <div className="stat-change">
                   <span className={revenue.change >= 0 ? 'positive' : 'negative'}>
                     {revenue.change >= 0 ? '↗' : '↘'} {formatPercentage(Math.abs(revenue.change))}
                   </span>
-                  <span className="change-label">vs previous period</span>
+                  <span className="change-label">
+                    {t('ownerAnalytics.performanceOverview.vsPreviousPeriod')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -191,13 +184,17 @@ const OwnerAnalyticsPage = () => {
               <div className="stat-icon">📅</div>
               <div className="stat-content">
                 <div className="stat-value">{formatNumber(bookings.total)}</div>
-                <div className="stat-label">Total Bookings</div>
+                <div className="stat-label">
+                  {t('ownerAnalytics.performanceOverview.totalBookings')}
+                </div>
                 <div className="stat-change">
                   <span className={bookings.change >= 0 ? 'positive' : 'negative'}>
                     {bookings.change >= 0 ? '↗' : '↘'}{' '}
                     {formatPercentage(Math.abs(bookings.change))}
                   </span>
-                  <span className="change-label">vs previous period</span>
+                  <span className="change-label">
+                    {t('ownerAnalytics.performanceOverview.vsPreviousPeriod')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -206,13 +203,13 @@ const OwnerAnalyticsPage = () => {
               <div className="stat-icon">🏕️</div>
               <div className="stat-content">
                 <div className="stat-value">{formatPercentage(overview.occupancyRate)}</div>
-                <div className="stat-label">Occupancy Rate</div>
+                <div className="stat-label">{t('ownerAnalytics.occupancyRate')}</div>
                 <div className="stat-change">
                   <span className={overview.occupancyChange >= 0 ? 'positive' : 'negative'}>
                     {overview.occupancyChange >= 0 ? '↗' : '↘'}{' '}
                     {formatPercentage(Math.abs(overview.occupancyChange))}
                   </span>
-                  <span className="change-label">vs previous period</span>
+                  <span className="change-label">{t('ownerAnalytics.vsPreviousPeriod')}</span>
                 </div>
               </div>
             </div>
@@ -221,9 +218,11 @@ const OwnerAnalyticsPage = () => {
               <div className="stat-icon">⭐</div>
               <div className="stat-content">
                 <div className="stat-value">{(reviews.averageRating || 0).toFixed(1)}</div>
-                <div className="stat-label">Average Rating</div>
+                <div className="stat-label">{t('ownerAnalytics.averageRating')}</div>
                 <div className="stat-change">
-                  <span className="neutral">{formatNumber(reviews.totalReviews)} reviews</span>
+                  <span className="neutral">
+                    {formatNumber(reviews.totalReviews)} {t('ownerAnalytics.reviews')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -233,15 +232,17 @@ const OwnerAnalyticsPage = () => {
         {/* Revenue Analysis */}
         <div className="analytics-section">
           <div className="section-header">
-            <h2>Revenue Analysis</h2>
-            <p className="section-subtitle">Breakdown of your revenue sources</p>
+            <h2>{t('ownerAnalytics.revenueAnalysis.title')}</h2>
+            <p className="section-subtitle">{t('ownerAnalytics.revenueAnalysis.subtitle')}</p>
           </div>
           <div className="analytics-grid">
             <div className="owner-card analytics-card">
               <div className="card-header">
                 <div className="card-title">
-                  <h3>Revenue by Source</h3>
-                  <p className="card-subtitle">Revenue distribution across campgrounds</p>
+                  <h3>{t('ownerAnalytics.revenueAnalysis.revenueBySource.title')}</h3>
+                  <p className="card-subtitle">
+                    {t('ownerAnalytics.revenueAnalysis.revenueBySource.subtitle')}
+                  </p>
                 </div>
               </div>
               <div className="card-content">
@@ -270,8 +271,10 @@ const OwnerAnalyticsPage = () => {
             <div className="owner-card analytics-card">
               <div className="card-header">
                 <div className="card-title">
-                  <h3>Monthly Trends</h3>
-                  <p className="card-subtitle">Revenue trends over time</p>
+                  <h3>{t('ownerAnalytics.revenueAnalysis.monthlyTrends.title')}</h3>
+                  <p className="card-subtitle">
+                    {t('ownerAnalytics.revenueAnalysis.monthlyTrends.subtitle')}
+                  </p>
                 </div>
               </div>
               <div className="card-content">
@@ -299,34 +302,44 @@ const OwnerAnalyticsPage = () => {
         {/* Booking Analytics */}
         <div className="analytics-section">
           <div className="section-header">
-            <h2>Booking Analytics</h2>
-            <p className="section-subtitle">Detailed booking performance metrics</p>
+            <h2>{t('ownerAnalytics.bookingAnalytics.title')}</h2>
+            <p className="section-subtitle">{t('ownerAnalytics.bookingAnalytics.subtitle')}</p>
           </div>
           <div className="analytics-grid">
             <div className="owner-card analytics-card">
               <div className="card-header">
                 <div className="card-title">
-                  <h3>Booking Status Distribution</h3>
-                  <p className="card-subtitle">Current booking status breakdown</p>
+                  <h3>{t('ownerAnalytics.bookingAnalytics.statusDistribution.title')}</h3>
+                  <p className="card-subtitle">
+                    {t('ownerAnalytics.bookingAnalytics.statusDistribution.subtitle')}
+                  </p>
                 </div>
               </div>
               <div className="card-content">
                 <div className="booking-status-grid">
                   <div className="status-item confirmed">
                     <div className="status-count">{bookings.confirmed || 0}</div>
-                    <div className="status-label">Confirmed</div>
+                    <div className="status-label">
+                      {t('ownerAnalytics.bookingAnalytics.statusDistribution.confirmed')}
+                    </div>
                   </div>
                   <div className="status-item pending">
                     <div className="status-count">{bookings.pending || 0}</div>
-                    <div className="status-label">Pending</div>
+                    <div className="status-label">
+                      {t('ownerAnalytics.bookingAnalytics.statusDistribution.pending')}
+                    </div>
                   </div>
                   <div className="status-item cancelled">
                     <div className="status-count">{bookings.cancelled || 0}</div>
-                    <div className="status-label">Cancelled</div>
+                    <div className="status-label">
+                      {t('ownerAnalytics.bookingAnalytics.statusDistribution.cancelled')}
+                    </div>
                   </div>
                   <div className="status-item completed">
                     <div className="status-count">{bookings.completed || 0}</div>
-                    <div className="status-label">Completed</div>
+                    <div className="status-label">
+                      {t('ownerAnalytics.bookingAnalytics.statusDistribution.completed')}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -335,30 +348,41 @@ const OwnerAnalyticsPage = () => {
             <div className="owner-card analytics-card">
               <div className="card-header">
                 <div className="card-title">
-                  <h3>Key Performance Metrics</h3>
-                  <p className="card-subtitle">Important business indicators</p>
+                  <h3>{t('ownerAnalytics.bookingAnalytics.keyMetrics.title')}</h3>
+                  <p className="card-subtitle">
+                    {t('ownerAnalytics.bookingAnalytics.keyMetrics.subtitle')}
+                  </p>
                 </div>
               </div>
               <div className="card-content">
                 <div className="metrics-list">
                   <div className="metric-item">
-                    <span className="metric-label">Average Booking Value</span>
+                    <span className="metric-label">
+                      {t('ownerAnalytics.bookingAnalytics.keyMetrics.averageBookingValue')}
+                    </span>
                     <span className="metric-value">{formatCurrency(bookings.averageValue)}</span>
                   </div>
                   <div className="metric-item">
-                    <span className="metric-label">Average Stay Duration</span>
+                    <span className="metric-label">
+                      {t('ownerAnalytics.bookingAnalytics.keyMetrics.averageStayDuration')}
+                    </span>
                     <span className="metric-value">
-                      {(bookings.averageDuration || 0).toFixed(1)} days
+                      {(bookings.averageDuration || 0).toFixed(1)}{' '}
+                      {t('ownerAnalytics.bookingAnalytics.keyMetrics.days')}
                     </span>
                   </div>
                   <div className="metric-item">
-                    <span className="metric-label">Cancellation Rate</span>
+                    <span className="metric-label">
+                      {t('ownerAnalytics.bookingAnalytics.keyMetrics.cancellationRate')}
+                    </span>
                     <span className="metric-value">
                       {formatPercentage(bookings.cancellationRate)}
                     </span>
                   </div>
                   <div className="metric-item">
-                    <span className="metric-label">Repeat Customer Rate</span>
+                    <span className="metric-label">
+                      {t('ownerAnalytics.bookingAnalytics.keyMetrics.repeatCustomerRate')}
+                    </span>
                     <span className="metric-value">
                       {formatPercentage(bookings.repeatCustomerRate)}
                     </span>
@@ -372,15 +396,17 @@ const OwnerAnalyticsPage = () => {
         {/* Top Performers & Reviews */}
         <div className="analytics-section">
           <div className="section-header">
-            <h2>Performance Insights</h2>
-            <p className="section-subtitle">Top performers and customer feedback</p>
+            <h2>{t('ownerAnalytics.performanceInsights.title')}</h2>
+            <p className="section-subtitle">{t('ownerAnalytics.performanceInsights.subtitle')}</p>
           </div>
           <div className="analytics-grid">
             <div className="owner-card analytics-card">
               <div className="card-header">
                 <div className="card-title">
-                  <h3>Best Performing Campgrounds</h3>
-                  <p className="card-subtitle">Top revenue generators</p>
+                  <h3>{t('ownerAnalytics.performanceInsights.bestPerforming.title')}</h3>
+                  <p className="card-subtitle">
+                    {t('ownerAnalytics.performanceInsights.bestPerforming.subtitle')}
+                  </p>
                 </div>
               </div>
               <div className="card-content">
@@ -391,15 +417,22 @@ const OwnerAnalyticsPage = () => {
                       <div className="performer-info">
                         <div className="performer-name">{campground.name}</div>
                         <div className="performer-stats">
-                          <span>{formatCurrency(campground.revenue)} revenue</span>
+                          <span>
+                            {formatCurrency(campground.revenue)}{' '}
+                            {t('ownerAnalytics.performanceInsights.bestPerforming.revenue')}
+                          </span>
                           <span>•</span>
-                          <span>{campground.bookings} bookings</span>
+                          <span>
+                            {campground.bookings}{' '}
+                            {t('ownerAnalytics.performanceInsights.bestPerforming.bookings')}
+                          </span>
                           <span>•</span>
                           <span>⭐ {campground.rating.toFixed(1)}</span>
                         </div>
                       </div>
                       <div className="performer-badge">
-                        {formatPercentage(campground.occupancyRate)} occupied
+                        {formatPercentage(campground.occupancyRate)}{' '}
+                        {t('ownerAnalytics.performanceInsights.bestPerforming.occupied')}
                       </div>
                     </div>
                   ))}
@@ -410,8 +443,10 @@ const OwnerAnalyticsPage = () => {
             <div className="owner-card analytics-card">
               <div className="card-header">
                 <div className="card-title">
-                  <h3>Recent Customer Reviews</h3>
-                  <p className="card-subtitle">Latest feedback from guests</p>
+                  <h3>{t('ownerAnalytics.performanceInsights.recentReviews.title')}</h3>
+                  <p className="card-subtitle">
+                    {t('ownerAnalytics.performanceInsights.recentReviews.subtitle')}
+                  </p>
                 </div>
               </div>
               <div className="card-content">
@@ -439,16 +474,24 @@ const OwnerAnalyticsPage = () => {
           <div className="owner-card export-card">
             <div className="card-header">
               <div className="card-title">
-                <h3>Export Reports</h3>
-                <p className="card-subtitle">Download detailed reports for analysis</p>
+                <h3>{t('ownerAnalytics.exportReports.title')}</h3>
+                <p className="card-subtitle">{t('ownerAnalytics.exportReports.subtitle')}</p>
               </div>
             </div>
             <div className="card-content">
               <div className="export-buttons">
-                <button className="owner-btn owner-btn-outline">📊 Export Revenue Report</button>
-                <button className="owner-btn owner-btn-outline">📅 Export Booking Report</button>
-                <button className="owner-btn owner-btn-outline">⭐ Export Reviews Report</button>
-                <button className="owner-btn owner-btn-primary">📋 Export Full Report</button>
+                <button className="owner-btn owner-btn-outline">
+                  📊 {t('ownerAnalytics.exportReports.revenueReport')}
+                </button>
+                <button className="owner-btn owner-btn-outline">
+                  📅 {t('ownerAnalytics.exportReports.bookingReport')}
+                </button>
+                <button className="owner-btn owner-btn-outline">
+                  ⭐ {t('ownerAnalytics.exportReports.reviewsReport')}
+                </button>
+                <button className="owner-btn owner-btn-primary">
+                  📋 {t('ownerAnalytics.exportReports.fullReport')}
+                </button>
               </div>
             </div>
           </div>

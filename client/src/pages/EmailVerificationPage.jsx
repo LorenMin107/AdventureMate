@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import apiClient from '../utils/api';
 import { logInfo } from '../utils/logger';
 import './EmailVerificationPage.css';
 
 const EmailVerificationPage = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
@@ -23,7 +25,7 @@ const EmailVerificationPage = () => {
       if (!token) {
         logInfo('No token found in URL');
         setStatus('error');
-        setMessage('No verification token provided. Please check your email link.');
+        setMessage(t('emailVerification.error.noToken'));
         return;
       }
 
@@ -40,10 +42,7 @@ const EmailVerificationPage = () => {
         logInfo('Verification error', error);
         logInfo('Error response', error.response?.data);
         setStatus('error');
-        setMessage(
-          error.response?.data?.message ||
-            'Failed to verify email. The token may be invalid or expired.'
-        );
+        setMessage(error.response?.data?.message || t('emailVerification.error.failed'));
       }
     };
 
@@ -61,29 +60,26 @@ const EmailVerificationPage = () => {
       setResendMessage(response.data.message);
     } catch (error) {
       setResendStatus('error');
-      setResendMessage(
-        error.response?.data?.message ||
-          'Failed to resend verification email. Please try again later.'
-      );
+      setResendMessage(error.response?.data?.message || t('emailVerification.resend.failed'));
     }
   };
 
   return (
     <div className="email-verification-page">
       <div className="verification-container">
-        <h1>Email Verification</h1>
+        <h1>{t('emailVerification.title')}</h1>
 
         {status === 'loading' && (
           <div className="verification-status loading">
             <div className="spinner"></div>
-            <p>Verifying your email address...</p>
+            <p>{t('emailVerification.verifying')}</p>
           </div>
         )}
 
         {status === 'success' && (
           <div className="verification-status success">
             <div className="success-icon">✓</div>
-            <h2>Email Verified!</h2>
+            <h2>{t('emailVerification.success.title')}</h2>
             <p>{message}</p>
             {user && (
               <div className="user-info">
@@ -93,10 +89,10 @@ const EmailVerificationPage = () => {
             )}
             <div className="action-buttons">
               <Link to="/login" className="btn btn-primary">
-                Login
+                {t('emailVerification.success.login')}
               </Link>
               <Link to="/" className="btn btn-secondary">
-                Go to Homepage
+                {t('emailVerification.success.goToHomepage')}
               </Link>
             </div>
           </div>
@@ -105,10 +101,10 @@ const EmailVerificationPage = () => {
         {status === 'error' && (
           <div className="verification-status error">
             <div className="error-icon">✗</div>
-            <h2>Verification Failed</h2>
+            <h2>{t('emailVerification.error.title')}</h2>
             <p>{message}</p>
             <div className="resend-section">
-              <p>Need a new verification email?</p>
+              <p>{t('emailVerification.resend.title')}</p>
 
               {resendStatus === 'idle' && (
                 <button
@@ -116,21 +112,21 @@ const EmailVerificationPage = () => {
                   className="btn btn-primary"
                   disabled={resendStatus === 'loading'}
                 >
-                  Resend Verification Email
+                  {t('emailVerification.resend.button')}
                 </button>
               )}
 
               {resendStatus === 'loading' && (
                 <div className="resend-loading">
                   <div className="spinner-small"></div>
-                  <span>Sending...</span>
+                  <span>{t('emailVerification.resend.sending')}</span>
                 </div>
               )}
 
               {resendStatus === 'success' && (
                 <div className="resend-success">
                   <p>{resendMessage}</p>
-                  <p>Please check your email for the verification link.</p>
+                  <p>{t('emailVerification.resend.success')}</p>
                 </div>
               )}
 
@@ -138,17 +134,17 @@ const EmailVerificationPage = () => {
                 <div className="resend-error">
                   <p>{resendMessage}</p>
                   <button onClick={handleResendVerification} className="btn btn-primary">
-                    Try Again
+                    {t('emailVerification.resend.tryAgain')}
                   </button>
                 </div>
               )}
             </div>
             <div className="action-buttons">
               <Link to="/login" className="btn btn-secondary">
-                Back to Login
+                {t('emailVerification.backToLogin')}
               </Link>
               <Link to="/" className="btn btn-secondary">
-                Go to Homepage
+                {t('emailVerification.success.goToHomepage')}
               </Link>
             </div>
           </div>

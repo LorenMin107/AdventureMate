@@ -30,7 +30,7 @@ const EmailVerificationRequired = () => {
       setResendStatus('error');
       setResendMessage(
         error.response?.data?.message ||
-          'Failed to resend verification email. Please try again later.'
+          t('commonErrors.failedToCreate', { item: 'verification email' })
       );
     }
   };
@@ -100,7 +100,7 @@ const EmailVerificationRequired = () => {
 
         <div className="action-buttons">
           <Link to="/" className="btn btn-secondary">
-            Go to Homepage
+            {t('notFound.goToHomepage')}
           </Link>
           <button
             onClick={handleLogout}

@@ -284,7 +284,7 @@ const ForumNewPostPage = () => {
                 Cancel
               </button>
               <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating Post...' : 'Create Post'}
+                {isSubmitting ? t('forum.newPost.creating') : t('forum.newPost.createPost')}
               </button>
             </div>
           </form>

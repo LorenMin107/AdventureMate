@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import ReviewList from './ReviewList';
 import ReviewForm from './ReviewForm';
 import BookingForm from './BookingForm';
@@ -12,6 +13,7 @@ import './CampgroundDetail.css';
  * CampgroundDetail component displays detailed information about a campground
  */
 const CampgroundDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -35,7 +37,7 @@ const CampgroundDetail = () => {
         setError(null);
       } catch (err) {
         logError('Error fetching campground', err);
-        setError('Failed to load campground details. Please try again later.');
+        setError(t('campgrounds.errorLoadingCampgrounds'));
       } finally {
         setLoading(false);
       }
@@ -44,10 +46,10 @@ const CampgroundDetail = () => {
     if (id) {
       fetchCampground();
     }
-  }, [id]);
+  }, [id, t]);
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this campground?')) {
+    if (!window.confirm(t('campgrounds.deleteConfirmation', { title: campground?.title }))) {
       return;
     }
 
@@ -57,7 +59,7 @@ const CampgroundDetail = () => {
       navigate('/campgrounds');
     } catch (err) {
       logError('Error deleting campground', err);
-      alert('Failed to delete campground. Please try again later.');
+      alert(t('campgrounds.failedToSave'));
     }
   };
 
@@ -70,7 +72,7 @@ const CampgroundDetail = () => {
   };
 
   if (loading) {
-    return <div className="campground-detail-loading">Loading campground details...</div>;
+    return <div className="campground-detail-loading">{t('campgrounds.loadingCampgrounds')}</div>;
   }
 
   if (error) {
@@ -78,7 +80,7 @@ const CampgroundDetail = () => {
   }
 
   if (!campground) {
-    return <div className="campground-detail-not-found">Campground not found</div>;
+    return <div className="campground-detail-not-found">{t('campgrounds.noCampgrounds')}</div>;
   }
 
   const { title, location, description, price, images, author } = campground;
@@ -123,11 +125,13 @@ const CampgroundDetail = () => {
 
         <div className="campground-detail-info">
           <div className="campground-detail-description">
-            <h2>About this campground</h2>
+            <h2>{t('campgrounds.aboutCampground')}</h2>
             <p>{description}</p>
 
             <div className="campground-detail-author">
-              <p>Submitted by {author ? author.username : 'Unknown'}</p>
+              <p>
+                {t('campgrounds.hostedBy')} {author ? author.username : t('campgrounds.unknown')}
+              </p>
             </div>
           </div>
 
@@ -135,7 +139,7 @@ const CampgroundDetail = () => {
             <div className="campground-detail-price">
               <h3>
                 ${price}
-                <span>/night</span>
+                <span>{t('bookings.perNight')}</span>
               </h3>
             </div>
 
@@ -144,10 +148,10 @@ const CampgroundDetail = () => {
             {canModify && (
               <div className="campground-detail-actions">
                 <Link to={`/campgrounds/${id}/edit`} className="common-btn common-btn-secondary">
-                  Edit
+                  {t('campgrounds.edit')}
                 </Link>
                 <button onClick={handleDelete} className="common-btn common-btn-danger">
-                  Delete
+                  {t('campgrounds.delete')}
                 </button>
               </div>
             )}
@@ -156,7 +160,7 @@ const CampgroundDetail = () => {
       </div>
 
       <div className="campground-detail-reviews">
-        <h2>Reviews</h2>
+        <h2>{t('campgrounds.reviews')}</h2>
         <ReviewList
           campgroundId={id}
           initialReviews={reviews}

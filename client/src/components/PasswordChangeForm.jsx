@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
@@ -11,6 +12,7 @@ import './PasswordChangeForm.css';
  * Allows authenticated users to change their password
  */
 const PasswordChangeForm = () => {
+  const { t } = useTranslation();
   const { changePassword, loading, currentUser } = useAuth();
   const { userDetails } = useUser();
   const { showMessage } = useFlashMessage();
@@ -59,7 +61,7 @@ const PasswordChangeForm = () => {
   // Check password strength
   const checkPasswordStrength = (password) => {
     let score = 0;
-    let message = 'Password is too weak';
+    let message = t('passwordChange.tooWeak');
     let color = '#dc3545';
 
     if (password.length >= 8) score++;
@@ -69,13 +71,13 @@ const PasswordChangeForm = () => {
     if (/[^A-Za-z0-9]/.test(password)) score++;
 
     if (score >= 4) {
-      message = 'Strong password';
+      message = t('passwordChange.strong');
       color = '#28a745';
     } else if (score >= 3) {
-      message = 'Good password';
+      message = t('passwordChange.good');
       color = '#ffc107';
     } else if (score >= 2) {
-      message = 'Fair password';
+      message = t('passwordChange.fair');
       color = '#fd7e14';
     }
 
@@ -119,24 +121,24 @@ const PasswordChangeForm = () => {
     const newErrors = {};
 
     if (!formData.currentPassword) {
-      newErrors.currentPassword = 'Current password is required';
+      newErrors.currentPassword = t('passwordChange.currentPasswordRequired');
     }
 
     if (!formData.newPassword) {
-      newErrors.newPassword = 'New password is required';
+      newErrors.newPassword = t('passwordChange.newPasswordRequired');
     } else if (passwordStrength.score < 3) {
-      newErrors.newPassword = 'Please choose a stronger password';
+      newErrors.newPassword = t('passwordChange.chooseStrongerPassword');
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your new password';
+      newErrors.confirmPassword = t('passwordChange.confirmPasswordRequired');
     } else if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t('passwordChange.passwordsDoNotMatch');
     }
 
     // Validate 2FA code if required
     if (showTwoFactorInput && !formData.twoFactorCode) {
-      newErrors.twoFactorCode = 'Two-factor authentication code is required';
+      newErrors.twoFactorCode = t('passwordChange.twoFactorCodeRequired');
     }
 
     setErrors(newErrors);
@@ -159,7 +161,7 @@ const PasswordChangeForm = () => {
       );
 
       // Show success message
-      showMessage(message || 'Password changed successfully!', 'success');
+      showMessage(message || t('passwordChange.successMessage'), 'success');
 
       // Set success state
       setSuccess(true);
@@ -173,7 +175,7 @@ const PasswordChangeForm = () => {
       });
       setPasswordStrength({
         score: 0,
-        message: 'Password is too weak',
+        message: t('passwordChange.tooWeak'),
         color: '#dc3545',
       });
       setRequiresTwoFactor(false);
@@ -189,9 +191,9 @@ const PasswordChangeForm = () => {
       if (error.response?.data?.requiresTwoFactor) {
         setRequiresTwoFactor(true);
         setShowTwoFactorInput(true);
-        showMessage('Two-factor authentication code is required', 'error');
+        showMessage(t('passwordChange.twoFactorCodeRequired'), 'error');
       } else {
-        showMessage(error.message || 'Failed to change password', 'error');
+        showMessage(error.message || t('passwordChange.failedToChange'), 'error');
       }
     }
   };
@@ -203,13 +205,13 @@ const PasswordChangeForm = () => {
         <div className="form-header">
           <div className="success-indicator">
             <FiCheckCircle className="success-icon" />
-            <h3>Password Changed Successfully!</h3>
+            <h3>{t('passwordChange.changedSuccessfully')}</h3>
           </div>
-          <p>Your password has been updated. You can now use your new password to log in.</p>
+          <p>{t('passwordChange.passwordUpdated')}</p>
         </div>
         <div className="success-actions">
           <button onClick={() => setSuccess(false)} className="submit-button">
-            Change Another Password
+            {t('passwordChange.changeAnotherPassword')}
           </button>
         </div>
       </div>
@@ -219,19 +221,19 @@ const PasswordChangeForm = () => {
   return (
     <div className="profile-card">
       <div className="form-header">
-        <h3>Change Password</h3>
-        <p>Update your password to keep your account secure</p>
+        <h3>{t('passwordChange.changePassword')}</h3>
+        <p>{t('passwordChange.updatePasswordDescription')}</p>
         {showTwoFactorInput && (
           <div className="two-factor-notice">
             <span className="two-factor-icon">🔐</span>
-            <span>Two-factor authentication is enabled. You'll need to enter your 2FA code.</span>
+            <span>{t('passwordChange.twoFactorEnabled')}</span>
           </div>
         )}
       </div>
 
       <form onSubmit={handleSubmit} className="password-form">
         <div className="form-group">
-          <label htmlFor="currentPassword">Current Password</label>
+          <label htmlFor="currentPassword">{t('passwordChange.currentPassword')}</label>
           <div className="password-input-group">
             <input
               type={showPasswords.current ? 'text' : 'password'}
@@ -240,7 +242,7 @@ const PasswordChangeForm = () => {
               value={formData.currentPassword}
               onChange={handleInputChange}
               className={errors.currentPassword ? 'error' : ''}
-              placeholder="Enter your current password"
+              placeholder={t('passwordChange.enterCurrentPassword')}
               disabled={loading}
             />
             <button
@@ -258,7 +260,7 @@ const PasswordChangeForm = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="newPassword">New Password</label>
+          <label htmlFor="newPassword">{t('passwordChange.newPassword')}</label>
           <div className="password-input-group">
             <input
               type={showPasswords.new ? 'text' : 'password'}
@@ -267,7 +269,7 @@ const PasswordChangeForm = () => {
               value={formData.newPassword}
               onChange={handleInputChange}
               className={errors.newPassword ? 'error' : ''}
-              placeholder="Enter your new password"
+              placeholder={t('passwordChange.enterNewPassword')}
               disabled={loading}
             />
             <button
@@ -301,29 +303,29 @@ const PasswordChangeForm = () => {
 
           {/* Password requirements */}
           <div className="password-requirements">
-            <h4>Password Requirements:</h4>
+            <h4>{t('passwordChange.passwordRequirements')}:</h4>
             <ul>
               <li className={formData.newPassword.length >= 8 ? 'met' : 'unmet'}>
-                At least 8 characters long
+                {t('passwordChange.atLeast8Characters')}
               </li>
               <li className={/[a-z]/.test(formData.newPassword) ? 'met' : 'unmet'}>
-                Contains lowercase letter
+                {t('passwordChange.containsLowercase')}
               </li>
               <li className={/[A-Z]/.test(formData.newPassword) ? 'met' : 'unmet'}>
-                Contains uppercase letter
+                {t('passwordChange.containsUppercase')}
               </li>
               <li className={/[0-9]/.test(formData.newPassword) ? 'met' : 'unmet'}>
-                Contains number
+                {t('passwordChange.containsNumber')}
               </li>
               <li className={/[^A-Za-z0-9]/.test(formData.newPassword) ? 'met' : 'unmet'}>
-                Contains special character
+                {t('passwordChange.containsSpecial')}
               </li>
             </ul>
           </div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="confirmPassword">Confirm New Password</label>
+          <label htmlFor="confirmPassword">{t('passwordChange.confirmNewPassword')}</label>
           <div className="password-input-group">
             <input
               type={showPasswords.confirm ? 'text' : 'password'}
@@ -332,7 +334,7 @@ const PasswordChangeForm = () => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               className={errors.confirmPassword ? 'error' : ''}
-              placeholder="Confirm your new password"
+              placeholder={t('passwordChange.confirmNewPasswordPlaceholder')}
               disabled={loading}
             />
             <button
@@ -352,7 +354,7 @@ const PasswordChangeForm = () => {
         {/* Two-Factor Authentication Code */}
         {showTwoFactorInput && (
           <div className="form-group">
-            <label htmlFor="twoFactorCode">Two-Factor Authentication Code</label>
+            <label htmlFor="twoFactorCode">{t('passwordChange.twoFactorCode')}</label>
             <input
               type="text"
               id="twoFactorCode"
@@ -360,20 +362,20 @@ const PasswordChangeForm = () => {
               value={formData.twoFactorCode}
               onChange={handleInputChange}
               className={errors.twoFactorCode ? 'error' : ''}
-              placeholder="Enter your 2FA code"
+              placeholder={t('passwordChange.enter2FACode')}
               disabled={loading}
               maxLength="6"
               pattern="[0-9]*"
               inputMode="numeric"
             />
             {errors.twoFactorCode && <span className="error-message">{errors.twoFactorCode}</span>}
-            <small className="help-text">Enter the 6-digit code from your authenticator app</small>
+            <small className="help-text">{t('passwordChange.enter6DigitCode')}</small>
           </div>
         )}
 
         <div className="form-actions">
           <button type="submit" className="submit-button" disabled={loading}>
-            {loading ? 'Changing Password...' : 'Change Password'}
+            {loading ? t('passwordChange.changingPassword') : t('passwordChange.changePassword')}
           </button>
         </div>
       </form>

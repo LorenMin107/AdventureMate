@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
@@ -15,6 +16,7 @@ const UserDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { t } = useTranslation();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,9 +47,7 @@ const UserDetail = () => {
         setError(null);
       } catch (err) {
         logError('Error fetching user details', err);
-        setError(
-          err.response?.data?.message || 'Failed to load user details. Please try again later.'
-        );
+        setError(err.response?.data?.message || t('userDetail.loadError'));
       } finally {
         setLoading(false);
       }
@@ -80,7 +80,7 @@ const UserDetail = () => {
       setAdminDialog({ open: false, action: null });
     } catch (err) {
       logError('Error updating user', err);
-      alert(err.response?.data?.message || 'Failed to update user. Please try again later.');
+      alert(err.response?.data?.message || t('userDetail.updateError'));
     }
   };
 
@@ -110,7 +110,7 @@ const UserDetail = () => {
       setOwnerDialog({ open: false, action: null });
     } catch (err) {
       logError('Error updating user', err);
-      alert(err.response?.data?.message || 'Failed to update user. Please try again later.');
+      alert(err.response?.data?.message || t('userDetail.updateError'));
     }
   };
 
@@ -141,7 +141,7 @@ const UserDetail = () => {
       setBookingDialog({ open: false, booking: null });
     } catch (err) {
       logError('Error canceling booking', err);
-      alert(err.response?.data?.message || 'Failed to cancel booking. Please try again later.');
+      alert(err.response?.data?.message || t('userDetail.cancelBookingError'));
     }
   };
 
@@ -150,15 +150,11 @@ const UserDetail = () => {
   };
 
   if (!currentUser?.isAdmin) {
-    return (
-      <div className="user-detail-unauthorized">
-        You do not have permission to access this page.
-      </div>
-    );
+    return <div className="user-detail-unauthorized">{t('userDetail.unauthorizedMessage')}</div>;
   }
 
   if (loading) {
-    return <div className="user-detail-loading">Loading user details...</div>;
+    return <div className="user-detail-loading">{t('userDetail.loadingMessage')}</div>;
   }
 
   if (error) {
@@ -166,7 +162,7 @@ const UserDetail = () => {
   }
 
   if (!user) {
-    return <div className="user-detail-not-found">User not found</div>;
+    return <div className="user-detail-not-found">{t('userDetail.notFoundMessage')}</div>;
   }
 
   return (
@@ -174,59 +170,63 @@ const UserDetail = () => {
       <div className="user-detail-header">
         <h1>{user.username}'s Profile</h1>
         <Link to="/admin/users" className="user-detail-back-button">
-          Back to Users
+          {t('userDetail.backToUsersButton')}
         </Link>
       </div>
 
       <div className="user-detail-card">
         <div className="user-detail-info">
           <div className="user-detail-info-item">
-            <span className="user-detail-label">Username:</span>
+            <span className="user-detail-label">{t('userDetail.usernameLabel')}:</span>
             <span className="user-detail-value">{user.username}</span>
           </div>
 
           <div className="user-detail-info-item">
-            <span className="user-detail-label">Email:</span>
+            <span className="user-detail-label">{t('userDetail.emailLabel')}:</span>
             <span className="user-detail-value">{user.email}</span>
           </div>
 
           <div className="user-detail-info-item">
-            <span className="user-detail-label">Phone:</span>
-            <span className="user-detail-value">{user.phone || 'Not provided'}</span>
+            <span className="user-detail-label">{t('userDetail.phoneLabel')}:</span>
+            <span className="user-detail-value">{user.phone || t('userDetail.notProvided')}</span>
           </div>
 
           <div className="user-detail-info-item">
-            <span className="user-detail-label">Role:</span>
+            <span className="user-detail-label">{t('userDetail.roleLabel')}:</span>
             <span
               className={`user-role ${user.isAdmin ? 'admin' : user.isOwner ? 'owner' : 'user'}`}
             >
-              {user.isAdmin ? 'Admin' : user.isOwner ? 'Owner' : 'User'}
+              {user.isAdmin
+                ? t('userDetail.adminRole')
+                : user.isOwner
+                  ? t('userDetail.ownerRole')
+                  : t('userDetail.userRole')}
             </span>
           </div>
 
           <div className="user-detail-info-item">
-            <span className="user-detail-label">Owner Status:</span>
+            <span className="user-detail-label">{t('userDetail.ownerStatusLabel')}:</span>
             <span className={`user-status ${user.isOwner ? 'active' : 'inactive'}`}>
-              {user.isOwner ? 'Active Owner' : 'Not an Owner'}
+              {user.isOwner ? t('userDetail.activeOwnerStatus') : t('userDetail.notOwnerStatus')}
             </span>
           </div>
 
           <div className="user-detail-info-item">
-            <span className="user-detail-label">Joined:</span>
+            <span className="user-detail-label">{t('userDetail.joinedLabel')}:</span>
             <span className="user-detail-value">
               {user.createdAt && !isNaN(new Date(user.createdAt))
                 ? new Date(user.createdAt).toLocaleDateString()
-                : 'Unknown'}
+                : t('userDetail.unknownDate')}
             </span>
           </div>
 
           <div className="user-detail-info-item">
-            <span className="user-detail-label">Relevant Bookings:</span>
+            <span className="user-detail-label">{t('userDetail.relevantBookingsLabel')}:</span>
             <span className="user-detail-value">{user.bookings?.length || 0}</span>
           </div>
 
           <div className="user-detail-info-item">
-            <span className="user-detail-label">Reviews:</span>
+            <span className="user-detail-label">{t('userDetail.reviewsLabel')}:</span>
             <span className="user-detail-value">{user.reviews?.length || 0}</span>
           </div>
         </div>
@@ -236,13 +236,13 @@ const UserDetail = () => {
             onClick={handleToggleAdminClick}
             className={`user-detail-admin-button ${user.isAdmin ? 'remove' : 'grant'}`}
           >
-            {user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+            {user.isAdmin ? t('userDetail.removeAdminButton') : t('userDetail.makeAdminButton')}
           </button>
           <button
             onClick={handleToggleOwnerClick}
             className={`user-detail-owner-button ${user.isOwner ? 'remove' : 'grant'}`}
           >
-            {user.isOwner ? 'Remove Owner' : 'Make Owner'}
+            {user.isOwner ? t('userDetail.removeOwnerButton') : t('userDetail.makeOwnerButton')}
           </button>
         </div>
       </div>
@@ -252,34 +252,34 @@ const UserDetail = () => {
           className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => setActiveTab('profile')}
         >
-          Profile
+          {t('userDetail.profileTab')}
         </button>
         <button
           className={`tab-button ${activeTab === 'bookings' ? 'active' : ''}`}
           onClick={() => setActiveTab('bookings')}
         >
-          User Bookings ({user.bookings?.length || 0})
+          {t('userDetail.userBookingsTab', { count: user.bookings?.length || 0 })}
         </button>
         <button
           className={`tab-button ${activeTab === 'reviews' ? 'active' : ''}`}
           onClick={() => setActiveTab('reviews')}
         >
-          Reviews ({user.reviews?.length || 0})
+          {t('userDetail.reviewsTab', { count: user.reviews?.length || 0 })}
         </button>
       </div>
 
       <div className="user-detail-tab-content">
         {activeTab === 'profile' && (
           <div className="user-profile-tab">
-            <h2>User Profile</h2>
-            <p>Manage user details and permissions.</p>
+            <h2>{t('userDetail.userProfileTab')}</h2>
+            <p>{t('userDetail.userProfileDescription')}</p>
           </div>
         )}
 
         {activeTab === 'bookings' && (
           <div className="user-bookings-tab">
-            <h2>User Bookings</h2>
-            <p className="user-bookings-note">Showing bookings for this user.</p>
+            <h2>{t('userDetail.userBookingsTab')}</h2>
+            <p className="user-bookings-note">{t('userDetail.userBookingsNote')}</p>
             {user.bookings && user.bookings.length > 0 ? (
               <div className="user-bookings-list">
                 {user.bookings.map((booking) => (
@@ -292,7 +292,9 @@ const UserDetail = () => {
                       </span>
                     </div>
                     <div className="user-booking-details">
-                      <span>Days: {booking.totalDays}</span>
+                      <span>
+                        {t('userDetail.daysLabel')}: {booking.totalDays}
+                      </span>
                       <span className="user-booking-price">${booking.totalPrice.toFixed(2)}</span>
                     </div>
                     <div className="user-booking-actions">
@@ -300,27 +302,27 @@ const UserDetail = () => {
                         to={`/admin/bookings/${booking._id}`}
                         className="user-booking-view-button"
                       >
-                        View
+                        {t('userDetail.viewButton')}
                       </Link>
                       <button
                         onClick={() => handleCancelBookingClick(booking)}
                         className="user-booking-cancel-button"
                       >
-                        Cancel
+                        {t('userDetail.cancelButton')}
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="user-no-data">No bookings found for this user.</p>
+              <p className="user-no-data">{t('userDetail.noBookingsMessage')}</p>
             )}
           </div>
         )}
 
         {activeTab === 'reviews' && (
           <div className="user-reviews-tab">
-            <h2>User Reviews</h2>
+            <h2>{t('userDetail.userReviewsTab')}</h2>
             {user.reviews && user.reviews.length > 0 ? (
               <div className="user-reviews-list">
                 {user.reviews.map((review) => (
@@ -328,7 +330,9 @@ const UserDetail = () => {
                     <div className="user-review-header">
                       <span className="user-review-campground">
                         {review.campground?.title ||
-                          (review.campground?._id ? 'Campground' : 'Campground')}
+                          (review.campground?._id
+                            ? t('userDetail.campgroundLabel')
+                            : t('userDetail.campgroundLabel'))}
                       </span>
                       <div className="user-review-rating">
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -345,11 +349,11 @@ const UserDetail = () => {
                           to={`/campgrounds/${review.campground._id}`}
                           className="user-review-view-button"
                         >
-                          View Campground
+                          {t('userDetail.viewCampgroundButton')}
                         </Link>
                       ) : (
                         <span className="user-review-view-button disabled">
-                          Campground Unavailable
+                          {t('userDetail.campgroundUnavailable')}
                         </span>
                       )}
                     </div>
@@ -357,7 +361,7 @@ const UserDetail = () => {
                 ))}
               </div>
             ) : (
-              <p className="user-no-data">No reviews found for this user.</p>
+              <p className="user-no-data">{t('userDetail.noReviewsMessage')}</p>
             )}
           </div>
         )}
@@ -367,30 +371,38 @@ const UserDetail = () => {
         open={adminDialog.open}
         onClose={handleToggleAdminCancel}
         onConfirm={handleToggleAdminConfirm}
-        title={`${adminDialog.action === 'grant' ? 'Grant' : 'Remove'} Admin Privileges`}
-        message={`Are you sure you want to ${adminDialog.action} admin privileges for ${user?.username}?`}
-        confirmLabel={adminDialog.action === 'grant' ? 'Grant Admin' : 'Remove Admin'}
-        cancelLabel="Cancel"
+        title={`${adminDialog.action === 'grant' ? t('userDetail.grantAdminTitle') : t('userDetail.removeAdminTitle')}`}
+        message={`${t('userDetail.confirmAdminMessage', { action: adminDialog.action })}`}
+        confirmLabel={
+          adminDialog.action === 'grant'
+            ? t('userDetail.grantAdminButton')
+            : t('userDetail.removeAdminButton')
+        }
+        cancelLabel={t('userDetail.cancelButton')}
       />
 
       <ConfirmDialog
         open={ownerDialog.open}
         onClose={handleToggleOwnerCancel}
         onConfirm={handleToggleOwnerConfirm}
-        title={`${ownerDialog.action === 'grant' ? 'Grant' : 'Remove'} Owner Privileges`}
-        message={`Are you sure you want to ${ownerDialog.action} owner privileges for ${user?.username}?`}
-        confirmLabel={ownerDialog.action === 'grant' ? 'Grant Owner' : 'Remove Owner'}
-        cancelLabel="Cancel"
+        title={`${ownerDialog.action === 'grant' ? t('userDetail.grantOwnerTitle') : t('userDetail.removeOwnerTitle')}`}
+        message={`${t('userDetail.confirmOwnerMessage', { action: ownerDialog.action })}`}
+        confirmLabel={
+          ownerDialog.action === 'grant'
+            ? t('userDetail.grantOwnerButton')
+            : t('userDetail.removeOwnerButton')
+        }
+        cancelLabel={t('userDetail.cancelButton')}
       />
 
       <ConfirmDialog
         open={bookingDialog.open}
         onClose={handleCancelBookingCancel}
         onConfirm={handleCancelBookingConfirm}
-        title="Cancel Booking"
-        message={`Are you sure you want to cancel this booking for ${user?.username}? This action cannot be undone.`}
-        confirmLabel="Cancel Booking"
-        cancelLabel="Keep Booking"
+        title={t('userDetail.cancelBookingTitle')}
+        message={`${t('userDetail.confirmCancelBookingMessage', { username: user?.username })}`}
+        confirmLabel={t('userDetail.cancelBookingButton')}
+        cancelLabel={t('userDetail.keepBookingButton')}
       />
     </div>
   );

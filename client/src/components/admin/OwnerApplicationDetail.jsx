@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import useApi from '../../hooks/useApi';
+import { useTranslation } from 'react-i18next';
 import './OwnerApplicationDetail.css';
 
 /**
@@ -21,6 +22,7 @@ const OwnerApplicationDetail = () => {
   const [reviewData, setReviewData] = useState({ status: '', notes: '' });
 
   const api = useApi();
+  const { t } = useTranslation();
 
   // Fetch application details
   const fetchApplication = async () => {
@@ -31,10 +33,10 @@ const OwnerApplicationDetail = () => {
       if (response.status === 'success') {
         setApplication(response.data.application);
       } else {
-        setError('Failed to fetch application details');
+        setError(t('ownerApplicationDetail.fetchError'));
       }
     } catch (err) {
-      setError('Failed to fetch application details');
+      setError(t('ownerApplicationDetail.fetchError'));
       console.error('Error fetching application:', err);
     } finally {
       setLoading(false);
@@ -67,10 +69,10 @@ const OwnerApplicationDetail = () => {
         setShowActionModal(false);
         setActionData({ notes: '', reason: '' });
       } else {
-        setError(response.message || 'Action failed');
+        setError(response.message || t('ownerApplicationDetail.actionFailed'));
       }
     } catch (err) {
-      setError('Failed to process application');
+      setError(t('ownerApplicationDetail.processError'));
       console.error('Error processing application:', err);
     }
   };
@@ -88,10 +90,10 @@ const OwnerApplicationDetail = () => {
         setShowReviewModal(false);
         setReviewData({ status: '', notes: '' });
       } else {
-        setError(response.message || 'Failed to update review');
+        setError(response.message || t('ownerApplicationDetail.updateReviewError'));
       }
     } catch (err) {
-      setError('Failed to update review');
+      setError(t('ownerApplicationDetail.updateReviewError'));
       console.error('Error updating review:', err);
     }
   };

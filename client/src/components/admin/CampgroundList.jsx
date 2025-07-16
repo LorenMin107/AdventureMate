@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError, logInfo } from '../../utils/logger';
@@ -12,6 +13,7 @@ import './CampgroundList.css';
  * @returns {JSX.Element} Campground list component
  */
 const CampgroundList = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [campgrounds, setCampgrounds] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -120,13 +122,13 @@ const CampgroundList = () => {
   if (!currentUser?.isAdmin) {
     return (
       <div className="campground-list-unauthorized">
-        You do not have permission to access this page.
+        {t('admin.campgroundList.unauthorizedMessage')}
       </div>
     );
   }
 
   if (loading) {
-    return <div className="campground-list-loading">Loading campgrounds...</div>;
+    return <div className="campground-list-loading">{t('admin.campgroundList.loading')}</div>;
   }
 
   if (error) {
@@ -136,10 +138,10 @@ const CampgroundList = () => {
   return (
     <div className="admin-campground-list">
       <div className="campground-list-header">
-        <h1>Campground Management</h1>
+        <h1>{t('admin.campgroundList.title')}</h1>
         <div className="campground-list-actions">
           <Link to="/campgrounds/new" className="campground-list-add-button">
-            Add New Campground
+            {t('admin.campgroundList.addNewCampground')}
           </Link>
           <select
             value={pagination.limit}
@@ -148,10 +150,10 @@ const CampgroundList = () => {
             }
             className="campground-list-limit"
           >
-            <option value="5">5 per page</option>
-            <option value="10">10 per page</option>
-            <option value="25">25 per page</option>
-            <option value="50">50 per page</option>
+            <option value="5">{t('admin.campgroundList.limit5')}</option>
+            <option value="10">{t('admin.campgroundList.limit10')}</option>
+            <option value="25">{t('admin.campgroundList.limit25')}</option>
+            <option value="50">{t('admin.campgroundList.limit50')}</option>
           </select>
         </div>
       </div>
@@ -164,19 +166,19 @@ const CampgroundList = () => {
                 className={`sortable ${sort.field === 'title' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('title')}
               >
-                Title
+                {t('admin.campgroundList.titleHeader')}
               </th>
               <th
                 className={`sortable ${sort.field === 'location' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('location')}
               >
-                Location
+                {t('admin.campgroundList.locationHeader')}
               </th>
-              <th>Pricing</th>
-              <th>Author</th>
-              <th>Reviews</th>
-              <th>Bookings</th>
-              <th>Actions</th>
+              <th>{t('admin.campgroundList.pricingHeader')}</th>
+              <th>{t('admin.campgroundList.authorHeader')}</th>
+              <th>{t('admin.campgroundList.reviewsHeader')}</th>
+              <th>{t('admin.campgroundList.bookingsHeader')}</th>
+              <th>{t('admin.campgroundList.actionsHeader')}</th>
             </tr>
           </thead>
           <tbody>
@@ -192,7 +194,7 @@ const CampgroundList = () => {
                           .filter((price) => price && price > 0);
 
                         if (prices.length === 0) {
-                          return 'Contact for pricing';
+                          return t('admin.campgroundList.contactForPricing');
                         }
 
                         const minPrice = Math.min(...prices);
@@ -202,9 +204,13 @@ const CampgroundList = () => {
                           ? `$${minPrice}/night`
                           : `$${minPrice} - $${maxPrice}/night`;
                       })()
-                    : 'No campsites'}
+                    : t('admin.campgroundList.noCampsites')}
                 </td>
-                <td>{campground.author?.username || campground.owner?.username || 'Unknown'}</td>
+                <td>
+                  {campground.author?.username ||
+                    campground.owner?.username ||
+                    t('admin.campgroundList.unknown')}
+                </td>
                 <td>{campground.reviews?.length || 0}</td>
                 <td>{campground.bookings?.length || 0}</td>
                 <td className="campground-list-actions-cell">
@@ -212,19 +218,19 @@ const CampgroundList = () => {
                     to={`/campgrounds/${campground._id}`}
                     className="campground-list-view-button"
                   >
-                    View
+                    {t('admin.campgroundList.viewButton')}
                   </Link>
                   <Link
                     to={`/campgrounds/${campground._id}/edit`}
                     className="campground-list-edit-button"
                   >
-                    Edit
+                    {t('admin.campgroundList.editButton')}
                   </Link>
                   <button
                     onClick={() => handleDeleteClick(campground)}
                     className="campground-list-delete-button"
                   >
-                    Delete
+                    {t('admin.campgroundList.deleteButton')}
                   </button>
                 </td>
               </tr>
@@ -240,31 +246,34 @@ const CampgroundList = () => {
             disabled={pagination.page === 1}
             className="pagination-button"
           >
-            First
+            {t('admin.campgroundList.firstButton')}
           </button>
           <button
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
             className="pagination-button"
           >
-            Previous
+            {t('admin.campgroundList.previousButton')}
           </button>
           <span className="pagination-info">
-            Page {pagination.page} of {pagination.totalPages}
+            {t('admin.campgroundList.pageInfo', {
+              page: pagination.page,
+              totalPages: pagination.totalPages,
+            })}
           </span>
           <button
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >
-            Next
+            {t('admin.campgroundList.nextButton')}
           </button>
           <button
             onClick={() => handlePageChange(pagination.totalPages)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >
-            Last
+            {t('admin.campgroundList.lastButton')}
           </button>
         </div>
       )}
@@ -273,10 +282,12 @@ const CampgroundList = () => {
         open={deleteDialog.open}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Campground"
-        message={`Are you sure you want to delete "${deleteDialog.campground?.title}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('admin.campgroundList.deleteDialogTitle')}
+        message={t('admin.campgroundList.deleteDialogMessage', {
+          title: deleteDialog.campground?.title,
+        })}
+        confirmLabel={t('admin.campgroundList.deleteConfirmLabel')}
+        cancelLabel={t('admin.campgroundList.deleteCancelLabel')}
       />
     </div>
   );

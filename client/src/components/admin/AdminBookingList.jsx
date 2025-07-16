@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
@@ -14,6 +15,7 @@ import './AdminBookingList.css';
  * @returns {JSX.Element} Admin booking list component
  */
 const AdminBookingList = ({ initialBookings = [] }) => {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState(initialBookings);
   const [loading, setLoading] = useState(!initialBookings.length);
   const [error, setError] = useState(null);
@@ -27,7 +29,7 @@ const AdminBookingList = ({ initialBookings = [] }) => {
   if (!currentUser?.isAdmin) {
     return (
       <div className="admin-booking-list-unauthorized">
-        You do not have permission to view this page.
+        {t('adminBookingList.unauthorizedMessage')}
       </div>
     );
   }
@@ -61,9 +63,7 @@ const AdminBookingList = ({ initialBookings = [] }) => {
         logError('Error fetching bookings', err);
         // Improved error handling for axios errors
         const errorMessage =
-          err.response?.data?.message ||
-          err.message ||
-          'Failed to load bookings. Please try refreshing the page.';
+          err.response?.data?.message || err.message || t('adminBookingList.bookingLoadError');
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -74,7 +74,9 @@ const AdminBookingList = ({ initialBookings = [] }) => {
   }, [page]); // Only depend on page changes
 
   if (loading) {
-    return <div className="admin-booking-list-loading">Loading bookings...</div>;
+    return (
+      <div className="admin-booking-list-loading">{t('adminBookingList.loadingBookings')}</div>
+    );
   }
 
   if (error) {
@@ -88,24 +90,24 @@ const AdminBookingList = ({ initialBookings = [] }) => {
   if (bookings.length === 0) {
     return (
       <div className="admin-booking-list-empty">
-        <p>There are no bookings in the system yet.</p>
+        <p>{t('adminBookingList.noBookingsMessage')}</p>
       </div>
     );
   }
 
   // Format date to local string
   const formatDate = (dateString) => {
-    if (!dateString) return 'Not available';
+    if (!dateString) return t('adminBookingList.notAvailable');
     return new Date(dateString).toLocaleDateString();
   };
 
   return (
     <div className="admin-booking-list">
-      <h2 className="admin-booking-list-title">All Bookings</h2>
+      <h2 className="admin-booking-list-title">{t('adminBookingList.allBookingsTitle')}</h2>
 
       <div className="admin-booking-list-filters">
         <div className="admin-booking-list-filter-group">
-          <label htmlFor="statusFilter">Filter by Status:</label>
+          <label htmlFor="statusFilter">{t('adminBookingList.filterByStatus')}:</label>
           <select
             id="statusFilter"
             value={statusFilter}
@@ -115,10 +117,10 @@ const AdminBookingList = ({ initialBookings = [] }) => {
             }}
             className="admin-booking-list-filter-select"
           >
-            <option value="all">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="all">{t('adminBookingList.allStatuses')}</option>
+            <option value="pending">{t('adminBookingList.pending')}</option>
+            <option value="confirmed">{t('adminBookingList.confirmed')}</option>
+            <option value="cancelled">{t('adminBookingList.cancelled')}</option>
           </select>
         </div>
       </div>
@@ -127,15 +129,15 @@ const AdminBookingList = ({ initialBookings = [] }) => {
         <table className="admin-booking-list-table">
           <thead>
             <tr>
-              <th>Booking ID</th>
-              <th>User</th>
-              <th>Campground</th>
-              <th>Check-in</th>
-              <th>Check-out</th>
-              <th>Days</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t('adminBookingList.bookingId')}</th>
+              <th>{t('adminBookingList.user')}</th>
+              <th>{t('adminBookingList.campground')}</th>
+              <th>{t('adminBookingList.checkIn')}</th>
+              <th>{t('adminBookingList.checkOut')}</th>
+              <th>{t('adminBookingList.days')}</th>
+              <th>{t('adminBookingList.total')}</th>
+              <th>{t('adminBookingList.status')}</th>
+              <th>{t('adminBookingList.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -143,10 +145,10 @@ const AdminBookingList = ({ initialBookings = [] }) => {
               <tr key={booking._id} className="admin-booking-list-item">
                 <td className="admin-booking-list-id">{booking._id.substring(0, 8)}...</td>
                 <td className="admin-booking-list-user">
-                  {booking.user ? booking.user.username : 'Unknown user'}
+                  {booking.user ? booking.user.username : t('adminBookingList.unknownUser')}
                 </td>
                 <td className="admin-booking-list-campground">
-                  {booking.campground ? booking.campground.title : 'Campground'}
+                  {booking.campground ? booking.campground.title : t('adminBookingList.campground')}
                 </td>
                 <td>{formatDate(booking.startDate)}</td>
                 <td>{formatDate(booking.endDate)}</td>
@@ -158,7 +160,7 @@ const AdminBookingList = ({ initialBookings = [] }) => {
                   >
                     {booking.status
                       ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1)
-                      : 'Pending'}
+                      : t('adminBookingList.pending')}
                   </span>
                 </td>
                 <td>
@@ -166,7 +168,7 @@ const AdminBookingList = ({ initialBookings = [] }) => {
                     to={`/admin/bookings/${booking._id}`}
                     className="admin-booking-list-view-button"
                   >
-                    View Details
+                    {t('adminBookingList.viewDetails')}
                   </Link>
                 </td>
               </tr>
@@ -182,11 +184,11 @@ const AdminBookingList = ({ initialBookings = [] }) => {
           disabled={page === 1}
           className="admin-booking-list-pagination-button"
         >
-          Previous
+          {t('adminBookingList.previous')}
         </button>
 
         <span className="admin-booking-list-pagination-info">
-          Page {page} of {totalPages}
+          {t('adminBookingList.pageInfo', { page, totalPages })}
         </span>
 
         <button
@@ -194,7 +196,7 @@ const AdminBookingList = ({ initialBookings = [] }) => {
           disabled={page >= totalPages}
           className="admin-booking-list-pagination-button"
         >
-          Next
+          {t('adminBookingList.next')}
         </button>
       </div>
     </div>

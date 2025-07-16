@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, Outlet, useLocation, useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import './OwnerLayout.css';
@@ -9,6 +10,7 @@ import './OwnerLayout.css';
  * Now uses a top navigation bar like the admin dashboard
  */
 const OwnerLayout = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const { theme, toggleTheme, isSystemTheme } = useTheme();
   const location = useLocation();
@@ -78,35 +80,35 @@ const OwnerLayout = () => {
               className={`owner-nav-item-top ${isDashboardActive() ? 'active' : ''}`}
             >
               <span className="owner-nav-icon">📊</span>
-              <span className="owner-nav-text">Dashboard</span>
+              <span className="owner-nav-text">{t('ownerLayout.dashboard')}</span>
             </Link>
             <Link
               to="/owner/campgrounds"
               className={`owner-nav-item-top ${isActive('/owner/campgrounds') ? 'active' : ''}`}
             >
               <span className="owner-nav-icon">🏕️</span>
-              <span className="owner-nav-text">My Campgrounds</span>
+              <span className="owner-nav-text">{t('ownerLayout.myCampgrounds')}</span>
             </Link>
             <Link
               to="/owner/bookings"
               className={`owner-nav-item-top ${isActive('/owner/bookings') ? 'active' : ''}`}
             >
               <span className="owner-nav-icon">📆</span>
-              <span className="owner-nav-text">Bookings</span>
+              <span className="owner-nav-text">{t('ownerLayout.bookings')}</span>
             </Link>
             <Link
               to="/owner/analytics"
               className={`owner-nav-item-top ${isActive('/owner/analytics') ? 'active' : ''}`}
             >
               <span className="owner-nav-icon">📈</span>
-              <span className="owner-nav-text">Analytics</span>
+              <span className="owner-nav-text">{t('ownerLayout.analytics')}</span>
             </Link>
             <Link
               to="/owner/profile"
               className={`owner-nav-item-top ${isActive('/owner/profile') ? 'active' : ''}`}
             >
               <span className="owner-nav-icon">⚙️</span>
-              <span className="owner-nav-text">Settings</span>
+              <span className="owner-nav-text">{t('ownerLayout.settings')}</span>
             </Link>
             {ownerProfile?.verificationStatus !== 'verified' && (
               <Link
@@ -114,7 +116,7 @@ const OwnerLayout = () => {
                 className={`owner-nav-item-top verification-required ${isActive('/owner/verification') ? 'active' : ''}`}
               >
                 <span className="owner-nav-icon">🔒</span>
-                <span className="owner-nav-text">Verification</span>
+                <span className="owner-nav-text">{t('ownerLayout.verification')}</span>
                 <span className="notification-dot"></span>
               </Link>
             )}

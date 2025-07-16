@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import CampgroundCard from './CampgroundCard';
 import useCampgrounds from '../hooks/useCampgrounds';
 import apiClient from '../utils/api';
@@ -13,6 +14,7 @@ import './CampgroundList.css';
  * @param {string} props.locationFilter - Location filter for filtering campgrounds
  */
 const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
+  const { t } = useTranslation();
   // Use the custom hook to fetch all campgrounds
   const { useAllCampgrounds } = useCampgrounds();
   const { data, isLoading, isError, error, refetch } = useAllCampgrounds({
@@ -47,7 +49,7 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
     return (
       <div className="loading-message">
         <div className="spinner"></div>
-        <p>Loading campgrounds...</p>
+        <p>{t('campgroundList.loading')}</p>
       </div>
     );
   }
@@ -56,10 +58,10 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
   if (isError) {
     return (
       <div className="error-message">
-        <h3>Error loading campgrounds</h3>
-        <p>{error?.message || 'Failed to load campgrounds. Please try again later.'}</p>
+        <h3>{t('campgroundList.error.title')}</h3>
+        <p>{error?.message || t('campgroundList.error.message')}</p>
         <button onClick={() => refetch()} className="btn btn-primary">
-          Try Again
+          {t('campgroundList.error.tryAgain')}
         </button>
       </div>
     );
@@ -69,8 +71,8 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
   if (filteredCampgrounds.length === 0) {
     return (
       <div className="no-results">
-        <h3>No campgrounds found</h3>
-        <p>Try adjusting your search criteria or explore all campgrounds.</p>
+        <h3>{t('campgroundList.noResults.title')}</h3>
+        <p>{t('campgroundList.noResults.message')}</p>
       </div>
     );
   }
@@ -79,7 +81,10 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
     <div className="campground-list-container">
       <div className="campground-list-header">
         <div className="results-count">
-          Found {filteredCampgrounds.length} campground{filteredCampgrounds.length !== 1 ? 's' : ''}
+          {t('campgroundList.resultsCount', {
+            count: filteredCampgrounds.length,
+            plural: filteredCampgrounds.length !== 1 ? 's' : '',
+          })}
         </div>
       </div>
 

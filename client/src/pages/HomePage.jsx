@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './HomePage.css';
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const [currentFeature, setCurrentFeature] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -20,82 +22,80 @@ const HomePage = () => {
   const features = [
     {
       icon: '🏔️',
-      title: 'Mountain Adventures',
-      description:
-        "Discover pristine mountain campgrounds in Northern Thailand's stunning landscapes.",
+      title: t('home.features.mountainAdventures.title'),
+      description: t('home.features.mountainAdventures.description'),
       color: 'var(--color-primary)',
     },
     {
       icon: '🏖️',
-      title: 'Beach Camping',
-      description: "Experience coastal camping along Thailand's beautiful beaches and islands.",
+      title: t('home.features.beachCamping.title'),
+      description: t('home.features.beachCamping.description'),
       color: 'var(--color-secondary)',
     },
     {
       icon: '🌿',
-      title: 'Jungle Retreats',
-      description: "Immerse yourself in Thailand's lush jungles and national parks.",
+      title: t('home.features.jungleRetreats.title'),
+      description: t('home.features.jungleRetreats.description'),
       color: 'var(--color-warning)',
     },
     {
       icon: '🗺️',
-      title: 'Trip Planner',
-      description:
-        'Plan your perfect camping adventure with our comprehensive trip planning tools.',
+      title: t('home.features.tripPlanner.title'),
+      description: t('home.features.tripPlanner.description'),
       color: 'var(--color-success)',
     },
   ];
 
   const testimonials = [
     {
-      name: 'Somchai',
-      location: 'Chiang Mai',
-      text: 'Found amazing mountain camping spots near Doi Inthanon. The booking was seamless and the views were incredible!',
+      name: t('home.testimonials.somchai.name'),
+      location: t('home.testimonials.somchai.location'),
+      text: t('home.testimonials.somchai.text'),
       rating: 5,
     },
     {
-      name: 'Nong',
-      location: 'Phuket',
-      text: 'Beach camping in Krabi was a dream come true. The community reviews helped us choose the perfect spot.',
+      name: t('home.testimonials.nong.name'),
+      location: t('home.testimonials.nong.location'),
+      text: t('home.testimonials.nong.text'),
       rating: 5,
     },
     {
-      name: 'Pim',
-      location: 'Bangkok',
-      text: "As a city dweller, I love escaping to Thailand's national parks. The booking system makes it so easy!",
+      name: t('home.testimonials.pim.name'),
+      location: t('home.testimonials.pim.location'),
+      text: t('home.testimonials.pim.text'),
       rating: 5,
     },
   ];
 
   const destinations = [
     {
-      name: 'Chiang Mai',
-      region: 'Northern Thailand',
-      description: 'Mountain camping with cool weather and stunning views',
+      name: t('home.destinations.chiangMai.name'),
+      region: t('home.destinations.northernThailand'),
+      description: t('home.destinations.chiangMai.description'),
       image: '🏔️',
       stats: [
-        { icon: '🌡️', label: 'Cool Climate' },
-        { icon: '🏕️', label: '50+ Sites' },
+        { icon: '🌡️', label: t('home.destinations.chiangMai.coolClimate') },
+        { icon: '🏕️', label: t('home.destinations.chiangMai.sites') },
       ],
     },
     {
-      name: 'Krabi',
-      region: 'Southern Thailand',
-      description: 'Beach camping with crystal clear waters',
+      name: t('home.destinations.krabi.name'),
+      region: t('home.destinations.southernThailand'),
+      description: t('home.destinations.krabi.description'),
       image: '🏖️',
       stats: [
-        { icon: '🌊', label: 'Beach Access' },
-        { icon: '🏕️', label: '30+ Sites' },
+        { icon: '🌊', label: t('home.destinations.krabi.beachAccess') },
+        { icon: '🏕️', label: t('home.destinations.krabi.sites') },
       ],
     },
     {
-      name: 'Kanchanaburi',
-      region: 'Western Thailand',
-      description: 'River camping and jungle adventures',
+      name: t('home.destinations.kanchanaburi.name'),
+      region: t('home.destinations.westernThailand'),
+      description: t('home.destinations.kanchanaburi.description'),
       image: '🌿',
       stats: [
-        { icon: '🌲', label: 'Jungle Trails' },
-        { icon: '🏕️', label: '25+ Sites' },
+        { icon: '🌲', label: t('home.destinations.kanchanaburi.jungleTrails') },
+        { icon: '🏕️', label: t('home.destinations.kanchanaburi.sites') },
       ],
     },
   ];
@@ -110,19 +110,16 @@ const HomePage = () => {
           </div>
           <div className="hero-content">
             <h1 className="hero-title">
-              <span className="hero-title-main">Explore</span>
-              <span className="hero-title-sub">Thailand's Natural Wonders</span>
+              <span className="hero-title-main">{t('home.hero.title')}</span>
+              <span className="hero-title-sub">{t('home.hero.subtitle')}</span>
             </h1>
-            <p className="hero-description">
-              Discover, book, and experience the most beautiful campgrounds across Thailand. From
-              misty mountains to pristine beaches, your next adventure awaits in the Land of Smiles.
-            </p>
+            <p className="hero-description">{t('home.hero.description')}</p>
             <div className="hero-cta">
               <Link to="/campgrounds" className="btn btn-primary btn-large">
-                Explore Campgrounds
+                {t('home.hero.searchButton')}
               </Link>
               <Link to="/campgrounds" className="btn btn-outline btn-large">
-                View Destinations
+                {t('home.hero.exploreButton')}
               </Link>
             </div>
           </div>
@@ -136,10 +133,8 @@ const HomePage = () => {
       <section className="destinations-section">
         <div className="destinations-container">
           <div className="section-header">
-            <h2 className="section-title">Popular Destinations</h2>
-            <p className="section-subtitle">
-              Discover Thailand's most sought-after camping locations
-            </p>
+            <h2 className="section-title">{t('home.destinations.title')}</h2>
+            <p className="section-subtitle">{t('home.destinations.subtitle')}</p>
           </div>
 
           <div className="destinations-grid">
@@ -173,7 +168,7 @@ const HomePage = () => {
 
                       <div className="destination-cta">
                         <Link to="/campgrounds" className="destination-cta-btn">
-                          Explore Campgrounds
+                          {t('home.destinations.exploreCampgrounds')}
                         </Link>
                       </div>
                     </div>
@@ -189,10 +184,8 @@ const HomePage = () => {
       <section className="features-section">
         <div className="features-container">
           <div className="section-header">
-            <h2 className="section-title">Why Choose AdventureMate?</h2>
-            <p className="section-subtitle">
-              Everything you need for the perfect camping experience in Thailand
-            </p>
+            <h2 className="section-title">{t('home.features.title')}</h2>
+            <p className="section-subtitle">{t('home.features.subtitle')}</p>
           </div>
 
           <div className="features-grid">
@@ -217,29 +210,25 @@ const HomePage = () => {
       <section className="how-it-works-section">
         <div className="how-it-works-container">
           <div className="section-header">
-            <h2 className="section-title">How It Works</h2>
-            <p className="section-subtitle">Get started in just three simple steps</p>
+            <h2 className="section-title">{t('home.howItWorks.title')}</h2>
+            <p className="section-subtitle">{t('home.howItWorks.subtitle')}</p>
           </div>
 
           <div className="steps-grid">
             <div className="step-item">
               <div className="step-number">1</div>
-              <h3>Search & Discover</h3>
-              <p>
-                Browse through our curated collection of campgrounds across Thailand's 77 provinces
-              </p>
+              <h3>{t('home.howItWorks.step1.title')}</h3>
+              <p>{t('home.howItWorks.step1.description')}</p>
             </div>
             <div className="step-item">
               <div className="step-number">2</div>
-              <h3>Book Your Stay</h3>
-              <p>Choose your dates and secure your spot with our easy booking system</p>
+              <h3>{t('home.howItWorks.step2.title')}</h3>
+              <p>{t('home.howItWorks.step2.description')}</p>
             </div>
             <div className="step-item">
               <div className="step-number">3</div>
-              <h3>Enjoy & Share</h3>
-              <p>
-                Experience Thailand's natural beauty and share your adventures with the community
-              </p>
+              <h3>{t('home.howItWorks.step3.title')}</h3>
+              <p>{t('home.howItWorks.step3.description')}</p>
             </div>
           </div>
         </div>
@@ -249,10 +238,8 @@ const HomePage = () => {
       <section className="testimonials-section">
         <div className="testimonials-container">
           <div className="section-header">
-            <h2 className="section-title">What Our Campers Say</h2>
-            <p className="section-subtitle">
-              Real experiences from real adventurers across Thailand
-            </p>
+            <h2 className="section-title">{t('home.testimonials.title')}</h2>
+            <p className="section-subtitle">{t('home.testimonials.subtitle')}</p>
           </div>
 
           <div className="testimonials-grid">
@@ -284,17 +271,17 @@ const HomePage = () => {
       <section className="cta-section">
         <div className="cta-container">
           <div className="cta-content">
-            <h2>Ready for Your Thai Adventure?</h2>
-            <p>Join thousands of campers discovering Thailand's natural wonders</p>
+            <h2>{t('home.cta.title')}</h2>
+            <p>{t('home.cta.subtitle')}</p>
             <div className="cta-buttons">
               <Link to="/campgrounds" className="btn btn-primary btn-large">
-                Start Exploring
+                {t('home.cta.startExploring')}
               </Link>
               <Link to="/trips" className="btn btn-secondary btn-large">
-                Plan Your Trip
+                {t('home.cta.planYourTrip')}
               </Link>
               <Link to="/register" className="btn btn-outline btn-large">
-                Create Account
+                {t('home.cta.createAccount')}
               </Link>
             </div>
           </div>

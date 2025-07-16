@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
@@ -7,6 +8,7 @@ import ConfirmDialog from '../common/ConfirmDialog';
 import './AdminSafetyAlertList.css';
 
 const AdminSafetyAlertList = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -182,14 +184,18 @@ const AdminSafetyAlertList = () => {
   if (!currentUser?.isAdmin) {
     return (
       <div className="admin-safety-alerts-unauthorized">
-        <h2>Access Denied</h2>
-        <p>You do not have permission to access this page.</p>
+        <h2>{t('adminSafetyAlerts.accessDeniedTitle')}</h2>
+        <p>{t('adminSafetyAlerts.accessDeniedMessage')}</p>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="admin-safety-alerts-loading">Loading safety alerts...</div>;
+    return (
+      <div className="admin-safety-alerts-loading">
+        {t('adminSafetyAlerts.loadingSafetyAlerts')}
+      </div>
+    );
   }
 
   if (error) {
@@ -199,86 +205,88 @@ const AdminSafetyAlertList = () => {
   return (
     <div className="admin-safety-alerts">
       <div className="admin-safety-alerts-header">
-        <h1>Safety Alerts Management</h1>
-        <p>Monitor and manage safety alerts across all campgrounds</p>
+        <h1>{t('adminSafetyAlerts.safetyAlertsManagementTitle')}</h1>
+        <p>{t('adminSafetyAlerts.safetyAlertsManagementDescription')}</p>
       </div>
 
       {/* Stats Summary */}
       <div className="admin-safety-alerts-stats">
         <div className="stat-card">
           <div className="stat-number">{stats.total}</div>
-          <div className="stat-label">Total Alerts</div>
+          <div className="stat-label">{t('adminSafetyAlerts.totalAlertsLabel')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-number">{stats.requiresAcknowledgment}</div>
-          <div className="stat-label">Require Acknowledgment</div>
+          <div className="stat-label">{t('adminSafetyAlerts.requiresAcknowledgmentLabel')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-number">{stats.totalAcknowledged}</div>
-          <div className="stat-label">Total Acknowledgments</div>
+          <div className="stat-label">{t('adminSafetyAlerts.totalAcknowledgmentsLabel')}</div>
         </div>
       </div>
 
       {/* Filters */}
       <div className="admin-safety-alerts-filters">
         <div className="filter-group">
-          <label htmlFor="status-filter">Status:</label>
+          <label htmlFor="status-filter">{t('adminSafetyAlerts.statusFilterLabel')}:</label>
           <select
             id="status-filter"
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
           >
-            <option value="">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="resolved">Resolved</option>
-            <option value="expired">Expired</option>
+            <option value="">{t('adminSafetyAlerts.allStatuses')}</option>
+            <option value="active">{t('adminSafetyAlerts.active')}</option>
+            <option value="resolved">{t('adminSafetyAlerts.resolved')}</option>
+            <option value="expired">{t('adminSafetyAlerts.expired')}</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label htmlFor="severity-filter">Severity:</label>
+          <label htmlFor="severity-filter">{t('adminSafetyAlerts.severityFilterLabel')}:</label>
           <select
             id="severity-filter"
             value={filters.severity}
             onChange={(e) => handleFilterChange('severity', e.target.value)}
           >
-            <option value="">All Severities</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            <option value="">{t('adminSafetyAlerts.allSeverities')}</option>
+            <option value="critical">{t('adminSafetyAlerts.critical')}</option>
+            <option value="high">{t('adminSafetyAlerts.high')}</option>
+            <option value="medium">{t('adminSafetyAlerts.medium')}</option>
+            <option value="low">{t('adminSafetyAlerts.low')}</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label htmlFor="type-filter">Type:</label>
+          <label htmlFor="type-filter">{t('adminSafetyAlerts.typeFilterLabel')}:</label>
           <select
             id="type-filter"
             value={filters.type}
             onChange={(e) => handleFilterChange('type', e.target.value)}
           >
-            <option value="">All Types</option>
-            <option value="weather">Weather</option>
-            <option value="wildlife">Wildlife</option>
-            <option value="fire">Fire</option>
-            <option value="flood">Flood</option>
-            <option value="medical">Medical</option>
-            <option value="security">Security</option>
-            <option value="maintenance">Maintenance</option>
-            <option value="other">Other</option>
+            <option value="">{t('adminSafetyAlerts.allTypes')}</option>
+            <option value="weather">{t('adminSafetyAlerts.weather')}</option>
+            <option value="wildlife">{t('adminSafetyAlerts.wildlife')}</option>
+            <option value="fire">{t('adminSafetyAlerts.fire')}</option>
+            <option value="flood">{t('adminSafetyAlerts.flood')}</option>
+            <option value="medical">{t('adminSafetyAlerts.medical')}</option>
+            <option value="security">{t('adminSafetyAlerts.security')}</option>
+            <option value="maintenance">{t('adminSafetyAlerts.maintenance')}</option>
+            <option value="other">{t('adminSafetyAlerts.other')}</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label htmlFor="acknowledgment-filter">Acknowledgment:</label>
+          <label htmlFor="acknowledgment-filter">
+            {t('adminSafetyAlerts.acknowledgmentFilterLabel')}:
+          </label>
           <select
             id="acknowledgment-filter"
             value={filters.requiresAcknowledgement}
             onChange={(e) => handleFilterChange('requiresAcknowledgement', e.target.value)}
           >
-            <option value="">All Alerts</option>
-            <option value="true">Requires Acknowledgment</option>
-            <option value="false">No Acknowledgment Required</option>
+            <option value="">{t('adminSafetyAlerts.allAlerts')}</option>
+            <option value="true">{t('adminSafetyAlerts.requiresAcknowledgment')}</option>
+            <option value="false">{t('adminSafetyAlerts.noAcknowledgmentRequired')}</option>
           </select>
         </div>
       </div>
@@ -306,9 +314,9 @@ const AdminSafetyAlertList = () => {
                   <button
                     onClick={() => handleDeleteClick(alert)}
                     className="alert-action-btn delete-btn"
-                    title="Delete Safety Alert"
+                    title={t('adminSafetyAlerts.deleteSafetyAlertTitle')}
                   >
-                    🗑️ Delete
+                    🗑️ {t('adminSafetyAlerts.delete')}
                   </button>
                 </div>
               </div>
@@ -318,7 +326,7 @@ const AdminSafetyAlertList = () => {
 
                 <div className="alert-details">
                   <div className="alert-location">
-                    <strong>Location:</strong>{' '}
+                    <strong>{t('location')}:</strong>{' '}
                     {alert.campground ? (
                       <Link to={`/campgrounds/${alert.campground._id}`}>
                         {alert.campground.title}
@@ -326,30 +334,35 @@ const AdminSafetyAlertList = () => {
                     ) : alert.campsite ? (
                       <span>{alert.campsite.name}</span>
                     ) : (
-                      <span>Unknown location</span>
+                      <span>{t('unknownLocation')}</span>
                     )}
                   </div>
 
                   <div className="alert-dates">
                     <span>
-                      <strong>Start:</strong> {new Date(alert.startDate).toLocaleDateString()}
+                      <strong>{t('startDate')}:</strong>{' '}
+                      {new Date(alert.startDate).toLocaleDateString()}
                     </span>
                     <span>
-                      <strong>End:</strong> {new Date(alert.endDate).toLocaleDateString()}
+                      <strong>{t('endDate')}:</strong>{' '}
+                      {new Date(alert.endDate).toLocaleDateString()}
                     </span>
                   </div>
 
                   <div className="alert-created-by">
-                    <strong>Created by:</strong> {alert.createdBy?.username || 'Unknown'}
+                    <strong>{t('createdBy')}:</strong>{' '}
+                    {alert.createdBy?.username || t('unknownUser')}
                   </div>
 
                   {alert.requiresAcknowledgement && (
                     <div className="alert-acknowledgment">
                       <div className="acknowledgment-header">
-                        <span className="acknowledgment-required">⚠️ Requires Acknowledgment</span>
+                        <span className="acknowledgment-required">
+                          ⚠️ {t('requiresAcknowledgment')}
+                        </span>
                         <div className="acknowledgment-progress">
                           <span className="acknowledgment-count">
-                            {alert.acknowledgedBy?.length || 0} acknowledged
+                            {alert.acknowledgedBy?.length || 0} {t('acknowledged')}
                           </span>
                           <div className="acknowledgment-progress-bar">
                             <div
@@ -366,11 +379,12 @@ const AdminSafetyAlertList = () => {
 
                       {alert.acknowledgedBy && alert.acknowledgedBy.length > 0 && (
                         <div className="acknowledgment-users">
-                          <strong>Acknowledged by:</strong>
+                          <strong>{t('acknowledgedBy')}:</strong>
                           <div className="acknowledgment-user-list">
                             {alert.acknowledgedBy.map((ack, index) => (
                               <span key={ack._id || index} className="acknowledgment-user">
-                                {ack.user?.username || `User ID: ${ack.user?._id || 'Unknown'}`}
+                                {ack.user?.username ||
+                                  `User ID: ${ack.user?._id || t('unknownUser')}`}
                                 {ack.acknowledgedAt && (
                                   <span className="acknowledgment-time">
                                     {' '}
@@ -385,9 +399,7 @@ const AdminSafetyAlertList = () => {
 
                       {(!alert.acknowledgedBy || alert.acknowledgedBy.length === 0) && (
                         <div className="acknowledgment-none">
-                          <span className="no-acknowledgments">
-                            No users have acknowledged this alert yet
-                          </span>
+                          <span className="no-acknowledgments">{t('noAcknowledgments')}</span>
                         </div>
                       )}
                     </div>
@@ -398,7 +410,7 @@ const AdminSafetyAlertList = () => {
           ))
         ) : (
           <div className="admin-safety-alerts-empty">
-            <p>No safety alerts found matching the current filters.</p>
+            <p>{t('noSafetyAlertsFound')}</p>
           </div>
         )}
       </div>
@@ -411,11 +423,15 @@ const AdminSafetyAlertList = () => {
             disabled={pagination.page <= 1}
             className="pagination-btn"
           >
-            Previous
+            {t('previous')}
           </button>
 
           <span className="pagination-info">
-            Page {pagination.page} of {pagination.totalPages} ({pagination.total} total alerts)
+            {t('pageInfo', {
+              page: pagination.page,
+              totalPages: pagination.totalPages,
+              total: pagination.total,
+            })}
           </span>
 
           <button
@@ -423,7 +439,7 @@ const AdminSafetyAlertList = () => {
             disabled={pagination.page >= pagination.totalPages}
             className="pagination-btn"
           >
-            Next
+            {t('next')}
           </button>
         </div>
       )}
@@ -432,10 +448,10 @@ const AdminSafetyAlertList = () => {
         open={deleteDialog.open}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Safety Alert"
-        message={`Are you sure you want to delete "${deleteDialog.alert?.title}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('deleteSafetyAlertTitle')}
+        message={`${t('confirmDeleteMessage')}${deleteDialog.alert?.title}"? ${t('actionCannotBeUndone')}`}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
       />
     </div>
   );

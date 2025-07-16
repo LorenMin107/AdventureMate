@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
@@ -13,6 +14,7 @@ import './OwnerCampgroundsPage.css';
  * Modern dashboard for campground owners to manage their campgrounds
  */
 const OwnerCampgroundsPage = () => {
+  const { t } = useTranslation();
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
   const { useOwnerCampgrounds } = useOwners();
@@ -55,7 +57,7 @@ const OwnerCampgroundsPage = () => {
 
   useEffect(() => {
     if (fetchError) {
-      setError('Failed to load campgrounds. Please try again later.');
+      setError(t('commonErrors.failedToLoad', { item: 'campgrounds' }));
       setLoading(false);
     }
   }, [fetchError]);
@@ -91,7 +93,7 @@ const OwnerCampgroundsPage = () => {
     return (
       <CSSIsolationWrapper section="owner" className="owner-loading">
         <div className="owner-loading-spinner"></div>
-        <p>Loading your campgrounds...</p>
+        <p>{t('ownerCampgroundsPage.loading')}</p>
       </CSSIsolationWrapper>
     );
   }
@@ -99,10 +101,10 @@ const OwnerCampgroundsPage = () => {
   if (error) {
     return (
       <CSSIsolationWrapper section="owner" className="owner-error">
-        <h4>Error Loading Campgrounds</h4>
+        <h4>{t('ownerCampgroundsPage.errorTitle')}</h4>
         <p>{error}</p>
         <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
-          Retry
+          {t('ownerCampgroundsPage.retry')}
         </button>
       </CSSIsolationWrapper>
     );
@@ -118,18 +120,16 @@ const OwnerCampgroundsPage = () => {
         <div className="header-content">
           <div className="header-main">
             <div className="greeting-section">
-              <h1>My Campgrounds</h1>
-              <p className="header-subtitle">
-                Manage your campground listings and track their performance
-              </p>
+              <h1>{t('ownerCampgroundsPage.title')}</h1>
+              <p className="header-subtitle">{t('ownerCampgroundsPage.subtitle')}</p>
             </div>
             <div className="header-stats">
               <div className="header-stat">
-                <span className="stat-label">Total Campgrounds</span>
+                <span className="stat-label">{t('ownerCampgroundsPage.totalCampgrounds')}</span>
                 <span className="stat-value">{pagination.total}</span>
               </div>
               <div className="header-stat">
-                <span className="stat-label">Active Listings</span>
+                <span className="stat-label">{t('ownerCampgroundsPage.activeListings')}</span>
                 <span className="stat-value">{campgrounds.filter((c) => c.isActive).length}</span>
               </div>
             </div>
@@ -137,7 +137,7 @@ const OwnerCampgroundsPage = () => {
           <div className="header-actions">
             <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-primary">
               <span className="btn-icon">➕</span>
-              Add New Campground
+              {t('ownerCampgroundsPage.addNewCampground')}
             </Link>
             <div className="view-controls">
               <select
@@ -147,10 +147,10 @@ const OwnerCampgroundsPage = () => {
                 }
                 className="owner-select"
               >
-                <option value="5">5 per page</option>
-                <option value="10">10 per page</option>
-                <option value="25">25 per page</option>
-                <option value="50">50 per page</option>
+                <option value="5">{t('ownerCampgroundsPage.perPage', { count: 5 })}</option>
+                <option value="10">{t('ownerCampgroundsPage.perPage', { count: 10 })}</option>
+                <option value="25">{t('ownerCampgroundsPage.perPage', { count: 25 })}</option>
+                <option value="50">{t('ownerCampgroundsPage.perPage', { count: 50 })}</option>
               </select>
             </div>
           </div>
@@ -162,17 +162,14 @@ const OwnerCampgroundsPage = () => {
         {campgrounds.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">🏕️</div>
-            <h3>No Campgrounds Yet</h3>
-            <p>
-              Start by adding your first campground to begin accepting bookings and growing your
-              business.
-            </p>
+            <h3>{t('ownerCampgroundsPage.noCampgroundsYet')}</h3>
+            <p>{t('ownerCampgroundsPage.noCampgroundsMessage')}</p>
             <div className="empty-actions">
               <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-primary">
-                Add Your First Campground
+                {t('ownerCampgroundsPage.addFirstCampground')}
               </Link>
               <Link to="/owner/dashboard" className="owner-btn owner-btn-outline">
-                Back to Dashboard
+                {t('ownerCampgroundsPage.backToDashboard')}
               </Link>
             </div>
           </div>
@@ -182,14 +179,17 @@ const OwnerCampgroundsPage = () => {
             <div className="owner-card table-card">
               <div className="card-header">
                 <div className="card-title">
-                  <h3>Campground Listings</h3>
+                  <h3>{t('ownerCampgroundsPage.campgroundListings')}</h3>
                   <span className="card-subtitle">
-                    Showing {campgrounds.length} of {pagination.total} campgrounds
+                    {t('ownerCampgroundsPage.showing', {
+                      count: campgrounds.length,
+                      total: pagination.total,
+                    })}
                   </span>
                 </div>
                 <div className="table-actions">
                   <span className="sort-info">
-                    Sorted by: <strong>{sort.field}</strong> ({sort.order})
+                    {t('ownerCampgroundsPage.sortedBy', { field: sort.field, order: sort.order })}
                   </span>
                 </div>
               </div>
@@ -203,7 +203,7 @@ const OwnerCampgroundsPage = () => {
                         onClick={() => handleSortChange('title')}
                       >
                         <div className="th-content">
-                          <span>Campground</span>
+                          <span>{t('ownerCampgroundsPage.campground')}</span>
                           <span className="sort-indicator">
                             {sort.field === 'title' ? (sort.order === 'asc' ? '↑' : '↓') : '↕'}
                           </span>
@@ -214,16 +214,16 @@ const OwnerCampgroundsPage = () => {
                         onClick={() => handleSortChange('location')}
                       >
                         <div className="th-content">
-                          <span>Location</span>
+                          <span>{t('ownerCampgroundsPage.location')}</span>
                           <span className="sort-indicator">
                             {sort.field === 'location' ? (sort.order === 'asc' ? '↑' : '↓') : '↕'}
                           </span>
                         </div>
                       </th>
-                      <th className="text-center">Campsites</th>
-                      <th className="text-center">Reviews</th>
-                      <th className="text-center">Bookings</th>
-                      <th className="text-center">Created</th>
+                      <th className="text-center">{t('ownerCampgroundsPage.campsites')}</th>
+                      <th className="text-center">{t('ownerCampgroundsPage.reviews')}</th>
+                      <th className="text-center">{t('ownerCampgroundsPage.bookings')}</th>
+                      <th className="text-center">{t('ownerCampgroundsPage.created')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -256,7 +256,7 @@ const OwnerCampgroundsPage = () => {
                         <td className="text-center">
                           <div className="metric-cell">
                             <span className="count-badge">{campground.campsites?.length || 0}</span>
-                            <span className="metric-label">sites</span>
+                            <span className="metric-label">{t('ownerCampgroundsPage.sites')}</span>
                           </div>
                         </td>
                         <td className="text-center">
@@ -298,22 +298,27 @@ const OwnerCampgroundsPage = () => {
                     disabled={pagination.page === 1}
                     className="owner-btn owner-btn-outline"
                   >
-                    First
+                    {t('ownerCampgroundsPage.first')}
                   </button>
                   <button
                     onClick={() => handlePageChange(pagination.page - 1)}
                     disabled={pagination.page === 1}
                     className="owner-btn owner-btn-outline"
                   >
-                    Previous
+                    {t('ownerCampgroundsPage.previous')}
                   </button>
                 </div>
 
                 <div className="pagination-info">
                   <span className="page-info">
-                    Page {pagination.page} of {pagination.totalPages}
+                    {t('ownerCampgroundsPage.pageInfo', {
+                      current: pagination.page,
+                      total: pagination.totalPages,
+                    })}
                   </span>
-                  <span className="total-info">({pagination.total} total campgrounds)</span>
+                  <span className="total-info">
+                    {t('ownerCampgroundsPage.totalInfo', { count: pagination.total })}
+                  </span>
                 </div>
 
                 <div className="pagination-controls">
@@ -322,14 +327,14 @@ const OwnerCampgroundsPage = () => {
                     disabled={pagination.page >= pagination.totalPages}
                     className="owner-btn owner-btn-outline"
                   >
-                    Next
+                    {t('ownerCampgroundsPage.next')}
                   </button>
                   <button
                     onClick={() => handlePageChange(pagination.totalPages)}
                     disabled={pagination.page >= pagination.totalPages}
                     className="owner-btn owner-btn-outline"
                   >
-                    Last
+                    {t('ownerCampgroundsPage.last')}
                   </button>
                 </div>
               </div>

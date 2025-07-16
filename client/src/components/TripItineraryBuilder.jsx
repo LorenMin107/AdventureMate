@@ -4,15 +4,17 @@ import PropTypes from 'prop-types';
 import { FiTrash2 } from 'react-icons/fi';
 import ConfirmDialog from './common/ConfirmDialog';
 import './TripItineraryBuilder.css';
+import { useTranslation } from 'react-i18next';
 
 const TripItineraryBuilder = ({ trip, onUpdate, onBack }) => {
+  const { t } = useTranslation();
   const [editingDay, setEditingDay] = useState(null); // Now holds day._id
   const [newActivity, setNewActivity] = useState({ title: '', time: '', description: '' });
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(null); // { day, activityId }
 
   if (!trip) {
-    return <div>Select a trip to see the itinerary.</div>;
+    return <div>{t('tripItineraryBuilder.selectTrip')}</div>;
   }
 
   const handleDeleteActivity = async (day, activityId) => {
@@ -66,15 +68,17 @@ const TripItineraryBuilder = ({ trip, onUpdate, onBack }) => {
         open={confirmOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        title="Delete Activity"
-        message="Are you sure you want to delete this activity? This action cannot be undone."
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('tripItineraryBuilder.deleteActivityTitle')}
+        message={t('tripItineraryBuilder.deleteActivityConfirm')}
+        confirmLabel={t('tripItineraryBuilder.delete')}
+        cancelLabel={t('tripItineraryBuilder.cancel')}
       />
       <button className="back-to-trips-btn" onClick={onBack}>
-        &larr; Back to trips
+        &larr; {t('tripItineraryBuilder.backToTrips')}
       </button>
-      <h2>{trip.title} Itinerary</h2>
+      <h2>
+        {trip.title} {t('tripItineraryBuilder.itinerary')}
+      </h2>
       <div className="itinerary-days">
         {trip.days && trip.days.length > 0 ? (
           trip.days
@@ -82,7 +86,8 @@ const TripItineraryBuilder = ({ trip, onUpdate, onBack }) => {
             .map((day, index) => (
               <div key={day._id} className="itinerary-day">
                 <h3>
-                  Day {index + 1}: {new Date(day.date).toLocaleDateString()}
+                  {t('tripItineraryBuilder.day', { number: index + 1 })}:{' '}
+                  {new Date(day.date).toLocaleDateString()}
                 </h3>
                 <div className="day-activities">
                   {day.activities && day.activities.length > 0 ? (
@@ -90,7 +95,7 @@ const TripItineraryBuilder = ({ trip, onUpdate, onBack }) => {
                       {day.activities.map((activity, actIndex) => (
                         <li key={actIndex} className="activity-item">
                           <span className="activity-time">
-                            {activity.time ? `${activity.time}` : 'All Day'}
+                            {activity.time ? `${activity.time}` : t('tripItineraryBuilder.allDay')}
                           </span>
                           <strong>{activity.title}</strong>
                           <p>{activity.description}</p>
@@ -98,7 +103,8 @@ const TripItineraryBuilder = ({ trip, onUpdate, onBack }) => {
                             onClick={() => handleDeleteActivity(day, activity._id)}
                             className="delete-activity-btn"
                           >
-                            <FiTrash2 style={{ marginRight: '0.3em' }} /> Delete
+                            <FiTrash2 style={{ marginRight: '0.3em' }} />{' '}
+                            {t('tripItineraryBuilder.delete')}
                           </button>
                         </li>
                       ))}
@@ -108,7 +114,7 @@ const TripItineraryBuilder = ({ trip, onUpdate, onBack }) => {
                       <span className="icon" role="img" aria-label="No activities">
                         🗓️
                       </span>
-                      No activities planned for this day yet.
+                      {t('tripItineraryBuilder.noActivities')}
                     </div>
                   )}
                   {editingDay === day._id ? (
@@ -116,7 +122,7 @@ const TripItineraryBuilder = ({ trip, onUpdate, onBack }) => {
                       <input
                         type="text"
                         name="title"
-                        placeholder="Activity Title"
+                        placeholder={t('tripItineraryBuilder.activityTitlePlaceholder')}
                         value={newActivity.title}
                         onChange={handleInputChange}
                         required
@@ -124,29 +130,33 @@ const TripItineraryBuilder = ({ trip, onUpdate, onBack }) => {
                       <input
                         type="text"
                         name="time"
-                        placeholder="Time (e.g., 9:00 AM)"
+                        placeholder={t('tripItineraryBuilder.timePlaceholder')}
                         value={newActivity.time}
                         onChange={handleInputChange}
                       />
                       <textarea
                         name="description"
-                        placeholder="Description"
+                        placeholder={t('tripItineraryBuilder.descriptionPlaceholder')}
                         value={newActivity.description}
                         onChange={handleInputChange}
                       ></textarea>
-                      <button onClick={() => handleAddActivity(day)}>Save Activity</button>
-                      <button onClick={() => setEditingDay(null)}>Cancel</button>
+                      <button onClick={() => handleAddActivity(day)}>
+                        {t('tripItineraryBuilder.saveActivity')}
+                      </button>
+                      <button onClick={() => setEditingDay(null)}>
+                        {t('tripItineraryBuilder.cancel')}
+                      </button>
                     </div>
                   ) : (
                     <button className="add-activity-btn" onClick={() => setEditingDay(day._id)}>
-                      Add Activity
+                      {t('tripItineraryBuilder.addActivity')}
                     </button>
                   )}
                 </div>
               </div>
             ))
         ) : (
-          <p>This trip has no itinerary yet. Activities can be added once the trip is created.</p>
+          <p>{t('tripItineraryBuilder.noItinerary')}</p>
         )}
       </div>
     </div>

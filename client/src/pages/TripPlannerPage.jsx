@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useForm, FormProvider } from 'react-hook-form';
 import { DateRangePicker } from '../components/forms';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import apiClient from '../utils/api';
 import TripItineraryBuilder from '../components/TripItineraryBuilder';
 import TripCard from '../components/TripCard';
@@ -15,6 +16,7 @@ import './TripPlannerPage.css';
 const TripPlannerPage = () => {
   const { theme } = useTheme();
   const { isAuthenticated, loading, logout, currentUser } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [trips, setTrips] = useState([]);
   const [error, setError] = useState(null);
@@ -39,7 +41,7 @@ const TripPlannerPage = () => {
         navigate('/login', {
           state: {
             from: '/trip-planner',
-            message: 'Your session has expired. Please log in again.',
+            message: t('tripPlanner.sessionExpired'),
           },
         });
       }
@@ -126,7 +128,11 @@ const TripPlannerPage = () => {
       setSelectedTrip(newTrip);
     } catch (err) {
       if (!handleApiError(err)) {
-        setError('Failed to create trip: ' + (err.response?.data?.message || err.message));
+        setError(
+          t('tripPlanner.failedToCreateTrip', {
+            message: err.response?.data?.message || err.message,
+          })
+        );
       }
     } finally {
       setCreating(false);
@@ -163,7 +169,7 @@ const TripPlannerPage = () => {
       }
     } catch (err) {
       if (!handleApiError(err)) {
-        setError('Failed to delete trip.');
+        setError(t('tripPlanner.failedToDeleteTrip'));
       }
     }
     setConfirmDeleteTripOpen(false);
@@ -186,7 +192,7 @@ const TripPlannerPage = () => {
       fetchTrips();
     } catch (err) {
       if (!handleApiError(err)) {
-        setError('Failed to refresh trip data.');
+        setError(t('tripPlanner.failedToRefreshTrip'));
       }
     } finally {
       setUpdatingTrip(false);
@@ -217,15 +223,15 @@ const TripPlannerPage = () => {
         setSelectedTrip(null);
       }
     } catch (err) {
-      setError('Failed to remove yourself from this trip.');
+      setError(t('tripPlanner.failedToRemoveSelf'));
     }
   };
 
   if (loading) {
-    return <div className="trip-planner-loading">Checking authentication...</div>;
+    return <div className="trip-planner-loading">{t('tripPlanner.checkingAuth')}</div>;
   }
   if (tripsLoading) {
-    return <div className="trip-planner-loading">Loading trips...</div>;
+    return <div className="trip-planner-loading">{t('tripPlanner.loading')}</div>;
   }
   return (
     <div className={`trip-planner-page ${theme}`}>
@@ -233,22 +239,22 @@ const TripPlannerPage = () => {
         open={confirmDeleteTripOpen}
         onClose={handleCancelDeleteTrip}
         onConfirm={handleConfirmDeleteTrip}
-        title="Delete Trip"
-        message="Are you sure you want to delete this trip? This action cannot be undone."
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('tripPlanner.deleteTrip')}
+        message={t('tripPlanner.deleteTripConfirm')}
+        confirmLabel={t('tripPlanner.delete')}
+        cancelLabel={t('tripPlanner.cancel')}
       />
       {showExportDialog && selectedTrip && (
         <TripExportDialog trip={selectedTrip} onClose={() => setShowExportDialog(false)} />
       )}
       <div className="trip-planner-header">
-        <h1>{selectedTrip ? 'Trip Itinerary' : 'My Trips'}</h1>
+        <h1>{selectedTrip ? t('tripPlanner.tripItinerary') : t('tripPlanner.myTrips')}</h1>
         {!selectedTrip && (
           <button
             onClick={() => setShowNewTripForm(!showNewTripForm)}
             className="trip-planner-new-btn"
           >
-            {showNewTripForm ? 'Cancel' : 'Create New Trip'}
+            {showNewTripForm ? t('tripPlanner.cancel') : t('tripPlanner.createNewTrip')}
           </button>
         )}
       </div>
@@ -256,11 +262,15 @@ const TripPlannerPage = () => {
       {selectedTrip ? (
         <>
           <div className="trip-header">
-            <h2>Your Trip: {selectedTrip.title}</h2>
+            <h2>{t('tripPlanner.yourTrip', { title: selectedTrip.title })}</h2>
             <div className="trip-actions">
-              <button className="secondary-button" onClick={handleExportClick} title="Export Trip">
+              <button
+                className="secondary-button"
+                onClick={handleExportClick}
+                title={t('tripPlanner.exportTrip')}
+              >
                 <FiDownload size={18} />
-                <span>Export</span>
+                <span>{t('tripPlanner.export')}</span>
               </button>
             </div>
           </div>
@@ -274,41 +284,43 @@ const TripPlannerPage = () => {
         <>
           {showNewTripForm && (
             <div className="trip-form-container">
-              <h2>Plan Your New Trip</h2>
+              <h2>{t('tripPlanner.planYourNewTrip')}</h2>
               <FormProvider {...methods}>
                 <form
                   className="trip-planner-form"
                   onSubmit={methods.handleSubmit(handleCreateTrip)}
                 >
                   <div className="form-section">
-                    <h3>Trip Information</h3>
+                    <h3>{t('tripPlanner.tripInformation')}</h3>
                     <div className="form-group">
-                      <label htmlFor="title">Trip Title *</label>
+                      <label htmlFor="title">{t('tripPlanner.tripTitle')} *</label>
                       <input
                         id="title"
                         type="text"
-                        placeholder="e.g., Summer Adventure 2023"
-                        {...methods.register('title', { required: 'Trip title is required' })}
+                        placeholder={t('tripPlanner.tripTitlePlaceholder')}
+                        {...methods.register('title', {
+                          required: t('tripPlanner.tripTitleRequired'),
+                        })}
                       />
                     </div>
                     <div className="form-group">
-                      <label htmlFor="description">Description</label>
+                      <label htmlFor="description">{t('tripPlanner.description')}</label>
                       <input
                         id="description"
                         type="text"
-                        placeholder="Add a short description (optional)"
+                        placeholder={t('tripPlanner.descriptionPlaceholder')}
                         {...methods.register('description')}
                       />
                     </div>
                   </div>
 
                   <div className="form-section">
-                    <h3>Trip Dates</h3>
+                    <h3>{t('tripPlanner.tripDates')}</h3>
                     <div className="form-group date-range-group">
                       <DateRangePicker
                         startDateName="startDate"
                         endDateName="endDate"
-                        label="Select your travel dates"
+                        label={t('tripPlanner.selectTravelDates')}
                         required
                         minDate={new Date()}
                       />
@@ -322,10 +334,10 @@ const TripPlannerPage = () => {
                       onClick={() => setShowNewTripForm(false)}
                       disabled={creating}
                     >
-                      Cancel
+                      {t('tripPlanner.cancel')}
                     </button>
                     <button type="submit" className="submit-btn" disabled={creating}>
-                      {creating ? 'Creating Trip...' : 'Create Trip'}
+                      {creating ? t('tripPlanner.creatingTrip') : t('tripPlanner.createTrip')}
                     </button>
                   </div>
                 </form>
@@ -336,7 +348,7 @@ const TripPlannerPage = () => {
           {error ? (
             <div className="trip-planner-error">{error}</div>
           ) : trips.length === 0 ? (
-            <div className="trip-planner-empty">No trips yet. Start by creating a new trip!</div>
+            <div className="trip-planner-empty">{t('tripPlanner.noTripsYet')}</div>
           ) : (
             <div className="trip-planner-list">
               {trips.map((trip) => (

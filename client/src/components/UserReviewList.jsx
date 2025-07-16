@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import StarRating from './StarRating';
@@ -15,6 +16,7 @@ import { logError } from '../utils/logger';
  * @returns {JSX.Element} User review list component
  */
 const UserReviewList = ({ initialReviews = [] }) => {
+  const { t } = useTranslation();
   const [reviews, setReviews] = useState(initialReviews);
   const [loading, setLoading] = useState(!initialReviews.length);
   const [error, setError] = useState(null);
@@ -47,9 +49,7 @@ const UserReviewList = ({ initialReviews = [] }) => {
         logError('Error fetching user reviews', err);
         // Improved error handling for axios errors
         const errorMessage =
-          err.response?.data?.message ||
-          err.message ||
-          'Failed to load reviews. Please try again later.';
+          err.response?.data?.message || err.message || t('reviews.errorLoadingUserReviews');
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -60,14 +60,14 @@ const UserReviewList = ({ initialReviews = [] }) => {
   }, [initialReviews, isAuthenticated]);
 
   const handleDeleteReview = async (reviewId, campgroundId) => {
-    if (!window.confirm('Are you sure you want to delete this review?')) {
+    if (!window.confirm(t('reviews.deleteConfirm'))) {
       return;
     }
 
     // If campgroundId is not provided, we can't delete the review
     if (!campgroundId) {
       logError('Cannot delete review: campground ID is missing');
-      alert('Cannot delete this review because the campground information is missing.');
+      alert(t('reviews.cannotDeleteMissingCampground'));
       return;
     }
 
@@ -80,10 +80,7 @@ const UserReviewList = ({ initialReviews = [] }) => {
     } catch (err) {
       logError('Error deleting review', err);
       // Improved error handling for axios errors
-      const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        'Failed to delete review. Please try again later.';
+      const errorMessage = err.response?.data?.message || err.message || t('reviews.deleteError');
       alert(errorMessage);
     }
   };
@@ -91,13 +88,14 @@ const UserReviewList = ({ initialReviews = [] }) => {
   if (!isAuthenticated) {
     return (
       <div className="review-list-login-message">
-        Please <a href="/login">log in</a> to view your reviews.
+        {t('reviews.pleaseLogin')} <a href="/login">{t('auth.login')}</a>{' '}
+        {t('reviews.toViewYourReviews')}.
       </div>
     );
   }
 
   if (loading) {
-    return <div className="review-list-loading">Loading reviews...</div>;
+    return <div className="review-list-loading">{t('reviews.loadingUserReviews')}</div>;
   }
 
   if (error) {
@@ -107,9 +105,9 @@ const UserReviewList = ({ initialReviews = [] }) => {
   if (reviews.length === 0) {
     return (
       <div className="review-list-empty">
-        <p>You haven't written any reviews yet.</p>
+        <p>{t('reviews.noReviewsYet')}</p>
         <Link to="/campgrounds" className="review-list-browse-link">
-          Browse Campgrounds
+          {t('reviews.browseCampgrounds')}
         </Link>
       </div>
     );
@@ -117,7 +115,9 @@ const UserReviewList = ({ initialReviews = [] }) => {
 
   return (
     <div className="review-list">
-      <h2 className="review-list-title">{currentUser.username}'s Reviews</h2>
+      <h2 className="review-list-title">
+        {t('reviews.userReviews', { username: currentUser.username })}
+      </h2>
 
       {reviews.map((review) => (
         <div key={review._id} className="review-item">
@@ -127,10 +127,10 @@ const UserReviewList = ({ initialReviews = [] }) => {
                 to={`/campgrounds/${review.campground._id}#review-${review._id}`}
                 className="review-campground"
               >
-                {review.campground.title || 'Unknown Campground'}
+                {review.campground.title || t('reviews.unknownCampground')}
               </Link>
             ) : (
-              <span className="review-campground">Unknown Campground</span>
+              <span className="review-campground">{t('reviews.unknownCampground')}</span>
             )}
             <StarRating rating={review.rating} />
           </div>
@@ -145,9 +145,9 @@ const UserReviewList = ({ initialReviews = [] }) => {
               handleDeleteReview(review._id, review.campground ? review.campground._id : null)
             }
             className="review-delete-button"
-            aria-label="Delete review"
+            aria-label={t('reviews.deleteReview')}
           >
-            Delete
+            {t('reviews.delete')}
           </button>
         </div>
       ))}

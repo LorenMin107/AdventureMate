@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUser } from '../context/UserContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import './TwoFactorSetup.css';
@@ -9,6 +10,7 @@ import { logInfo, logDebug, logError } from '../utils/logger';
  * Allows users to enable 2FA for their account
  */
 const TwoFactorSetup = () => {
+  const { t } = useTranslation();
   const [step, setStep] = useState('initial');
   const [token, setToken] = useState('');
   const [qrCode, setQrCode] = useState('');
@@ -121,7 +123,7 @@ const TwoFactorSetup = () => {
     } catch (err) {
       logError('Error initiating 2FA setup', err);
       if (componentMounted.current) {
-        setFormError(err.message || 'Failed to initiate 2FA setup. Please try again.');
+        setFormError(err.message || t('twoFactor.setupError'));
       }
     } finally {
       if (componentMounted.current) {
@@ -136,7 +138,7 @@ const TwoFactorSetup = () => {
     setFormError('');
 
     if (!token.trim()) {
-      setFormError('Verification code is required');
+      setFormError(t('twoFactor.verificationCodeRequired'));
       return;
     }
 
@@ -144,10 +146,10 @@ const TwoFactorSetup = () => {
       const result = await verify2FASetup(token);
       setBackupCodes(result.backupCodes);
       setStep('backupCodes');
-      addSuccessMessage('Two-factor authentication enabled successfully!');
+      addSuccessMessage(t('twoFactor.enabledSuccess'));
     } catch (err) {
       logError('Error verifying 2FA setup', err);
-      setFormError(err.message || 'Invalid verification code. Please try again.');
+      setFormError(err.message || t('twoFactor.invalidCode'));
     }
   };
 
@@ -157,7 +159,7 @@ const TwoFactorSetup = () => {
     setFormError('');
 
     if (!token.trim()) {
-      setFormError('Verification code is required to disable 2FA');
+      setFormError(t('twoFactor.verificationCodeRequiredDisable'));
       return;
     }
 
@@ -169,10 +171,10 @@ const TwoFactorSetup = () => {
       setSecret('');
       setBackupCodes([]);
       setupDataRef.current = null;
-      addSuccessMessage('Two-factor authentication disabled successfully.');
+      addSuccessMessage(t('twoFactor.disabledSuccess'));
     } catch (err) {
       logError('Error disabling 2FA', err);
-      setFormError(err.message || 'Failed to disable 2FA. Please try again.');
+      setFormError(err.message || t('twoFactor.disableError'));
     }
   };
 
@@ -199,20 +201,20 @@ const TwoFactorSetup = () => {
       return (
         <div className="two-factor-setup__container">
           <div className="two-factor-setup__header">
-            <h2>Two-Factor Authentication</h2>
-            <p>Two-factor authentication is currently enabled for your account.</p>
-            <p>To disable 2FA, enter the verification code from your authenticator app.</p>
+            <h2>{t('twoFactor.title')}</h2>
+            <p>{t('twoFactor.currentlyEnabled')}</p>
+            <p>{t('twoFactor.disableInstructions')}</p>
           </div>
 
           <form onSubmit={handleDisable2FA} className="two-factor-setup__form">
             <div className="form-group">
-              <label htmlFor="disable-verification-token">Verification Code:</label>
+              <label htmlFor="disable-verification-token">{t('twoFactor.verificationCode')}:</label>
               <input
                 type="text"
                 id="disable-verification-token"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder="Enter 6-digit code"
+                placeholder={t('twoFactor.enter6DigitCode')}
                 maxLength="6"
                 className="form-control"
                 required
@@ -221,7 +223,7 @@ const TwoFactorSetup = () => {
 
             <div className="two-factor-setup__actions">
               <button type="submit" className="btn btn-danger" disabled={loading || !token.trim()}>
-                {loading ? 'Disabling...' : 'Disable 2FA'}
+                {loading ? t('twoFactor.disabling') : t('twoFactor.disable2FA')}
               </button>
             </div>
           </form>
@@ -234,11 +236,8 @@ const TwoFactorSetup = () => {
         return (
           <div className="two-factor-setup__container">
             <div className="two-factor-setup__header">
-              <h2>Enable Two-Factor Authentication</h2>
-              <p>
-                Add an extra layer of security to your account by enabling two-factor
-                authentication. You'll need an authenticator app like Google Authenticator or Authy.
-              </p>
+              <h2>{t('twoFactor.enableTitle')}</h2>
+              <p>{t('twoFactor.enableDescription')}</p>
             </div>
 
             <div className="two-factor-setup__actions">
@@ -249,9 +248,7 @@ const TwoFactorSetup = () => {
                 disabled={loading || isSetupInProgress}
                 style={{ pointerEvents: 'auto' }} // Ensure button is clickable
               >
-                {loading || isSetupInProgress
-                  ? 'Setting up...'
-                  : 'Set up Two-Factor Authentication'}
+                {loading || isSetupInProgress ? t('twoFactor.settingUp') : t('twoFactor.setup2FA')}
               </button>
             </div>
           </div>
@@ -261,11 +258,8 @@ const TwoFactorSetup = () => {
         return (
           <div className="two-factor-setup__container">
             <div className="two-factor-setup__header">
-              <h2>Scan QR Code</h2>
-              <p>
-                Open your authenticator app and scan the QR code below, or manually enter the secret
-                key.
-              </p>
+              <h2>{t('twoFactor.scanQRCode')}</h2>
+              <p>{t('twoFactor.scanInstructions')}</p>
             </div>
 
             <div className="two-factor-setup__qr-section">
@@ -274,7 +268,7 @@ const TwoFactorSetup = () => {
                   <img
                     ref={qrCodeImgRef}
                     src={qrCode}
-                    alt="2FA QR Code"
+                    alt={t('twoFactor.qrCodeAlt')}
                     className="two-factor-setup__qr-code"
                     style={{
                       maxWidth: '300px',
@@ -289,13 +283,13 @@ const TwoFactorSetup = () => {
                   />
                 </div>
               ) : (
-                <div>Loading QR code...</div>
+                <div>{t('twoFactor.loadingQRCode')}</div>
               )}
 
               {secret && (
                 <div className="two-factor-setup__secret">
                   <p>
-                    <strong>Manual Entry Key:</strong>
+                    <strong>{t('twoFactor.manualEntryKey')}:</strong>
                   </p>
                   <code className="two-factor-setup__secret-code">{secret}</code>
                 </div>
@@ -304,7 +298,7 @@ const TwoFactorSetup = () => {
 
             <form onSubmit={handleVerifyToken} className="two-factor-setup__form">
               <div className="form-group">
-                <label htmlFor="verification-token">Enter verification code from your app:</label>
+                <label htmlFor="verification-token">{t('twoFactor.enterVerificationCode')}:</label>
                 <input
                   type="text"
                   id="verification-token"
@@ -323,7 +317,7 @@ const TwoFactorSetup = () => {
                   className="btn btn-primary"
                   disabled={loading || !token.trim()}
                 >
-                  {loading ? 'Verifying...' : 'Verify & Enable 2FA'}
+                  {loading ? t('twoFactor.verifying') : t('twoFactor.verifyAndEnable')}
                 </button>
                 <button
                   type="button"
@@ -331,7 +325,7 @@ const TwoFactorSetup = () => {
                   className="btn btn-secondary"
                   disabled={loading}
                 >
-                  Cancel
+                  {t('twoFactor.cancel')}
                 </button>
               </div>
             </form>
@@ -342,11 +336,8 @@ const TwoFactorSetup = () => {
         return (
           <div className="two-factor-setup__container">
             <div className="two-factor-setup__header">
-              <h2>Backup Codes</h2>
-              <p>
-                Save these backup codes in a safe place. You can use them to access your account if
-                you lose access to your authenticator app.
-              </p>
+              <h2>{t('twoFactor.backupCodes')}</h2>
+              <p>{t('twoFactor.backupCodesDescription')}</p>
             </div>
 
             <div className="two-factor-setup__backup-codes">
@@ -366,7 +357,7 @@ const TwoFactorSetup = () => {
                 }}
                 className="btn btn-primary"
               >
-                Complete Setup
+                {t('twoFactor.completeSetup')}
               </button>
             </div>
           </div>

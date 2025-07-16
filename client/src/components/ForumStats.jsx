@@ -1,10 +1,12 @@
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import { getRelativeTime } from '../utils/formatDate';
 import { forumCSS } from '../utils/cssIsolation';
 import './ForumStats.css';
 
 const ForumStats = ({ stats, error, isLoading }) => {
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   // Show loading state if explicitly loading
   if (isLoading) {
@@ -12,7 +14,7 @@ const ForumStats = ({ stats, error, isLoading }) => {
       <div className={`forum-stats ${theme}`}>
         <div className="forum-stats-loading">
           <div className="forum-loading-spinner"></div>
-          <p>Loading stats...</p>
+          <p>{t('forum.loadingStats')}</p>
         </div>
       </div>
     );
@@ -24,7 +26,7 @@ const ForumStats = ({ stats, error, isLoading }) => {
       <div className={`forum-stats ${theme}`}>
         <div className="forum-stats-loading">
           <div className="forum-stats-error-icon">⚠️</div>
-          <p>Unable to load stats</p>
+          <p>{t('forum.unableToLoadStats')}</p>
         </div>
       </div>
     );
@@ -36,7 +38,7 @@ const ForumStats = ({ stats, error, isLoading }) => {
       <div className={`forum-stats ${theme}`}>
         <div className="forum-stats-loading">
           <div className="forum-loading-spinner"></div>
-          <p>Loading stats...</p>
+          <p>{t('forum.loadingStats')}</p>
         </div>
       </div>
     );
@@ -47,7 +49,7 @@ const ForumStats = ({ stats, error, isLoading }) => {
   return (
     <div className={`forum-stats ${theme}`}>
       <div className="forum-stats-header">
-        <h3>Forum Statistics</h3>
+        <h3>{t('forum.forumStats')}</h3>
       </div>
 
       <div className="forum-stats-grid">
@@ -55,7 +57,7 @@ const ForumStats = ({ stats, error, isLoading }) => {
           <div className="forum-stat-icon">📝</div>
           <div className="forum-stat-content">
             <div className="forum-stat-value">{forumStats.totalPosts}</div>
-            <div className="forum-stat-label">Total Posts</div>
+            <div className="forum-stat-label">{t('forum.totalPosts')}</div>
           </div>
         </div>
 
@@ -63,7 +65,7 @@ const ForumStats = ({ stats, error, isLoading }) => {
           <div className="forum-stat-icon">💬</div>
           <div className="forum-stat-content">
             <div className="forum-stat-value">{forumStats.totalReplies}</div>
-            <div className="forum-stat-label">Total Replies</div>
+            <div className="forum-stat-label">{t('forum.totalReplies')}</div>
           </div>
         </div>
 
@@ -71,7 +73,7 @@ const ForumStats = ({ stats, error, isLoading }) => {
           <div className="forum-stat-icon">👁️</div>
           <div className="forum-stat-content">
             <div className="forum-stat-value">{forumStats.totalViews}</div>
-            <div className="forum-stat-label">Total Views</div>
+            <div className="forum-stat-label">{t('forum.totalViews')}</div>
           </div>
         </div>
 
@@ -79,14 +81,14 @@ const ForumStats = ({ stats, error, isLoading }) => {
           <div className="forum-stat-icon">👍</div>
           <div className="forum-stat-content">
             <div className="forum-stat-value">{forumStats.totalVotes}</div>
-            <div className="forum-stat-label">Total Votes</div>
+            <div className="forum-stat-label">{t('forum.totalVotes')}</div>
           </div>
         </div>
       </div>
 
       {categoryStats && categoryStats.length > 0 && (
         <div className="forum-category-stats">
-          <h4>Popular Categories</h4>
+          <h4>{t('forum.popularCategories')}</h4>
           <div className="forum-category-list">
             {categoryStats.slice(0, 5).map((category) => (
               <div key={category._id} className="forum-category-item">
@@ -100,7 +102,7 @@ const ForumStats = ({ stats, error, isLoading }) => {
 
       {recentActivity && recentActivity.length > 0 && (
         <div className="forum-recent-activity">
-          <h4>Recent Activity</h4>
+          <h4>{t('forum.recentActivity')}</h4>
           <div className="forum-activity-list">
             {recentActivity.map((activity, index) => (
               <div key={index} className="forum-activity-item">

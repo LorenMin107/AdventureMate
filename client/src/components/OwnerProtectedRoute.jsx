@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import apiClient from '../utils/api';
 import EmailVerificationRequired from './EmailVerificationRequired';
 import TwoFactorVerification from './TwoFactorVerification';
@@ -16,6 +17,7 @@ import TwoFactorVerification from './TwoFactorVerification';
  * @param {boolean} props.requireEmailVerified - Whether the route requires email verification (default: true)
  */
 const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = true }) => {
+  const { t } = useTranslation();
   const { currentUser, loading, isAuthenticated, requiresTwoFactor } = useAuth();
 
   // Fetch owner profile if user is authenticated
@@ -38,7 +40,7 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>Loading...</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }
@@ -71,9 +73,9 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
   if (ownerError && ownerError.response?.status !== 404) {
     return (
       <div className="error-container">
-        <h2>Error Loading Owner Profile</h2>
-        <p>There was an error loading your owner profile. Please try again later.</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
+        <h2>{t('ownerProtectedRoute.errorLoadingProfile')}</h2>
+        <p>{t('ownerProtectedRoute.errorLoadingProfileMessage')}</p>
+        <button onClick={() => window.location.reload()}>{t('common.retry')}</button>
       </div>
     );
   }
@@ -83,48 +85,39 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
     return (
       <div className="owner-verification-required">
         <div className="verification-status-container">
-          <h2>Owner Verification Required</h2>
+          <h2>{t('ownerProtectedRoute.verificationRequired')}</h2>
           <div className="verification-status">
             <span className={`status-badge status-${ownerProfile?.verificationStatus}`}>
-              {ownerProfile?.verificationStatusDisplay || 'Unknown Status'}
+              {ownerProfile?.verificationStatusDisplay || t('ownerProtectedRoute.unknownStatus')}
             </span>
           </div>
 
           {ownerProfile?.verificationStatus === 'pending' && (
             <div className="verification-message">
-              <p>
-                Your owner account is pending verification. Please upload the required documents to
-                complete the verification process.
-              </p>
+              <p>{t('ownerProtectedRoute.pendingMessage')}</p>
               <Navigate to="/owner/verification" replace />
             </div>
           )}
 
           {ownerProfile?.verificationStatus === 'under_review' && (
             <div className="verification-message">
-              <p>
-                Your verification documents are currently under review. We'll notify you once the
-                review is complete.
-              </p>
-              <p>This process typically takes 1-3 business days.</p>
+              <p>{t('ownerProtectedRoute.underReviewMessage')}</p>
+              <p>{t('ownerProtectedRoute.reviewTimeframe')}</p>
             </div>
           )}
 
           {ownerProfile?.verificationStatus === 'rejected' && (
             <div className="verification-message">
-              <p>
-                Your verification was rejected. Please review the feedback and resubmit your
-                documents.
-              </p>
+              <p>{t('ownerProtectedRoute.rejectedMessage')}</p>
               <Navigate to="/owner/verification" replace />
             </div>
           )}
 
           {ownerProfile?.verificationStatus === 'suspended' && (
             <div className="verification-message">
-              <p>Your owner account has been suspended. Please contact support for assistance.</p>
+              <p>{t('ownerProtectedRoute.suspendedMessage')}</p>
               <a href="mailto:support@adventuremate.com" className="support-link">
-                Contact Support
+                {t('ownerProtectedRoute.contactSupport')}
               </a>
             </div>
           )}
@@ -137,10 +130,10 @@ const OwnerProtectedRoute = ({ requireVerified = true, requireEmailVerified = tr
   if (!ownerProfile?.isActive) {
     return (
       <div className="owner-account-suspended">
-        <h2>Account Suspended</h2>
-        <p>Your owner account has been suspended. Please contact support for assistance.</p>
+        <h2>{t('ownerProtectedRoute.accountSuspended')}</h2>
+        <p>{t('ownerProtectedRoute.accountSuspendedMessage')}</p>
         <a href="mailto:support@adventuremate.com" className="support-link">
-          Contact Support
+          {t('ownerProtectedRoute.contactSupport')}
         </a>
       </div>
     );

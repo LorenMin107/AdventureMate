@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import PasswordChangeForm from '../components/PasswordChangeForm';
 import { logError } from '../utils/logger';
 import './PasswordChangePage.css';
@@ -12,6 +13,7 @@ import './PasswordChangePage.css';
 const PasswordChangePage = () => {
   const { isAuthenticated } = useAuth();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Redirect to login if not authenticated
@@ -24,8 +26,8 @@ const PasswordChangePage = () => {
     <div className={`password-change-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
       <div className="page-container">
         <div className="page-header">
-          <h1>Change Password</h1>
-          <p>Keep your account secure by updating your password regularly</p>
+          <h1>{t('passwordChange.changePassword')}</h1>
+          <p>{t('passwordChange.keepAccountSecure')}</p>
         </div>
 
         <div className="page-content">
@@ -34,7 +36,7 @@ const PasswordChangePage = () => {
 
         <div className="page-footer">
           <button onClick={() => navigate('/profile')} className="back-button">
-            ← Back to Profile
+            {t('passwordChange.backToProfile')}
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom';
 import './ErrorBoundary.css';
 
@@ -7,6 +8,7 @@ import './ErrorBoundary.css';
  * Catches errors in the component tree and displays a fallback UI
  */
 const ErrorBoundary = () => {
+  const { t } = useTranslation();
   const error = useRouteError();
 
   // Determine if it's a route error or a general error
@@ -44,7 +46,7 @@ const ErrorBoundary = () => {
             Reload Page
           </button>
           <Link to="/" className="btn btn-secondary">
-            Go to Homepage
+            {t('notFound.goToHomepage')}
           </Link>
         </div>
       </div>

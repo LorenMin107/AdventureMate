@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { logError } from '../utils/logger';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import './ResetPasswordPage.css';
@@ -11,6 +12,7 @@ import './ResetPasswordPage.css';
  */
 const ResetPasswordPage = () => {
   const { resetPassword, loading: authLoading, error: authError } = useAuth();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
@@ -18,16 +20,14 @@ const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [status, setStatus] = useState(token ? 'idle' : 'error'); // idle, loading, success, error
-  const [message, setMessage] = useState(
-    token ? '' : 'No reset token provided. Please check your email link.'
-  );
+  const [message, setMessage] = useState(token ? '' : t('resetPassword.tokenError'));
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [passwordStrength, setPasswordStrength] = useState({
     score: 0,
-    message: 'Password is too weak',
+    message: t('resetPassword.passwordTooWeak'),
     color: '#dc3545',
   });
 
@@ -36,7 +36,7 @@ const ResetPasswordPage = () => {
     if (!password) {
       setPasswordStrength({
         score: 0,
-        message: 'Password is too weak',
+        message: t('resetPassword.passwordTooWeak'),
         color: '#dc3545',
       });
       return;
@@ -66,32 +66,32 @@ const ResetPasswordPage = () => {
     switch (score) {
       case 0:
       case 1:
-        message = 'Password is too weak';
+        message = t('resetPassword.passwordTooWeak');
         color = '#dc3545'; // red
         break;
       case 2:
-        message = 'Password is weak';
+        message = t('resetPassword.passwordWeak');
         color = '#ffc107'; // yellow
         break;
       case 3:
-        message = 'Password is moderate';
+        message = t('resetPassword.passwordModerate');
         color = '#fd7e14'; // orange
         break;
       case 4:
-        message = 'Password is strong';
+        message = t('resetPassword.passwordStrong');
         color = '#28a745'; // green
         break;
       case 5:
-        message = 'Password is very strong';
+        message = t('resetPassword.passwordVeryStrong');
         color = '#20c997'; // teal
         break;
       default:
-        message = 'Password is too weak';
+        message = t('resetPassword.passwordTooWeak');
         color = '#dc3545'; // red
     }
 
     setPasswordStrength({ score, message, color });
-  }, [password]);
+  }, [password, t]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -101,20 +101,20 @@ const ResetPasswordPage = () => {
     let isValid = true;
 
     if (!password) {
-      setPasswordError('Password is required');
+      setPasswordError(t('resetPassword.passwordRequired'));
       isValid = false;
     } else if (passwordStrength.score < 3) {
-      setPasswordError('Please choose a stronger password');
+      setPasswordError(t('resetPassword.chooseStrongerPassword'));
       isValid = false;
     } else {
       setPasswordError('');
     }
 
     if (!confirmPassword) {
-      setConfirmPasswordError('Please confirm your password');
+      setConfirmPasswordError(t('resetPassword.confirmPasswordRequired'));
       isValid = false;
     } else if (password !== confirmPassword) {
-      setConfirmPasswordError('Passwords do not match');
+      setConfirmPasswordError(t('resetPassword.passwordsDoNotMatch'));
       isValid = false;
     } else {
       setConfirmPasswordError('');
@@ -129,7 +129,7 @@ const ResetPasswordPage = () => {
       // Use the resetPassword method from AuthContext
       const responseMessage = await resetPassword(token, password);
       setStatus('success');
-      setMessage(responseMessage || 'Your password has been reset successfully.');
+      setMessage(responseMessage || t('resetPassword.passwordResetSuccess'));
 
       // Clear form
       setPassword('');
@@ -142,36 +142,40 @@ const ResetPasswordPage = () => {
     } catch (error) {
       logError('Error resetting password', error);
       setStatus('error');
-      setMessage(error.message || 'Failed to reset password. The token may be invalid or expired.');
+      setMessage(error.message || t('resetPassword.resetFailed'));
     }
   };
 
   return (
     <div className="reset-password-page">
       <div className="reset-password-container">
-        <h1>Reset Password</h1>
+        <h1>{t('resetPassword.title')}</h1>
 
         {status === 'idle' && (
           <div className="reset-password-form-container">
-            <p>Enter your new password below.</p>
+            <p>{t('resetPassword.enterNewPassword')}</p>
 
             <form onSubmit={handleSubmit} className="reset-password-form">
               <div className="form-group">
-                <label htmlFor="password">New Password</label>
+                <label htmlFor="password">{t('resetPassword.newPassword')}</label>
                 <div className="password-input-container">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your new password"
+                    placeholder={t('resetPassword.enterNewPasswordPlaceholder')}
                     className={`password-input ${passwordError ? 'input-error' : ''}`}
                   />
                   <button
                     type="button"
                     className="password-toggle"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={
+                      showPassword
+                        ? t('resetPassword.hidePassword')
+                        : t('resetPassword.showPassword')
+                    }
                   >
                     {showPassword ? <FiEyeOff /> : <FiEye />}
                   </button>
@@ -200,43 +204,47 @@ const ResetPasswordPage = () => {
                 )}
 
                 <div className="password-requirements">
-                  <p>Password must:</p>
+                  <p>{t('resetPassword.passwordMust')}</p>
                   <ul>
                     <li className={password.length >= 8 ? 'met' : ''}>
-                      Be at least 8 characters long
+                      {t('resetPassword.atLeast8Characters')}
                     </li>
                     <li className={/[A-Z]/.test(password) ? 'met' : ''}>
-                      Include at least one uppercase letter
+                      {t('resetPassword.includeUppercase')}
                     </li>
                     <li className={/[a-z]/.test(password) ? 'met' : ''}>
-                      Include at least one lowercase letter
+                      {t('resetPassword.includeLowercase')}
                     </li>
                     <li className={/\d/.test(password) ? 'met' : ''}>
-                      Include at least one number
+                      {t('resetPassword.includeNumber')}
                     </li>
                     <li className={/[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'met' : ''}>
-                      Include at least one special character
+                      {t('resetPassword.includeSpecial')}
                     </li>
                   </ul>
                 </div>
               </div>
 
               <div className="form-group">
-                <label htmlFor="confirmPassword">Confirm Password</label>
+                <label htmlFor="confirmPassword">{t('resetPassword.confirmPassword')}</label>
                 <div className="password-input-container">
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     id="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm your new password"
+                    placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                     className={`password-input ${confirmPasswordError ? 'input-error' : ''}`}
                   />
                   <button
                     type="button"
                     className="password-toggle"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-label={
+                      showConfirmPassword
+                        ? t('resetPassword.hidePassword')
+                        : t('resetPassword.showPassword')
+                    }
                   >
                     {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
                   </button>
@@ -251,7 +259,9 @@ const ResetPasswordPage = () => {
                 className="btn btn-primary"
                 disabled={status === 'loading' || authLoading || passwordStrength.score < 3}
               >
-                {status === 'loading' || authLoading ? 'Resetting...' : 'Reset Password'}
+                {status === 'loading' || authLoading
+                  ? t('resetPassword.resetting')
+                  : t('resetPassword.resetPassword')}
               </button>
             </form>
           </div>
@@ -260,22 +270,22 @@ const ResetPasswordPage = () => {
         {status === 'loading' && (
           <div className="reset-password-status loading">
             <div className="spinner"></div>
-            <p>Resetting your password...</p>
+            <p>{t('resetPassword.resettingPassword')}</p>
           </div>
         )}
 
         {status === 'success' && (
           <div className="reset-password-status success">
             <div className="success-icon">✓</div>
-            <h2>Password Reset Successful</h2>
+            <h2>{t('resetPassword.passwordResetSuccessful')}</h2>
             <p>{message}</p>
-            <p>You will be redirected to the login page in a few seconds.</p>
+            <p>{t('resetPassword.redirectToLogin')}</p>
             <div className="action-buttons">
               <Link to="/login" className="btn btn-primary">
-                Login Now
+                {t('resetPassword.loginNow')}
               </Link>
               <Link to="/" className="btn btn-secondary">
-                Go to Homepage
+                {t('resetPassword.goToHomepage')}
               </Link>
             </div>
           </div>
@@ -284,14 +294,14 @@ const ResetPasswordPage = () => {
         {status === 'error' && (
           <div className="reset-password-status error">
             <div className="error-icon">✗</div>
-            <h2>Password Reset Failed</h2>
+            <h2>{t('resetPassword.passwordResetFailed')}</h2>
             <p>{message}</p>
             <div className="action-buttons">
               <Link to="/forgot-password" className="btn btn-primary">
-                Request New Reset Link
+                {t('resetPassword.requestNewResetLink')}
               </Link>
               <Link to="/login" className="btn btn-secondary">
-                Back to Login
+                {t('resetPassword.backToLogin')}
               </Link>
             </div>
           </div>

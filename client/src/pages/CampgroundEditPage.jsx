@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import CampgroundForm from '../components/CampgroundForm';
 import { logError } from '../utils/logger';
@@ -10,6 +11,7 @@ import './CampgroundNewPage.css'; // Reuse the same CSS
  * Only accessible to admin users or the campground author
  */
 const CampgroundEditPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useAuth();
@@ -55,7 +57,7 @@ const CampgroundEditPage = () => {
         }
       } catch (err) {
         logError('Error fetching campground', err);
-        setError('Failed to load campground. Please try again later.');
+        setError(t('campgroundEdit.errorLoading'));
       } finally {
         setLoading(false);
       }
@@ -71,7 +73,7 @@ const CampgroundEditPage = () => {
   if (loading) {
     return (
       <div className="campground-new-page">
-        <div className="loading-container">Loading campground data...</div>
+        <div className="loading-container">{t('campgroundEdit.loading')}</div>
       </div>
     );
   }
@@ -82,7 +84,7 @@ const CampgroundEditPage = () => {
         <div className="unauthorized-container">
           <p>{error}</p>
           <Link to="/campgrounds" className="btn btn-primary">
-            Back to Campgrounds
+            {t('campgroundEdit.backToCampgrounds')}
           </Link>
         </div>
       </div>
@@ -93,9 +95,9 @@ const CampgroundEditPage = () => {
     return (
       <div className="campground-new-page">
         <div className="unauthorized-container">
-          <p>You are not authorized to edit this campground.</p>
+          <p>{t('campgroundEdit.notAuthorized')}</p>
           <Link to={`/campgrounds/${id}`} className="btn btn-primary">
-            View Campground
+            {t('campgroundEdit.viewCampground')}
           </Link>
         </div>
       </div>
@@ -105,8 +107,8 @@ const CampgroundEditPage = () => {
   return (
     <div className="campground-new-page">
       <div className="page-header">
-        <h1>Edit Campground</h1>
-        <p>Update the information for {campground?.title}</p>
+        <h1>{t('campgroundEdit.title')}</h1>
+        <p>{t('campgroundEdit.subtitle', { campgroundTitle: campground?.title })}</p>
       </div>
 
       {campground && <CampgroundForm isEditing={true} campground={campground} />}

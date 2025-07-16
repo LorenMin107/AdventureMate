@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect, useState, useRef } from 'react';
 import './AdminLayout.css';
@@ -9,6 +10,7 @@ import './AdminLayout.css';
  * @returns {JSX.Element} Admin layout component
  */
 const AdminLayout = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -117,10 +119,10 @@ const AdminLayout = () => {
   if (!currentUser?.isAdmin) {
     return (
       <div className="admin-layout-unauthorized">
-        <h2>Access Denied</h2>
-        <p>You do not have permission to access the admin area.</p>
+        <h2>{t('adminNavigation.accessDenied')}</h2>
+        <p>{t('adminNavigation.accessDeniedMessage')}</p>
         <Link to="/" className="admin-layout-home-link">
-          Return to Home
+          {t('adminNavigation.returnToHome')}
         </Link>
       </div>
     );
@@ -147,7 +149,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin') && !isActive('/admin/users') && !isActive('/admin/campgrounds') && !isActive('/admin/bookings') && !isActive('/admin/owner-applications') && !isActive('/admin/analytics') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">📊</span>
-                <span className="admin-nav-text">Dashboard</span>
+                <span className="admin-nav-text">{t('adminNavigation.dashboard')}</span>
               </Link>
 
               <Link
@@ -155,7 +157,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin/analytics') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">📈</span>
-                <span className="admin-nav-text">Analytics</span>
+                <span className="admin-nav-text">{t('adminNavigation.analytics')}</span>
               </Link>
 
               <Link
@@ -163,7 +165,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin/users') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">👤</span>
-                <span className="admin-nav-text">Users</span>
+                <span className="admin-nav-text">{t('adminNavigation.users')}</span>
               </Link>
 
               <Link
@@ -171,7 +173,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin/campgrounds') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">🏕️</span>
-                <span className="admin-nav-text">Campgrounds</span>
+                <span className="admin-nav-text">{t('adminNavigation.campgrounds')}</span>
               </Link>
 
               <Link
@@ -179,7 +181,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin/bookings') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">📆</span>
-                <span className="admin-nav-text">Bookings</span>
+                <span className="admin-nav-text">{t('adminNavigation.bookings')}</span>
               </Link>
             </div>
 
@@ -193,7 +195,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin/owner-applications') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">📋</span>
-                <span className="admin-nav-text">Applications</span>
+                <span className="admin-nav-text">{t('adminNavigation.applications')}</span>
               </Link>
 
               <Link
@@ -201,7 +203,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin/safety-alerts') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">⚠️</span>
-                <span className="admin-nav-text">Safety Alerts</span>
+                <span className="admin-nav-text">{t('adminNavigation.safetyAlerts')}</span>
               </Link>
             </div>
 
@@ -215,7 +217,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin/trips') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">🗺️</span>
-                <span className="admin-nav-text">Trips</span>
+                <span className="admin-nav-text">{t('adminNavigation.trips')}</span>
               </Link>
 
               <Link
@@ -223,7 +225,7 @@ const AdminLayout = () => {
                 className={`admin-nav-item ${isActive('/admin/weather') ? 'active' : ''}`}
               >
                 <span className="admin-nav-icon">🌤️</span>
-                <span className="admin-nav-text">Weather</span>
+                <span className="admin-nav-text">{t('adminNavigation.weather')}</span>
               </Link>
             </div>
           </nav>

@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import EmailVerificationRequired from './EmailVerificationRequired';
 import TwoFactorVerification from './TwoFactorVerification';
@@ -8,17 +9,18 @@ import TwoFactorVerification from './TwoFactorVerification';
  * Redirects to login page if user is not authenticated
  * Redirects to email verification page if user's email is not verified
  * Redirects to 2FA verification page if 2FA verification is required
- * 
+ *
  * @param {Object} props - Component props
  * @param {boolean} props.requireAdmin - Whether the route requires admin privileges
  * @param {boolean} props.requireEmailVerified - Whether the route requires email verification (default: true)
  */
 const ProtectedRoute = ({ requireAdmin = false, requireEmailVerified = true }) => {
+  const { t } = useTranslation();
   const { currentUser, loading, isAuthenticated, requiresTwoFactor } = useAuth();
 
   // Show loading state while checking authentication
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading">{t('protectedRoute.loading')}</div>;
   }
 
   // If not authenticated, redirect to login

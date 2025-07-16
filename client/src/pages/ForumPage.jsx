@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import apiClient from '../utils/api';
 import ForumPostCard from '../components/ForumPostCard';
 import ForumFilter from '../components/ForumFilter';
@@ -14,6 +15,7 @@ import './ForumPage.css';
 const ForumPage = () => {
   const { theme } = useTheme();
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Get filter parameters from URL
@@ -103,10 +105,10 @@ const ForumPage = () => {
     return (
       <CSSIsolationWrapper section="forum" className={`forum-page ${theme}`}>
         <div className="forum-error">
-          <h2>Error Loading Forum</h2>
-          <p>Failed to load forum posts. Please try again.</p>
+          <h2>{t('forum.errorLoadingForum')}</h2>
+          <p>{t('forum.failedToLoadPosts')}</p>
           <button onClick={() => refetch()} className="forum-btn forum-btn-primary">
-            Retry
+            {t('forum.retry')}
           </button>
         </div>
       </CSSIsolationWrapper>
@@ -117,11 +119,11 @@ const ForumPage = () => {
     <CSSIsolationWrapper section="forum" className={`forum-page ${theme}`}>
       <div className="forum-header">
         <div className="forum-header-content">
-          <h1>Community Forum</h1>
-          <p>Connect with fellow campers, share tips, and get answers to your questions</p>
+          <h1>{t('forum.title')}</h1>
+          <p>{t('forum.subtitle')}</p>
           {isAuthenticated && (
             <Link to="/forum/new" className="forum-btn forum-btn-primary">
-              Create New Post
+              {t('forum.createNewPost')}
             </Link>
           )}
         </div>
@@ -133,14 +135,14 @@ const ForumPage = () => {
 
           {categoriesData && (
             <div className="forum-categories">
-              <h3>Categories</h3>
+              <h3>{t('forum.categories')}</h3>
               <div className="category-list">
                 <button
                   className={`category-item ${!category ? 'active' : ''}`}
                   onClick={() => handleFilterChange({ category: '' })}
                 >
                   <span>📝</span>
-                  <span>All Posts</span>
+                  <span>{t('forum.allPosts')}</span>
                 </button>
                 {categoriesData.map((cat) => (
                   <button
@@ -161,7 +163,7 @@ const ForumPage = () => {
           {!isAuthenticated && (
             <div className="forum-guest-message">
               <p>
-                <Link to="/login">Login</Link> to ask questions or join the discussion.
+                <Link to="/login">{t('navigation.login')}</Link> {t('forum.loginToParticipate')}
               </p>
             </div>
           )}
@@ -175,20 +177,20 @@ const ForumPage = () => {
             {isLoading ? (
               <div className="forum-loading">
                 <div className="loading-spinner"></div>
-                <p>Loading posts...</p>
+                <p>{t('forum.loadingPosts')}</p>
               </div>
             ) : forumData?.posts?.length === 0 ? (
               <div className="forum-empty">
                 <div className="empty-icon">💬</div>
-                <h3>No posts found</h3>
+                <h3>{t('forum.noPostsFound')}</h3>
                 <p>
                   {search || category || type
-                    ? 'Try adjusting your search criteria or filters.'
-                    : 'Be the first to start a discussion!'}
+                    ? t('forum.adjustSearchCriteria')
+                    : t('forum.beFirstToStart')}
                 </p>
                 {isAuthenticated && (
                   <Link to="/forum/new" className="forum-btn forum-btn-primary">
-                    Create First Post
+                    {t('forum.createFirstPost')}
                   </Link>
                 )}
               </div>
@@ -207,11 +209,14 @@ const ForumPage = () => {
                       disabled={!forumData.pagination.hasPrev}
                       onClick={() => handlePageChange(page - 1)}
                     >
-                      Previous
+                      {t('forum.previous')}
                     </button>
 
                     <div className="pagination-info">
-                      Page {forumData.pagination.currentPage} of {forumData.pagination.totalPages}
+                      {t('forum.pageInfo', {
+                        current: forumData.pagination.currentPage,
+                        total: forumData.pagination.totalPages,
+                      })}
                     </div>
 
                     <button
@@ -219,7 +224,7 @@ const ForumPage = () => {
                       disabled={!forumData.pagination.hasNext}
                       onClick={() => handlePageChange(page + 1)}
                     >
-                      Next
+                      {t('forum.next')}
                     </button>
                   </div>
                 )}

@@ -12,6 +12,25 @@ AdventureMate is a comprehensive full-stack web application for discovering, boo
 - **Maps**: Integrated Mapbox for interactive campground locations and location picking
 - **Forms**: React Hook Form with Yup validation
 - **PDF Generation**: @react-pdf/renderer for booking confirmations
+- **Internationalization**: React-i18next for complete bilingual support (English/Thai)
+
+### 🌍 Internationalization (i18n)
+
+- **Complete Bilingual Support**: Full English and Thai language support across the entire application
+- **Dynamic Language Switching**: Users can switch between languages with persistent preference storage
+- **Comprehensive Coverage**: All user-facing text translated including:
+  - Admin dashboard and management interfaces
+  - Owner portal and campground management
+  - User authentication and profile management
+  - Booking system and payment flows
+  - Forum system with posts, replies, and Q&A
+  - Trip planning and itinerary management
+  - Weather and safety alert components
+  - Form validation and error messages
+  - Navigation and common UI elements
+- **React-i18next Integration**: Modern internationalization framework with interpolation and pluralization support
+- **Consistent Terminology**: Centralized translation management ensures consistent language usage
+- **SEO Optimized**: Multi-language support improves search engine optimization for Thai users
 
 ### For Campers
 
@@ -195,6 +214,7 @@ AdventureMate is a comprehensive full-stack web application for discovering, boo
 - **UI Components**: Custom components with CSS modules
 - **Weather Components**: WeatherBox component with React Query integration
 - **Date Handling**: React Datepicker
+- **Internationalization**: React-i18next for bilingual support (English/Thai)
 - **Testing**: Jest with React Testing Library
 
 ### Development Tools
@@ -353,7 +373,11 @@ AdventureMate/
 │   │   ├── hooks/          # Custom React hooks
 │   │   ├── layouts/        # Layout components
 │   │   ├── services/       # API service layer
-│   │   └── utils/          # Frontend utilities
+│   │   ├── utils/          # Frontend utilities
+│   │   ├── i18n/           # Internationalization configuration
+│   │   └── locales/        # Translation files
+│   │       ├── en/         # English translations
+│   │       └── th/         # Thai translations
 │   └── public/             # Static assets
 │
 ├── config/                # Configuration management
@@ -392,6 +416,8 @@ AdventureMate/
 │
 └── docs/                  # API documentation (Swagger/OpenAPI)
 ```
+
+**Note**: The application includes comprehensive internationalization with translation files for English and Thai languages. All user-facing text is managed through the translation system for easy maintenance and consistency.
 
 ## 🔌 API Documentation
 

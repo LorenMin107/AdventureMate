@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import CampsiteForm from '../components/CampsiteForm';
 import { logError } from '../utils/logger';
@@ -10,6 +11,7 @@ import './CampsiteNewPage.css'; // Reuse the same CSS
  * Only accessible to campground owners
  */
 const CampsiteEditPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser, loading } = useAuth();
@@ -71,7 +73,7 @@ const CampsiteEditPage = () => {
         }
       } catch (err) {
         logError('Error fetching data', err);
-        setError('Failed to load campsite data. Please try again later.');
+        setError(t('campsiteEdit.errorLoading'));
       } finally {
         setLoadingData(false);
       }
@@ -96,7 +98,7 @@ const CampsiteEditPage = () => {
   }, [currentUser, loading, loadingData, isOwner, navigate, campground]);
 
   if (loading || loadingData) {
-    return <div className="loading-container">Loading...</div>;
+    return <div className="loading-container">{t('campsiteEdit.loading')}</div>;
   }
 
   if (error) {
@@ -104,25 +106,26 @@ const CampsiteEditPage = () => {
   }
 
   if (!currentUser) {
-    return <div className="unauthorized-container">Please log in to access this page.</div>;
+    return <div className="unauthorized-container">{t('campsiteEdit.loginRequired')}</div>;
   }
 
   if (!isOwner) {
-    return (
-      <div className="unauthorized-container">You don't have permission to edit this campsite.</div>
-    );
+    return <div className="unauthorized-container">{t('campsiteEdit.noPermission')}</div>;
   }
 
   if (!campsite || !campground) {
-    return <div className="error-container">Campsite or campground data not found.</div>;
+    return <div className="error-container">{t('campsiteEdit.dataNotFound')}</div>;
   }
 
   return (
     <div className="campsite-new-page">
       <div className="page-header">
-        <h1>Edit Campsite</h1>
+        <h1>{t('campsiteEdit.title')}</h1>
         <p>
-          Update the information for {campsite.name} in {campground.title}
+          {t('campsiteEdit.subtitle', {
+            campsiteName: campsite.name,
+            campgroundTitle: campground.title,
+          })}
         </p>
       </div>
 

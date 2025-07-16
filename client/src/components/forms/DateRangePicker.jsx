@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useFormContext, Controller } from 'react-hook-form';
 import DatePicker from 'react-datepicker';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import 'react-datepicker/dist/react-datepicker.css';
 import './DateRangePicker.css';
@@ -34,6 +35,7 @@ const DateRangePicker = ({
   onEndDateChange,
   ...rest
 }) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const {
     control,
@@ -61,7 +63,7 @@ const DateRangePicker = ({
     const start = parseDate(startDate);
     const end = parseDate(endDate);
 
-    if (!start && !end) return 'Select dates';
+    if (!start && !end) return t('forms.selectDates');
     if (start && !end) return `${start.toLocaleDateString()} - ?`;
 
     return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;

@@ -5,6 +5,7 @@ import { useFlashMessage } from '../context/FlashMessageContext';
 import { logError } from '../utils/logger';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import CSSIsolationWrapper from './CSSIsolationWrapper';
+import { useTranslation } from 'react-i18next';
 import './RegisterForm.css';
 import apiClient from '../utils/api';
 
@@ -13,6 +14,7 @@ import apiClient from '../utils/api';
  * Allows users to create a new account
  */
 const RegisterForm = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -103,27 +105,27 @@ const RegisterForm = () => {
     switch (score) {
       case 0:
       case 1:
-        message = 'Password is too weak';
+        message = t('auth.passwordStrength.tooWeak');
         color = '#dc3545'; // red
         break;
       case 2:
-        message = 'Password is weak';
+        message = t('auth.passwordStrength.weak');
         color = '#ffc107'; // yellow
         break;
       case 3:
-        message = 'Password is moderate';
+        message = t('auth.passwordStrength.moderate');
         color = '#fd7e14'; // orange
         break;
       case 4:
-        message = 'Password is strong';
+        message = t('auth.passwordStrength.strong');
         color = '#28a745'; // green
         break;
       case 5:
-        message = 'Password is very strong';
+        message = t('auth.passwordStrength.veryStrong');
         color = '#20c997'; // teal
         break;
       default:
-        message = 'Password is too weak';
+        message = t('auth.passwordStrength.tooWeak');
         color = '#dc3545'; // red
     }
 
@@ -141,42 +143,42 @@ const RegisterForm = () => {
   const validateForm = () => {
     // Username validation
     if (!formData.username.trim()) {
-      setFormError('Username is required');
+      setFormError(t('auth.usernameRequired'));
       return false;
     }
 
     // Email validation
     if (!formData.email.trim()) {
-      setFormError('Email is required');
+      setFormError(t('auth.emailRequired'));
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setFormError('Please enter a valid email address');
+      setFormError(t('auth.emailInvalid'));
       return false;
     }
 
     // Password validation
     if (!formData.password) {
-      setFormError('Password is required');
+      setFormError(t('auth.passwordRequired'));
       return false;
     }
 
     if (passwordStrength.score < 3) {
-      setFormError('Please choose a stronger password');
+      setFormError(t('auth.passwordTooWeak'));
       return false;
     }
 
     // Confirm password validation
     if (formData.password !== formData.confirmPassword) {
-      setFormError('Passwords do not match');
+      setFormError(t('auth.passwordMismatch'));
       return false;
     }
 
     // Phone validation
     if (!formData.phone.trim()) {
-      setFormError('Phone number is required');
+      setFormError(t('auth.phoneRequired'));
       return false;
     }
 
@@ -203,25 +205,23 @@ const RegisterForm = () => {
       // Check if registration failed (returned null)
       if (user === null) {
         // Error is already set in AuthContext, just add to flash messages
-        addErrorMessage(error || 'Registration failed. Please try again.');
+        addErrorMessage(error || t('auth.registrationFailed'));
         return;
       }
 
       // Check if email is verified
       if (user && !user.isEmailVerified) {
         // Redirect to email verification page with a message
-        addSuccessMessage(
-          'Registration successful! Please check your email to verify your account.'
-        );
+        addSuccessMessage(t('auth.registrationSuccessful'));
         navigate('/verify-email-required');
       } else {
         // This case is unlikely but handled for completeness
-        addSuccessMessage('Registration successful! Welcome to AdventureMate.');
+        addSuccessMessage(t('auth.registrationWelcome'));
         navigate('/');
       }
     } catch (err) {
       // Extract error message from the error object
-      let errorMessage = 'Registration failed. Please try again.';
+      let errorMessage = t('auth.registrationFailed');
 
       if (err.response && err.response.data) {
         // API error response
@@ -247,11 +247,9 @@ const RegisterForm = () => {
         {inviteError ? (
           <div className="common-form-error">{inviteError}</div>
         ) : inviteTripId ? (
-          <div className="common-form-success">
-            You are already logged in. Redirecting you to the trip...
-          </div>
+          <div className="common-form-success">{t('auth.invite.alreadyLoggedIn')}</div>
         ) : (
-          <div className="common-form-success">Checking your invite...</div>
+          <div className="common-form-success">{t('auth.invite.checkingInvite')}</div>
         )}
       </CSSIsolationWrapper>
     );
@@ -263,13 +261,13 @@ const RegisterForm = () => {
         <span className="common-logo-text">AdventureMate</span>
       </div>
 
-      <h2>Sign up for AdventureMate</h2>
+      <h2>{t('auth.registerTitle')}</h2>
 
       {(formError || error) && <div className="common-error-message">{formError || error}</div>}
 
       <form onSubmit={handleSubmit} className="common-register-form">
         <div className="common-form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">{t('auth.username')}</label>
           <input
             type="text"
             id="username"
@@ -278,12 +276,12 @@ const RegisterForm = () => {
             onChange={handleChange}
             disabled={loading}
             required
-            placeholder="Choose a username"
+            placeholder={t('auth.username')}
           />
         </div>
 
         <div className="common-form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">{t('auth.email')}</label>
           <input
             type="email"
             id="email"
@@ -292,12 +290,12 @@ const RegisterForm = () => {
             onChange={handleChange}
             disabled={loading}
             required
-            placeholder="Enter your email address"
+            placeholder={t('auth.email')}
           />
         </div>
 
         <div className="common-form-group">
-          <label htmlFor="phone">Phone</label>
+          <label htmlFor="phone">{t('common.phone')}</label>
           <input
             type="tel"
             id="phone"
@@ -306,12 +304,12 @@ const RegisterForm = () => {
             onChange={handleChange}
             disabled={loading}
             required
-            placeholder="Enter your phone number"
+            placeholder={t('common.phone')}
           />
         </div>
 
         <div className="common-form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">{t('auth.password')}</label>
           <div className="common-password-input-container">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -321,14 +319,14 @@ const RegisterForm = () => {
               onChange={handleChange}
               disabled={loading}
               required
-              placeholder="Create a password"
+              placeholder={t('auth.password')}
               className="common-password-input"
             />
             <button
               type="button"
               className="common-password-toggle"
               onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
@@ -355,29 +353,29 @@ const RegisterForm = () => {
           )}
 
           <div className="common-password-requirements">
-            <p>Password must:</p>
+            <p>{t('auth.passwordMust')}</p>
             <ul>
               <li className={formData.password.length >= 8 ? 'met' : ''}>
-                Be at least 8 characters long
+                {t('auth.passwordRequirements.minLength')}
               </li>
               <li className={/[A-Z]/.test(formData.password) ? 'met' : ''}>
-                Include at least one uppercase letter
+                {t('auth.passwordRequirements.uppercase')}
               </li>
               <li className={/[a-z]/.test(formData.password) ? 'met' : ''}>
-                Include at least one lowercase letter
+                {t('auth.passwordRequirements.lowercase')}
               </li>
               <li className={/\d/.test(formData.password) ? 'met' : ''}>
-                Include at least one number
+                {t('auth.passwordRequirements.number')}
               </li>
               <li className={/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? 'met' : ''}>
-                Include at least one special character
+                {t('auth.passwordRequirements.special')}
               </li>
             </ul>
           </div>
         </div>
 
         <div className="common-form-group">
-          <label htmlFor="confirmPassword">Confirm Password</label>
+          <label htmlFor="confirmPassword">{t('auth.confirmPassword')}</label>
           <div className="common-password-input-container">
             <input
               type={showConfirmPassword ? 'text' : 'password'}
@@ -387,14 +385,14 @@ const RegisterForm = () => {
               onChange={handleChange}
               disabled={loading}
               required
-              placeholder="Confirm your password"
+              placeholder={t('auth.confirmPassword')}
               className="common-password-input"
             />
             <button
               type="button"
               className="common-password-toggle"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              aria-label={showConfirmPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             >
               {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
             </button>
@@ -406,13 +404,13 @@ const RegisterForm = () => {
           className="common-btn common-btn-primary"
           disabled={loading || (formData.password && passwordStrength.score < 3)}
         >
-          {loading ? 'Creating Account...' : 'Sign up'}
+          {loading ? t('auth.creatingAccount') : t('auth.signUp')}
         </button>
       </form>
 
       <div className="common-form-footer">
         <p>
-          Already have an account? <Link to="/login">Log in</Link>
+          {t('auth.alreadyHaveAccount')} <Link to="/login">{t('auth.logIn')}</Link>
         </p>
       </div>
     </CSSIsolationWrapper>

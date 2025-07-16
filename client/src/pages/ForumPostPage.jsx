@@ -477,7 +477,7 @@ const ForumPostPage = () => {
                     className="forum-btn forum-btn-primary"
                     disabled={isSubmitting || !replyContent.trim()}
                   >
-                    {isSubmitting ? 'Posting...' : 'Post Reply'}
+                    {isSubmitting ? t('forum.posting') : t('forum.postReply')}
                   </button>
                 </div>
               </form>

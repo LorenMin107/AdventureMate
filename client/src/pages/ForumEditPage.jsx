@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { logError } from '../utils/logger';
@@ -10,6 +11,7 @@ import './ForumNewPostPage.css'; // Reuse the same CSS
  * Only accessible to the post author or admin users
  */
 const ForumEditPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useAuth();
@@ -151,7 +153,7 @@ const ForumEditPage = () => {
     }
 
     if (formData.tags.length > 10) {
-      newErrors.tags = 'Maximum 10 tags allowed';
+      newErrors.tags = t('forumEdit.maxTagsError');
     }
 
     setErrors(newErrors);
@@ -182,7 +184,7 @@ const ForumEditPage = () => {
   if (!isAuthenticated) {
     return (
       <div className="forum-new-post-page">
-        <div className="unauthorized-container">Please log in to edit forum posts.</div>
+        <div className="unauthorized-container">{t('forumEdit.loginRequired')}</div>
       </div>
     );
   }
@@ -190,7 +192,7 @@ const ForumEditPage = () => {
   if (isLoadingPost) {
     return (
       <div className="forum-new-post-page">
-        <div className="loading-container">Loading forum post...</div>
+        <div className="loading-container">{t('forumEdit.loading')}</div>
       </div>
     );
   }
@@ -198,7 +200,7 @@ const ForumEditPage = () => {
   if (postError) {
     return (
       <div className="forum-new-post-page">
-        <div className="error-container">Failed to load forum post. Please try again later.</div>
+        <div className="error-container">{t('forumEdit.errorLoading')}</div>
       </div>
     );
   }
@@ -206,7 +208,7 @@ const ForumEditPage = () => {
   if (!post) {
     return (
       <div className="forum-new-post-page">
-        <div className="error-container">Forum post not found.</div>
+        <div className="error-container">{t('forumEdit.notFound')}</div>
       </div>
     );
   }
@@ -215,8 +217,8 @@ const ForumEditPage = () => {
     <div className="forum-new-post-page">
       <div className="new-post-container">
         <div className="page-header">
-          <h1>Edit Forum Post</h1>
-          <p>Update your forum post and share your thoughts with the community</p>
+          <h1>{t('forumEdit.title')}</h1>
+          <p>{t('forumEdit.subtitle')}</p>
         </div>
 
         <div className="form-container">
@@ -225,7 +227,7 @@ const ForumEditPage = () => {
 
             <div className="form-group">
               <label htmlFor="title" className="form-label">
-                Title *
+                {t('forumEdit.titleLabel')}
               </label>
               <input
                 type="text"
@@ -234,7 +236,7 @@ const ForumEditPage = () => {
                 value={formData.title}
                 onChange={handleInputChange}
                 className={`form-input ${errors.title ? 'error' : ''}`}
-                placeholder="Enter a descriptive title for your post"
+                placeholder={t('forumEdit.titlePlaceholder')}
                 maxLength={200}
               />
               {errors.title && <div className="error-message">{errors.title}</div>}
@@ -243,7 +245,7 @@ const ForumEditPage = () => {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="category" className="form-label">
-                  Category *
+                  {t('forumEdit.categoryLabel')}
                 </label>
                 <select
                   id="category"
@@ -265,7 +267,7 @@ const ForumEditPage = () => {
 
               <div className="form-group">
                 <label htmlFor="type" className="form-label">
-                  Post Type *
+                  {t('forumEdit.typeLabel')}
                 </label>
                 <select
                   id="type"
@@ -282,7 +284,7 @@ const ForumEditPage = () => {
 
             <div className="form-group">
               <label htmlFor="content" className="form-label">
-                Content *
+                {t('forumEdit.contentLabel')}
               </label>
               <textarea
                 id="content"
@@ -290,7 +292,7 @@ const ForumEditPage = () => {
                 value={formData.content}
                 onChange={handleInputChange}
                 className={`form-textarea ${errors.content ? 'error' : ''}`}
-                placeholder="Share your thoughts, experiences, or ask your question..."
+                placeholder={t('forumEdit.contentPlaceholder')}
                 rows={10}
                 maxLength={5000}
               />
@@ -300,7 +302,7 @@ const ForumEditPage = () => {
 
             <div className="form-group">
               <label htmlFor="tags" className="form-label">
-                Tags
+                {t('forumEdit.tagsLabel')}
               </label>
               <input
                 type="text"
@@ -309,11 +311,9 @@ const ForumEditPage = () => {
                 value={formData.tags.join(', ')}
                 onChange={handleTagsChange}
                 className={`form-input ${errors.tags ? 'error' : ''}`}
-                placeholder="Enter tags separated by commas (e.g., camping, tent, beginner)"
+                placeholder={t('forumEdit.tagsPlaceholder')}
               />
-              <div className="help-text">
-                Add relevant tags to help others find your post. Separate tags with commas.
-              </div>
+              <div className="help-text">{t('forumEdit.tagsHelp')}</div>
               {errors.tags && <div className="error-message">{errors.tags}</div>}
             </div>
 
@@ -324,23 +324,20 @@ const ForumEditPage = () => {
                 className="btn btn-secondary"
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('forumEdit.cancel')}
               </button>
               <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                {isSubmitting ? 'Updating...' : 'Update Post'}
+                {isSubmitting ? t('forumEdit.updating') : t('forumEdit.updatePost')}
               </button>
             </div>
           </form>
 
           <div className="posting-guidelines">
-            <h3>Posting Guidelines</h3>
+            <h3>{t('forumEdit.guidelinesTitle')}</h3>
             <ul>
-              <li>Be respectful and constructive in your posts</li>
-              <li>Use clear, descriptive titles</li>
-              <li>Provide relevant details and context</li>
-              <li>Use appropriate categories and tags</li>
-              <li>Follow community guidelines and rules</li>
-              <li>Check for similar posts before creating new ones</li>
+              {t('forumEdit.guidelines', { returnObjects: true }).map((guideline, index) => (
+                <li key={index}>{guideline}</li>
+              ))}
             </ul>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import MaskedInput from 'react-text-mask';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import apiClient from '../utils/api';
@@ -16,6 +17,7 @@ import { logInfo, logError } from '../utils/logger';
  */
 const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Configure the currency mask
   const currencyMask = createNumberMask({
@@ -182,23 +184,23 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
     const errors = {};
 
     if (!formData.name.trim()) {
-      errors.name = 'Name is required';
+      errors.name = t('campsites.nameRequired');
     }
 
     if (!formData.description.trim()) {
-      errors.description = 'Description is required';
+      errors.description = t('campsites.descriptionRequired');
     }
 
     // Validate price - ensure it's a valid number after removing any formatting
     const priceValue = formData.price ? formData.price.toString().replace(/[$,]/g, '') : '';
     if (!priceValue) {
-      errors.price = 'Price is required';
+      errors.price = t('campsites.priceRequired');
     } else if (isNaN(priceValue) || parseFloat(priceValue) <= 0) {
-      errors.price = 'Price must be a positive number';
+      errors.price = t('campsites.pricePositive');
     }
 
     if (!formData.capacity || formData.capacity < 1) {
-      errors.capacity = 'Capacity must be at least 1';
+      errors.capacity = t('campsites.capacityPositive');
     }
 
     setValidationErrors(errors);
@@ -298,11 +300,11 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
           }
         } else {
           // Handle legacy error format
-          setError(errorData.error || 'Failed to save campsite');
+          setError(errorData.error || t('campsites.saveError'));
         }
       } else {
         // Handle network errors or other exceptions
-        setError(err.message || 'Failed to save campsite. Please try again later.');
+        setError(err.message || t('campsites.saveErrorGeneric'));
       }
     } finally {
       setLoading(false);
@@ -311,13 +313,13 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
 
   return (
     <div className="campsite-form-container">
-      <h2>{isEditing ? 'Edit Campsite' : 'Create New Campsite'}</h2>
+      <h2>{isEditing ? t('campsites.editCampsite') : t('campsites.createCampsite')}</h2>
 
       {error && <div className="form-error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="campsite-form">
         <div className="form-group">
-          <label htmlFor="name">Name</label>
+          <label htmlFor="name">{t('campsites.name')}</label>
           <input
             type="text"
             id="name"
@@ -331,7 +333,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="price">Price (per night)</label>
+          <label htmlFor="price">{t('campsites.price')}</label>
           <div className={`currency-input-container ${validationErrors.price ? 'has-error' : ''}`}>
             <MaskedInput
               mask={currencyMask}
@@ -358,7 +360,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="capacity">Capacity (people)</label>
+          <label htmlFor="capacity">{t('campsites.capacity')}</label>
           <input
             type="number"
             id="capacity"
@@ -375,7 +377,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Description</label>
+          <label htmlFor="description">{t('campsites.description')}</label>
           <textarea
             id="description"
             name="description"
@@ -391,14 +393,14 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
         </div>
 
         <div className="form-group">
-          <label>Features</label>
+          <label>{t('campsites.features')}</label>
           <div className="feature-input-container">
             <input
               type="text"
               id="feature-input"
               value={featureInput}
               onChange={handleFeatureInputChange}
-              placeholder="Add a feature (e.g., Fire pit, Picnic table)"
+              placeholder={t('campsites.addFeaturePlaceholder')}
               disabled={loading}
             />
             <button
@@ -407,7 +409,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
               disabled={!featureInput.trim() || loading}
               className="add-feature-button"
             >
-              Add
+              {t('campsites.addFeature')}
             </button>
           </div>
 
@@ -440,17 +442,17 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
               onChange={handleChange}
               disabled={loading}
             />
-            Available for booking
+            {t('campsites.availability')}
           </label>
         </div>
 
         <div className="form-group">
-          <label>Images</label>
+          <label>{t('campsites.images')}</label>
 
           {/* Existing images (for editing) */}
           {isEditing && existingImages.length > 0 && (
             <div className="existing-images">
-              <p>Current Images:</p>
+              <p>{t('campsites.currentImages')}</p>
               <div className="image-preview-container">
                 {existingImages.map((image, index) => (
                   <div
@@ -463,7 +465,9 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
                       className="remove-image-button"
                       onClick={() => toggleImageForDeletion(image.filename)}
                     >
-                      {imagesToDelete.includes(image.filename) ? 'Restore' : 'Remove'}
+                      {imagesToDelete.includes(image.filename)
+                        ? t('campsites.restore')
+                        : t('campsites.remove')}
                     </button>
                   </div>
                 ))}
@@ -483,7 +487,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
               disabled={loading}
             />
             <label htmlFor="images" className="upload-button">
-              Select Images
+              {t('campsites.selectImages')}
             </label>
           </div>
 
@@ -498,7 +502,7 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
                     className="remove-image-button"
                     onClick={() => removeSelectedImage(index)}
                   >
-                    Remove
+                    {t('campsites.remove')}
                   </button>
                 </div>
               ))}
@@ -513,10 +517,14 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
             onClick={() => navigate(`/campgrounds/${campgroundId}`)}
             disabled={loading}
           >
-            Cancel
+            {t('campsites.cancel')}
           </button>
           <button type="submit" className="submit-button" disabled={loading}>
-            {loading ? 'Saving...' : isEditing ? 'Update Campsite' : 'Create Campsite'}
+            {loading
+              ? t('campsites.saving')
+              : isEditing
+                ? t('campsites.updateCampsiteButton')
+                : t('campsites.createCampsiteButton')}
           </button>
         </div>
       </form>

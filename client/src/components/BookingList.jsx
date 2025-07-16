@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useCancelBooking } from '../hooks/useBookings';
@@ -17,6 +18,7 @@ import './BookingList.css';
  * @returns {JSX.Element} Booking list component
  */
 const BookingList = ({ initialBookings = [] }) => {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState(initialBookings);
   const [loading, setLoading] = useState(!initialBookings.length);
   const [error, setError] = useState(null);
@@ -56,9 +58,7 @@ const BookingList = ({ initialBookings = [] }) => {
         logError('Error fetching bookings', err);
         // Improved error handling for axios errors
         const errorMessage =
-          err.response?.data?.message ||
-          err.message ||
-          'Failed to load bookings. Please try again later.';
+          err.response?.data?.message || err.message || t('bookings.errorLoadingBookings');
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -86,17 +86,13 @@ const BookingList = ({ initialBookings = [] }) => {
         prev.map((b) => (b._id === booking._id ? { ...b, status: 'cancelled' } : b))
       );
 
-      addSuccessMessage(
-        'Booking cancelled successfully. Please note that no refunds will be issued for cancelled bookings.'
-      );
+      addSuccessMessage(t('bookings.cancelSuccess'));
 
       // Close the dialog
       setCancelDialog({ open: false, booking: null });
     } catch (error) {
       logError('Error cancelling booking', error);
-      addErrorMessage(
-        error.response?.data?.message || 'Failed to cancel booking. Please try again.'
-      );
+      addErrorMessage(error.response?.data?.message || t('bookings.cancelError'));
     }
   };
 
@@ -107,13 +103,14 @@ const BookingList = ({ initialBookings = [] }) => {
   if (!isAuthenticated) {
     return (
       <div className="booking-list-login-message">
-        Please <a href="/login">log in</a> to view your bookings.
+        {t('bookings.loginRequired')} <a href="/login">{t('auth.login')}</a>{' '}
+        {t('bookings.toViewBookings')}.
       </div>
     );
   }
 
   if (loading) {
-    return <div className="booking-list-loading">Loading bookings...</div>;
+    return <div className="booking-list-loading">{t('bookings.loadingBookings')}</div>;
   }
 
   if (error) {
@@ -123,9 +120,9 @@ const BookingList = ({ initialBookings = [] }) => {
   if (bookings.length === 0) {
     return (
       <div className="booking-list-empty">
-        <p>You don't have any bookings yet.</p>
+        <p>{t('bookings.noBookingsYet')}</p>
         <Link to="/campgrounds" className="booking-list-browse-link">
-          Browse Campgrounds
+          {t('bookings.browseCampgrounds')}
         </Link>
       </div>
     );
@@ -133,7 +130,7 @@ const BookingList = ({ initialBookings = [] }) => {
 
   // Format date to local string
   const formatDate = (dateString) => {
-    if (!dateString) return 'Not available';
+    if (!dateString) return t('bookings.notAvailable');
     return new Date(dateString).toLocaleDateString();
   };
 
@@ -158,20 +155,22 @@ const BookingList = ({ initialBookings = [] }) => {
 
   return (
     <div className="booking-list">
-      <h2 className="booking-list-title">{currentUser.username}'s Bookings</h2>
+      <h2 className="booking-list-title">
+        {t('bookings.userBookings', { username: currentUser.username })}
+      </h2>
 
       <div className="booking-list-table-container">
         <table className="booking-list-table">
           <thead>
             <tr>
-              <th>Campground</th>
-              <th>Campsite</th>
-              <th>Check-in</th>
-              <th>Check-out</th>
-              <th>Days</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t('bookings.campground')}</th>
+              <th>{t('bookings.campsite')}</th>
+              <th>{t('bookings.checkIn')}</th>
+              <th>{t('bookings.checkOut')}</th>
+              <th>{t('bookings.days')}</th>
+              <th>{t('bookings.total')}</th>
+              <th>{t('bookings.statusLabel')}</th>
+              <th>{t('bookings.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -180,12 +179,12 @@ const BookingList = ({ initialBookings = [] }) => {
                 <td className="booking-list-campground">
                   {booking.campground && booking.campground.title
                     ? booking.campground.title
-                    : 'Campground name not available'}
+                    : t('bookings.campgroundNameNotAvailable')}
                 </td>
                 <td className="booking-list-campsite">
                   {booking.campsite && booking.campsite.name
                     ? booking.campsite.name
-                    : 'No specific campsite'}
+                    : t('bookings.noSpecificCampsite')}
                 </td>
                 <td>{formatDate(booking.startDate)}</td>
                 <td>{formatDate(booking.endDate)}</td>
@@ -194,22 +193,22 @@ const BookingList = ({ initialBookings = [] }) => {
                 <td>
                   <span className={`status-badge ${getStatusBadgeClass(booking.status)}`}>
                     {booking.status
-                      ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1)
-                      : 'Pending'}
+                      ? t(`bookings.status.${booking.status}`)
+                      : t('bookings.status.pending')}
                   </span>
                 </td>
                 <td className="booking-list-actions">
                   <Link to={`/bookings/${booking._id}`} className="booking-list-view-button">
-                    View
+                    {t('bookings.view')}
                   </Link>
                   {canCancelBooking(booking) && (
                     <button
                       onClick={() => handleCancelClick(booking)}
                       className="booking-list-cancel-button"
                       disabled={cancelBookingMutation.isLoading}
-                      title="Cancel booking (no refunds)"
+                      title={t('bookings.cancelBookingNoRefund')}
                     >
-                      {cancelBookingMutation.isLoading ? '...' : 'Cancel'}
+                      {cancelBookingMutation.isLoading ? '...' : t('bookings.cancel')}
                     </button>
                   )}
                 </td>
@@ -223,26 +222,23 @@ const BookingList = ({ initialBookings = [] }) => {
         open={cancelDialog.open}
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
-        title="Cancel Booking"
+        title={t('bookings.cancelBookingTitle')}
         message={
           <div>
             <div style={{ marginBottom: '1rem' }}>
-              <strong>Are you sure you want to cancel this booking?</strong>
+              <strong>{t('bookings.cancelBookingConfirm')}</strong>
             </div>
-            <div style={{ marginBottom: '1rem' }}>This action cannot be undone.</div>
+            <div style={{ marginBottom: '1rem' }}>{t('bookings.cancelBookingCannotUndo')}</div>
             <div className="cancel-warning">
               <div style={{ marginBottom: '0.5rem' }}>
-                <strong>⚠️ Important: No Refunds</strong>
+                <strong>{t('bookings.cancelWarningTitle')}</strong>
               </div>
-              <div>
-                Please note that cancelled bookings are not eligible for refunds. The full amount
-                paid will not be returned.
-              </div>
+              <div>{t('bookings.cancelWarningMessage')}</div>
             </div>
           </div>
         }
-        confirmLabel="Cancel Booking (No Refund)"
-        cancelLabel="Keep Booking"
+        confirmLabel={t('bookings.cancelBookingNoRefund')}
+        cancelLabel={t('bookings.keepBooking')}
         confirmButtonClass="danger"
       />
     </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
@@ -15,6 +16,7 @@ import './AdminBookingDetail.css';
  * @returns {JSX.Element} Admin booking detail component
  */
 const AdminBookingDetail = ({ initialBooking = null }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -52,25 +54,27 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
         setError(null);
       } catch (err) {
         logError('Error fetching booking', err);
-        setError('Failed to load booking details. Please try again later.');
+        setError(t('adminBookingDetail.errorMessage'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchBooking();
-  }, [id, initialBooking, currentUser]);
+  }, [id, initialBooking, currentUser, t]);
 
   if (!currentUser?.isAdmin) {
     return (
       <div className="admin-booking-detail-unauthorized">
-        You do not have permission to view this page.
+        {t('adminBookingDetail.unauthorizedMessage')}
       </div>
     );
   }
 
   if (loading) {
-    return <div className="admin-booking-detail-loading">Loading booking details...</div>;
+    return (
+      <div className="admin-booking-detail-loading">{t('adminBookingDetail.loadingMessage')}</div>
+    );
   }
 
   if (error) {
@@ -78,12 +82,16 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
   }
 
   if (!booking) {
-    return <div className="admin-booking-detail-not-found">Booking not found</div>;
+    return (
+      <div className="admin-booking-detail-not-found">
+        {t('adminBookingDetail.notFoundMessage')}
+      </div>
+    );
   }
 
   // Format date to local string
   const formatDate = (dateString) => {
-    if (!dateString) return 'Not available';
+    if (!dateString) return t('adminBookingDetail.notAvailable');
     return new Date(dateString).toLocaleDateString();
   };
 
@@ -105,7 +113,7 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
       setCancelDialog({ open: false, booking: null });
     } catch (err) {
       logError('Error canceling booking', err);
-      alert('Failed to cancel booking. Please try again later.');
+      alert(t('adminBookingDetail.cancelBookingError'));
     }
   };
 
@@ -129,7 +137,7 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
 
   return (
     <div className="admin-booking-detail">
-      <h2 className="admin-booking-detail-title">Booking Details</h2>
+      <h2 className="admin-booking-detail-title">{t('adminBookingDetail.title')}</h2>
 
       <div className="admin-booking-detail-card">
         {/* Left Column - Trip Summary */}
@@ -138,7 +146,9 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
             {campground.images && campground.images.length > 0 ? (
               <img src={campground.images[0].url} alt={campground.title} />
             ) : (
-              <div className="admin-booking-detail-no-image">No image available</div>
+              <div className="admin-booking-detail-no-image">
+                {t('adminBookingDetail.noImageAvailable')}
+              </div>
             )}
           </div>
 
@@ -150,16 +160,24 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
               <div className="admin-booking-detail-campsite-info">
                 <h4>Campsite: {campsite.name}</h4>
                 {campsite.price && (
-                  <p className="admin-booking-detail-campsite-price">${campsite.price} per night</p>
+                  <p className="admin-booking-detail-campsite-price">
+                    ${campsite.price} {t('adminBookingDetail.perNight')}
+                  </p>
                 )}
                 {campsite.capacity && (
                   <p className="admin-booking-detail-campsite-capacity">
-                    Capacity: {campsite.capacity} {campsite.capacity === 1 ? 'person' : 'people'}
+                    {t('adminBookingDetail.capacity', {
+                      capacity: campsite.capacity,
+                      person:
+                        campsite.capacity === 1
+                          ? t('adminBookingDetail.person')
+                          : t('adminBookingDetail.people'),
+                    })}
                   </p>
                 )}
                 {campsite.features && campsite.features.length > 0 && (
                   <div className="admin-booking-detail-campsite-features">
-                    <p>Features:</p>
+                    <p>{t('adminBookingDetail.features')}</p>
                     <div className="admin-booking-detail-feature-tags">
                       {campsite.features.map((feature, index) => (
                         <span key={index} className="admin-booking-detail-feature-tag">
@@ -174,17 +192,21 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
           </div>
 
           <div className="admin-booking-detail-trip-dates">
-            <h4>Trip Information</h4>
+            <h4>{t('adminBookingDetail.tripInformation')}</h4>
             <div className="admin-booking-detail-dates-container">
               <div className="admin-booking-detail-date-box">
-                <div className="admin-booking-detail-date-label">Check-in</div>
+                <div className="admin-booking-detail-date-label">
+                  {t('adminBookingDetail.checkIn')}
+                </div>
                 <div className="admin-booking-detail-date-value">{formatDate(startDate)}</div>
               </div>
 
               <div className="admin-booking-detail-dates-divider">→</div>
 
               <div className="admin-booking-detail-date-box">
-                <div className="admin-booking-detail-date-label">Checkout</div>
+                <div className="admin-booking-detail-date-label">
+                  {t('adminBookingDetail.checkOut')}
+                </div>
                 <div className="admin-booking-detail-date-value">{formatDate(endDate)}</div>
               </div>
             </div>
@@ -196,21 +218,25 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
           {/* User Information Section */}
           <div className="admin-booking-detail-section">
             <div className="admin-booking-detail-section-header">
-              <h4 className="admin-booking-detail-section-title">User Information</h4>
+              <h4 className="admin-booking-detail-section-title">
+                {t('adminBookingDetail.userInformation')}
+              </h4>
             </div>
             <div className="admin-booking-detail-section-content">
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">Username</span>
+                <span className="admin-booking-detail-label">
+                  {t('adminBookingDetail.username')}
+                </span>
                 <span className="admin-booking-detail-value">{user.username}</span>
               </div>
 
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">Email</span>
+                <span className="admin-booking-detail-label">{t('adminBookingDetail.email')}</span>
                 <span className="admin-booking-detail-value">{user.email}</span>
               </div>
 
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">User ID</span>
+                <span className="admin-booking-detail-label">{t('adminBookingDetail.userId')}</span>
                 <span className="admin-booking-detail-value">{user._id}</span>
               </div>
             </div>
@@ -219,26 +245,34 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
           {/* Reservation Details Section */}
           <div className="admin-booking-detail-section">
             <div className="admin-booking-detail-section-header">
-              <h4 className="admin-booking-detail-section-title">Reservation details</h4>
+              <h4 className="admin-booking-detail-section-title">
+                {t('adminBookingDetail.reservationDetails')}
+              </h4>
             </div>
             <div className="admin-booking-detail-section-content">
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">Booking ID</span>
+                <span className="admin-booking-detail-label">
+                  {t('adminBookingDetail.bookingId')}
+                </span>
                 <span className="admin-booking-detail-value">{booking._id}</span>
               </div>
 
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">Booking Date</span>
+                <span className="admin-booking-detail-label">
+                  {t('adminBookingDetail.bookingDate')}
+                </span>
                 <span className="admin-booking-detail-value">{formatDate(createdAt)}</span>
               </div>
 
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">Total nights</span>
+                <span className="admin-booking-detail-label">
+                  {t('adminBookingDetail.totalNights')}
+                </span>
                 <span className="admin-booking-detail-value">{totalDays}</span>
               </div>
 
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">Status</span>
+                <span className="admin-booking-detail-label">{t('adminBookingDetail.status')}</span>
                 <span
                   className={`admin-booking-detail-value admin-booking-detail-status admin-booking-detail-status-${status}`}
                 >
@@ -247,17 +281,21 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
               </div>
 
               <div className="admin-booking-detail-info-item">
-                <span className="admin-booking-detail-label">Payment Status</span>
+                <span className="admin-booking-detail-label">
+                  {t('adminBookingDetail.paymentStatus')}
+                </span>
                 <span
                   className={`admin-booking-detail-value admin-booking-detail-payment-status ${paid ? 'paid' : 'unpaid'}`}
                 >
-                  {paid ? 'Paid' : 'Unpaid'}
+                  {paid ? t('adminBookingDetail.paid') : t('adminBookingDetail.unpaid')}
                 </span>
               </div>
 
               {sessionId && (
                 <div className="admin-booking-detail-info-item transaction-id-item">
-                  <span className="admin-booking-detail-label">Transaction ID</span>
+                  <span className="admin-booking-detail-label">
+                    {t('adminBookingDetail.transactionId')}
+                  </span>
                   <span
                     className="admin-booking-detail-value transaction-id-value"
                     title={sessionId}
@@ -272,7 +310,9 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
           {/* Price Details Section */}
           <div className="admin-booking-detail-section">
             <div className="admin-booking-detail-section-header">
-              <h4 className="admin-booking-detail-section-title">Price details</h4>
+              <h4 className="admin-booking-detail-section-title">
+                {t('adminBookingDetail.priceDetails')}
+              </h4>
             </div>
             <div className="admin-booking-detail-section-content">
               <div className="admin-booking-detail-info-item">
@@ -284,7 +324,9 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
 
               <div className="admin-booking-detail-price-breakdown">
                 <div className="admin-booking-detail-info-item">
-                  <span className="admin-booking-detail-label">Total (USD)</span>
+                  <span className="admin-booking-detail-label">
+                    {t('adminBookingDetail.totalUsd')}
+                  </span>
                   <span className="admin-booking-detail-value admin-booking-detail-price">
                     ${totalPrice.toFixed(2)}
                   </span>
@@ -296,19 +338,19 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
           {/* Action Buttons */}
           <div className="admin-booking-detail-footer">
             <Link to="/admin/bookings" className="admin-booking-detail-back-button">
-              Back to Bookings
+              {t('adminBookingDetail.backToBookings')}
             </Link>
 
             <Link to={`/admin/users/${user._id}`} className="admin-booking-detail-user-button">
-              View User
+              {t('adminBookingDetail.viewUser')}
             </Link>
 
             <Link to={`/admin/campgrounds`} className="admin-booking-detail-campground-button">
-              View Campgrounds
+              {t('adminBookingDetail.viewCampgrounds')}
             </Link>
 
             <Link to={`/admin/campsites`} className="admin-booking-detail-campsite-button">
-              Manage Campsites
+              {t('adminBookingDetail.manageCampsites')}
             </Link>
 
             {campsite && campsite._id ? (
@@ -316,16 +358,16 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
                 to={`/campsites/${campsite._id}`}
                 className="admin-booking-detail-campsite-button"
               >
-                View Campsite
+                {t('adminBookingDetail.viewCampsite')}
               </Link>
             ) : campsite ? (
               <Link to={`/campsites/${campsite}`} className="admin-booking-detail-campsite-button">
-                View Campsite
+                {t('adminBookingDetail.viewCampsite')}
               </Link>
             ) : null}
 
             <button onClick={handleCancelClick} className="admin-booking-detail-cancel-button">
-              Cancel Booking
+              {t('adminBookingDetail.cancelBooking')}
             </button>
           </div>
         </div>
@@ -335,10 +377,10 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
         open={cancelDialog.open}
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
-        title="Cancel Booking"
-        message={`Are you sure you want to cancel this booking? This action cannot be undone.`}
-        confirmLabel="Cancel Booking"
-        cancelLabel="Keep Booking"
+        title={t('adminBookingDetail.cancelBookingTitle')}
+        message={t('adminBookingDetail.cancelBookingMessage')}
+        confirmLabel={t('adminBookingDetail.cancelBookingConfirm')}
+        cancelLabel={t('adminBookingDetail.keepBooking')}
       />
     </div>
   );

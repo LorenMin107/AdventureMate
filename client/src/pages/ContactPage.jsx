@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import './ContactPage.css';
 
 const ContactPage = () => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
 
@@ -34,23 +36,23 @@ const ContactPage = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = t('contact.validation.nameRequired');
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('contact.validation.emailRequired');
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = t('contact.validation.validEmail');
     }
 
     if (!formData.subject.trim()) {
-      newErrors.subject = 'Subject is required';
+      newErrors.subject = t('contact.validation.subjectRequired');
     }
 
     if (!formData.message.trim()) {
-      newErrors.message = 'Message is required';
+      newErrors.message = t('contact.validation.messageRequired');
     } else if (formData.message.length < 10) {
-      newErrors.message = 'Message must be at least 10 characters long';
+      newErrors.message = t('contact.validation.messageMinLength');
     }
 
     setErrors(newErrors);
@@ -70,10 +72,10 @@ const ContactPage = () => {
       // Simulate API call - replace with actual contact form submission
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      addSuccessMessage('Thank you for your message! We will get back to you soon.');
+      addSuccessMessage(t('contact.successMessage'));
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
-      addErrorMessage('Failed to send message. Please try again.');
+      addErrorMessage(t('contact.errorMessage'));
     } finally {
       setIsSubmitting(false);
     }
@@ -85,10 +87,8 @@ const ContactPage = () => {
         {/* Hero Section */}
         <section className="contact-hero">
           <div className="hero-content">
-            <h1>Contact Us</h1>
-            <p className="hero-subtitle">
-              We're here to help with any questions about camping or our platform
-            </p>
+            <h1>{t('contact.title')}</h1>
+            <p className="hero-subtitle">{t('contact.subtitle')}</p>
           </div>
         </section>
 
@@ -96,32 +96,29 @@ const ContactPage = () => {
           {/* Contact Information */}
           <section className="contact-info-section">
             <div className="section-content">
-              <h2>Get in Touch</h2>
-              <p className="section-description">
-                Have questions about camping, need help with your booking, or want to list your
-                campground? We're here to help you every step of the way.
-              </p>
+              <h2>{t('contact.getInTouch')}</h2>
+              <p className="section-description">{t('contact.description')}</p>
 
               <div className="contact-methods">
                 <div className="contact-method">
                   <div className="method-icon">📧</div>
-                  <h3>Email</h3>
-                  <p>support@adventuremate.com</p>
-                  <p className="method-description">For general inquiries and support</p>
+                  <h3>{t('contact.email')}</h3>
+                  <p>{t('contact.emailAddress')}</p>
+                  <p className="method-description">{t('contact.emailDescription')}</p>
                 </div>
 
                 <div className="contact-method">
                   <div className="method-icon">📞</div>
-                  <h3>Phone</h3>
-                  <p>+95 123 456 789</p>
-                  <p className="method-description">Available Mon-Fri, 9AM-6PM</p>
+                  <h3>{t('contact.phone')}</h3>
+                  <p>{t('contact.phoneNumber')}</p>
+                  <p className="method-description">{t('contact.phoneDescription')}</p>
                 </div>
 
                 <div className="contact-method">
                   <div className="method-icon">💬</div>
-                  <h3>Live Chat</h3>
-                  <p>Available on website</p>
-                  <p className="method-description">Get instant help during business hours</p>
+                  <h3>{t('contact.liveChat')}</h3>
+                  <p>{t('contact.liveChatStatus')}</p>
+                  <p className="method-description">{t('contact.liveChatDescription')}</p>
                 </div>
               </div>
             </div>
@@ -131,15 +128,13 @@ const ContactPage = () => {
           <section className="contact-form-section">
             <div className="section-content">
               <div className="form-container">
-                <h2>Send us a Message</h2>
-                <p className="form-description">
-                  Fill out the form below and we'll get back to you as soon as possible.
-                </p>
+                <h2>{t('contact.sendMessage')}</h2>
+                <p className="form-description">{t('contact.formDescription')}</p>
 
                 <form onSubmit={handleSubmit} className="contact-form">
                   <div className="form-row">
                     <div className="form-group">
-                      <label htmlFor="name">Full Name *</label>
+                      <label htmlFor="name">{t('contact.fullName')} *</label>
                       <input
                         type="text"
                         id="name"
@@ -147,13 +142,13 @@ const ContactPage = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         className={errors.name ? 'error' : ''}
-                        placeholder="Enter your full name"
+                        placeholder={t('contact.fullNamePlaceholder')}
                       />
                       {errors.name && <span className="error-message">{errors.name}</span>}
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="email">Email Address *</label>
+                      <label htmlFor="email">{t('contact.emailAddressField')} *</label>
                       <input
                         type="email"
                         id="email"
@@ -161,14 +156,14 @@ const ContactPage = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         className={errors.email ? 'error' : ''}
-                        placeholder="Enter your email address"
+                        placeholder={t('contact.emailPlaceholder')}
                       />
                       {errors.email && <span className="error-message">{errors.email}</span>}
                     </div>
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="subject">Subject *</label>
+                    <label htmlFor="subject">{t('contact.subject')} *</label>
                     <input
                       type="text"
                       id="subject"
@@ -176,20 +171,20 @@ const ContactPage = () => {
                       value={formData.subject}
                       onChange={handleInputChange}
                       className={errors.subject ? 'error' : ''}
-                      placeholder="What is this about?"
+                      placeholder={t('contact.subjectPlaceholder')}
                     />
                     {errors.subject && <span className="error-message">{errors.subject}</span>}
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="message">Message *</label>
+                    <label htmlFor="message">{t('contact.message')} *</label>
                     <textarea
                       id="message"
                       name="message"
                       value={formData.message}
                       onChange={handleInputChange}
                       className={errors.message ? 'error' : ''}
-                      placeholder="Tell us more about your inquiry..."
+                      placeholder={t('contact.messagePlaceholder')}
                       rows="6"
                     ></textarea>
                     {errors.message && <span className="error-message">{errors.message}</span>}
@@ -197,7 +192,7 @@ const ContactPage = () => {
 
                   <div className="form-actions">
                     <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                      {isSubmitting ? t('contact.sending') : t('contact.sendMessageButton')}
                     </button>
                   </div>
                 </form>
@@ -208,38 +203,26 @@ const ContactPage = () => {
           {/* FAQ Section */}
           <section className="faq-section">
             <div className="section-content">
-              <h2>Frequently Asked Questions</h2>
+              <h2>{t('contact.faq.title')}</h2>
               <div className="faq-grid">
                 <div className="faq-item">
-                  <h3>How do I book a campground?</h3>
-                  <p>
-                    Browse our campground listings, select your dates, and complete the booking
-                    process. You'll receive a confirmation email with all the details.
-                  </p>
+                  <h3>{t('contact.faq.booking.question')}</h3>
+                  <p>{t('contact.faq.booking.answer')}</p>
                 </div>
 
                 <div className="faq-item">
-                  <h3>Can I cancel my booking?</h3>
-                  <p>
-                    Yes, you can cancel your booking through your account dashboard. Cancellation
-                    policies vary by campground and are clearly stated during booking.
-                  </p>
+                  <h3>{t('contact.faq.cancellation.question')}</h3>
+                  <p>{t('contact.faq.cancellation.answer')}</p>
                 </div>
 
                 <div className="faq-item">
-                  <h3>How do I list my campground?</h3>
-                  <p>
-                    Visit our owner registration page to apply. We'll review your application and
-                    get back to you within 24 hours.
-                  </p>
+                  <h3>{t('contact.faq.listing.question')}</h3>
+                  <p>{t('contact.faq.listing.answer')}</p>
                 </div>
 
                 <div className="faq-item">
-                  <h3>What payment methods do you accept?</h3>
-                  <p>
-                    We accept major credit cards, debit cards, and digital wallets. All payments are
-                    processed securely through our platform.
-                  </p>
+                  <h3>{t('contact.faq.payment.question')}</h3>
+                  <p>{t('contact.faq.payment.answer')}</p>
                 </div>
               </div>
             </div>

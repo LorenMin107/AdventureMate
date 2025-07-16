@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
 import StandaloneDateRangePicker from './forms/StandaloneDateRangePicker';
@@ -51,23 +52,24 @@ const SafetyAlertForm = ({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const { currentUser, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   const severityOptions = [
-    { value: 'low', label: 'Low', color: '#059669' },
-    { value: 'medium', label: 'Medium', color: '#d97706' },
-    { value: 'high', label: 'High', color: '#ea580c' },
-    { value: 'critical', label: 'Critical', color: '#dc2626' },
+    { value: 'low', label: t('safetyAlerts.severityOptions.low'), color: '#059669' },
+    { value: 'medium', label: t('safetyAlerts.severityOptions.medium'), color: '#d97706' },
+    { value: 'high', label: t('safetyAlerts.severityOptions.high'), color: '#ea580c' },
+    { value: 'critical', label: t('safetyAlerts.severityOptions.critical'), color: '#dc2626' },
   ];
 
   const typeOptions = [
-    { value: 'weather', label: 'Weather', icon: '🌦️' },
-    { value: 'wildlife', label: 'Wildlife', icon: '🐻' },
-    { value: 'fire', label: 'Fire', icon: '🔥' },
-    { value: 'flood', label: 'Flood', icon: '🌊' },
-    { value: 'medical', label: 'Medical', icon: '🏥' },
-    { value: 'security', label: 'Security', icon: '🔒' },
-    { value: 'maintenance', label: 'Maintenance', icon: '🔧' },
-    { value: 'other', label: 'Other', icon: '📢' },
+    { value: 'weather', label: t('safetyAlerts.typeOptions.weather'), icon: '🌦️' },
+    { value: 'wildlife', label: t('safetyAlerts.typeOptions.wildlife'), icon: '🐻' },
+    { value: 'fire', label: t('safetyAlerts.typeOptions.fire'), icon: '🔥' },
+    { value: 'flood', label: t('safetyAlerts.typeOptions.flood'), icon: '🌊' },
+    { value: 'medical', label: t('safetyAlerts.typeOptions.medical'), icon: '🏥' },
+    { value: 'security', label: t('safetyAlerts.typeOptions.security'), icon: '🔒' },
+    { value: 'maintenance', label: t('safetyAlerts.typeOptions.maintenance'), icon: '🔧' },
+    { value: 'other', label: t('safetyAlerts.typeOptions.other'), icon: '📢' },
   ];
 
   const handleChange = (e) => {
@@ -113,25 +115,25 @@ const SafetyAlertForm = ({
     const errors = [];
 
     if (!formData.title.trim()) {
-      errors.push('Title is required');
+      errors.push(t('safetyAlerts.titleRequired'));
     }
 
     if (!formData.description.trim()) {
-      errors.push('Description is required');
+      errors.push(t('safetyAlerts.descriptionRequired'));
     }
 
     if (!formData.type || formData.type === '') {
-      errors.push('Alert type is required');
+      errors.push(t('safetyAlerts.typeRequired'));
     }
 
     if (!formData.startDate || formData.startDate.trim() === '') {
-      errors.push('Start date is required');
+      errors.push(t('safetyAlerts.startDateRequired'));
     }
 
     if (!formData.endDate || formData.endDate.trim() === '') {
-      errors.push('End date is required');
+      errors.push(t('safetyAlerts.endDateRequired'));
     } else if (new Date(formData.endDate) <= new Date(formData.startDate)) {
-      errors.push('End date must be after start date');
+      errors.push(t('safetyAlerts.endDateAfterStart'));
     }
 
     return errors;
@@ -141,7 +143,7 @@ const SafetyAlertForm = ({
     e.preventDefault();
 
     if (!isAuthenticated) {
-      setError('You must be logged in to create safety alerts');
+      setError(t('safetyAlerts.loginRequired'));
       return;
     }
 
@@ -198,40 +200,34 @@ const SafetyAlertForm = ({
       }
     } catch (err) {
       logError('Error submitting safety alert', err);
-      setError(
-        err.response?.data?.message || 'Failed to submit safety alert. Please try again later.'
-      );
+      setError(err.response?.data?.message || t('safetyAlerts.submitError'));
     } finally {
       setSubmitting(false);
     }
   };
 
   if (!isAuthenticated) {
-    return (
-      <div className="safety-alert-form-login-message">
-        Please <a href="/login">log in</a> to create safety alerts.
-      </div>
-    );
+    return <div className="safety-alert-form-login-message">{t('safetyAlerts.loginRequired')}</div>;
   }
 
   return (
     <div className="safety-alert-form">
       <h3 className="safety-alert-form-title">
-        {isEditing ? 'Edit Safety Alert' : 'Create Safety Alert'}
+        {isEditing ? t('safetyAlerts.editAlert') : t('safetyAlerts.createAlert')}
       </h3>
 
       {error && <div className="safety-alert-form-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="safety-alert-form-group">
-          <label htmlFor="title">Title</label>
+          <label htmlFor="title">{t('safetyAlerts.alertTitle')}</label>
           <input
             type="text"
             id="title"
             name="title"
             value={formData.title}
             onChange={handleChange}
-            placeholder="Enter alert title..."
+            placeholder={t('safetyAlerts.enterTitle')}
             maxLength={100}
             required
             disabled={submitting}
@@ -239,13 +235,13 @@ const SafetyAlertForm = ({
         </div>
 
         <div className="safety-alert-form-group">
-          <label htmlFor="description">Description</label>
+          <label htmlFor="description">{t('safetyAlerts.description')}</label>
           <textarea
             id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Describe the safety concern..."
+            placeholder={t('safetyAlerts.describeConcern')}
             rows={4}
             maxLength={1000}
             required
@@ -255,7 +251,7 @@ const SafetyAlertForm = ({
 
         <div className="safety-alert-form-row">
           <div className="safety-alert-form-group">
-            <label htmlFor="severity">Severity</label>
+            <label htmlFor="severity">{t('safetyAlerts.severity')}</label>
             <select
               id="severity"
               name="severity"
@@ -272,7 +268,7 @@ const SafetyAlertForm = ({
           </div>
 
           <div className="safety-alert-form-group">
-            <label htmlFor="type">Type</label>
+            <label htmlFor="type">{t('safetyAlerts.type')}</label>
             <select
               id="type"
               name="type"
@@ -281,7 +277,7 @@ const SafetyAlertForm = ({
               required
               disabled={submitting}
             >
-              <option value="">Select alert type...</option>
+              <option value="">{t('safetyAlerts.selectType')}</option>
               {typeOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.icon} {option.label}
@@ -297,7 +293,7 @@ const SafetyAlertForm = ({
             endDate={formData.endDate ? new Date(formData.endDate) : null}
             onStartDateChange={handleStartDateChange}
             onEndDateChange={handleEndDateChange}
-            label="Alert Duration"
+            label={t('safetyAlerts.alertDuration')}
             minDate={new Date()}
             maxDate={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)} // Allow up to 1 year from now
             required={true}
@@ -305,10 +301,7 @@ const SafetyAlertForm = ({
               error && (error.includes('End date') || error.includes('Start date')) ? error : ''
             }
           />
-          <small className="safety-alert-form-help-text">
-            Select the start and end dates for this safety alert. You can choose any duration up to
-            one year.
-          </small>
+          <small className="safety-alert-form-help-text">{t('safetyAlerts.durationHelp')}</small>
         </div>
 
         <div className="safety-alert-form-checkboxes">
@@ -321,7 +314,7 @@ const SafetyAlertForm = ({
                 onChange={handleChange}
                 disabled={submitting}
               />
-              Public Alert (visible to all users)
+              {t('safetyAlerts.publicAlert')}
             </label>
           </div>
 
@@ -334,7 +327,7 @@ const SafetyAlertForm = ({
                 onChange={handleChange}
                 disabled={submitting}
               />
-              Require User Acknowledgment
+              {t('safetyAlerts.requireAcknowledgment')}
             </label>
           </div>
         </div>
@@ -343,11 +336,11 @@ const SafetyAlertForm = ({
           <button type="submit" className="safety-alert-form-submit" disabled={submitting}>
             {submitting
               ? isEditing
-                ? 'Updating...'
-                : 'Creating...'
+                ? t('safetyAlerts.updating')
+                : t('safetyAlerts.creating')
               : isEditing
-                ? 'Update Alert'
-                : 'Create Alert'}
+                ? t('safetyAlerts.updateAlertButton')
+                : t('safetyAlerts.createAlertButton')}
           </button>
 
           {onCancel && (
@@ -357,7 +350,7 @@ const SafetyAlertForm = ({
               onClick={onCancel}
               disabled={submitting}
             >
-              Cancel
+              {t('safetyAlerts.cancel')}
             </button>
           )}
         </div>

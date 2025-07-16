@@ -82,25 +82,25 @@ function formatDate(dateString) {
   });
 }
 
-const TripPDFDocument = ({ trip }) => (
+const TripPDFDocument = ({ trip, t }) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      <Text style={styles.title}>{trip?.title || 'Trip Itinerary'}</Text>
+      <Text style={styles.title}>{trip?.title || t('tripPDF.tripItinerary')}</Text>
       {trip?.description && <Text style={styles.description}>{trip.description}</Text>}
       {trip?.startDate && trip?.endDate && (
         <Text style={styles.duration}>
-          Duration: {formatDate(trip.startDate)} to {formatDate(trip.endDate)}
+          {t('tripPDF.duration')}: {formatDate(trip.startDate)} to {formatDate(trip.endDate)}
         </Text>
       )}
-      <Text style={styles.sectionTitle}>Itinerary</Text>
+      <Text style={styles.sectionTitle}>{t('tripPDF.itinerary')}</Text>
       {trip?.days?.map((day, dayIndex) => (
         <View key={day._id || dayIndex} style={styles.daySection}>
           <Text style={styles.dayTitle}>
-            Day {dayIndex + 1}: {formatDate(day.date)}
+            {t('tripPDF.day')} {dayIndex + 1}: {formatDate(day.date)}
           </Text>
           {day.activities?.map((activity, activityIndex) => (
             <View key={activity._id || activityIndex} style={styles.activityItem}>
-              <Text style={styles.activityTime}>{activity.time || 'All Day'}</Text>
+              <Text style={styles.activityTime}>{activity.time || t('tripPDF.allDay')}</Text>
               <Text style={styles.activityTitle}>{activity.title}</Text>
               {activity.description && (
                 <Text style={styles.activityDesc}>{activity.description}</Text>

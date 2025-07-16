@@ -9,11 +9,13 @@ import { useTheme } from '../context/ThemeContext';
 import { createPortal } from 'react-dom';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import TripPDFDocument from './TripPDFDocument';
+import { useTranslation } from 'react-i18next';
 
 const TripExportDialog = ({ trip, onClose }) => {
   const printRef = useRef();
   const { theme } = useTheme();
   const [printReady, setPrintReady] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Set printReady to true after the component and portal are mounted
@@ -75,16 +77,20 @@ const TripExportDialog = ({ trip, onClose }) => {
         >
           <div className="export-dialog-header">
             <div className="header-content">
-              <h2 id="export-dialog-title">Export Trip Itinerary</h2>
+              <h2 id="export-dialog-title">{t('tripExportDialog.title')}</h2>
             </div>
-            <button className="close-button" onClick={onClose} aria-label="Close dialog">
+            <button
+              className="close-button"
+              onClick={onClose}
+              aria-label={t('tripExportDialog.closeDialog')}
+            >
               <FiX size={24} />
             </button>
           </div>
           <div className="export-dialog-content">
             <div className="export-options">
               <PDFDownloadLink
-                document={<TripPDFDocument trip={trip} />}
+                document={<TripPDFDocument trip={trip} t={t} />}
                 fileName={`trip_${trip?.title?.replace(/\s+/g, '_').toLowerCase()}_itinerary.pdf`}
                 className="export-button"
                 style={{ textDecoration: 'none' }}
@@ -92,13 +98,17 @@ const TripExportDialog = ({ trip, onClose }) => {
                 {({ loading }) => (
                   <>
                     <FiDownload size={20} />
-                    <span>{loading ? 'Preparing PDF...' : 'Export as PDF'}</span>
+                    <span>
+                      {loading
+                        ? t('tripExportDialog.preparingPDF')
+                        : t('tripExportDialog.exportAsPDF')}
+                    </span>
                   </>
                 )}
               </PDFDownloadLink>
               <button className="export-button" onClick={handleExportCSV} disabled={!trip}>
                 <FiDownload size={20} />
-                <span>Export as CSV</span>
+                <span>{t('tripExportDialog.exportAsCSV')}</span>
               </button>
               <button
                 className="export-button"
@@ -106,7 +116,7 @@ const TripExportDialog = ({ trip, onClose }) => {
                 disabled={!printReady || !trip}
               >
                 <FiPrinter size={20} />
-                <span>Print Itinerary</span>
+                <span>{t('tripExportDialog.printItinerary')}</span>
               </button>
             </div>
           </div>
@@ -130,24 +140,28 @@ const TripExportDialog = ({ trip, onClose }) => {
                 <h1>{trip.title}</h1>
                 <p>{trip.description}</p>
                 <p>
-                  <strong>Duration:</strong> {formatDate(trip.startDate)} to{' '}
-                  {formatDate(trip.endDate)}
+                  <strong>{t('tripExportDialog.duration')}:</strong> {formatDate(trip.startDate)}{' '}
+                  {t('tripExportDialog.to')} {formatDate(trip.endDate)}
                 </p>
-                <h2>Itinerary</h2>
+                <h2>{t('tripExportDialog.itinerary')}</h2>
                 {trip.days?.map((day, dayIndex) => (
                   <div key={day._id || dayIndex} className="day-section">
                     <h3>
-                      Day {dayIndex + 1}: {formatDate(day.date)}
+                      {t('tripExportDialog.day', { number: dayIndex + 1 })}: {formatDate(day.date)}
                     </h3>
                     <div className="activities-list">
                       {day.activities?.map((activity, activityIndex) => (
                         <div key={activity._id || activityIndex} className="activity-item">
-                          <div className="activity-time">{activity.time || 'All Day'}</div>
+                          <div className="activity-time">
+                            {activity.time || t('tripExportDialog.allDay')}
+                          </div>
                           <div className="activity-details">
                             <h4>{activity.title}</h4>
                             {activity.description && <p>{activity.description}</p>}
                             {activity.location && (
-                              <div className="activity-location">📍 {activity.location}</div>
+                              <div className="activity-location">
+                                📍 {t('tripExportDialog.location')}: {activity.location}
+                              </div>
                             )}
                           </div>
                         </div>

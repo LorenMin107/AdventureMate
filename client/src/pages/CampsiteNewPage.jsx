@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import CampsiteForm from '../components/CampsiteForm';
 import { logError } from '../utils/logger';
@@ -10,6 +11,7 @@ import './CampsiteNewPage.css';
  * Only accessible to campground owners
  */
 const CampsiteNewPage = () => {
+  const { t } = useTranslation();
   const { id: campgroundId } = useParams();
   const { currentUser, loading } = useAuth();
   const navigate = useNavigate();
@@ -42,7 +44,7 @@ const CampsiteNewPage = () => {
         setCampground(campgroundData);
       } catch (err) {
         logError('Error fetching campground', err);
-        setError('Failed to load campground. Please try again later.');
+        setError(t('commonErrors.failedToLoad', { item: 'campground' }));
       } finally {
         setLoadingCampground(false);
       }
@@ -67,30 +69,26 @@ const CampsiteNewPage = () => {
   }, [currentUser, loading, loadingCampground, isOwner, navigate, campgroundId]);
 
   if (loading || loadingCampground) {
-    return <div className="loading-container">Loading...</div>;
+    return <div className="loading-container">{t('campsiteNew.loading')}</div>;
   }
 
   if (error) {
-    return <div className="error-container">{error}</div>;
+    return <div className="error-container">{t('campsiteNew.errorLoading')}</div>;
   }
 
   if (!currentUser) {
-    return <div className="unauthorized-container">Please log in to access this page.</div>;
+    return <div className="unauthorized-container">{t('campsiteNew.loginRequired')}</div>;
   }
 
   if (!isOwner) {
-    return (
-      <div className="unauthorized-container">
-        You don't have permission to add campsites to this campground.
-      </div>
-    );
+    return <div className="unauthorized-container">{t('campsiteNew.noPermission')}</div>;
   }
 
   return (
     <div className="campsite-new-page">
       <div className="page-header">
-        <h1>Add New Campsite</h1>
-        <p>Add a new campsite to {campground.title}</p>
+        <h1>{t('campsiteNew.title')}</h1>
+        <p>{t('campsiteNew.subtitle', { campgroundTitle: campground.title })}</p>
       </div>
 
       <CampsiteForm campgroundId={campgroundId} isEditing={false} />

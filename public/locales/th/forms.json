@@ -1,0 +1,82 @@
+{
+  "labels": {
+    "email": "อีเมล",
+    "password": "รหัสผ่าน",
+    "confirmPassword": "ยืนยันรหัสผ่าน",
+    "firstName": "ชื่อ",
+    "lastName": "นามสกุล",
+    "username": "ชื่อผู้ใช้",
+    "phone": "เบอร์โทรศัพท์",
+    "businessName": "ชื่อธุรกิจ",
+    "businessType": "ประเภทธุรกิจ",
+    "businessPhone": "เบอร์โทรธุรกิจ",
+    "businessEmail": "อีเมลธุรกิจ",
+    "street": "ที่อยู่",
+    "city": "เมือง",
+    "state": "จังหวัด/รัฐ",
+    "zipCode": "รหัสไปรษณีย์",
+    "country": "ประเทศ",
+    "title": "หัวข้อ",
+    "description": "คำอธิบาย",
+    "content": "เนื้อหา",
+    "category": "หมวดหมู่",
+    "tags": "แท็ก",
+    "checkInDate": "วันที่เช็คอิน",
+    "checkOutDate": "วันที่เช็คเอาท์",
+    "guests": "จำนวนแขก",
+    "campsite": "ลานแคมป์",
+    "price": "ราคา",
+    "capacity": "ความจุ",
+    "features": "คุณสมบัติ",
+    "amenities": "สิ่งอำนวยความสะดวก"
+  },
+  "placeholders": {
+    "email": "กรอกอีเมลของคุณ",
+    "password": "กรอกรหัสผ่านของคุณ",
+    "confirmPassword": "ยืนยันรหัสผ่านของคุณ",
+    "firstName": "กรอกชื่อของคุณ",
+    "lastName": "กรอกนามสกุลของคุณ",
+    "username": "เลือกชื่อผู้ใช้",
+    "phone": "กรอกเบอร์โทรศัพท์ของคุณ",
+    "businessName": "กรอกชื่อธุรกิจของคุณ",
+    "businessPhone": "กรอกเบอร์โทรธุรกิจ",
+    "businessEmail": "กรอกอีเมลธุรกิจ",
+    "street": "กรอกที่อยู่",
+    "city": "กรอกเมือง",
+    "state": "กรอกจังหวัดหรือรัฐ",
+    "zipCode": "กรอกรหัสไปรษณีย์",
+    "country": "เลือกประเทศ",
+    "title": "กรอกหัวข้อ",
+    "description": "กรอกคำอธิบาย",
+    "content": "กรอกเนื้อหา",
+    "searchCampgrounds": "ค้นหาลานแคมป์...",
+    "searchCampsites": "ค้นหาลานแคมป์...",
+    "writeReview": "เขียนรีวิวของคุณ...",
+    "writeReply": "เขียนคำตอบของคุณ..."
+  },
+  "validation": {
+    "required": "กรุณากรอกข้อมูลในช่องนี้",
+    "email": "กรุณากรอกอีเมลที่ถูกต้อง",
+    "minLength": "ต้องมีอย่างน้อย {{min}} ตัวอักษร",
+    "maxLength": "ต้องไม่เกิน {{max}} ตัวอักษร",
+    "passwordMatch": "รหัสผ่านต้องตรงกัน",
+    "passwordStrength": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร พร้อมตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษ",
+    "phoneFormat": "กรุณากรอกเบอร์โทรศัพท์ที่ถูกต้อง",
+    "positiveNumber": "ต้องเป็นจำนวนบวก",
+    "futureDate": "วันที่ต้องอยู่ในอนาคต",
+    "validUrl": "กรุณากรอก URL ที่ถูกต้อง"
+  },
+  "options": {
+    "businessTypes": {
+      "individual": "บุคคล",
+      "partnership": "ห้างหุ้นส่วน",
+      "corporation": "บริษัท",
+      "llc": "บริษัทจำกัด"
+    },
+    "cancellationPolicies": {
+      "flexible": "ยืดหยุ่น",
+      "moderate": "ปานกลาง",
+      "strict": "เข้มงวด"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
@@ -11,6 +12,7 @@ import './OwnerVerificationPage.css';
  * and provides guidance on next steps
  */
 const OwnerVerificationPage = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const { theme } = useTheme();
   const { useOwnerProfile } = useOwners();
@@ -32,8 +34,8 @@ const OwnerVerificationPage = () => {
       <div className={`owner-verification-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
         <div className="verification-container">
           <div className="verification-header">
-            <h1>Verifying Your Account</h1>
-            <p>Please wait while we check your account status...</p>
+            <h1>{t('ownerVerification.verifyingAccount')}</h1>
+            <p>{t('ownerVerification.pleaseWait')}</p>
           </div>
           <div className="verification-loading">
             <div className="spinner"></div>
@@ -47,25 +49,22 @@ const OwnerVerificationPage = () => {
     <div className={`owner-verification-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
       <div className="verification-container">
         <div className="verification-header">
-          <h1>Owner Account Verification</h1>
-          <p>Thank you for applying to become a campground owner on AdventureMate.</p>
+          <h1>{t('ownerVerification.title')}</h1>
+          <p>{t('ownerVerification.subtitle')}</p>
         </div>
 
         <div className={`verification-status ${status}`}>
           {status === 'pending' && (
             <>
               <div className="status-icon pending"></div>
-              <h2>Application Under Review</h2>
-              <p>
-                Your application is currently being reviewed by our team. This process typically
-                takes 1-3 business days. We'll notify you by email once the review is complete.
-              </p>
+              <h2>{t('ownerVerification.applicationUnderReview')}</h2>
+              <p>{t('ownerVerification.applicationUnderReviewDescription')}</p>
               <div className="next-steps">
-                <h3>What's Next?</h3>
+                <h3>{t('ownerVerification.whatsNext')}</h3>
                 <ul>
-                  <li>Our team will review your business information</li>
-                  <li>You may be contacted for additional information if needed</li>
-                  <li>Once approved, you'll be able to list your campgrounds</li>
+                  <li>{t('ownerVerification.nextSteps.reviewBusinessInfo')}</li>
+                  <li>{t('ownerVerification.nextSteps.contactForInfo')}</li>
+                  <li>{t('ownerVerification.nextSteps.listCampgrounds')}</li>
                 </ul>
               </div>
             </>
@@ -74,17 +73,14 @@ const OwnerVerificationPage = () => {
           {status === 'under_review' && (
             <>
               <div className="status-icon under-review"></div>
-              <h2>Verification In Progress</h2>
-              <p>
-                We're currently verifying your business information. This process typically takes
-                1-3 business days. We'll notify you by email once the verification is complete.
-              </p>
+              <h2>{t('ownerVerification.verificationInProgress')}</h2>
+              <p>{t('ownerVerification.verificationInProgressDescription')}</p>
               <div className="next-steps">
-                <h3>What's Next?</h3>
+                <h3>{t('ownerVerification.whatsNext')}</h3>
                 <ul>
-                  <li>Our team is reviewing your documentation</li>
-                  <li>You may be contacted for additional information if needed</li>
-                  <li>Once verified, you'll be able to list your campgrounds</li>
+                  <li>{t('ownerVerification.nextSteps.reviewDocumentation')}</li>
+                  <li>{t('ownerVerification.nextSteps.contactForInfo')}</li>
+                  <li>{t('ownerVerification.nextSteps.verifiedListCampgrounds')}</li>
                 </ul>
               </div>
             </>
@@ -93,17 +89,14 @@ const OwnerVerificationPage = () => {
           {status === 'verified' && (
             <>
               <div className="status-icon verified"></div>
-              <h2>Verification Complete!</h2>
-              <p>
-                Congratulations! Your account has been verified as a campground owner. You can now
-                list your properties and start accepting bookings.
-              </p>
+              <h2>{t('ownerVerification.verificationComplete')}</h2>
+              <p>{t('ownerVerification.verificationCompleteDescription')}</p>
               <div className="verification-actions">
                 <Link to="/owner/dashboard" className="btn btn-primary">
-                  Go to Owner Dashboard
+                  {t('ownerVerification.goToOwnerDashboard')}
                 </Link>
                 <Link to="/owner/campgrounds/new" className="btn btn-secondary">
-                  List Your First Campground
+                  {t('ownerVerification.listFirstCampground')}
                 </Link>
               </div>
             </>
@@ -112,23 +105,20 @@ const OwnerVerificationPage = () => {
           {status === 'rejected' && (
             <>
               <div className="status-icon rejected"></div>
-              <h2>Verification Unsuccessful</h2>
-              <p>
-                Unfortunately, we were unable to verify your business information. Please review the
-                feedback below and reapply with the requested information.
-              </p>
+              <h2>{t('ownerVerification.verificationUnsuccessful')}</h2>
+              <p>{t('ownerVerification.verificationUnsuccessfulDescription')}</p>
               {ownerData?.rejectionReason && (
                 <div className="rejection-reason">
-                  <h3>Reason:</h3>
+                  <h3>{t('ownerVerification.reason')}</h3>
                   <p>{ownerData.rejectionReason}</p>
                 </div>
               )}
               <div className="verification-actions">
                 <Link to="/owner/register" className="btn btn-primary">
-                  Update Application
+                  {t('ownerVerification.updateApplication')}
                 </Link>
                 <a href="mailto:support@adventuremate.com" className="btn btn-secondary">
-                  Contact Support
+                  {t('ownerVerification.contactSupport')}
                 </a>
               </div>
             </>
@@ -137,17 +127,14 @@ const OwnerVerificationPage = () => {
           {status === 'not_found' && (
             <>
               <div className="status-icon not-found"></div>
-              <h2>No Application Found</h2>
-              <p>
-                We couldn't find an owner application for your account. If you believe this is an
-                error, please contact our support team.
-              </p>
+              <h2>{t('ownerVerification.noApplicationFound')}</h2>
+              <p>{t('ownerVerification.noApplicationFoundDescription')}</p>
               <div className="verification-actions">
                 <Link to="/owner/register" className="btn btn-primary">
-                  Apply as Owner
+                  {t('ownerVerification.applyAsOwner')}
                 </Link>
                 <a href="mailto:support@adventuremate.com" className="btn btn-secondary">
-                  Contact Support
+                  {t('ownerVerification.contactSupport')}
                 </a>
               </div>
             </>
@@ -156,7 +143,10 @@ const OwnerVerificationPage = () => {
 
         <div className="verification-footer">
           <p>
-            Have questions? <a href="mailto:support@adventuremate.com">Contact our support team</a>
+            {t('ownerVerification.haveQuestions')}{' '}
+            <a href="mailto:support@adventuremate.com">
+              {t('ownerVerification.contactSupportTeam')}
+            </a>
           </p>
         </div>
       </div>

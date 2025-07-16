@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useCancelBooking } from '../hooks/useBookings';
@@ -17,6 +18,7 @@ import './BookingDetail.css';
  * @returns {JSX.Element} Booking detail component
  */
 const BookingDetail = ({ initialBooking = null }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser, isAuthenticated } = useAuth();
@@ -74,7 +76,7 @@ const BookingDetail = ({ initialBooking = null }) => {
         setError(null);
       } catch (err) {
         logError('Error fetching booking', err);
-        setError('Failed to load booking details. Please try again later.');
+        setError(t('bookings.errorLoadingBookingDetails'));
       } finally {
         setLoading(false);
       }
@@ -97,17 +99,13 @@ const BookingDetail = ({ initialBooking = null }) => {
       // Update the booking status locally
       setBooking((prev) => ({ ...prev, status: 'cancelled' }));
 
-      addSuccessMessage(
-        'Booking cancelled successfully. Please note that no refunds will be issued for cancelled bookings.'
-      );
+      addSuccessMessage(t('bookings.cancelSuccess'));
 
       // Close the dialog
       setCancelDialog({ open: false, booking: null });
     } catch (error) {
       logError('Error cancelling booking', error);
-      addErrorMessage(
-        error.response?.data?.message || 'Failed to cancel booking. Please try again.'
-      );
+      addErrorMessage(error.response?.data?.message || t('bookings.cancelError'));
     }
   };
 
@@ -118,13 +116,14 @@ const BookingDetail = ({ initialBooking = null }) => {
   if (!isAuthenticated) {
     return (
       <div className="booking-detail-login-message">
-        Please <a href="/login">log in</a> to view booking details.
+        {t('bookings.loginRequired')} <a href="/login">{t('auth.login')}</a>{' '}
+        {t('bookings.toViewBookingDetails')}.
       </div>
     );
   }
 
   if (loading) {
-    return <div className="booking-detail-loading">Loading booking details...</div>;
+    return <div className="booking-detail-loading">{t('bookings.loadingBookingDetails')}</div>;
   }
 
   if (error) {
@@ -132,7 +131,7 @@ const BookingDetail = ({ initialBooking = null }) => {
   }
 
   if (!booking) {
-    return <div className="booking-detail-not-found">Booking not found</div>;
+    return <div className="booking-detail-not-found">{t('bookings.bookingNotFound')}</div>;
   }
 
   // Check if user is authorized to view this booking
@@ -141,16 +140,12 @@ const BookingDetail = ({ initialBooking = null }) => {
     (currentUser._id === booking.user._id || currentUser.isAdmin || currentUser.isOwner);
 
   if (!isAuthorized) {
-    return (
-      <div className="booking-detail-unauthorized">
-        You are not authorized to view this booking.
-      </div>
-    );
+    return <div className="booking-detail-unauthorized">{t('bookings.notAuthorizedToView')}</div>;
   }
 
   // Format date to local string
   const formatDate = (dateString) => {
-    if (!dateString) return 'Not available';
+    if (!dateString) return t('bookings.notAvailable');
     return new Date(dateString).toLocaleDateString();
   };
 
@@ -173,7 +168,7 @@ const BookingDetail = ({ initialBooking = null }) => {
             {campground.images && campground.images.length > 0 ? (
               <img src={campground.images[0].url} alt={campground.title} />
             ) : (
-              <div className="booking-detail-no-image">No image available</div>
+              <div className="booking-detail-no-image">{t('bookings.noImageAvailable')}</div>
             )}
           </div>
 
@@ -182,25 +177,30 @@ const BookingDetail = ({ initialBooking = null }) => {
             <p className="booking-detail-location">{campground.location}</p>
             {status && (
               <div className={`booking-detail-status booking-detail-status-${status}`}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {t(`bookings.status.${status}`)}
               </div>
             )}
           </div>
 
           {campsite && (
             <div className="booking-detail-campsite-info">
-              <h4>Campsite: {campsite.name}</h4>
+              <h4>
+                {t('bookings.campsite')}: {campsite.name}
+              </h4>
               {campsite.price && (
-                <p className="booking-detail-campsite-price">${campsite.price} per night</p>
+                <p className="booking-detail-campsite-price">
+                  ${campsite.price} {t('bookings.perNight')}
+                </p>
               )}
               {campsite.capacity && (
                 <p className="booking-detail-campsite-capacity">
-                  Capacity: {campsite.capacity} {campsite.capacity === 1 ? 'person' : 'people'}
+                  {t('bookings.capacity')}: {campsite.capacity}{' '}
+                  {campsite.capacity === 1 ? t('bookings.person') : t('bookings.people')}
                 </p>
               )}
               {campsite.features && campsite.features.length > 0 && (
                 <div className="booking-detail-campsite-features">
-                  <p>Features:</p>
+                  <p>{t('bookings.features')}:</p>
                   <div className="booking-detail-feature-tags">
                     {campsite.features.map((feature, index) => (
                       <span key={index} className="booking-detail-feature-tag">
@@ -214,17 +214,17 @@ const BookingDetail = ({ initialBooking = null }) => {
           )}
 
           <div className="booking-detail-trip-dates">
-            <h4>Your trip</h4>
+            <h4>{t('bookings.yourTrip')}</h4>
             <div className="booking-detail-dates-container">
               <div className="booking-detail-date-box">
-                <div className="booking-detail-date-label">Check-in</div>
+                <div className="booking-detail-date-label">{t('bookings.checkIn')}</div>
                 <div className="booking-detail-date-value">{formatDate(startDate)}</div>
               </div>
 
               <div className="booking-detail-dates-divider">→</div>
 
               <div className="booking-detail-date-box">
-                <div className="booking-detail-date-label">Checkout</div>
+                <div className="booking-detail-date-label">{t('bookings.checkOut')}</div>
                 <div className="booking-detail-date-value">{formatDate(endDate)}</div>
               </div>
             </div>
@@ -236,22 +236,22 @@ const BookingDetail = ({ initialBooking = null }) => {
           {/* Reservation Details Section */}
           <div className="booking-detail-section">
             <div className="booking-detail-section-header">
-              <h4 className="booking-detail-section-title">Reservation details</h4>
+              <h4 className="booking-detail-section-title">{t('bookings.reservationDetails')}</h4>
             </div>
             <div className="booking-detail-section-content">
               <div className="booking-detail-info-item">
-                <span className="booking-detail-label">Booking ID</span>
+                <span className="booking-detail-label">{t('bookings.bookingId')}</span>
                 <span className="booking-detail-value">{booking._id}</span>
               </div>
 
               <div className="booking-detail-info-item">
-                <span className="booking-detail-label">Total nights</span>
+                <span className="booking-detail-label">{t('bookings.totalNights')}</span>
                 <span className="booking-detail-value">{totalDays}</span>
               </div>
 
               {sessionId && (
                 <div className="booking-detail-info-item transaction-id-item">
-                  <span className="booking-detail-label">Transaction ID</span>
+                  <span className="booking-detail-label">{t('bookings.transactionId')}</span>
                   <span className="booking-detail-value transaction-id-value" title={sessionId}>
                     {sessionId}
                   </span>
@@ -263,19 +263,19 @@ const BookingDetail = ({ initialBooking = null }) => {
           {/* Price Details Section */}
           <div className="booking-detail-section">
             <div className="booking-detail-section-header">
-              <h4 className="booking-detail-section-title">Price details</h4>
+              <h4 className="booking-detail-section-title">{t('bookings.priceDetails')}</h4>
             </div>
             <div className="booking-detail-section-content">
               <div className="booking-detail-info-item">
                 <span className="booking-detail-label">
-                  ${(totalPrice / totalDays).toFixed(2)} × {totalDays} nights
+                  ${(totalPrice / totalDays).toFixed(2)} × {totalDays} {t('bookings.nights')}
                 </span>
                 <span className="booking-detail-value">${totalPrice.toFixed(2)}</span>
               </div>
 
               <div className="booking-detail-price-breakdown">
                 <div className="booking-detail-info-item">
-                  <span className="booking-detail-label">Total (USD)</span>
+                  <span className="booking-detail-label">{t('bookings.totalUsd')}</span>
                   <span className="booking-detail-value booking-detail-price">
                     ${totalPrice.toFixed(2)}
                   </span>
@@ -287,14 +287,14 @@ const BookingDetail = ({ initialBooking = null }) => {
           {/* Action Buttons */}
           <div className="booking-detail-footer">
             <Link to="/bookings" className="booking-detail-back-button">
-              Back to Bookings
+              {t('bookings.backToBookings')}
             </Link>
 
             <Link
               to={`/campgrounds/${campground._id}`}
               className="booking-detail-campground-button"
             >
-              View Campground
+              {t('bookings.viewCampground')}
             </Link>
 
             {campsite && (campsite._id || typeof campsite === 'string') && (
@@ -302,7 +302,7 @@ const BookingDetail = ({ initialBooking = null }) => {
                 to={`/campsites/${campsite._id || campsite}`}
                 className="booking-detail-campsite-button"
               >
-                View Campsite
+                {t('bookings.viewCampsite')}
               </Link>
             )}
 
@@ -312,7 +312,9 @@ const BookingDetail = ({ initialBooking = null }) => {
                 className="booking-detail-cancel-button"
                 disabled={cancelBookingMutation.isLoading}
               >
-                {cancelBookingMutation.isLoading ? 'Cancelling...' : 'Cancel Booking'}
+                {cancelBookingMutation.isLoading
+                  ? t('bookings.cancelling')
+                  : t('bookings.cancelBooking')}
               </button>
             )}
           </div>
@@ -323,26 +325,23 @@ const BookingDetail = ({ initialBooking = null }) => {
         open={cancelDialog.open}
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
-        title="Cancel Booking"
+        title={t('bookings.cancelBookingTitle')}
         message={
           <div>
             <div style={{ marginBottom: '1rem' }}>
-              <strong>Are you sure you want to cancel this booking?</strong>
+              <strong>{t('bookings.cancelBookingConfirm')}</strong>
             </div>
-            <div style={{ marginBottom: '1rem' }}>This action cannot be undone.</div>
+            <div style={{ marginBottom: '1rem' }}>{t('bookings.cancelBookingCannotUndo')}</div>
             <div className="cancel-warning">
               <div style={{ marginBottom: '0.5rem' }}>
-                <strong>⚠️ Important: No Refunds</strong>
+                <strong>{t('bookings.cancelWarningTitle')}</strong>
               </div>
-              <div>
-                Please note that cancelled bookings are not eligible for refunds. The full amount
-                paid will not be returned.
-              </div>
+              <div>{t('bookings.cancelWarningMessage')}</div>
             </div>
           </div>
         }
-        confirmLabel="Cancel Booking (No Refund)"
-        cancelLabel="Keep Booking"
+        confirmLabel={t('bookings.cancelBookingNoRefund')}
+        cancelLabel={t('bookings.keepBooking')}
         confirmButtonClass="danger"
       />
     </div>

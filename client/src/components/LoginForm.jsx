@@ -6,6 +6,7 @@ import TwoFactorVerification from './TwoFactorVerification';
 import { logError } from '../utils/logger';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import CSSIsolationWrapper from './CSSIsolationWrapper';
+import { useTranslation } from 'react-i18next';
 import './LoginForm.css';
 
 /**
@@ -13,6 +14,7 @@ import './LoginForm.css';
  * Allows users to log in to the application
  */
 const LoginForm = () => {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -42,13 +44,13 @@ const LoginForm = () => {
     // Validate form
     if (!username.trim()) {
       console.log('🔍 LoginForm: Username validation failed');
-      setFormError('Username is required');
+      setFormError(t('auth.usernameRequired'));
       return;
     }
 
     if (!password) {
       console.log('🔍 LoginForm: Password validation failed');
-      setFormError('Password is required');
+      setFormError(t('auth.passwordRequired'));
       return;
     }
 
@@ -61,7 +63,7 @@ const LoginForm = () => {
       if (result === null) {
         console.log('🔍 LoginForm: Login failed, showing error message');
         // Error is already set in AuthContext, just add to flash messages
-        addErrorMessage(error || 'Login failed. Please try again.');
+        addErrorMessage(error || t('auth.loginFailed'));
         return;
       }
 
@@ -73,12 +75,12 @@ const LoginForm = () => {
       }
 
       console.log('🔍 LoginForm: Login successful, navigating to home');
-      addSuccessMessage('Login successful! Welcome back.');
+      addSuccessMessage(t('auth.loginSuccessful'));
       navigate('/'); // Redirect to home page after successful login
     } catch (err) {
       console.log('🔍 LoginForm: Login error caught:', err);
       // Extract error message from the error object
-      let errorMessage = 'Login failed. Please try again.';
+      let errorMessage = t('auth.loginFailed');
 
       if (err.response && err.response.data) {
         // API error response
@@ -121,25 +123,25 @@ const LoginForm = () => {
         <span className="common-logo-text">AdventureMate</span>
       </div>
 
-      <h2>Log in to your account</h2>
+      <h2>{t('auth.loginTitle')}</h2>
 
       {(formError || error) && <div className="common-error-message">{formError || error}</div>}
 
       <form onSubmit={handleSubmit} className="common-login-form">
         <div className="common-form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">{t('auth.username')}</label>
           <input
             type="text"
             id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             disabled={loading}
-            placeholder="Enter your username"
+            placeholder={t('auth.username')}
           />
         </div>
 
         <div className="common-form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">{t('auth.password')}</label>
           <div className="common-password-input-container">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -147,20 +149,20 @@ const LoginForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
-              placeholder="Enter your password"
+              placeholder={t('auth.password')}
               className="common-password-input"
             />
             <button
               type="button"
               className="common-password-toggle"
               onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
           </div>
           <div className="common-forgot-password-link">
-            <Link to="/forgot-password">Forgot password?</Link>
+            <Link to="/forgot-password">{t('auth.forgotPassword')}</Link>
           </div>
         </div>
 
@@ -172,18 +174,18 @@ const LoginForm = () => {
               onChange={(e) => setRememberMe(e.target.checked)}
               disabled={loading}
             />
-            <span>Remember me for 30 days</span>
+            <span>{t('auth.rememberMeFor30Days')}</span>
           </label>
         </div>
 
         <button type="submit" className="common-btn common-btn-primary" disabled={loading}>
-          {loading ? 'Logging in...' : 'Continue'}
+          {loading ? t('auth.loggingIn') : t('auth.continue')}
         </button>
       </form>
 
       <div className="common-form-footer">
         <p>
-          Don't have an account? <Link to="/register">Sign up</Link>
+          {t('auth.dontHaveAccount')} <Link to="/register">{t('auth.signUp')}</Link>
         </p>
       </div>
     </CSSIsolationWrapper>

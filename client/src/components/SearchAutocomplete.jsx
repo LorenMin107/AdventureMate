@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import useSearchSuggestions from '../hooks/useSearchSuggestions';
 import { logInfo } from '../utils/logger';
 import './SearchAutocomplete.css';
+import { useTranslation } from 'react-i18next';
 
 /**
  * SearchAutocomplete component provides search suggestions and autocomplete functionality
@@ -24,6 +25,7 @@ const SearchAutocomplete = ({
   className = '',
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [inputValue, setInputValue] = useState(value);
@@ -157,7 +159,7 @@ const SearchAutocomplete = ({
             disabled={disabled}
             className="search-input"
             autoComplete="off"
-            aria-label="Search campgrounds"
+            aria-label={t('searchAutocomplete.searchCampgrounds')}
             aria-expanded={isOpen}
             aria-haspopup="listbox"
             role="combobox"
@@ -167,7 +169,7 @@ const SearchAutocomplete = ({
             type="submit"
             className="search-button"
             disabled={disabled || !inputValue.trim()}
-            aria-label="Search"
+            aria-label={t('common.search')}
           >
             <svg
               width="16"
@@ -189,7 +191,7 @@ const SearchAutocomplete = ({
         <div className="suggestions-dropdown" role="listbox">
           {isLoading && (
             <div className="suggestion-item loading">
-              <span>Loading suggestions...</span>
+              <span>{t('searchAutocomplete.loadingSuggestions')}</span>
             </div>
           )}
 
@@ -198,14 +200,16 @@ const SearchAutocomplete = ({
             popularTerms.length === 0 &&
             inputValue.length >= 2 && (
               <div className="suggestion-item no-results">
-                <span>No suggestions found for "{inputValue}"</span>
+                <span>{t('searchAutocomplete.noSuggestionsFound')}</span>
               </div>
             )}
 
           {!isLoading && suggestions.length > 0 && (
             <>
               <div className="suggestions-section">
-                <div className="suggestions-header">Suggestions</div>
+                <div className="suggestions-header">
+                  <span>{t('searchAutocomplete.suggestions')}</span>
+                </div>
                 {suggestions.map((suggestion, index) => (
                   <div
                     key={`suggestion-${index}`}
@@ -224,7 +228,9 @@ const SearchAutocomplete = ({
 
           {!isLoading && popularTerms.length > 0 && (
             <div className="suggestions-section">
-              <div className="suggestions-header">Popular Locations</div>
+              <div className="suggestions-header">
+                <span>{t('searchAutocomplete.popularSearches')}</span>
+              </div>
               {popularTerms.map((term, index) => (
                 <div
                   key={`popular-${index}`}

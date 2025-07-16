@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { Form, DateRangePicker, ErrorMessage, Select, Input } from './forms';
 import { bookingSchema } from '../utils/validationSchemas';
@@ -22,6 +23,7 @@ import './BookingForm.css';
  */
 const BookingForm = ({ campground }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isAuthenticated, currentUser } = useAuth();
   const [apiError, setApiError] = useState(null);
   const [campsites, setCampsites] = useState([]);
@@ -223,7 +225,7 @@ const BookingForm = ({ campground }) => {
 
   const handleSubmit = async (data) => {
     if (!isAuthenticated) {
-      throw new Error('You must be logged in to book a campground');
+      throw new Error(t('bookings.loginRequiredError'));
     }
 
     // Check safety alert acknowledgments for both campground and campsite
@@ -268,18 +270,14 @@ const BookingForm = ({ campground }) => {
     } catch (err) {
       logError('Error creating booking', err);
       // Set API-specific error
-      setApiError(err.message || 'Failed to create booking. Please try again later.');
+      setApiError(err.message || t('bookings.createBookingError'));
       // Re-throw to let Form component handle it
       throw err;
     }
   };
 
   if (!isAuthenticated) {
-    return (
-      <div className="booking-form-login-message">
-        Please <a href="/login">log in</a> to book this campground.
-      </div>
-    );
+    return <div className="booking-form-login-message">{t('bookings.loginRequired')}</div>;
   }
 
   // Check if there are safety alerts requiring acknowledgment
@@ -308,7 +306,7 @@ const BookingForm = ({ campground }) => {
 
   return (
     <div className="booking-form">
-      <h3 className="booking-form-title">Book Your Stay</h3>
+      <h3 className="booking-form-title">{t('bookings.bookYourStay')}</h3>
 
       {apiError && (
         <ErrorMessage
@@ -323,12 +321,10 @@ const BookingForm = ({ campground }) => {
         <div className="booking-form-safety-warning">
           <div className="safety-warning-header">
             <span className="safety-warning-icon">⚠️</span>
-            <h4>Safety Alert Required</h4>
+            <h4>{t('bookings.safetyAlertRequired')}</h4>
           </div>
           <p>{getUnacknowledgedAlertsMessage(unacknowledgedAlerts)}</p>
-          <p className="safety-warning-note">
-            Please review and acknowledge all safety alerts before proceeding with your booking.
-          </p>
+          <p className="safety-warning-note">{t('bookings.reviewSafetyAlerts')}</p>
         </div>
       )}
 
@@ -336,7 +332,7 @@ const BookingForm = ({ campground }) => {
         schema={bookingSchema}
         defaultValues={defaultValues}
         onSubmit={handleSubmit}
-        submitButtonText="Book Now"
+        submitButtonText={t('bookings.bookNow')}
         showSubmitButton={true}
         className="booking-form-container"
       >
@@ -344,7 +340,7 @@ const BookingForm = ({ campground }) => {
           <DateRangePicker
             startDateName="startDate"
             endDateName="endDate"
-            label="Select Check-in and Check-out Dates"
+            label={t('bookings.selectDates')}
             minDate={tomorrow}
             required
             className="booking-form-date-field"
@@ -357,13 +353,13 @@ const BookingForm = ({ campground }) => {
           <div className="booking-form-campsites">
             <Select
               name="campsiteId"
-              label="Select a Campsite (Optional)"
+              label={t('bookings.selectCampsite')}
               options={campsites.map((campsite) => ({
                 value: campsite._id,
-                label: `${campsite.name} - $${campsite.price}/night - Capacity: ${campsite.capacity}`,
+                label: `${campsite.name} - $${campsite.price}/night - ${t('bookings.capacity', { capacity: campsite.capacity })}`,
               }))}
               onChange={(e) => handleCampsiteChange(e.target.value)}
-              placeholder="Choose a specific campsite"
+              placeholder={t('bookings.chooseCampsite')}
               className="booking-form-campsite-field"
             />
 
@@ -373,7 +369,7 @@ const BookingForm = ({ campground }) => {
                 {selectedCampsite.description && <p>{selectedCampsite.description}</p>}
                 {selectedCampsite.features && selectedCampsite.features.length > 0 && (
                   <div className="campsite-features">
-                    <p>Features:</p>
+                    <p>{t('bookings.features')}</p>
                     <ul>
                       {selectedCampsite.features.map((feature, index) => (
                         <li key={index}>{feature}</li>
@@ -390,7 +386,7 @@ const BookingForm = ({ campground }) => {
           <Input
             type="number"
             name="guests"
-            label="Number of Guests"
+            label={t('bookings.numberOfGuests')}
             min="1"
             max={selectedCampsite ? selectedCampsite.capacity : 10}
             defaultValue={1}
@@ -400,7 +396,11 @@ const BookingForm = ({ campground }) => {
         </div>
 
         <div className="booking-form-price">
-          <p>Price: ${selectedCampsite ? selectedCampsite.price : startingPrice} per night</p>
+          <p>
+            {t('bookings.pricePerNight', {
+              price: selectedCampsite ? selectedCampsite.price : startingPrice,
+            })}
+          </p>
         </div>
       </Form>
     </div>

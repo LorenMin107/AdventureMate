@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import StarRating from './StarRating';
 import apiClient from '../utils/api';
@@ -15,6 +16,7 @@ import './ReviewForm.css';
  * @returns {JSX.Element} Review form component
  */
 const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
+  const { t } = useTranslation();
   const [rating, setRating] = useState(5);
   const [body, setBody] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -25,17 +27,17 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
     e.preventDefault();
 
     if (!isAuthenticated) {
-      setError('You must be logged in to submit a review');
+      setError(t('reviews.loginRequired'));
       return;
     }
 
     if (rating < 1 || rating > 5) {
-      setError('Please select a rating between 1 and 5 stars');
+      setError(t('reviews.ratingRequired'));
       return;
     }
 
     if (!body.trim()) {
-      setError('Please enter a review comment');
+      setError(t('reviews.commentRequired'));
       return;
     }
 
@@ -59,7 +61,7 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
       }
     } catch (err) {
       logError('Error submitting review', err);
-      setError(err.message || 'Failed to submit review. Please try again later.');
+      setError(err.message || t('reviews.submitError'));
     } finally {
       setSubmitting(false);
     }
@@ -68,37 +70,38 @@ const ReviewForm = ({ campgroundId, onReviewSubmitted }) => {
   if (!isAuthenticated) {
     return (
       <div className="review-form-login-message">
-        Please <a href="/login">log in</a> to leave a review.
+        {t('reviews.pleaseLogin')} <a href="/login">{t('auth.login')}</a>{' '}
+        {t('reviews.toLeaveReview')}.
       </div>
     );
   }
 
   return (
     <div className="review-form">
-      <h3 className="review-form-title">Leave a Review</h3>
+      <h3 className="review-form-title">{t('reviews.leaveReview')}</h3>
 
       {error && <div className="review-form-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="review-form-rating">
-          <label>Rating:</label>
+          <label>{t('reviews.rating')}:</label>
           <StarRating rating={rating} editable={true} onChange={setRating} />
         </div>
 
         <div className="review-form-body">
-          <label htmlFor="review-body">Review:</label>
+          <label htmlFor="review-body">{t('reviews.review')}:</label>
           <textarea
             id="review-body"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Share your experience at this campground..."
+            placeholder={t('reviews.shareExperience')}
             rows={4}
             required
           />
         </div>
 
         <button type="submit" className="review-form-submit" disabled={submitting}>
-          {submitting ? 'Submitting...' : 'Submit Review'}
+          {submitting ? t('reviews.submitting') : t('reviews.submitReview')}
         </button>
       </form>
     </div>

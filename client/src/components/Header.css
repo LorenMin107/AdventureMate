@@ -20,6 +20,22 @@
   align-items: center;
 }
 
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-language-switcher {
+  margin-right: 0.5rem;
+}
+
 .logo {
   font-size: 1.3rem; /* Reduced font size from 1.5rem to 1.3rem */
   font-weight: bold;

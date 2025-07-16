@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useApi from '../../hooks/useApi';
 import './OwnerApplicationList.css';
 
@@ -9,6 +10,7 @@ import './OwnerApplicationList.css';
  * @returns {JSX.Element} Owner application list component
  */
 const OwnerApplicationList = () => {
+  const { t } = useTranslation();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -119,10 +121,10 @@ const OwnerApplicationList = () => {
   // Get status display text
   const getStatusDisplay = (status) => {
     const statusMap = {
-      pending: 'Pending Review',
-      under_review: 'Under Review',
-      approved: 'Approved',
-      rejected: 'Rejected',
+      pending: t('adminOwnerApplication.pending'),
+      under_review: t('adminOwnerApplication.reviewing'),
+      approved: t('adminOwnerApplication.approved'),
+      rejected: t('adminOwnerApplication.rejected'),
     };
     return statusMap[status] || status;
   };
@@ -130,7 +132,7 @@ const OwnerApplicationList = () => {
   if (loading) {
     return (
       <div className="owner-applications-container">
-        <div className="loading-spinner">Loading applications...</div>
+        <div className="loading-spinner">{t('adminOwnerApplication.loadingApplications')}</div>
       </div>
     );
   }
@@ -138,8 +140,8 @@ const OwnerApplicationList = () => {
   return (
     <div className="owner-applications-container">
       <div className="owner-applications-header">
-        <h1>Owner Applications</h1>
-        <p>Manage campground owner applications</p>
+        <h1>{t('adminOwnerApplication.title')}</h1>
+        <p>{t('adminOwnerApplication.description')}</p>
       </div>
 
       {error && (
@@ -154,18 +156,18 @@ const OwnerApplicationList = () => {
       {/* Filters */}
       <div className="applications-filters">
         <div className="filter-group">
-          <label htmlFor="statusFilter">Status:</label>
+          <label htmlFor="statusFilter">{t('adminOwnerApplication.filterByStatus')}:</label>
           <select
             id="statusFilter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="filter-select"
           >
-            <option value="">All Statuses</option>
-            <option value="pending">Pending</option>
-            <option value="under_review">Under Review</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
+            <option value="">{t('adminOwnerApplication.allStatuses')}</option>
+            <option value="pending">{t('adminOwnerApplication.pending')}</option>
+            <option value="under_review">{t('adminOwnerApplication.reviewing')}</option>
+            <option value="approved">{t('adminOwnerApplication.approved')}</option>
+            <option value="rejected">{t('adminOwnerApplication.rejected')}</option>
           </select>
         </div>
       </div>
@@ -174,7 +176,7 @@ const OwnerApplicationList = () => {
       <div className="applications-list">
         {applications.length === 0 ? (
           <div className="no-applications">
-            <p>No applications found</p>
+            <p>{t('adminOwnerApplication.noApplications')}</p>
           </div>
         ) : (
           applications.map((application) => (
@@ -183,10 +185,12 @@ const OwnerApplicationList = () => {
                 <div className="application-info">
                   <h3>{application.businessName}</h3>
                   <p className="applicant-name">
-                    Applicant: {application.user?.username} ({application.user?.email})
+                    {t('adminOwnerApplication.applicant')}: {application.user?.username} (
+                    {application.user?.email})
                   </p>
                   <p className="application-date">
-                    Applied: {new Date(application.createdAt).toLocaleDateString()}
+                    {t('adminOwnerApplication.appliedDate')}:{' '}
+                    {new Date(application.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="application-status">
@@ -198,34 +202,30 @@ const OwnerApplicationList = () => {
 
               <div className="application-details">
                 <div className="detail-row">
-                  <span className="detail-label">Business Type:</span>
-                  <span className="detail-value">{application.businessType}</span>
+                  <span className="detail-label">{t('adminOwnerApplication.email')}:</span>
+                  <span className="detail-value">{application.email}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Business Phone:</span>
-                  <span className="detail-value">{application.businessPhone}</span>
+                  <span className="detail-label">{t('adminOwnerApplication.phone')}:</span>
+                  <span className="detail-value">{application.phone || 'N/A'}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Business Email:</span>
-                  <span className="detail-value">{application.businessEmail}</span>
+                  <span className="detail-label">{t('adminOwnerApplication.businessType')}:</span>
+                  <span className="detail-value">{application.businessType || 'N/A'}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Address:</span>
-                  <span className="detail-value">
-                    {application.businessAddress?.street}, {application.businessAddress?.city},{' '}
-                    {application.businessAddress?.state}
-                  </span>
+                  <span className="detail-label">{t('adminOwnerApplication.experience')}:</span>
+                  <span className="detail-value">{application.experience || 'N/A'}</span>
                 </div>
               </div>
 
               <div className="application-actions">
                 <Link
                   to={`/admin/owner-applications/${application._id}`}
-                  className="action-button view-button"
+                  className="owner-applications-container view-button"
                 >
-                  View Details
+                  {t('adminOwnerApplication.viewDetails')}
                 </Link>
-
                 {application.status === 'pending' && (
                   <>
                     <button
@@ -234,9 +234,9 @@ const OwnerApplicationList = () => {
                         setActionType('approve');
                         setShowActionModal(true);
                       }}
-                      className="action-button approve-button"
+                      className="approve-button"
                     >
-                      Approve
+                      {t('adminOwnerApplication.approve')}
                     </button>
                     <button
                       onClick={() => {
@@ -244,25 +244,22 @@ const OwnerApplicationList = () => {
                         setActionType('reject');
                         setShowActionModal(true);
                       }}
-                      className="action-button reject-button"
+                      className="reject-button"
                     >
-                      Reject
+                      {t('adminOwnerApplication.reject')}
                     </button>
                   </>
                 )}
-
                 {application.status === 'pending' && (
                   <button
-                    onClick={() =>
-                      handleReviewUpdate(
-                        application._id,
-                        'under_review',
-                        'Application moved to review'
-                      )
-                    }
-                    className="action-button review-button"
+                    onClick={() => {
+                      setSelectedApplication(application);
+                      setActionType('review');
+                      setShowActionModal(true);
+                    }}
+                    className="review-button"
                   >
-                    Move to Review
+                    {t('adminOwnerApplication.review')}
                   </button>
                 )}
               </div>
@@ -275,73 +272,81 @@ const OwnerApplicationList = () => {
       {totalPages > 1 && (
         <div className="pagination">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
             className="pagination-button"
           >
-            Previous
+            {t('adminOwnerApplication.previous')}
           </button>
           <span className="pagination-info">
-            Page {currentPage} of {totalPages}
+            {t('adminOwnerApplication.pageInfo', { page: currentPage, totalPages })}
           </span>
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            onClick={() => setCurrentPage(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="pagination-button"
           >
-            Next
+            {t('adminOwnerApplication.next')}
           </button>
         </div>
       )}
 
       {/* Action Modal */}
-      {showActionModal && selectedApplication && (
+      {showActionModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>{actionType === 'approve' ? 'Approve Application' : 'Reject Application'}</h3>
-
-            {actionType === 'reject' && (
-              <div className="form-group">
-                <label htmlFor="reason">Rejection Reason *</label>
-                <textarea
-                  id="reason"
-                  value={actionData.reason}
-                  onChange={(e) => setActionData((prev) => ({ ...prev, reason: e.target.value }))}
-                  placeholder="Please provide a reason for rejection"
-                  required
-                  className="form-textarea"
-                />
-              </div>
-            )}
-
+            <h3>
+              {actionType === 'approve'
+                ? t('adminOwnerApplication.confirmApproval')
+                : actionType === 'reject'
+                  ? t('adminOwnerApplication.confirmRejection')
+                  : t('adminOwnerApplication.confirmReview')}
+            </h3>
             <div className="form-group">
-              <label htmlFor="notes">Notes (Optional)</label>
+              <label htmlFor="notes">{t('adminOwnerApplication.notes')}:</label>
               <textarea
                 id="notes"
                 value={actionData.notes}
-                onChange={(e) => setActionData((prev) => ({ ...prev, notes: e.target.value }))}
-                placeholder="Additional notes..."
+                onChange={(e) => setActionData({ ...actionData, notes: e.target.value })}
                 className="form-textarea"
+                rows="3"
               />
             </div>
-
+            {actionType === 'reject' && (
+              <div className="form-group">
+                <label htmlFor="reason">{t('adminOwnerApplication.rejectionReason')}:</label>
+                <textarea
+                  id="reason"
+                  value={actionData.reason}
+                  onChange={(e) => setActionData({ ...actionData, reason: e.target.value })}
+                  className="form-textarea"
+                  rows="3"
+                  placeholder={t('adminOwnerApplication.enterRejectionReason')}
+                />
+              </div>
+            )}
             <div className="modal-actions">
               <button
-                onClick={() => {
-                  setShowActionModal(false);
-                  setSelectedApplication(null);
-                  setActionData({ notes: '', reason: '' });
-                }}
+                onClick={() => setShowActionModal(false)}
                 className="modal-button cancel-button"
               >
-                Cancel
+                {t('adminOwnerApplication.cancel')}
               </button>
               <button
                 onClick={handleApplicationAction}
-                disabled={actionType === 'reject' && !actionData.reason.trim()}
-                className={`modal-button ${actionType === 'approve' ? 'approve-button' : 'reject-button'}`}
+                className={`modal-button ${
+                  actionType === 'approve'
+                    ? 'approve-button'
+                    : actionType === 'reject'
+                      ? 'reject-button'
+                      : 'review-button'
+                }`}
               >
-                {actionType === 'approve' ? 'Approve' : 'Reject'}
+                {actionType === 'approve'
+                  ? t('adminOwnerApplication.approve')
+                  : actionType === 'reject'
+                    ? t('adminOwnerApplication.reject')
+                    : t('adminOwnerApplication.review')}
               </button>
             </div>
           </div>

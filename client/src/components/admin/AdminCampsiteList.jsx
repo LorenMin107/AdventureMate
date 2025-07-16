@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
@@ -12,6 +13,7 @@ import './AdminCampsiteList.css';
  * @returns {JSX.Element} Campsite list component
  */
 const AdminCampsiteList = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [campsites, setCampsites] = useState([]);
   const [campgrounds, setCampgrounds] = useState([]);
@@ -110,7 +112,7 @@ const AdminCampsiteList = () => {
         setError(null);
       } catch (err) {
         logError('Error fetching campsites', err);
-        setError('Failed to load campsites. Please try again later.');
+        setError(t('adminCampsiteList.failed_to_load_campsites'));
       } finally {
         setLoading(false);
       }
@@ -119,7 +121,15 @@ const AdminCampsiteList = () => {
     if (currentUser?.isAdmin) {
       fetchCampsites();
     }
-  }, [selectedCampground, pagination.page, pagination.limit, sort.field, sort.order, currentUser]);
+  }, [
+    selectedCampground,
+    pagination.page,
+    pagination.limit,
+    sort.field,
+    sort.order,
+    currentUser,
+    t,
+  ]);
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
@@ -146,19 +156,13 @@ const AdminCampsiteList = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    const { campsite } = deleteDialog;
-
     try {
-      await apiClient.delete(`/campsites/${campsite._id}`);
-
-      // Update the campsites list
-      setCampsites(campsites.filter((c) => c._id !== campsite._id));
-
-      // Close the dialog
+      await apiClient.delete(`/campsites/${deleteDialog.campsite._id}`);
+      setCampsites(campsites.filter((c) => c._id !== deleteDialog.campsite._id));
       setDeleteDialog({ open: false, campsite: null });
     } catch (err) {
       logError('Error deleting campsite', err);
-      alert('Failed to delete campsite. Please try again later.');
+      alert(t('adminCampsiteList.failed_to_delete_campsite'));
     }
   };
 
@@ -169,7 +173,31 @@ const AdminCampsiteList = () => {
   if (!currentUser?.isAdmin) {
     return (
       <div className="admin-campsite-list-unauthorized">
-        You do not have permission to access this page.
+        {t('adminCampsiteList.no_permission_access_page')}
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="admin-campsite-list-loading">{t('adminCampsiteList.loading_campsites')}</div>
+    );
+  }
+
+  if (error) {
+    return <div className="admin-campsite-list-error">{error}</div>;
+  }
+
+  if (selectedCampground && campsites.length === 0) {
+    return (
+      <div className="admin-campsite-list-empty">
+        <p>{t('adminCampsiteList.no_campsites_found_for_this_campground')}.</p>
+        <Link
+          to={`/campgrounds/${selectedCampground}/campsites/new`}
+          className="admin-campsite-list-add-link"
+        >
+          {t('adminCampsiteList.add_a_new_campsite')}
+        </Link>
       </div>
     );
   }
@@ -177,17 +205,19 @@ const AdminCampsiteList = () => {
   return (
     <div className="admin-campsite-list">
       <div className="admin-campsite-list-header">
-        <h1>Campsite Management</h1>
+        <h1>{t('adminCampsiteList.campsite_management')}</h1>
         <div className="admin-campsite-list-actions">
           <div className="admin-campsite-list-filter">
-            <label htmlFor="campground-filter">Filter by Campground:</label>
+            <label htmlFor="campground-filter">
+              {t('adminCampsiteList.filter_by_campground')}:
+            </label>
             <select
               id="campground-filter"
               value={selectedCampground}
               onChange={handleCampgroundChange}
               className="admin-campsite-list-select"
             >
-              <option value="">All Campgrounds</option>
+              <option value="">{t('adminCampsiteList.all_campgrounds')}</option>
               {campgrounds.map((campground) => (
                 <option key={campground._id} value={campground._id}>
                   {campground.title}
@@ -201,7 +231,7 @@ const AdminCampsiteList = () => {
               to={`/campgrounds/${selectedCampground}/campsites/new`}
               className="admin-campsite-list-add-button"
             >
-              Add New Campsite
+              {t('adminCampsiteList.add_new_campsite')}
             </Link>
           )}
 
@@ -212,170 +242,130 @@ const AdminCampsiteList = () => {
             }
             className="admin-campsite-list-limit"
           >
-            <option value="5">5 per page</option>
-            <option value="10">10 per page</option>
-            <option value="25">25 per page</option>
-            <option value="50">50 per page</option>
+            <option value="5">{t('adminCampsiteList.5_per_page')}</option>
+            <option value="10">{t('adminCampsiteList.10_per_page')}</option>
+            <option value="25">{t('adminCampsiteList.25_per_page')}</option>
+            <option value="50">{t('adminCampsiteList.50_per_page')}</option>
           </select>
         </div>
       </div>
 
-      {selectedCampground ? (
-        loading ? (
-          <div className="admin-campsite-list-loading">Loading campsites...</div>
-        ) : error ? (
-          <div className="admin-campsite-list-error">{error}</div>
-        ) : campsites.length === 0 ? (
-          <div className="admin-campsite-list-empty">
-            No campsites found for this campground.
-            <Link
-              to={`/campgrounds/${selectedCampground}/campsites/new`}
-              className="admin-campsite-list-add-link"
-            >
-              Add a new campsite
-            </Link>
-          </div>
-        ) : (
-          <>
-            <div className="admin-campsite-list-table-container">
-              <table className="admin-campsite-list-table">
-                <thead>
-                  <tr>
-                    <th
-                      className={`sortable ${sort.field === 'name' ? `sorted-${sort.order}` : ''}`}
-                      onClick={() => handleSortChange('name')}
-                    >
-                      Name
-                    </th>
-                    <th
-                      className={`sortable ${sort.field === 'price' ? `sorted-${sort.order}` : ''}`}
-                      onClick={() => handleSortChange('price')}
-                    >
-                      Price
-                    </th>
-                    <th
-                      className={`sortable ${sort.field === 'capacity' ? `sorted-${sort.order}` : ''}`}
-                      onClick={() => handleSortChange('capacity')}
-                    >
-                      Capacity
-                    </th>
-                    <th>Features</th>
-                    <th
-                      className={`sortable ${sort.field === 'availability' ? `sorted-${sort.order}` : ''}`}
-                      onClick={() => handleSortChange('availability')}
-                    >
-                      Availability
-                    </th>
-                    <th>Bookings</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {campsites.map((campsite) => (
-                    <tr key={campsite._id}>
-                      <td>{campsite.name}</td>
-                      <td>${campsite.price}</td>
-                      <td>
-                        {campsite.capacity} {campsite.capacity === 1 ? 'person' : 'people'}
-                      </td>
-                      <td>
-                        <div className="admin-campsite-list-features">
-                          {campsite.features && campsite.features.length > 0
-                            ? campsite.features.map((feature, index) => (
-                                <span key={index} className="admin-campsite-list-feature-tag">
-                                  {feature}
-                                </span>
-                              ))
-                            : 'None'}
-                        </div>
-                      </td>
-                      <td>
-                        <span
-                          className={`admin-campsite-list-availability ${campsite.availability ? 'available' : 'unavailable'}`}
-                        >
-                          {campsite.availability ? 'Available' : 'Unavailable'}
-                        </span>
-                      </td>
-                      <td>{campsite.bookings?.length || 0}</td>
-                      <td className="admin-campsite-list-actions-cell">
-                        <Link
-                          to={`/campsites/${campsite._id}`}
-                          className="admin-campsite-list-view-button"
-                        >
-                          View
-                        </Link>
-                        <Link
-                          to={`/campsites/${campsite._id}/edit`}
-                          className="admin-campsite-list-edit-button"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDeleteClick(campsite)}
-                          className="admin-campsite-list-delete-button"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+      <div className="admin-campsite-list-table-container">
+        <table className="admin-campsite-list-table">
+          <thead>
+            <tr>
+              <th>{t('adminCampsiteList.name')}</th>
+              <th>{t('adminCampsiteList.price')}</th>
+              <th>{t('adminCampsiteList.capacity')}</th>
+              <th>{t('adminCampsiteList.features')}</th>
+              <th>{t('adminCampsiteList.availability')}</th>
+              <th>{t('adminCampsiteList.bookings')}</th>
+              <th>{t('adminCampsiteList.actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {campsites.map((campsite) => (
+              <tr key={campsite._id}>
+                <td>{campsite.name}</td>
+                <td>${campsite.price}</td>
+                <td>
+                  {campsite.capacity}{' '}
+                  {campsite.capacity === 1
+                    ? t('adminCampsiteList.person')
+                    : t('adminCampsiteList.people')}
+                </td>
+                <td>
+                  {campsite.features && campsite.features.length > 0
+                    ? campsite.features.join(', ')
+                    : t('adminCampsiteList.none')}
+                </td>
+                <td>
+                  <span
+                    className={`admin-campsite-list-availability ${
+                      campsite.availability ? 'available' : 'unavailable'
+                    }`}
+                  >
+                    {campsite.availability
+                      ? t('adminCampsiteList.available')
+                      : t('adminCampsiteList.unavailable')}
+                  </span>
+                </td>
+                <td>{campsite.bookings?.length || 0}</td>
+                <td className="admin-campsite-list-actions-cell">
+                  <Link
+                    to={`/campsites/${campsite._id}`}
+                    className="admin-campsite-list-view-button"
+                  >
+                    {t('adminCampsiteList.view')}
+                  </Link>
+                  <Link
+                    to={`/campsites/${campsite._id}/edit`}
+                    className="admin-campsite-list-edit-button"
+                  >
+                    {t('adminCampsiteList.edit')}
+                  </Link>
+                  <button
+                    onClick={() => handleDeleteClick(campsite)}
+                    className="admin-campsite-list-delete-button"
+                  >
+                    {t('adminCampsiteList.delete')}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-            {pagination.totalPages > 1 && (
-              <div className="admin-campsite-list-pagination">
-                <button
-                  onClick={() => handlePageChange(1)}
-                  disabled={pagination.page === 1}
-                  className="admin-campsite-list-pagination-button"
-                >
-                  First
-                </button>
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className="admin-campsite-list-pagination-button"
-                >
-                  Previous
-                </button>
-                <span className="admin-campsite-list-pagination-info">
-                  Page {pagination.page} of {pagination.totalPages}
-                </span>
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.totalPages}
-                  className="admin-campsite-list-pagination-button"
-                >
-                  Next
-                </button>
-                <button
-                  onClick={() => handlePageChange(pagination.totalPages)}
-                  disabled={pagination.page === pagination.totalPages}
-                  className="admin-campsite-list-pagination-button"
-                >
-                  Last
-                </button>
-              </div>
-            )}
-          </>
-        )
-      ) : (
+      {pagination.totalPages > 1 && (
+        <div className="admin-campsite-list-pagination">
+          <button
+            onClick={() => handlePageChange(1)}
+            disabled={pagination.page === 1}
+            className="admin-campsite-list-pagination-button"
+          >
+            {t('adminCampsiteList.first')}
+          </button>
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
+            disabled={pagination.page === 1}
+            className="admin-campsite-list-pagination-button"
+          >
+            {t('adminCampsiteList.previous')}
+          </button>
+          <span className="admin-campsite-list-pagination-info">
+            {t('adminCampsiteList.page')} {pagination.page} {t('adminCampsiteList.of')}{' '}
+            {pagination.totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
+            disabled={pagination.page === pagination.totalPages}
+            className="admin-campsite-list-pagination-button"
+          >
+            {t('adminCampsiteList.next')}
+          </button>
+          <button
+            onClick={() => handlePageChange(pagination.totalPages)}
+            disabled={pagination.page === pagination.totalPages}
+            className="admin-campsite-list-pagination-button"
+          >
+            {t('adminCampsiteList.last')}
+          </button>
+        </div>
+      )}
+
+      {!selectedCampground && (
         <div className="admin-campsite-list-select-prompt">
-          {campgrounds.length > 0 ? (
-            'You are viewing all campgrounds. Select a specific campground from the dropdown to view its campsites.'
-          ) : (
-            <>
-              No campgrounds found. Please create a campground first before adding campsites.
-              <Link
-                to="/campgrounds/new"
-                className="admin-campsite-list-add-link"
-                style={{ display: 'block', marginTop: '1rem' }}
-              >
-                Create a New Campground
-              </Link>
-            </>
-          )}
+          <p>{t('adminCampsiteList.view_all_campgrounds_select_prompt')}</p>
+        </div>
+      )}
+
+      {campgrounds.length === 0 && (
+        <div className="admin-campsite-list-empty">
+          <p>{t('adminCampsiteList.no_campgrounds_found_create_campground_first')}.</p>
+          <Link to="/campgrounds/new" className="admin-campsite-list-add-link">
+            {t('adminCampsiteList.create_new_campground')}
+          </Link>
         </div>
       )}
 
@@ -383,10 +373,10 @@ const AdminCampsiteList = () => {
         open={deleteDialog.open}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Campsite"
-        message={`Are you sure you want to delete "${deleteDialog.campsite?.name}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('adminCampsiteList.delete_campsite')}
+        message={`${t('adminCampsiteList.are_you_sure_delete')}"${deleteDialog.campsite?.name}"? ${t('adminCampsiteList.this_action_cannot_be_undone')}.`}
+        confirmLabel={t('adminCampsiteList.delete')}
+        cancelLabel={t('adminCampsiteList.cancel')}
       />
     </div>
   );

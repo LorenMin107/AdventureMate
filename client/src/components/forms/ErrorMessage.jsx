@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './FormStyles.css';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Reusable error message component for displaying form errors
@@ -20,6 +21,7 @@ const ErrorMessage = ({
   onDismiss,
   className = '',
 }) => {
+  const { t } = useTranslation();
   if (!message) return null;
 
   return (
@@ -37,7 +39,7 @@ const ErrorMessage = ({
           type="button"
           className="form-message-dismiss"
           onClick={onDismiss}
-          aria-label="Dismiss message"
+          aria-label={t('errorMessage.dismissMessage')}
         >
           ×
         </button>

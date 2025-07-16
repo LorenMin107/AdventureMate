@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
@@ -7,6 +8,7 @@ import ConfirmDialog from '../common/ConfirmDialog';
 import './AdminTripList.css';
 
 const AdminTripList = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -120,14 +122,14 @@ const AdminTripList = () => {
   if (!currentUser?.isAdmin) {
     return (
       <div className="admin-trips-unauthorized">
-        <h2>Access Denied</h2>
-        <p>You do not have permission to access this page.</p>
+        <h2>{t('adminTripList.unauthorizedMessage')}</h2>
+        <p>{t('adminTripList.unauthorizedMessage')}</p>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="admin-trips-loading">Loading trips...</div>;
+    return <div className="admin-trips-loading">{t('adminTripList.loadingTrips')}</div>;
   }
 
   if (error) {
@@ -137,31 +139,31 @@ const AdminTripList = () => {
   return (
     <div className="admin-trips">
       <div className="admin-trips-header">
-        <h1>Trip Management</h1>
-        <p>Monitor and manage user trips and trip-related activities</p>
+        <h1>{t('adminTripList.title')}</h1>
+        <p>{t('adminTripList.description')}</p>
       </div>
 
       {/* Filters */}
       <div className="admin-trips-filters">
         <div className="filter-group">
-          <label htmlFor="public-filter">Visibility:</label>
+          <label htmlFor="public-filter">{t('adminTripList.visibilityFilterLabel')}:</label>
           <select
             id="public-filter"
             value={filters.isPublic}
             onChange={(e) => handleFilterChange('isPublic', e.target.value)}
           >
-            <option value="">All Trips</option>
-            <option value="true">Public Only</option>
-            <option value="false">Private Only</option>
+            <option value="">{t('adminTripList.allTrips')}</option>
+            <option value="true">{t('adminTripList.publicOnly')}</option>
+            <option value="false">{t('adminTripList.privateOnly')}</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label htmlFor="user-filter">User ID:</label>
+          <label htmlFor="user-filter">{t('adminTripList.userIdFilterLabel')}:</label>
           <input
             id="user-filter"
             type="text"
-            placeholder="Enter user ID"
+            placeholder={t('adminTripList.enterUserIdPlaceholder')}
             value={filters.userId}
             onChange={(e) => handleFilterChange('userId', e.target.value)}
           />
@@ -178,89 +180,80 @@ const AdminTripList = () => {
                   <h3 className="trip-title">{trip.title}</h3>
                   <div className="trip-meta">
                     <span className={`trip-visibility ${trip.isPublic ? 'public' : 'private'}`}>
-                      {trip.isPublic ? '🌍 Public' : '🔒 Private'}
+                      {trip.isPublic
+                        ? t('adminTripList.publicTrip')
+                        : t('adminTripList.privateTrip')}
                     </span>
                     <span className="trip-duration">
-                      📅 {getTripDuration(trip.startDate, trip.endDate)} days
+                      📅 {getTripDuration(trip.startDate, trip.endDate)} {t('adminTripList.days')}
                     </span>
                     <span className="trip-activities">
-                      🎯 {getTotalActivities(trip)} activities
+                      🎯 {getTotalActivities(trip)} {t('adminTripList.activities')}
                     </span>
                   </div>
                 </div>
                 <div className="trip-actions">
                   <Link to={`/admin/trips/${trip._id}`} className="trip-action-btn view-btn">
-                    View Details
+                    {t('adminTripList.viewDetails')}
                   </Link>
                   <button
                     onClick={() => handleDeleteClick(trip)}
                     className="trip-action-btn delete-btn"
                   >
-                    Delete
+                    {t('adminTripList.delete')}
                   </button>
                 </div>
               </div>
 
               <div className="trip-content">
-                {trip.description && <p className="trip-description">{trip.description}</p>}
-
+                <div className="trip-description">{trip.description}</div>
                 <div className="trip-details">
                   <div className="trip-dates">
-                    <span>
-                      <strong>Start:</strong> {formatDate(trip.startDate)}
-                    </span>
-                    <span>
-                      <strong>End:</strong> {formatDate(trip.endDate)}
-                    </span>
+                    <strong>{t('adminTripList.startDate')}:</strong> {formatDate(trip.startDate)}
+                    <br />
+                    <strong>{t('adminTripList.endDate')}:</strong> {formatDate(trip.endDate)}
                   </div>
-
                   <div className="trip-owner">
-                    <strong>Owner:</strong>{' '}
-                    <Link to={`/admin/users/${trip.user._id}`}>{trip.user.username}</Link>
-                    <span className="user-email">({trip.user.email})</span>
+                    <strong>{t('adminTripList.owner')}:</strong>{' '}
+                    <a href={`mailto:${trip.user?.email}`}>
+                      {trip.user?.username || t('adminTripList.unknownUser')}
+                    </a>
                   </div>
-
                   {trip.collaborators && trip.collaborators.length > 0 && (
                     <div className="trip-collaborators">
-                      <strong>Collaborators:</strong>{' '}
+                      <strong>{t('adminTripList.collaborators')}:</strong>{' '}
                       {trip.collaborators.map((collaborator, index) => (
-                        <span key={collaborator._id}>
-                          <Link to={`/admin/users/${collaborator._id}`}>
-                            {collaborator.username}
-                          </Link>
+                        <a key={collaborator._id} href={`mailto:${collaborator.email}`}>
+                          {collaborator.username}
                           {index < trip.collaborators.length - 1 ? ', ' : ''}
-                        </span>
+                        </a>
                       ))}
                     </div>
                   )}
-
                   <div className="trip-stats">
-                    <span>
-                      <strong>Days:</strong> {trip.days ? trip.days.length : 0}
-                    </span>
-                    <span>
-                      <strong>Created:</strong> {formatDate(trip.createdAt)}
-                    </span>
+                    <strong>{t('adminTripList.createdAt')}:</strong> {formatDate(trip.createdAt)}
                   </div>
                 </div>
 
-                {/* Trip Days Preview */}
                 {trip.days && trip.days.length > 0 && (
                   <div className="trip-days-preview">
-                    <h4>Trip Days Preview:</h4>
+                    <h4>{t('adminTripList.tripDaysPreview')}</h4>
                     <div className="days-grid">
                       {trip.days.slice(0, 3).map((day, index) => (
-                        <div key={day._id || index} className="day-preview">
+                        <div key={index} className="day-preview">
                           <div className="day-date">
-                            Day {index + 1}: {formatDate(day.date)}
+                            {t('adminTripList.day')} {index + 1}
                           </div>
                           <div className="day-activities-count">
-                            {day.activities ? day.activities.length : 0} activities
+                            {day.activities ? day.activities.length : 0}{' '}
+                            {t('adminTripList.activities')}
                           </div>
                         </div>
                       ))}
                       {trip.days.length > 3 && (
-                        <div className="more-days">+{trip.days.length - 3} more days</div>
+                        <div className="more-days">
+                          +{trip.days.length - 3} {t('adminTripList.moreDays')}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -270,12 +263,11 @@ const AdminTripList = () => {
           ))
         ) : (
           <div className="admin-trips-empty">
-            <p>No trips found matching the current filters.</p>
+            <p>{t('adminTripList.noTripsFound')}</p>
           </div>
         )}
       </div>
 
-      {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="admin-trips-pagination">
           <button
@@ -283,11 +275,15 @@ const AdminTripList = () => {
             disabled={pagination.page <= 1}
             className="pagination-btn"
           >
-            Previous
+            {t('adminTripList.previous')}
           </button>
 
           <span className="pagination-info">
-            Page {pagination.page} of {pagination.totalPages} ({pagination.total} total trips)
+            {t('adminTripList.pageInfo', {
+              page: pagination.page,
+              totalPages: pagination.totalPages,
+              total: pagination.total,
+            })}
           </span>
 
           <button
@@ -295,7 +291,7 @@ const AdminTripList = () => {
             disabled={pagination.page >= pagination.totalPages}
             className="pagination-btn"
           >
-            Next
+            {t('adminTripList.next')}
           </button>
         </div>
       )}
@@ -304,10 +300,12 @@ const AdminTripList = () => {
         open={deleteDialog.open}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Trip"
-        message={`Are you sure you want to delete "${deleteDialog.trip?.title}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('adminTripList.deleteTripTitle')}
+        message={t('adminTripList.deleteTripConfirmMessage', {
+          tripTitle: deleteDialog.trip?.title,
+        })}
+        confirmLabel={t('adminTripList.delete')}
+        cancelLabel={t('adminTripList.cancel')}
       />
     </div>
   );

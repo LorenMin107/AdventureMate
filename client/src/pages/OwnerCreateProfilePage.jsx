@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import useOwners from '../hooks/useOwners';
 import { logError } from '../utils/logger';
 import './OwnerRegisterPage.css'; // Reuse the same CSS
@@ -16,6 +17,7 @@ const OwnerCreateProfilePage = () => {
   const { currentUser } = useAuth();
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const { useRegisterOwner } = useOwners();
   const registerOwnerMutation = useRegisterOwner();
 
@@ -86,42 +88,42 @@ const OwnerCreateProfilePage = () => {
     switch (step) {
       case 1: // Business Information
         if (!formData.businessName.trim()) {
-          newErrors.businessName = 'Business name is required';
+          newErrors.businessName = t('ownerCreateProfile.validation.businessNameRequired');
         }
         if (!formData.businessType) {
-          newErrors.businessType = 'Business type is required';
+          newErrors.businessType = t('ownerCreateProfile.validation.businessTypeRequired');
         }
         if (!formData.businessPhone.trim()) {
-          newErrors.businessPhone = 'Business phone is required';
+          newErrors.businessPhone = t('ownerCreateProfile.validation.businessPhoneRequired');
         }
         if (!formData.businessEmail.trim()) {
-          newErrors.businessEmail = 'Business email is required';
+          newErrors.businessEmail = t('ownerCreateProfile.validation.businessEmailRequired');
         }
         break;
 
       case 2: // Business Address
         if (!formData.businessAddress.street.trim()) {
-          newErrors['businessAddress.street'] = 'Street address is required';
+          newErrors['businessAddress.street'] = t('ownerCreateProfile.validation.streetRequired');
         }
         if (!formData.businessAddress.city.trim()) {
-          newErrors['businessAddress.city'] = 'City is required';
+          newErrors['businessAddress.city'] = t('ownerCreateProfile.validation.cityRequired');
         }
         if (!formData.businessAddress.state.trim()) {
-          newErrors['businessAddress.state'] = 'State is required';
+          newErrors['businessAddress.state'] = t('ownerCreateProfile.validation.stateRequired');
         }
         if (!formData.businessAddress.zipCode.trim()) {
-          newErrors['businessAddress.zipCode'] = 'ZIP code is required';
+          newErrors['businessAddress.zipCode'] = t('ownerCreateProfile.validation.zipCodeRequired');
         }
         break;
 
       case 3: // Banking Information (optional but validate if provided)
         if (formData.bankingInfo.accountNumber && !formData.bankingInfo.accountHolderName.trim()) {
-          newErrors['bankingInfo.accountHolderName'] =
-            'Account holder name is required when account number is provided';
+          newErrors['bankingInfo.accountHolderName'] = t(
+            'ownerCreateProfile.validation.accountHolderNameRequired'
+          );
         }
         if (formData.bankingInfo.accountNumber && !formData.bankingInfo.bankName.trim()) {
-          newErrors['bankingInfo.bankName'] =
-            'Bank name is required when account number is provided';
+          newErrors['bankingInfo.bankName'] = t('ownerCreateProfile.validation.bankNameRequired');
         }
         break;
 
@@ -152,10 +154,7 @@ const OwnerCreateProfilePage = () => {
 
     try {
       await registerOwnerMutation.mutateAsync(formData);
-      showMessage(
-        'Owner profile created successfully! You can now access the owner dashboard.',
-        'success'
-      );
+      showMessage(t('ownerCreateProfile.success.title'), 'success');
       navigate('/owner/dashboard');
     } catch (error) {
       logError('Profile creation error', error);
@@ -172,12 +171,16 @@ const OwnerCreateProfilePage = () => {
         return (
           <div className="form-step">
             <div className="step-header">
-              <h3>Business Information</h3>
-              <p className="step-description">Provide your basic business details to get started</p>
+              <h3>{t('ownerCreateProfile.businessInformation.title')}</h3>
+              <p className="step-description">
+                {t('ownerCreateProfile.businessInformation.description')}
+              </p>
             </div>
 
             <div className="form-group">
-              <label htmlFor="businessName">Business Name *</label>
+              <label htmlFor="businessName">
+                {t('ownerCreateProfile.businessInformation.businessName')}
+              </label>
               <input
                 type="text"
                 id="businessName"
@@ -185,13 +188,15 @@ const OwnerCreateProfilePage = () => {
                 value={formData.businessName}
                 onChange={handleInputChange}
                 className={errors.businessName ? 'error' : ''}
-                placeholder="Enter your business name"
+                placeholder={t('ownerCreateProfile.businessInformation.businessNamePlaceholder')}
               />
               {errors.businessName && <span className="error-message">{errors.businessName}</span>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="businessType">Business Type *</label>
+              <label htmlFor="businessType">
+                {t('ownerCreateProfile.businessInformation.businessType')}
+              </label>
               <select
                 id="businessType"
                 name="businessType"
@@ -199,42 +204,54 @@ const OwnerCreateProfilePage = () => {
                 onChange={handleInputChange}
                 className={errors.businessType ? 'error' : ''}
               >
-                <option value="individual">Individual</option>
-                <option value="company">Company</option>
-                <option value="organization">Organization</option>
+                <option value="individual">
+                  {t('ownerCreateProfile.businessInformation.businessTypes.individual')}
+                </option>
+                <option value="company">
+                  {t('ownerCreateProfile.businessInformation.businessTypes.company')}
+                </option>
+                <option value="organization">
+                  {t('ownerCreateProfile.businessInformation.businessTypes.organization')}
+                </option>
               </select>
               {errors.businessType && <span className="error-message">{errors.businessType}</span>}
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="businessRegistrationNumber">Registration Number</label>
+                <label htmlFor="businessRegistrationNumber">
+                  {t('ownerCreateProfile.businessInformation.registrationNumber')}
+                </label>
                 <input
                   type="text"
                   id="businessRegistrationNumber"
                   name="businessRegistrationNumber"
                   value={formData.businessRegistrationNumber}
                   onChange={handleInputChange}
-                  placeholder="Business registration number (optional)"
+                  placeholder={t(
+                    'ownerCreateProfile.businessInformation.registrationNumberPlaceholder'
+                  )}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="taxId">Tax ID</label>
+                <label htmlFor="taxId">{t('ownerCreateProfile.businessInformation.taxId')}</label>
                 <input
                   type="text"
                   id="taxId"
                   name="taxId"
                   value={formData.taxId}
                   onChange={handleInputChange}
-                  placeholder="Tax identification number (optional)"
+                  placeholder={t('ownerCreateProfile.businessInformation.taxIdPlaceholder')}
                 />
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="businessPhone">Business Phone *</label>
+                <label htmlFor="businessPhone">
+                  {t('ownerCreateProfile.businessInformation.businessPhone')}
+                </label>
                 <input
                   type="tel"
                   id="businessPhone"
@@ -242,7 +259,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.businessPhone}
                   onChange={handleInputChange}
                   className={errors.businessPhone ? 'error' : ''}
-                  placeholder="+95 xxx xxx xxxx"
+                  placeholder={t('ownerCreateProfile.businessInformation.businessPhonePlaceholder')}
                 />
                 {errors.businessPhone && (
                   <span className="error-message">{errors.businessPhone}</span>
@@ -250,7 +267,9 @@ const OwnerCreateProfilePage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="businessEmail">Business Email *</label>
+                <label htmlFor="businessEmail">
+                  {t('ownerCreateProfile.businessInformation.businessEmail')}
+                </label>
                 <input
                   type="email"
                   id="businessEmail"
@@ -258,7 +277,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.businessEmail}
                   onChange={handleInputChange}
                   className={errors.businessEmail ? 'error' : ''}
-                  placeholder="business@example.com"
+                  placeholder={t('ownerCreateProfile.businessInformation.businessEmailPlaceholder')}
                 />
                 {errors.businessEmail && (
                   <span className="error-message">{errors.businessEmail}</span>
@@ -272,14 +291,16 @@ const OwnerCreateProfilePage = () => {
         return (
           <div className="form-step">
             <div className="step-header">
-              <h3>Business Address</h3>
+              <h3>{t('ownerCreateProfile.businessAddress.title')}</h3>
               <p className="step-description">
-                Provide your business address for verification purposes
+                {t('ownerCreateProfile.businessAddress.description')}
               </p>
             </div>
 
             <div className="form-group">
-              <label htmlFor="businessAddress.street">Street Address *</label>
+              <label htmlFor="businessAddress.street">
+                {t('ownerCreateProfile.businessAddress.streetAddress')}
+              </label>
               <input
                 type="text"
                 id="businessAddress.street"
@@ -287,7 +308,7 @@ const OwnerCreateProfilePage = () => {
                 value={formData.businessAddress.street}
                 onChange={handleInputChange}
                 className={errors['businessAddress.street'] ? 'error' : ''}
-                placeholder="123 Main Street"
+                placeholder={t('ownerCreateProfile.businessAddress.streetAddressPlaceholder')}
               />
               {errors['businessAddress.street'] && (
                 <span className="error-message">{errors['businessAddress.street']}</span>
@@ -296,7 +317,9 @@ const OwnerCreateProfilePage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="businessAddress.city">City *</label>
+                <label htmlFor="businessAddress.city">
+                  {t('ownerCreateProfile.businessAddress.city')}
+                </label>
                 <input
                   type="text"
                   id="businessAddress.city"
@@ -304,7 +327,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.businessAddress.city}
                   onChange={handleInputChange}
                   className={errors['businessAddress.city'] ? 'error' : ''}
-                  placeholder="Yangon"
+                  placeholder={t('ownerCreateProfile.businessAddress.cityPlaceholder')}
                 />
                 {errors['businessAddress.city'] && (
                   <span className="error-message">{errors['businessAddress.city']}</span>
@@ -312,7 +335,9 @@ const OwnerCreateProfilePage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="businessAddress.state">State/Region *</label>
+                <label htmlFor="businessAddress.state">
+                  {t('ownerCreateProfile.businessAddress.state')}
+                </label>
                 <input
                   type="text"
                   id="businessAddress.state"
@@ -320,7 +345,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.businessAddress.state}
                   onChange={handleInputChange}
                   className={errors['businessAddress.state'] ? 'error' : ''}
-                  placeholder="Yangon Region"
+                  placeholder={t('ownerCreateProfile.businessAddress.statePlaceholder')}
                 />
                 {errors['businessAddress.state'] && (
                   <span className="error-message">{errors['businessAddress.state']}</span>
@@ -330,7 +355,9 @@ const OwnerCreateProfilePage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="businessAddress.zipCode">ZIP Code *</label>
+                <label htmlFor="businessAddress.zipCode">
+                  {t('ownerCreateProfile.businessAddress.zipCode')}
+                </label>
                 <input
                   type="text"
                   id="businessAddress.zipCode"
@@ -338,7 +365,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.businessAddress.zipCode}
                   onChange={handleInputChange}
                   className={errors['businessAddress.zipCode'] ? 'error' : ''}
-                  placeholder="11011"
+                  placeholder={t('ownerCreateProfile.businessAddress.zipCodePlaceholder')}
                 />
                 {errors['businessAddress.zipCode'] && (
                   <span className="error-message">{errors['businessAddress.zipCode']}</span>
@@ -346,14 +373,16 @@ const OwnerCreateProfilePage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="businessAddress.country">Country</label>
+                <label htmlFor="businessAddress.country">
+                  {t('ownerCreateProfile.businessAddress.country')}
+                </label>
                 <input
                   type="text"
                   id="businessAddress.country"
                   name="businessAddress.country"
                   value={formData.businessAddress.country}
                   onChange={handleInputChange}
-                  placeholder="Myanmar"
+                  placeholder={t('ownerCreateProfile.businessAddress.countryPlaceholder')}
                 />
               </div>
             </div>
@@ -364,15 +393,17 @@ const OwnerCreateProfilePage = () => {
         return (
           <div className="form-step">
             <div className="step-header">
-              <h3>Banking Information</h3>
+              <h3>{t('ownerCreateProfile.bankingInformation.title')}</h3>
               <p className="step-description">
-                Provide banking details for payment processing (optional)
+                {t('ownerCreateProfile.bankingInformation.description')}
               </p>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="bankingInfo.accountHolderName">Account Holder Name</label>
+                <label htmlFor="bankingInfo.accountHolderName">
+                  {t('ownerCreateProfile.bankingInformation.accountHolderName')}
+                </label>
                 <input
                   type="text"
                   id="bankingInfo.accountHolderName"
@@ -380,7 +411,9 @@ const OwnerCreateProfilePage = () => {
                   value={formData.bankingInfo.accountHolderName}
                   onChange={handleInputChange}
                   className={errors['bankingInfo.accountHolderName'] ? 'error' : ''}
-                  placeholder="Account holder name"
+                  placeholder={t(
+                    'ownerCreateProfile.bankingInformation.accountHolderNamePlaceholder'
+                  )}
                 />
                 {errors['bankingInfo.accountHolderName'] && (
                   <span className="error-message">{errors['bankingInfo.accountHolderName']}</span>
@@ -388,7 +421,9 @@ const OwnerCreateProfilePage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="bankingInfo.bankName">Bank Name</label>
+                <label htmlFor="bankingInfo.bankName">
+                  {t('ownerCreateProfile.bankingInformation.bankName')}
+                </label>
                 <input
                   type="text"
                   id="bankingInfo.bankName"
@@ -396,7 +431,7 @@ const OwnerCreateProfilePage = () => {
                   value={formData.bankingInfo.bankName}
                   onChange={handleInputChange}
                   className={errors['bankingInfo.bankName'] ? 'error' : ''}
-                  placeholder="Bank name"
+                  placeholder={t('ownerCreateProfile.bankingInformation.bankNamePlaceholder')}
                 />
                 {errors['bankingInfo.bankName'] && (
                   <span className="error-message">{errors['bankingInfo.bankName']}</span>
@@ -406,39 +441,45 @@ const OwnerCreateProfilePage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="bankingInfo.accountNumber">Account Number</label>
+                <label htmlFor="bankingInfo.accountNumber">
+                  {t('ownerCreateProfile.bankingInformation.accountNumber')}
+                </label>
                 <input
                   type="text"
                   id="bankingInfo.accountNumber"
                   name="bankingInfo.accountNumber"
                   value={formData.bankingInfo.accountNumber}
                   onChange={handleInputChange}
-                  placeholder="Account number"
+                  placeholder={t('ownerCreateProfile.bankingInformation.accountNumberPlaceholder')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="bankingInfo.routingNumber">Routing Number</label>
+                <label htmlFor="bankingInfo.routingNumber">
+                  {t('ownerCreateProfile.bankingInformation.routingNumber')}
+                </label>
                 <input
                   type="text"
                   id="bankingInfo.routingNumber"
                   name="bankingInfo.routingNumber"
                   value={formData.bankingInfo.routingNumber}
                   onChange={handleInputChange}
-                  placeholder="Routing number"
+                  placeholder={t('ownerCreateProfile.bankingInformation.routingNumberPlaceholder')}
                 />
               </div>
             </div>
 
             <div className="form-group">
-              <label htmlFor="bankingInfo.swiftCode">SWIFT Code</label>
+              <label htmlFor="bankingInfo.swiftCode">
+                {t('ownerCreateProfile.bankingInformation.swiftCode')}
+              </label>
               <input
                 type="text"
                 id="bankingInfo.swiftCode"
                 name="bankingInfo.swiftCode"
                 value={formData.bankingInfo.swiftCode}
                 onChange={handleInputChange}
-                placeholder="SWIFT/BIC code"
+                placeholder={t('ownerCreateProfile.bankingInformation.swiftCodePlaceholder')}
               />
             </div>
           </div>
@@ -448,15 +489,17 @@ const OwnerCreateProfilePage = () => {
         return (
           <div className="form-step">
             <div className="step-header">
-              <h3>Business Settings</h3>
+              <h3>{t('ownerCreateProfile.businessSettings.title')}</h3>
               <p className="step-description">
-                Configure your default business settings and policies
+                {t('ownerCreateProfile.businessSettings.description')}
               </p>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="settings.checkInTime">Check-in Time</label>
+                <label htmlFor="settings.checkInTime">
+                  {t('ownerCreateProfile.businessSettings.checkInTime')}
+                </label>
                 <input
                   type="time"
                   id="settings.checkInTime"
@@ -467,7 +510,9 @@ const OwnerCreateProfilePage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="settings.checkOutTime">Check-out Time</label>
+                <label htmlFor="settings.checkOutTime">
+                  {t('ownerCreateProfile.businessSettings.checkOutTime')}
+                </label>
                 <input
                   type="time"
                   id="settings.checkOutTime"
@@ -480,7 +525,9 @@ const OwnerCreateProfilePage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="settings.minimumStay">Minimum Stay (nights)</label>
+                <label htmlFor="settings.minimumStay">
+                  {t('ownerCreateProfile.businessSettings.minimumStay')}
+                </label>
                 <input
                   type="number"
                   id="settings.minimumStay"
@@ -493,7 +540,9 @@ const OwnerCreateProfilePage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="settings.maximumStay">Maximum Stay (nights)</label>
+                <label htmlFor="settings.maximumStay">
+                  {t('ownerCreateProfile.businessSettings.maximumStay')}
+                </label>
                 <input
                   type="number"
                   id="settings.maximumStay"
@@ -507,16 +556,24 @@ const OwnerCreateProfilePage = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="settings.cancellationPolicy">Cancellation Policy</label>
+              <label htmlFor="settings.cancellationPolicy">
+                {t('ownerCreateProfile.businessSettings.cancellationPolicy')}
+              </label>
               <select
                 id="settings.cancellationPolicy"
                 name="settings.cancellationPolicy"
                 value={formData.settings.cancellationPolicy}
                 onChange={handleInputChange}
               >
-                <option value="flexible">Flexible - Full refund 24 hours before check-in</option>
-                <option value="moderate">Moderate - Full refund 5 days before check-in</option>
-                <option value="strict">Strict - 50% refund up to 1 week before check-in</option>
+                <option value="flexible">
+                  {t('ownerCreateProfile.businessSettings.cancellationPolicies.flexible')}
+                </option>
+                <option value="moderate">
+                  {t('ownerCreateProfile.businessSettings.cancellationPolicies.moderate')}
+                </option>
+                <option value="strict">
+                  {t('ownerCreateProfile.businessSettings.cancellationPolicies.strict')}
+                </option>
               </select>
             </div>
 
@@ -528,8 +585,8 @@ const OwnerCreateProfilePage = () => {
                   checked={formData.settings.autoApproveBookings}
                   onChange={handleInputChange}
                 />
-                Auto-approve bookings
-                <small>Automatically approve new booking requests</small>
+                {t('ownerCreateProfile.businessSettings.autoApproveBookings')}
+                <small>{t('ownerCreateProfile.businessSettings.autoApproveDescription')}</small>
               </label>
             </div>
 
@@ -541,8 +598,8 @@ const OwnerCreateProfilePage = () => {
                   checked={formData.settings.allowInstantBooking}
                   onChange={handleInputChange}
                 />
-                Allow instant booking
-                <small>Allow guests to book immediately without approval</small>
+                {t('ownerCreateProfile.businessSettings.allowInstantBooking')}
+                <small>{t('ownerCreateProfile.businessSettings.allowInstantDescription')}</small>
               </label>
             </div>
           </div>
@@ -560,20 +617,18 @@ const OwnerCreateProfilePage = () => {
         <div className="header-content">
           <div className="header-main">
             <div className="greeting-section">
-              <h1>Create Owner Profile</h1>
-              <p className="header-subtitle">
-                Complete your profile to access the owner dashboard and start managing campgrounds
-              </p>
+              <h1>{t('ownerCreateProfile.title')}</h1>
+              <p className="header-subtitle">{t('ownerCreateProfile.subtitle')}</p>
             </div>
             <div className="header-stats">
               <div className="header-stat">
-                <span className="stat-label">Step</span>
+                <span className="stat-label">{t('ownerCreateProfile.progress.step')}</span>
                 <span className="stat-value">
                   {currentStep}/{totalSteps}
                 </span>
               </div>
               <div className="header-stat">
-                <span className="stat-label">Progress</span>
+                <span className="stat-label">{t('ownerCreateProfile.progress.progress')}</span>
                 <span className="stat-value">{Math.round((currentStep / totalSteps) * 100)}%</span>
               </div>
             </div>
@@ -594,10 +649,10 @@ const OwnerCreateProfilePage = () => {
                 >
                   <span className="step-number">{step}</span>
                   <span className="step-label">
-                    {step === 1 && 'Business Info'}
-                    {step === 2 && 'Address'}
-                    {step === 3 && 'Banking'}
-                    {step === 4 && 'Settings'}
+                    {step === 1 && t('ownerRegister.progressSteps.businessInfo')}
+                    {step === 2 && t('ownerRegister.progressSteps.address')}
+                    {step === 3 && t('ownerRegister.progressSteps.banking')}
+                    {step === 4 && t('ownerRegister.progressSteps.settings')}
                   </span>
                 </div>
               ))}
@@ -619,13 +674,13 @@ const OwnerCreateProfilePage = () => {
             <div className="form-actions">
               {currentStep > 1 && (
                 <button type="button" onClick={handlePrevious} className="btn btn-secondary">
-                  Previous
+                  {t('ownerCreateProfile.formActions.previous')}
                 </button>
               )}
 
               {currentStep < totalSteps ? (
                 <button type="button" onClick={handleNext} className="btn btn-primary">
-                  Next
+                  {t('ownerCreateProfile.formActions.next')}
                 </button>
               ) : (
                 <button
@@ -633,7 +688,9 @@ const OwnerCreateProfilePage = () => {
                   className="btn btn-primary"
                   disabled={registerOwnerMutation.isLoading}
                 >
-                  {registerOwnerMutation.isLoading ? 'Creating Profile...' : 'Complete Profile'}
+                  {registerOwnerMutation.isLoading
+                    ? t('ownerCreateProfile.formActions.creatingProfile')
+                    : t('ownerCreateProfile.formActions.completeProfile')}
                 </button>
               )}
             </div>
@@ -645,10 +702,14 @@ const OwnerCreateProfilePage = () => {
           <div className="register-footer">
             <div className="footer-content">
               <p>
-                Already have an owner account? <Link to="/owner/dashboard">Go to Dashboard</Link>
+                {t('ownerCreateProfile.footer.alreadyHaveAccount')}{' '}
+                <Link to="/owner/dashboard">{t('ownerCreateProfile.footer.goToDashboard')}</Link>
               </p>
               <p>
-                Need help? <a href="mailto:support@adventuremate.com">Contact Support</a>
+                {t('ownerCreateProfile.footer.needHelp')}{' '}
+                <a href="mailto:support@adventuremate.com">
+                  {t('ownerCreateProfile.footer.contactSupport')}
+                </a>
               </p>
             </div>
           </div>

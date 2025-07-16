@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import apiClient from '../utils/api';
@@ -35,6 +36,7 @@ const SafetyAlertList = ({
   });
   const { currentUser } = useAuth();
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -109,7 +111,7 @@ const SafetyAlertList = ({
           setAlerts([]);
           // We don't set an error here, so the component will just render empty
         } else {
-          setError('Failed to load safety alerts. Please try again later.');
+          setError(t('safetyAlerts.list.error'));
         }
       } finally {
         setLoading(false);
@@ -154,7 +156,7 @@ const SafetyAlertList = ({
       setDeleteDialog({ open: false, alert: null });
     } catch (err) {
       logError('Error deleting safety alert', err);
-      alert('Failed to delete safety alert. Please try again later.');
+      alert(t('safetyAlerts.list.deleteError'));
     }
   };
 
@@ -290,7 +292,7 @@ const SafetyAlertList = ({
       logError('Error acknowledging safety alert', err);
 
       // Provide more detailed error information
-      let errorMessage = 'Failed to acknowledge safety alert. Please try again later.';
+      let errorMessage = t('commonErrors.failedToUpdate', { item: 'safety alert' });
 
       if (err.response) {
         // Server responded with error status
@@ -336,18 +338,18 @@ const SafetyAlertList = ({
           }
           errorMessage = data?.message || 'Invalid request. Please check the alert details.';
         } else if (status === 403) {
-          errorMessage = 'You do not have permission to acknowledge this alert.';
+          errorMessage = t('safetyAlertList.noPermission');
         } else if (status === 401) {
-          errorMessage = 'Please log in to acknowledge safety alerts.';
+          errorMessage = t('safetyAlertList.loginRequired');
         } else {
-          errorMessage = data?.message || `Server error (${status}). Please try again later.`;
+          errorMessage = data?.message || t('safetyAlertList.serverError', { status });
         }
       } else if (err.request) {
         // Network error
-        errorMessage = 'Network error. Please check your connection and try again.';
+        errorMessage = t('safetyAlertList.networkError');
       } else {
         // Other error
-        errorMessage = err.message || 'An unexpected error occurred. Please try again later.';
+        errorMessage = err.message || t('safetyAlertList.unexpectedError');
       }
 
       alert(errorMessage);
@@ -427,7 +429,7 @@ const SafetyAlertList = ({
   if (loading) {
     return (
       <div className={`safety-alert-list ${theme}`}>
-        <div className="safety-alert-loading">Loading safety alerts...</div>
+        <div className="safety-alert-loading">{t('safetyAlerts.list.loading')}</div>
       </div>
     );
   }
@@ -457,7 +459,7 @@ const SafetyAlertList = ({
       return (
         <div className={`safety-alert-list ${theme}`}>
           <div className="safety-alert-empty">
-            <p>Sign in to view safety alerts</p>
+            <p>{t('safetyAlerts.list.signInToView')}</p>
           </div>
         </div>
       );
@@ -466,7 +468,7 @@ const SafetyAlertList = ({
     return (
       <div className={`safety-alert-list ${theme}`}>
         <div className="safety-alert-empty">
-          <p>No safety alerts at this time</p>
+          <p>{t('safetyAlerts.list.noAlerts')}</p>
         </div>
       </div>
     );
@@ -475,8 +477,11 @@ const SafetyAlertList = ({
   return (
     <div className="safety-alert-list">
       <h3 className="safety-alert-list-title">
-        Safety Alerts ({alerts.length}){showActiveOnly && !showAllForAcknowledgment && ' - Active'}
-        {showAllForAcknowledgment && ' - All Alerts (Acknowledgment Required)'}
+        {showActiveOnly && !showAllForAcknowledgment
+          ? t('safetyAlerts.list.activeTitle', { count: alerts.length })
+          : showAllForAcknowledgment
+            ? t('safetyAlerts.list.allAlertsTitle', { count: alerts.length })
+            : t('safetyAlerts.list.title', { count: alerts.length })}
       </h3>
 
       {alerts
@@ -561,7 +566,9 @@ const SafetyAlertList = ({
                   <span className="safety-alert-type-icon">
                     {getTypeIcon(alert.type || 'other')}
                   </span>
-                  <h4 className="safety-alert-title">{alert.title || 'Untitled Alert'}</h4>
+                  <h4 className="safety-alert-title">
+                    {alert.title || t('safetyAlerts.list.untitledAlert')}
+                  </h4>
                   <span
                     className="safety-alert-severity-badge"
                     style={{ backgroundColor: getSeverityColor(alert.severity || 'medium') }}
@@ -572,7 +579,9 @@ const SafetyAlertList = ({
 
                 <div className="safety-alert-meta">
                   <span className="safety-alert-author">
-                    By {alert.createdBy?.username || 'Unknown'}
+                    {t('safetyAlerts.list.byAuthor', {
+                      author: alert.createdBy?.username || t('safetyAlerts.list.unknownAuthor'),
+                    })}
                   </span>
                   <span className="safety-alert-date">
                     {formatDate(alert.startDate || new Date())}
@@ -581,7 +590,7 @@ const SafetyAlertList = ({
               </div>
 
               <p className="safety-alert-description">
-                {alert.description || 'No description provided'}
+                {alert.description || t('safetyAlerts.list.noDescription')}
               </p>
 
               <div className="safety-alert-footer">
@@ -589,11 +598,13 @@ const SafetyAlertList = ({
                   <span className="safety-alert-type">{alert.type || 'other'}</span>
                   {alert.endDate && (
                     <span className="safety-alert-end-date">
-                      Until: {formatDate(alert.endDate)}
+                      {t('safetyAlerts.list.until', { date: formatDate(alert.endDate) })}
                     </span>
                   )}
                   {alert.requiresAcknowledgement === true && !userAcknowledged && (
-                    <span className="safety-alert-acknowledgment">Requires acknowledgment</span>
+                    <span className="safety-alert-acknowledgment">
+                      {t('safetyAlerts.list.requiresAcknowledgment')}
+                    </span>
                   )}
                 </div>
 
@@ -602,9 +613,9 @@ const SafetyAlertList = ({
                     <button
                       onClick={() => handleAcknowledgeAlert(alert._id)}
                       className="safety-alert-acknowledge-button"
-                      aria-label="Acknowledge alert"
+                      aria-label={t('safetyAlerts.list.acknowledge')}
                     >
-                      Acknowledge
+                      {t('safetyAlerts.list.acknowledge')}
                     </button>
                   )}
 
@@ -612,9 +623,9 @@ const SafetyAlertList = ({
                     <button
                       onClick={() => handleDeleteClick(alert._id)}
                       className="safety-alert-delete-button"
-                      aria-label="Delete alert"
+                      aria-label={t('safetyAlerts.list.delete')}
                     >
-                      Delete
+                      {t('safetyAlerts.list.delete')}
                     </button>
                   )}
                 </div>
@@ -627,10 +638,12 @@ const SafetyAlertList = ({
         open={deleteDialog.open}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Safety Alert"
-        message={`Are you sure you want to delete "${deleteDialog.alert?.title}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('safetyAlerts.list.deleteConfirmTitle')}
+        message={t('safetyAlerts.list.deleteConfirmMessage', {
+          title: deleteDialog.alert?.title || t('safetyAlerts.list.untitledAlert'),
+        })}
+        confirmLabel={t('safetyAlerts.list.delete')}
+        cancelLabel={t('safetyAlerts.cancel')}
       />
     </div>
   );

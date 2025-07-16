@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
@@ -7,12 +8,13 @@ import ConfirmDialog from '../common/ConfirmDialog';
 import './BookingList.css';
 
 /**
- * BookingList component displays a paginated list of bookings for administrators
+ * BookingList component displays a list of all bookings for administrators
  *
  * @returns {JSX.Element} Booking list component
  */
-const BookingList = () => {
+const BookingList = ({ initialBookings = [] }) => {
   const { currentUser } = useAuth();
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,7 +54,7 @@ const BookingList = () => {
         setError(null);
       } catch (err) {
         logError('Error fetching bookings', err);
-        setError('Failed to load bookings. Please try again later.');
+        setError(t('bookingList.loadError'));
       } finally {
         setLoading(false);
       }
@@ -99,7 +101,7 @@ const BookingList = () => {
       setCancelDialog({ open: false, booking: null });
     } catch (err) {
       logError('Error canceling booking', err);
-      alert('Failed to cancel booking. Please try again later.');
+      alert(t('bookingList.cancelError'));
     }
   };
 
@@ -114,15 +116,11 @@ const BookingList = () => {
   };
 
   if (!currentUser?.isAdmin) {
-    return (
-      <div className="booking-list-unauthorized">
-        You do not have permission to access this page.
-      </div>
-    );
+    return <div className="booking-list-unauthorized">{t('bookingList.unauthorizedMessage')}</div>;
   }
 
   if (loading) {
-    return <div className="booking-list-loading">Loading bookings...</div>;
+    return <div className="booking-list-loading">{t('bookingList.loading')}</div>;
   }
 
   if (error) {
@@ -132,7 +130,7 @@ const BookingList = () => {
   return (
     <div className="booking-list">
       <div className="booking-list-header">
-        <h1>Booking Management</h1>
+        <h1>{t('bookingList.managementTitle')}</h1>
         <div className="booking-list-actions">
           <select
             value={pagination.limit}
@@ -141,10 +139,10 @@ const BookingList = () => {
             }
             className="booking-list-limit"
           >
-            <option value="5">5 per page</option>
-            <option value="10">10 per page</option>
-            <option value="25">25 per page</option>
-            <option value="50">50 per page</option>
+            <option value="5">{t('bookingList.limitOptions.5')}</option>
+            <option value="10">{t('bookingList.limitOptions.10')}</option>
+            <option value="25">{t('bookingList.limitOptions.25')}</option>
+            <option value="50">{t('bookingList.limitOptions.50')}</option>
           </select>
         </div>
       </div>
@@ -157,40 +155,40 @@ const BookingList = () => {
                 className={`sortable ${sort.field === 'campground.title' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('campground.title')}
               >
-                Campground
+                {t('bookingList.table.campground')}
               </th>
               <th
                 className={`sortable ${sort.field === 'user.username' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('user.username')}
               >
-                User
+                {t('bookingList.table.user')}
               </th>
               <th
                 className={`sortable ${sort.field === 'startDate' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('startDate')}
               >
-                Check-in
+                {t('bookingList.table.checkIn')}
               </th>
               <th
                 className={`sortable ${sort.field === 'endDate' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('endDate')}
               >
-                Check-out
+                {t('bookingList.table.checkOut')}
               </th>
-              <th>Nights</th>
+              <th>{t('bookingList.table.nights')}</th>
               <th
                 className={`sortable ${sort.field === 'totalPrice' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('totalPrice')}
               >
-                Total Price
+                {t('bookingList.table.totalPrice')}
               </th>
               <th
                 className={`sortable ${sort.field === 'createdAt' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('createdAt')}
               >
-                Booked On
+                {t('bookingList.table.bookedOn')}
               </th>
-              <th>Actions</th>
+              <th>{t('bookingList.table.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -202,14 +200,14 @@ const BookingList = () => {
                       {booking.campground.title}
                     </Link>
                   ) : (
-                    <span>Campground</span>
+                    <span>{t('bookingList.table.campgroundPlaceholder')}</span>
                   )}
                 </td>
                 <td>
                   {booking.user ? (
                     <Link to={`/admin/users/${booking.user._id}`}>{booking.user.username}</Link>
                   ) : (
-                    <span>Unknown user</span>
+                    <span>{t('bookingList.table.unknownUser')}</span>
                   )}
                 </td>
                 <td>{formatDate(booking.startDate)}</td>
@@ -219,13 +217,13 @@ const BookingList = () => {
                 <td>{formatDate(booking.createdAt)}</td>
                 <td className="booking-list-actions-cell">
                   <Link to={`/bookings/${booking._id}`} className="booking-list-view-button">
-                    View
+                    {t('bookingList.actions.view')}
                   </Link>
                   <button
                     onClick={() => handleCancelClick(booking)}
                     className="booking-list-cancel-button"
                   >
-                    Cancel
+                    {t('bookingList.actions.cancel')}
                   </button>
                 </td>
               </tr>
@@ -241,31 +239,34 @@ const BookingList = () => {
             disabled={pagination.page === 1}
             className="pagination-button"
           >
-            First
+            {t('bookingList.pagination.first')}
           </button>
           <button
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
             className="pagination-button"
           >
-            Previous
+            {t('bookingList.pagination.previous')}
           </button>
           <span className="pagination-info">
-            Page {pagination.page} of {pagination.totalPages}
+            {t('bookingList.pagination.pageInfo', {
+              page: pagination.page,
+              totalPages: pagination.totalPages,
+            })}
           </span>
           <button
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >
-            Next
+            {t('bookingList.pagination.next')}
           </button>
           <button
             onClick={() => handlePageChange(pagination.totalPages)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >
-            Last
+            {t('bookingList.pagination.last')}
           </button>
         </div>
       )}
@@ -274,10 +275,10 @@ const BookingList = () => {
         open={cancelDialog.open}
         onClose={handleCancelCancel}
         onConfirm={handleCancelConfirm}
-        title="Cancel Booking"
-        message={`Are you sure you want to cancel this booking? This action cannot be undone.`}
-        confirmLabel="Cancel Booking"
-        cancelLabel="Keep Booking"
+        title={t('bookingList.cancelDialog.title')}
+        message={t('bookingList.cancelDialog.message')}
+        confirmLabel={t('bookingList.cancelDialog.confirmLabel')}
+        cancelLabel={t('bookingList.cancelDialog.cancelLabel')}
       />
     </div>
   );

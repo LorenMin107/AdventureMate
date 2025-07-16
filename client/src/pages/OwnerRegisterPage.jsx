@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import useOwners from '../hooks/useOwners';
 import { logError } from '../utils/logger';
 import './OwnerRegisterPage.css';
@@ -17,6 +18,7 @@ const OwnerRegisterPage = () => {
   const { currentUser, isAuthenticated } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const { useApplyToBeOwner } = useOwners();
   const applyToBeOwnerMutation = useApplyToBeOwner();
 
@@ -88,48 +90,48 @@ const OwnerRegisterPage = () => {
     switch (step) {
       case 1: // Business Information
         if (!formData.businessName.trim()) {
-          newErrors.businessName = 'Business name is required';
+          newErrors.businessName = t('ownerRegister.validation.businessNameRequired');
         }
         if (!formData.businessType) {
-          newErrors.businessType = 'Business type is required';
+          newErrors.businessType = t('ownerRegister.validation.businessTypeRequired');
         }
         if (!formData.businessPhone.trim()) {
-          newErrors.businessPhone = 'Business phone is required';
+          newErrors.businessPhone = t('ownerRegister.validation.businessPhoneRequired');
         }
         if (!formData.businessEmail.trim()) {
-          newErrors.businessEmail = 'Business email is required';
+          newErrors.businessEmail = t('ownerRegister.validation.businessEmailRequired');
         }
         break;
 
       case 2: // Business Address
         if (!formData.businessAddress.street.trim()) {
-          newErrors['businessAddress.street'] = 'Street address is required';
+          newErrors['businessAddress.street'] = t('ownerRegister.validation.streetRequired');
         }
         if (!formData.businessAddress.city.trim()) {
-          newErrors['businessAddress.city'] = 'City is required';
+          newErrors['businessAddress.city'] = t('ownerRegister.validation.cityRequired');
         }
         if (!formData.businessAddress.state.trim()) {
-          newErrors['businessAddress.state'] = 'State is required';
+          newErrors['businessAddress.state'] = t('ownerRegister.validation.stateRequired');
         }
         if (!formData.businessAddress.zipCode.trim()) {
-          newErrors['businessAddress.zipCode'] = 'ZIP code is required';
+          newErrors['businessAddress.zipCode'] = t('ownerRegister.validation.zipCodeRequired');
         }
         break;
 
       case 3: // Banking Information (optional but validate if provided)
         if (formData.bankingInfo.accountNumber && !formData.bankingInfo.accountHolderName.trim()) {
-          newErrors['bankingInfo.accountHolderName'] =
-            'Account holder name is required when account number is provided';
+          newErrors['bankingInfo.accountHolderName'] = t(
+            'ownerRegister.validation.accountHolderNameRequired'
+          );
         }
         if (formData.bankingInfo.accountNumber && !formData.bankingInfo.bankName.trim()) {
-          newErrors['bankingInfo.bankName'] =
-            'Bank name is required when account number is provided';
+          newErrors['bankingInfo.bankName'] = t('ownerRegister.validation.bankNameRequired');
         }
         break;
 
       case 4: // Settings (no validation needed, all have defaults)
         if (!formData.applicationReason.trim()) {
-          newErrors.applicationReason = 'Application reason is required';
+          newErrors.applicationReason = t('ownerRegister.validation.applicationReasonRequired');
         }
         break;
     }
@@ -159,10 +161,7 @@ const OwnerRegisterPage = () => {
       const response = await applyToBeOwnerMutation.mutateAsync(formData);
 
       // Show the message from the server or a default success message
-      addSuccessMessage(
-        response.message ||
-          'Your owner application has been submitted and is pending review. You will be notified once it is approved.'
-      );
+      addSuccessMessage(response.message || t('ownerRegister.success.title'));
 
       // Redirect to verification page for pending applications
       navigate('/owner/verification');
@@ -177,10 +176,12 @@ const OwnerRegisterPage = () => {
       case 1:
         return (
           <div className="form-step">
-            <h3>Business Information</h3>
+            <h3>{t('ownerRegister.businessInformation.title')}</h3>
 
             <div className="form-group">
-              <label htmlFor="businessName">Business Name *</label>
+              <label htmlFor="businessName">
+                {t('ownerRegister.businessInformation.businessName')}
+              </label>
               <input
                 type="text"
                 id="businessName"
@@ -188,13 +189,15 @@ const OwnerRegisterPage = () => {
                 value={formData.businessName}
                 onChange={handleInputChange}
                 className={errors.businessName ? 'error' : ''}
-                placeholder="Enter your business name"
+                placeholder={t('ownerRegister.businessInformation.businessNamePlaceholder')}
               />
               {errors.businessName && <span className="error-message">{errors.businessName}</span>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="businessType">Business Type *</label>
+              <label htmlFor="businessType">
+                {t('ownerRegister.businessInformation.businessType')}
+              </label>
               <select
                 id="businessType"
                 name="businessType"
@@ -202,42 +205,52 @@ const OwnerRegisterPage = () => {
                 onChange={handleInputChange}
                 className={errors.businessType ? 'error' : ''}
               >
-                <option value="individual">Individual</option>
-                <option value="company">Company</option>
-                <option value="organization">Organization</option>
+                <option value="individual">
+                  {t('ownerRegister.businessInformation.businessTypes.individual')}
+                </option>
+                <option value="company">
+                  {t('ownerRegister.businessInformation.businessTypes.company')}
+                </option>
+                <option value="organization">
+                  {t('ownerRegister.businessInformation.businessTypes.organization')}
+                </option>
               </select>
               {errors.businessType && <span className="error-message">{errors.businessType}</span>}
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="businessRegistrationNumber">Registration Number</label>
+                <label htmlFor="businessRegistrationNumber">
+                  {t('ownerRegister.businessInformation.registrationNumber')}
+                </label>
                 <input
                   type="text"
                   id="businessRegistrationNumber"
                   name="businessRegistrationNumber"
                   value={formData.businessRegistrationNumber}
                   onChange={handleInputChange}
-                  placeholder="Business registration number (optional)"
+                  placeholder={t('ownerRegister.businessInformation.registrationNumberPlaceholder')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="taxId">Tax ID</label>
+                <label htmlFor="taxId">{t('ownerRegister.businessInformation.taxId')}</label>
                 <input
                   type="text"
                   id="taxId"
                   name="taxId"
                   value={formData.taxId}
                   onChange={handleInputChange}
-                  placeholder="Tax identification number (optional)"
+                  placeholder={t('ownerRegister.businessInformation.taxIdPlaceholder')}
                 />
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="businessPhone">Business Phone *</label>
+                <label htmlFor="businessPhone">
+                  {t('ownerRegister.businessInformation.businessPhone')}
+                </label>
                 <input
                   type="tel"
                   id="businessPhone"
@@ -245,7 +258,7 @@ const OwnerRegisterPage = () => {
                   value={formData.businessPhone}
                   onChange={handleInputChange}
                   className={errors.businessPhone ? 'error' : ''}
-                  placeholder="+95 xxx xxx xxxx"
+                  placeholder={t('ownerRegister.businessInformation.businessPhonePlaceholder')}
                 />
                 {errors.businessPhone && (
                   <span className="error-message">{errors.businessPhone}</span>
@@ -253,7 +266,9 @@ const OwnerRegisterPage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="businessEmail">Business Email *</label>
+                <label htmlFor="businessEmail">
+                  {t('ownerRegister.businessInformation.businessEmail')}
+                </label>
                 <input
                   type="email"
                   id="businessEmail"
@@ -261,7 +276,7 @@ const OwnerRegisterPage = () => {
                   value={formData.businessEmail}
                   onChange={handleInputChange}
                   className={errors.businessEmail ? 'error' : ''}
-                  placeholder="business@example.com"
+                  placeholder={t('ownerRegister.businessInformation.businessEmailPlaceholder')}
                 />
                 {errors.businessEmail && (
                   <span className="error-message">{errors.businessEmail}</span>
@@ -274,10 +289,12 @@ const OwnerRegisterPage = () => {
       case 2:
         return (
           <div className="form-step">
-            <h3>Business Address</h3>
+            <h3>{t('ownerRegister.businessAddress.title')}</h3>
 
             <div className="form-group">
-              <label htmlFor="businessAddress.street">Street Address *</label>
+              <label htmlFor="businessAddress.street">
+                {t('ownerRegister.businessAddress.streetAddress')}
+              </label>
               <input
                 type="text"
                 id="businessAddress.street"
@@ -285,7 +302,7 @@ const OwnerRegisterPage = () => {
                 value={formData.businessAddress.street}
                 onChange={handleInputChange}
                 className={errors['businessAddress.street'] ? 'error' : ''}
-                placeholder="Enter street address"
+                placeholder={t('ownerRegister.businessAddress.streetAddressPlaceholder')}
               />
               {errors['businessAddress.street'] && (
                 <span className="error-message">{errors['businessAddress.street']}</span>
@@ -294,7 +311,9 @@ const OwnerRegisterPage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="businessAddress.city">City *</label>
+                <label htmlFor="businessAddress.city">
+                  {t('ownerRegister.businessAddress.city')}
+                </label>
                 <input
                   type="text"
                   id="businessAddress.city"
@@ -302,7 +321,7 @@ const OwnerRegisterPage = () => {
                   value={formData.businessAddress.city}
                   onChange={handleInputChange}
                   className={errors['businessAddress.city'] ? 'error' : ''}
-                  placeholder="City"
+                  placeholder={t('ownerRegister.businessAddress.cityPlaceholder')}
                 />
                 {errors['businessAddress.city'] && (
                   <span className="error-message">{errors['businessAddress.city']}</span>
@@ -310,7 +329,9 @@ const OwnerRegisterPage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="businessAddress.state">State/Region *</label>
+                <label htmlFor="businessAddress.state">
+                  {t('ownerRegister.businessAddress.state')}
+                </label>
                 <input
                   type="text"
                   id="businessAddress.state"
@@ -318,7 +339,7 @@ const OwnerRegisterPage = () => {
                   value={formData.businessAddress.state}
                   onChange={handleInputChange}
                   className={errors['businessAddress.state'] ? 'error' : ''}
-                  placeholder="State or Region"
+                  placeholder={t('ownerRegister.businessAddress.statePlaceholder')}
                 />
                 {errors['businessAddress.state'] && (
                   <span className="error-message">{errors['businessAddress.state']}</span>
@@ -328,7 +349,9 @@ const OwnerRegisterPage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="businessAddress.zipCode">ZIP Code *</label>
+                <label htmlFor="businessAddress.zipCode">
+                  {t('ownerRegister.businessAddress.zipCode')}
+                </label>
                 <input
                   type="text"
                   id="businessAddress.zipCode"
@@ -336,7 +359,7 @@ const OwnerRegisterPage = () => {
                   value={formData.businessAddress.zipCode}
                   onChange={handleInputChange}
                   className={errors['businessAddress.zipCode'] ? 'error' : ''}
-                  placeholder="ZIP Code"
+                  placeholder={t('ownerRegister.businessAddress.zipCodePlaceholder')}
                 />
                 {errors['businessAddress.zipCode'] && (
                   <span className="error-message">{errors['businessAddress.zipCode']}</span>
@@ -344,7 +367,9 @@ const OwnerRegisterPage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="businessAddress.country">Country</label>
+                <label htmlFor="businessAddress.country">
+                  {t('ownerRegister.businessAddress.country')}
+                </label>
                 <select
                   id="businessAddress.country"
                   name="businessAddress.country"
@@ -365,14 +390,13 @@ const OwnerRegisterPage = () => {
       case 3:
         return (
           <div className="form-step">
-            <h3>Banking Information</h3>
-            <p className="step-description">
-              Banking information is optional but required for receiving payments. You can add this
-              later in your profile settings.
-            </p>
+            <h3>{t('ownerRegister.bankingInformation.title')}</h3>
+            <p className="step-description">{t('ownerRegister.bankingInformation.description')}</p>
 
             <div className="form-group">
-              <label htmlFor="bankingInfo.accountHolderName">Account Holder Name</label>
+              <label htmlFor="bankingInfo.accountHolderName">
+                {t('ownerRegister.bankingInformation.accountHolderName')}
+              </label>
               <input
                 type="text"
                 id="bankingInfo.accountHolderName"
@@ -380,7 +404,7 @@ const OwnerRegisterPage = () => {
                 value={formData.bankingInfo.accountHolderName}
                 onChange={handleInputChange}
                 className={errors['bankingInfo.accountHolderName'] ? 'error' : ''}
-                placeholder="Full name as on bank account"
+                placeholder={t('ownerRegister.bankingInformation.accountHolderNamePlaceholder')}
               />
               {errors['bankingInfo.accountHolderName'] && (
                 <span className="error-message">{errors['bankingInfo.accountHolderName']}</span>
@@ -389,7 +413,9 @@ const OwnerRegisterPage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="bankingInfo.bankName">Bank Name</label>
+                <label htmlFor="bankingInfo.bankName">
+                  {t('ownerRegister.bankingInformation.bankName')}
+                </label>
                 <input
                   type="text"
                   id="bankingInfo.bankName"
@@ -397,7 +423,7 @@ const OwnerRegisterPage = () => {
                   value={formData.bankingInfo.bankName}
                   onChange={handleInputChange}
                   className={errors['bankingInfo.bankName'] ? 'error' : ''}
-                  placeholder="Bank name"
+                  placeholder={t('ownerRegister.bankingInformation.bankNamePlaceholder')}
                 />
                 {errors['bankingInfo.bankName'] && (
                   <span className="error-message">{errors['bankingInfo.bankName']}</span>
@@ -405,40 +431,46 @@ const OwnerRegisterPage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="bankingInfo.accountNumber">Account Number</label>
+                <label htmlFor="bankingInfo.accountNumber">
+                  {t('ownerRegister.bankingInformation.accountNumber')}
+                </label>
                 <input
                   type="text"
                   id="bankingInfo.accountNumber"
                   name="bankingInfo.accountNumber"
                   value={formData.bankingInfo.accountNumber}
                   onChange={handleInputChange}
-                  placeholder="Bank account number"
+                  placeholder={t('ownerRegister.bankingInformation.accountNumberPlaceholder')}
                 />
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="bankingInfo.routingNumber">Routing Number</label>
+                <label htmlFor="bankingInfo.routingNumber">
+                  {t('ownerRegister.bankingInformation.routingNumber')}
+                </label>
                 <input
                   type="text"
                   id="bankingInfo.routingNumber"
                   name="bankingInfo.routingNumber"
                   value={formData.bankingInfo.routingNumber}
                   onChange={handleInputChange}
-                  placeholder="Routing number (if applicable)"
+                  placeholder={t('ownerRegister.bankingInformation.routingNumberPlaceholder')}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="bankingInfo.swiftCode">SWIFT Code</label>
+                <label htmlFor="bankingInfo.swiftCode">
+                  {t('ownerRegister.bankingInformation.swiftCode')}
+                </label>
                 <input
                   type="text"
                   id="bankingInfo.swiftCode"
                   name="bankingInfo.swiftCode"
                   value={formData.bankingInfo.swiftCode}
                   onChange={handleInputChange}
-                  placeholder="SWIFT/BIC code (if applicable)"
+                  placeholder={t('ownerRegister.bankingInformation.swiftCodePlaceholder')}
                 />
               </div>
             </div>
@@ -448,10 +480,8 @@ const OwnerRegisterPage = () => {
       case 4:
         return (
           <div className="form-step">
-            <h3>Booking Settings</h3>
-            <p className="step-description">
-              Configure your default booking settings. You can change these later in your dashboard.
-            </p>
+            <h3>{t('ownerRegister.bookingSettings.title')}</h3>
+            <p className="step-description">{t('ownerRegister.bookingSettings.description')}</p>
 
             <div className="form-group checkbox-group">
               <label className="checkbox-label">
@@ -462,9 +492,9 @@ const OwnerRegisterPage = () => {
                   onChange={handleInputChange}
                 />
                 <span className="checkmark"></span>
-                Auto-approve bookings
+                {t('ownerRegister.bookingSettings.autoApproveBookings')}
               </label>
-              <small>Automatically approve booking requests without manual review</small>
+              <small>{t('ownerRegister.bookingSettings.autoApproveDescription')}</small>
             </div>
 
             <div className="form-group checkbox-group">
@@ -476,28 +506,38 @@ const OwnerRegisterPage = () => {
                   onChange={handleInputChange}
                 />
                 <span className="checkmark"></span>
-                Allow instant booking
+                {t('ownerRegister.bookingSettings.allowInstantBooking')}
               </label>
-              <small>Allow guests to book immediately without approval</small>
+              <small>{t('ownerRegister.bookingSettings.allowInstantDescription')}</small>
             </div>
 
             <div className="form-group">
-              <label htmlFor="settings.cancellationPolicy">Cancellation Policy</label>
+              <label htmlFor="settings.cancellationPolicy">
+                {t('ownerRegister.bookingSettings.cancellationPolicy')}
+              </label>
               <select
                 id="settings.cancellationPolicy"
                 name="settings.cancellationPolicy"
                 value={formData.settings.cancellationPolicy}
                 onChange={handleInputChange}
               >
-                <option value="flexible">Flexible - Full refund 24 hours before check-in</option>
-                <option value="moderate">Moderate - Full refund 5 days before check-in</option>
-                <option value="strict">Strict - 50% refund up to 1 week before check-in</option>
+                <option value="flexible">
+                  {t('ownerRegister.bookingSettings.cancellationPolicies.flexible')}
+                </option>
+                <option value="moderate">
+                  {t('ownerRegister.bookingSettings.cancellationPolicies.moderate')}
+                </option>
+                <option value="strict">
+                  {t('ownerRegister.bookingSettings.cancellationPolicies.strict')}
+                </option>
               </select>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="settings.minimumStay">Minimum Stay (nights)</label>
+                <label htmlFor="settings.minimumStay">
+                  {t('ownerRegister.bookingSettings.minimumStay')}
+                </label>
                 <input
                   type="number"
                   id="settings.minimumStay"
@@ -510,7 +550,9 @@ const OwnerRegisterPage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="settings.maximumStay">Maximum Stay (nights)</label>
+                <label htmlFor="settings.maximumStay">
+                  {t('ownerRegister.bookingSettings.maximumStay')}
+                </label>
                 <input
                   type="number"
                   id="settings.maximumStay"
@@ -525,7 +567,9 @@ const OwnerRegisterPage = () => {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="settings.checkInTime">Check-in Time</label>
+                <label htmlFor="settings.checkInTime">
+                  {t('ownerRegister.bookingSettings.checkInTime')}
+                </label>
                 <input
                   type="time"
                   id="settings.checkInTime"
@@ -536,7 +580,9 @@ const OwnerRegisterPage = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="settings.checkOutTime">Check-out Time</label>
+                <label htmlFor="settings.checkOutTime">
+                  {t('ownerRegister.bookingSettings.checkOutTime')}
+                </label>
                 <input
                   type="time"
                   id="settings.checkOutTime"
@@ -548,14 +594,16 @@ const OwnerRegisterPage = () => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="applicationReason">Application Reason *</label>
+              <label htmlFor="applicationReason">
+                {t('ownerRegister.bookingSettings.applicationReason')}
+              </label>
               <textarea
                 id="applicationReason"
                 name="applicationReason"
                 value={formData.applicationReason}
                 onChange={handleInputChange}
                 className={errors.applicationReason ? 'error' : ''}
-                placeholder="Please provide a brief explanation for your application."
+                placeholder={t('ownerRegister.bookingSettings.applicationReasonPlaceholder')}
               ></textarea>
               {errors.applicationReason && (
                 <span className="error-message">{errors.applicationReason}</span>
@@ -576,25 +624,22 @@ const OwnerRegisterPage = () => {
         <div className="owner-page-header">
           <div className="header-content">
             <div className="greeting-section">
-              <h1>Become a Campground Owner</h1>
-              <p className="header-subtitle">
-                Join AdventureMate as a verified campground owner and start earning from your
-                property.
-              </p>
+              <h1>{t('ownerRegister.title')}</h1>
+              <p className="header-subtitle">{t('ownerRegister.subtitle')}</p>
             </div>
 
             <div className="header-stats">
               <div className="header-stat">
                 <div className="stat-value">1000+</div>
-                <div className="stat-label">Active Owners</div>
+                <div className="stat-label">{t('ownerRegister.headerStats.activeOwners')}</div>
               </div>
               <div className="header-stat">
                 <div className="stat-value">95%</div>
-                <div className="stat-label">Approval Rate</div>
+                <div className="stat-label">{t('ownerRegister.headerStats.approvalRate')}</div>
               </div>
               <div className="header-stat">
                 <div className="stat-value">24h</div>
-                <div className="stat-label">Response Time</div>
+                <div className="stat-label">{t('ownerRegister.headerStats.responseTime')}</div>
               </div>
             </div>
           </div>
@@ -607,38 +652,39 @@ const OwnerRegisterPage = () => {
                 <span>🔐</span>
               </div>
 
-              <h2>Create an Account or Sign In</h2>
-              <p className="auth-description">
-                To register as a campground owner, you need to have an AdventureMate account. This
-                helps us verify your identity and provide you with the best owner experience.
-              </p>
+              <h2>{t('ownerRegister.authRequired.title')}</h2>
+              <p className="auth-description">{t('ownerRegister.authRequired.description')}</p>
 
               <div className="auth-benefits">
-                <h3>Why become an owner?</h3>
+                <h3>{t('ownerRegister.authRequired.benefitsTitle')}</h3>
                 <ul>
-                  <li>💰 Earn money from your campground</li>
-                  <li>📈 Access to detailed analytics and insights</li>
-                  <li>🔧 Easy-to-use management tools</li>
-                  <li>📱 Mobile-friendly dashboard</li>
-                  <li>🎯 Reach thousands of potential campers</li>
+                  <li>{t('ownerRegister.authRequired.benefits.earnMoney')}</li>
+                  <li>{t('ownerRegister.authRequired.benefits.analytics')}</li>
+                  <li>{t('ownerRegister.authRequired.benefits.tools')}</li>
+                  <li>{t('ownerRegister.authRequired.benefits.mobile')}</li>
+                  <li>{t('ownerRegister.authRequired.benefits.reach')}</li>
                 </ul>
               </div>
 
               <div className="auth-buttons">
                 <Link to="/register" className="btn btn-primary">
-                  Create Account
+                  {t('ownerRegister.authRequired.createAccount')}
                 </Link>
                 <Link to="/login" className="btn btn-secondary">
-                  Sign In
+                  {t('ownerRegister.authRequired.signIn')}
                 </Link>
               </div>
 
               <div className="auth-footer">
                 <p>
-                  Already have an owner account? <Link to="/owner/dashboard">Go to Dashboard</Link>
+                  {t('ownerRegister.authRequired.alreadyHaveAccount')}{' '}
+                  <Link to="/owner/dashboard">{t('ownerRegister.authRequired.goToDashboard')}</Link>
                 </p>
                 <p>
-                  Need help? <a href="mailto:support@adventuremate.com">Contact Support</a>
+                  {t('ownerRegister.authRequired.needHelp')}{' '}
+                  <a href="mailto:support@adventuremate.com">
+                    {t('ownerRegister.authRequired.contactSupport')}
+                  </a>
                 </p>
               </div>
             </div>
@@ -652,10 +698,8 @@ const OwnerRegisterPage = () => {
     <div className={`owner-register-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
       <div className="register-container">
         <div className="register-header">
-          <h1>Become a Campground Owner</h1>
-          <p>
-            Join AdventureMate as a verified campground owner and start earning from your property.
-          </p>
+          <h1>{t('ownerRegister.title')}</h1>
+          <p>{t('ownerRegister.subtitle')}</p>
         </div>
 
         <div className="progress-bar">
@@ -667,10 +711,10 @@ const OwnerRegisterPage = () => {
               >
                 <span className="step-number">{step}</span>
                 <span className="step-label">
-                  {step === 1 && 'Business Info'}
-                  {step === 2 && 'Address'}
-                  {step === 3 && 'Banking'}
-                  {step === 4 && 'Settings'}
+                  {step === 1 && t('ownerRegister.progressSteps.businessInfo')}
+                  {step === 2 && t('ownerRegister.progressSteps.address')}
+                  {step === 3 && t('ownerRegister.progressSteps.banking')}
+                  {step === 4 && t('ownerRegister.progressSteps.settings')}
                 </span>
               </div>
             ))}
@@ -689,13 +733,13 @@ const OwnerRegisterPage = () => {
           <div className="form-actions">
             {currentStep > 1 && (
               <button type="button" onClick={handlePrevious} className="btn btn-secondary">
-                Previous
+                {t('ownerRegister.formActions.previous')}
               </button>
             )}
 
             {currentStep < totalSteps ? (
               <button type="button" onClick={handleNext} className="btn btn-primary">
-                Next
+                {t('ownerRegister.formActions.next')}
               </button>
             ) : (
               <button
@@ -703,7 +747,9 @@ const OwnerRegisterPage = () => {
                 className="btn btn-primary"
                 disabled={applyToBeOwnerMutation.isLoading}
               >
-                {applyToBeOwnerMutation.isLoading ? 'Registering...' : 'Complete Registration'}
+                {applyToBeOwnerMutation.isLoading
+                  ? t('ownerRegister.formActions.registering')
+                  : t('ownerRegister.formActions.completeRegistration')}
               </button>
             )}
           </div>
@@ -711,10 +757,14 @@ const OwnerRegisterPage = () => {
 
         <div className="register-footer">
           <p>
-            Already have an owner account? <Link to="/owner/dashboard">Go to Dashboard</Link>
+            {t('ownerRegister.footer.alreadyHaveAccount')}{' '}
+            <Link to="/owner/dashboard">{t('ownerRegister.footer.goToDashboard')}</Link>
           </p>
           <p>
-            Need help? <a href="mailto:support@adventuremate.com">Contact Support</a>
+            {t('ownerRegister.footer.needHelp')}{' '}
+            <a href="mailto:support@adventuremate.com">
+              {t('ownerRegister.footer.contactSupport')}
+            </a>
           </p>
         </div>
       </div>

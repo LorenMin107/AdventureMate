@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
 import { Form, DateRangePicker, ErrorMessage, Input } from '../components/forms';
@@ -19,6 +20,7 @@ import './CampsiteDetailPage.css';
  */
 const CampsiteDetailPage = () => {
   const { id } = useParams();
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -449,7 +451,7 @@ const CampsiteDetailPage = () => {
               <>
                 <div className="price-display">
                   <span className="price">${campsite?.price || 0}</span>
-                  <span className="price-unit">per night</span>
+                  <span className="price-unit">{t('bookings.perNight')}</span>
                 </div>
 
                 {currentUser ? (
@@ -469,12 +471,11 @@ const CampsiteDetailPage = () => {
                             <div className="campsite-booking-safety-warning">
                               <div className="safety-warning-header">
                                 <span className="safety-warning-icon">⚠️</span>
-                                <h4>Safety Alert Required</h4>
+                                <h4>{t('bookings.safetyAlertRequired')}</h4>
                               </div>
                               <p>{getUnacknowledgedAlertsMessage(unacknowledgedAlerts)}</p>
                               <p className="safety-warning-note">
-                                Please review and acknowledge all safety alerts before proceeding
-                                with your booking.
+                                {t('bookings.reviewSafetyAlerts')}
                               </p>
                             </div>
                           );
@@ -499,7 +500,7 @@ const CampsiteDetailPage = () => {
                         schema={bookingSchema}
                         defaultValues={defaultValues}
                         onSubmit={handleBookingSubmit}
-                        submitButtonText="Book Now"
+                        submitButtonText={t('bookings.bookNow')}
                         showSubmitButton={true}
                         className="campsite-booking-form"
                         errorMessage="" // Prevent Form component from showing its own error
@@ -508,7 +509,7 @@ const CampsiteDetailPage = () => {
                           <DateRangePicker
                             startDateName="startDate"
                             endDateName="endDate"
-                            label="Select Check-in and Check-out Dates"
+                            label={t('bookings.selectCheckInCheckOutDates')}
                             minDate={tomorrow}
                             required
                             className="campsite-booking-date-field"
@@ -521,7 +522,7 @@ const CampsiteDetailPage = () => {
                           <Input
                             type="number"
                             name="guests"
-                            label="Number of Guests"
+                            label={t('bookings.numberOfGuests')}
                             min="1"
                             max={campsite.capacity || 10}
                             defaultValue={1}
@@ -533,17 +534,17 @@ const CampsiteDetailPage = () => {
                         <div className="campsite-booking-price">
                           <div className="price-breakdown">
                             <div className="price-line">
-                              <span>Price per night:</span>
+                              <span>{t('bookings.pricePerNightLabel')}</span>
                               <span>${campsite?.price || 0}</span>
                             </div>
                             {totalNights > 0 && (
                               <>
                                 <div className="price-line">
-                                  <span>Number of nights:</span>
+                                  <span>{t('bookings.numberOfNights')}</span>
                                   <span>{totalNights}</span>
                                 </div>
                                 <div className="price-line total">
-                                  <span>Total:</span>
+                                  <span>{t('bookings.total')}</span>
                                   <span>${totalPrice}</span>
                                 </div>
                               </>
@@ -556,7 +557,7 @@ const CampsiteDetailPage = () => {
                           className="cancel-booking-button"
                           onClick={() => setShowBookingForm(false)}
                         >
-                          Cancel
+                          {t('bookings.cancel')}
                         </button>
                       </Form>
                     </div>
@@ -565,7 +566,7 @@ const CampsiteDetailPage = () => {
                       className="common-btn common-btn-primary"
                       onClick={() => setShowBookingForm(true)}
                     >
-                      Book Now
+                      {t('bookings.bookNow')}
                     </button>
                   )
                 ) : (
@@ -574,15 +575,15 @@ const CampsiteDetailPage = () => {
                       to={`/login?redirect=/campsites/${id}`}
                       className="common-btn common-btn-primary"
                     >
-                      Log in to book
+                      {t('bookings.loginToBook')}
                     </Link>
-                    <p className="login-message">You need to be logged in to book a campsite</p>
+                    <p className="login-message">{t('bookings.loginToBookMessage')}</p>
                   </div>
                 )}
               </>
             ) : (
               <div className="unavailable-message">
-                <p>This campsite is currently unavailable for booking</p>
+                <p>{t('bookings.unavailableMessage')}</p>
               </div>
             )}
           </div>
@@ -593,7 +594,7 @@ const CampsiteDetailPage = () => {
       <div className="back-to-campground">
         {campground && (
           <Link to={`/campgrounds/${campground._id}`} className="back-link">
-            &larr; Back to {campground.title}
+            &larr; {t('bookings.backTo', { title: campground.title })}
           </Link>
         )}
       </div>

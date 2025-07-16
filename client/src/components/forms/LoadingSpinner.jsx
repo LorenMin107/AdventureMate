@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import './FormStyles.css';
 
 /**
@@ -12,20 +13,17 @@ import './FormStyles.css';
  * @param {string} props.label - Accessibility label for the spinner
  * @returns {JSX.Element} LoadingSpinner component
  */
-const LoadingSpinner = ({
-  size = 'medium',
-  color = 'primary',
-  className = '',
-  label = 'Loading...',
-}) => {
+const LoadingSpinner = ({ size = 'medium', color = 'primary', className = '', label }) => {
+  const { t } = useTranslation();
+  const defaultLabel = t('forms.loading');
   return (
     <div
       className={`spinner spinner-${size} spinner-${color} ${className}`}
       role="status"
-      aria-label={label}
+      aria-label={label || defaultLabel}
     >
       <div className="spinner-inner"></div>
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{label || defaultLabel}</span>
     </div>
   );
 };

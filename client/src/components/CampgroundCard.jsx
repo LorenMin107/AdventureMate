@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { logError } from '../utils/logger';
 import './CampgroundCard.css';
 
@@ -10,6 +11,7 @@ import './CampgroundCard.css';
  * @param {Object} props.campground - Campground data
  */
 const CampgroundCard = ({ campground }) => {
+  const { t } = useTranslation();
   // If no campground is provided, return null
   if (!campground) return null;
 
@@ -83,19 +85,19 @@ const CampgroundCard = ({ campground }) => {
         <div className="campground-card-footer">
           <div className="campground-card-price">
             {loading ? (
-              <span className="loading-price">Loading price...</span>
+              <span className="loading-price">{t('campgroundCard.loadingPrice')}</span>
             ) : startingPrice > 0 ? (
               <>
-                <span className="from-text">From </span>${startingPrice}
-                <span className="price-unit">/night</span>
+                <span className="from-text">{t('campgroundCard.from')} </span>${startingPrice}
+                <span className="price-unit">{t('campgroundCard.perNight')}</span>
               </>
             ) : (
-              <span className="no-price">Contact for pricing</span>
+              <span className="no-price">{t('campgroundCard.contactForPricing')}</span>
             )}
           </div>
 
           <Link to={`/campgrounds/${_id}`} className="view-button">
-            View Campground
+            {t('campgroundCard.viewCampground')}
           </Link>
         </div>
       </div>

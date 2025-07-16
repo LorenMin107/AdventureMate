@@ -15,8 +15,10 @@ import Avatar from './common/Avatar';
 import './ShareTripDialog.css';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { currentUser } = useAuth();
   const [email, setEmail] = useState('');
@@ -42,7 +44,7 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
       const response = await apiClient.get(`/trips/${trip._id}/collaborators`);
       setCollaborators(response.data.collaborators || []);
     } catch (err) {
-      setError('Failed to load collaborators');
+      setError(t('shareTripDialog.failedToLoadCollaborators'));
       console.error('Error fetching collaborators:', err);
     } finally {
       setLoading(false);
@@ -61,7 +63,7 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
   const handleInvite = async (e) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) {
-      setError('Please enter a valid email address');
+      setError(t('shareTripDialog.enterValidEmail'));
       return;
     }
 
@@ -71,20 +73,20 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
 
     try {
       await apiClient.post(`/trips/${trip._id}/invite`, { email });
-      setSuccess(`Invitation sent to ${email}`);
+      setSuccess(t('shareTripDialog.invitationSent', { email }));
       setEmail('');
       setTimeout(() => {
         fetchCollaborators();
       }, 500);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send invitation. Please try again.');
+      setError(err.response?.data?.error || t('shareTripDialog.failedToSendInvitation'));
     } finally {
       setInviteLoading(false);
     }
   };
 
   const handleRemoveCollaborator = async (userId) => {
-    if (!window.confirm('Are you sure you want to remove this collaborator?')) return;
+    if (!window.confirm(t('shareTripDialog.confirmRemoveCollaborator'))) return;
 
     setLoading(true);
     setError('');
@@ -92,26 +94,26 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
 
     try {
       await apiClient.delete(`/trips/${trip._id}/collaborators/${userId}`);
-      setSuccess('Collaborator removed successfully');
+      setSuccess(t('shareTripDialog.collaboratorRemoved'));
       fetchCollaborators();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to remove collaborator');
+      setError(err.response?.data?.error || t('shareTripDialog.failedToRemoveCollaborator'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancelInvite = async (inviteEmail) => {
-    if (!window.confirm(`Cancel invite for ${inviteEmail}?`)) return;
+    if (!window.confirm(t('shareTripDialog.confirmCancelInvite', { email: inviteEmail }))) return;
     setLoading(true);
     setError('');
     setSuccess('');
     try {
       await apiClient.delete(`/trips/${trip._id}/invites/${encodeURIComponent(inviteEmail)}`);
-      setSuccess('Invite cancelled');
+      setSuccess(t('shareTripDialog.inviteCancelled'));
       fetchPendingInvites();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to cancel invite');
+      setError(err.response?.data?.error || t('shareTripDialog.failedToCancelInvite'));
     } finally {
       setLoading(false);
     }
@@ -132,10 +134,10 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
 
   // Helper to get owner display info (handles both string and object)
   const getOwnerDisplay = () => {
-    if (!trip.user) return { name: 'Owner', email: '' };
-    if (typeof trip.user === 'string') return { name: 'Owner', email: '' };
+    if (!trip.user) return { name: t('shareTripDialog.owner'), email: '' };
+    if (typeof trip.user === 'string') return { name: t('shareTripDialog.owner'), email: '' };
     return {
-      name: trip.user.username || 'Owner',
+      name: trip.user.username || t('shareTripDialog.owner'),
       email: trip.user.email || '',
     };
   };
@@ -172,10 +174,14 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
       >
         <div className="share-dialog-header">
           <div className="header-content">
-            <h2 id="share-dialog-title">Share "{trip.title}"</h2>
-            <p className="dialog-subtitle">Invite collaborators to view and edit this trip</p>
+            <h2 id="share-dialog-title">{t('shareTripDialog.title', { title: trip.title })}</h2>
+            <p className="dialog-subtitle">{t('shareTripDialog.subtitle')}</p>
           </div>
-          <button onClick={onClose} className="close-button" aria-label="Close dialog">
+          <button
+            onClick={onClose}
+            className="close-button"
+            aria-label={t('shareTripDialog.closeDialog')}
+          >
             <FiX size={24} />
           </button>
         </div>
@@ -188,7 +194,7 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
               type="button"
               aria-selected={activeTab === 'collaborators'}
             >
-              <FiUser className="tab-icon" /> Collaborators
+              <FiUser className="tab-icon" /> {t('shareTripDialog.collaboratorsTab')}
             </button>
             {isOwner && (
               <button
@@ -197,7 +203,7 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
                 type="button"
                 aria-selected={activeTab === 'invite'}
               >
-                <FiUserPlus className="tab-icon" /> Invite People
+                <FiUserPlus className="tab-icon" /> {t('shareTripDialog.inviteTab')}
               </button>
             )}
           </div>
@@ -207,18 +213,16 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
               <form onSubmit={handleInvite} className="invite-form" autoComplete="off">
                 <div className="form-group">
                   <label htmlFor="email" className="form-label">
-                    <FiMail className="input-icon" /> Email address
+                    <FiMail className="input-icon" /> {t('shareTripDialog.emailLabel')}
                   </label>
-                  <p className="input-hint">
-                    Enter the email address of the person you want to invite
-                  </p>
+                  <p className="input-hint">{t('shareTripDialog.emailHint')}</p>
                   <div className="invite-input-group">
                     <input
                       type="email"
                       id="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
+                      placeholder={t('shareTripDialog.emailPlaceholder')}
                       className="email-input"
                       required
                       autoFocus
@@ -229,11 +233,11 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
                       className="invite-button"
                     >
                       {inviteLoading ? (
-                        <span className="button-loading">Sending...</span>
+                        <span className="button-loading">{t('shareTripDialog.sending')}</span>
                       ) : (
                         <>
                           <FiUserPlus className="button-icon" />
-                          <span>Send Invite</span>
+                          <span>{t('shareTripDialog.sendInvite')}</span>
                         </>
                       )}
                     </button>
@@ -248,18 +252,18 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
                 </div>
               )}
               {success && (
-                <div className="status-message success" role="status">
+                <div className="status-message success" role="alert">
                   <FiCheck className="status-icon" />
                   {success}
                 </div>
               )}
 
               <div className="invite-tips">
-                <h4>Sharing tips</h4>
+                <h4>{t('shareTripDialog.sharingTipsTitle')}</h4>
                 <ul>
-                  <li>Invite people by their email address</li>
-                  <li>Collaborators can view and edit this trip</li>
-                  <li>You can remove collaborators at any time</li>
+                  <li>{t('shareTripDialog.sharingTipsItem1')}</li>
+                  <li>{t('shareTripDialog.sharingTipsItem2')}</li>
+                  <li>{t('shareTripDialog.sharingTipsItem3')}</li>
                 </ul>
               </div>
             </div>
@@ -268,7 +272,7 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
           {activeTab === 'collaborators' && (
             <div className="collaborators-section">
               <div className="section-header">
-                <h3>People with access</h3>
+                <h3>{t('shareTripDialog.peopleWithAccessTitle')}</h3>
                 <span className="badge">{collaborators.length + 1 + pendingInvites.length}</span>
               </div>
 
@@ -307,7 +311,7 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
                           : ownerDisplay.email}
                       </span>
                       <span className="owner-role-badge">
-                        <FiUser className="role-icon" /> Owner
+                        <FiUser className="role-icon" /> {t('shareTripDialog.ownerRole')}
                       </span>
                     </div>
                   </div>
@@ -318,17 +322,17 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
                       <Avatar name={invite.email} email={invite.email} size="medium" />
                       <div className="user-details">
                         <span className="user-name">{invite.email}</span>
-                        <span className="user-email">(Pending)</span>
+                        <span className="user-email">({t('shareTripDialog.pending')})</span>
                       </div>
                     </div>
                     <span className="collaborator-role">
-                      <FiClock className="role-icon" /> Pending
+                      <FiClock className="role-icon" /> {t('shareTripDialog.pendingRole')}
                     </span>
                     {isOwner && (
                       <button
                         className="remove-button"
                         onClick={() => handleCancelInvite(invite.email)}
-                        aria-label={`Cancel invite for ${invite.email}`}
+                        aria-label={t('shareTripDialog.cancelInviteLabel', { email: invite.email })}
                       >
                         <FiTrash2 />
                       </button>
@@ -336,9 +340,11 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
                   </div>
                 ))}
                 {loading ? (
-                  <div className="collaborator-item loading">Loading collaborators...</div>
+                  <div className="collaborator-item loading">
+                    {t('shareTripDialog.loadingCollaborators')}
+                  </div>
                 ) : collaborators.length === 0 && pendingInvites.length === 0 ? (
-                  <div className="no-collaborators">No collaborators yet.</div>
+                  <div className="no-collaborators">{t('shareTripDialog.noCollaborators')}</div>
                 ) : (
                   collaborators.map((collaborator) => (
                     <div key={collaborator._id} className="owner-section-card collaborator-card">
@@ -358,14 +364,16 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
                           </span>
                           <span className="owner-email">{collaborator.email}</span>
                           <span className="owner-role-badge">
-                            <FiUser className="role-icon" /> Collaborator
+                            <FiUser className="role-icon" /> {t('shareTripDialog.collaboratorRole')}
                           </span>
                         </div>
                         {isOwner && (
                           <button
                             className="remove-button"
                             onClick={() => handleRemoveCollaborator(collaborator._id)}
-                            aria-label={`Remove ${collaborator.username || collaborator.email}`}
+                            aria-label={t('shareTripDialog.removeCollaboratorLabel', {
+                              name: collaborator.username || collaborator.email,
+                            })}
                           >
                             <FiTrash2 />
                           </button>

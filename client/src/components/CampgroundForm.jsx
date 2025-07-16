@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import apiClient from '../utils/api';
 import './CampgroundForm.css';
 import { logInfo, logError } from '../utils/logger';
@@ -19,6 +20,7 @@ const LOCAL_STORAGE_KEY = 'myancamp-owner-campground-form';
  */
 const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { theme } = useTheme ? useTheme() : { theme: 'light' };
 
   // Add this line:
@@ -191,11 +193,11 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
     const errors = {};
 
     if (!formData.title.trim()) {
-      errors.title = 'Title is required';
+      errors.title = t('validation.required');
     }
 
     if (!formData.location.trim()) {
-      errors.location = 'Location is required';
+      errors.location = t('validation.required');
     }
 
     if (
@@ -203,23 +205,23 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
       !formData.geometry.coordinates ||
       formData.geometry.coordinates.length !== 2
     ) {
-      errors.location = 'Please select a location on the map.';
+      errors.location = t('campgrounds.selectLocation');
     }
 
     if (!formData.city.trim()) {
-      errors.city = 'City is required';
+      errors.city = t('validation.required');
     }
     if (!formData.country.trim()) {
-      errors.country = 'Country is required';
+      errors.country = t('validation.required');
     }
 
     if (!formData.description.trim()) {
-      errors.description = 'Description is required';
+      errors.description = t('validation.required');
     }
 
     // If not editing and no images are selected
     if (!isEditing && images.length === 0) {
-      errors.images = 'At least one image is required';
+      errors.images = t('validation.required');
     }
 
     // If editing and all existing images are marked for deletion and no new images
@@ -229,7 +231,7 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
       imagesToDelete.length === existingImages.length &&
       images.length === 0
     ) {
-      errors.images = 'At least one image is required';
+      errors.images = t('validation.required');
     }
 
     setValidationErrors(errors);
@@ -357,20 +359,23 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
               fieldErrors[fieldName] = err.message;
             });
             setValidationErrors(fieldErrors);
-            setError('Please correct the validation errors');
+            setError(t('validation.correctErrors'));
           } else {
             // Handle general error message
-            setError(responseData.error || responseData.message || 'Failed to save campground');
+            setError(responseData.error || responseData.message || t('campgrounds.failedToSave'));
           }
         } else {
           // Handle non-standardized error response
           setError(
-            responseData.error || responseData.message || err.message || 'Failed to save campground'
+            responseData.error ||
+              responseData.message ||
+              err.message ||
+              t('campgrounds.failedToSave')
           );
         }
       } else {
         // Handle generic error
-        setError(err.message || 'Failed to save campground. Please try again later.');
+        setError(err.message || t('campgrounds.failedToSaveGeneric'));
       }
     } finally {
       setLoading(false);
@@ -379,13 +384,13 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
 
   return (
     <div className="campground-form-container">
-      <h2>{isEditing ? 'Edit Campground' : 'Create New Campground'}</h2>
+      <h2>{isEditing ? t('campgrounds.editCampground') : t('campgrounds.createNewCampground')}</h2>
 
       {error && <div className="form-error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="campground-form">
         <div className="form-group">
-          <label htmlFor="title">Title</label>
+          <label htmlFor="title">{t('campgrounds.campgroundTitle')}</label>
           <input
             type="text"
             id="title"
@@ -401,7 +406,7 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="location">Location</label>
+          <label htmlFor="location">{t('campgrounds.location')}</label>
           <MapPicker
             value={
               formData.geometry
@@ -415,17 +420,9 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
           {validationErrors.location && (
             <div className="validation-error">{validationErrors.location}</div>
           )}
-          <div
-            className="address-fields-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '1rem',
-              marginTop: '1rem',
-            }}
-          >
+          <div className="address-fields-grid">
             <div>
-              <label htmlFor="street">Street</label>
+              <label htmlFor="street">{t('campgrounds.street')}</label>
               <input
                 type="text"
                 id="street"
@@ -438,7 +435,8 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
             </div>
             <div>
               <label htmlFor="city">
-                City<span style={{ color: 'red' }}>*</span>
+                {t('campgrounds.city')}
+                <span style={{ color: 'red' }}>*</span>
               </label>
               <input
                 type="text"
@@ -455,7 +453,7 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
               )}
             </div>
             <div>
-              <label htmlFor="state">State/Region</label>
+              <label htmlFor="state">{t('campgrounds.state')}</label>
               <input
                 type="text"
                 id="state"
@@ -468,7 +466,8 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
             </div>
             <div>
               <label htmlFor="country">
-                Country<span style={{ color: 'red' }}>*</span>
+                {t('campgrounds.country')}
+                <span style={{ color: 'red' }}>*</span>
               </label>
               <input
                 type="text"
@@ -488,7 +487,7 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Description</label>
+          <label htmlFor="description">{t('campgrounds.description')}</label>
           <textarea
             id="description"
             name="description"
@@ -504,12 +503,12 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
         </div>
 
         <div className="form-group">
-          <label>Images</label>
+          <label>{t('campgrounds.images')}</label>
 
           {/* Existing images (for editing) */}
           {isEditing && existingImages.length > 0 && (
             <div className="existing-images">
-              <p>Current Images:</p>
+              <p>{t('campgrounds.currentImages')}</p>
               <div className="image-preview-container">
                 {existingImages.map((image, index) => (
                   <div
@@ -522,7 +521,9 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
                       className="remove-image-button"
                       onClick={() => toggleImageForDeletion(image.filename)}
                     >
-                      {imagesToDelete.includes(image.filename) ? 'Restore' : 'Remove'}
+                      {imagesToDelete.includes(image.filename)
+                        ? t('campgrounds.restore')
+                        : t('campgrounds.remove')}
                     </button>
                   </div>
                 ))}
@@ -542,7 +543,7 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
               disabled={loading}
             />
             <label htmlFor="images" className="upload-button">
-              Select Images
+              {t('campgrounds.selectImages')}
             </label>
           </div>
 
@@ -557,7 +558,7 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
                     className="remove-image-button"
                     onClick={() => removeSelectedImage(index)}
                   >
-                    Remove
+                    {t('campgrounds.remove')}
                   </button>
                 </div>
               ))}
@@ -576,10 +577,14 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
             onClick={() => navigate(-1)}
             disabled={loading}
           >
-            Cancel
+            {t('campgrounds.cancel')}
           </button>
           <button type="submit" className="submit-button" disabled={loading}>
-            {loading ? 'Saving...' : isEditing ? 'Update Campground' : 'Create Campground'}
+            {loading
+              ? t('campgrounds.saving')
+              : isEditing
+                ? t('campgrounds.updateCampground')
+                : t('campgrounds.createCampground')}
           </button>
         </div>
       </form>

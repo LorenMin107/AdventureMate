@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { FiShare2, FiTrash2, FiCalendar } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import ShareTripDialog from './ShareTripDialog';
 import './TripCard.css';
 
 const TripCard = ({ trip, currentUser, onSelect, onDelete, onRemoveSelf, onUpdate }) => {
+  const { t } = useTranslation();
   const [showShareDialog, setShowShareDialog] = useState(false);
 
   const handleShareClick = (e) => {
@@ -48,19 +50,23 @@ const TripCard = ({ trip, currentUser, onSelect, onDelete, onRemoveSelf, onUpdat
           <button
             onClick={() => onSelect(trip)}
             className="trip-card-button view-button"
-            title="View Itinerary"
+            title={t('tripCard.viewItinerary')}
           >
-            View Itinerary
+            {t('tripCard.viewItinerary')}
           </button>
           <div className="trip-card-actions">
-            <button onClick={handleShareClick} className="trip-card-icon-button" title="Share trip">
+            <button
+              onClick={handleShareClick}
+              className="trip-card-icon-button"
+              title={t('tripCard.shareTrip')}
+            >
               <FiShare2 />
             </button>
             {isOwner && (
               <button
                 onClick={() => onDelete(trip._id)}
                 className="trip-card-icon-button danger"
-                title="Delete trip"
+                title={t('tripCard.deleteTrip')}
               >
                 <FiTrash2 />
               </button>

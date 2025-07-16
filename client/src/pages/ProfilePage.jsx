@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useUser } from '../context/UserContext';
 import TwoFactorSetup from '../components/TwoFactorSetup';
 import PasswordChangeForm from '../components/PasswordChangeForm';
@@ -12,6 +13,7 @@ import './ProfilePage.css';
  * ProfilePage displays user information and allows updating the phone number
  */
 const ProfilePage = () => {
+  const { t } = useTranslation();
   const { userDetails, loading, error, updateProfile } = useUser();
   const [phone, setPhone] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +35,7 @@ const ProfilePage = () => {
 
     // Validate phone number
     if (phone && !validatePhone(phone)) {
-      setPhoneError('Please enter a valid phone number');
+      setPhoneError(t('profile.invalidPhoneNumber'));
       return;
     }
 
@@ -51,7 +53,7 @@ const ProfilePage = () => {
       }, 3000);
     } catch (err) {
       logError('Error updating profile', err);
-      setUpdateError('Failed to update profile. Please try again.');
+      setUpdateError(t('profile.updateError'));
     }
   };
 
@@ -70,7 +72,7 @@ const ProfilePage = () => {
   };
 
   if (loading) {
-    return <div className="profile-page-loading">Loading your profile...</div>;
+    return <div className="profile-page-loading">{t('profile.loading')}</div>;
   }
 
   if (error) {
@@ -78,7 +80,7 @@ const ProfilePage = () => {
   }
 
   if (!userDetails) {
-    return <div className="profile-page-error">Unable to load profile information.</div>;
+    return <div className="profile-page-error">{t('profile.unableToLoad')}</div>;
   }
 
   return (
@@ -87,7 +89,9 @@ const ProfilePage = () => {
         <div className="profile-avatar">
           {userDetails.username ? userDetails.username.charAt(0).toUpperCase() : 'U'}
         </div>
-        <h1 className="profile-page-title">{userDetails.username}'s Profile</h1>
+        <h1 className="profile-page-title">
+          {t('profile.userProfile', { username: userDetails.username })}
+        </h1>
       </div>
 
       <div className="profile-container">
@@ -99,21 +103,21 @@ const ProfilePage = () => {
                 onClick={() => setActiveSection('personal')}
               >
                 <span className="profile-nav-icon">👤</span>
-                <span>Personal Info</span>
+                <span>{t('profile.personalInfo')}</span>
               </li>
               <li
                 className={`profile-nav-item ${activeSection === 'security' ? 'active' : ''}`}
                 onClick={() => setActiveSection('security')}
               >
                 <span className="profile-nav-icon">🔒</span>
-                <span>Security</span>
+                <span>{t('profile.security')}</span>
               </li>
               <li
                 className={`profile-nav-item ${activeSection === 'bookings' ? 'active' : ''}`}
                 onClick={() => setActiveSection('bookings')}
               >
                 <span className="profile-nav-icon">🏕️</span>
-                <span>Bookings</span>
+                <span>{t('profile.bookings')}</span>
               </li>
 
               <li
@@ -121,7 +125,7 @@ const ProfilePage = () => {
                 onClick={() => setActiveSection('reviews')}
               >
                 <span className="profile-nav-icon">⭐</span>
-                <span>Reviews</span>
+                <span>{t('profile.reviews')}</span>
               </li>
             </ul>
           </nav>
@@ -131,34 +135,34 @@ const ProfilePage = () => {
           {updateError && <div className="profile-update-error">{updateError}</div>}
 
           {updateSuccess && (
-            <div className="profile-update-success">Profile updated successfully!</div>
+            <div className="profile-update-success">{t('profile.updateSuccess')}</div>
           )}
 
           {activeSection === 'personal' && (
             <div className="profile-section">
-              <h2 className="section-title">Personal Information</h2>
+              <h2 className="section-title">{t('profile.personalInformation')}</h2>
               <div className="profile-card">
                 <div className="profile-info">
                   <div className="profile-field">
-                    <label>Username</label>
+                    <label>{t('profile.username')}</label>
                     <span>{userDetails.username}</span>
                   </div>
 
                   <div className="profile-field">
-                    <label>Email</label>
+                    <label>{t('profile.email')}</label>
                     <span>{userDetails.email}</span>
                   </div>
 
                   {isEditing ? (
                     <form onSubmit={handleSubmit} className="profile-form">
                       <div className="profile-field">
-                        <label htmlFor="phone">Phone Number</label>
+                        <label htmlFor="phone">{t('profile.phoneNumber')}</label>
                         <input
                           type="text"
                           id="phone"
                           value={phone}
                           onChange={handlePhoneChange}
-                          placeholder="Enter your phone number"
+                          placeholder={t('profile.enterPhoneNumber')}
                           className={phoneError ? 'input-error' : ''}
                         />
                         {phoneError && <div className="error-message">{phoneError}</div>}
@@ -166,7 +170,7 @@ const ProfilePage = () => {
 
                       <div className="profile-actions">
                         <button type="submit" className="save-button">
-                          Save
+                          {t('profile.save')}
                         </button>
                         <button
                           type="button"
@@ -177,15 +181,15 @@ const ProfilePage = () => {
                             setPhoneError('');
                           }}
                         >
-                          Cancel
+                          {t('profile.cancel')}
                         </button>
                       </div>
                     </form>
                   ) : (
                     <>
                       <div className="profile-field">
-                        <label>Phone</label>
-                        <span>{userDetails.phone || 'Not provided'}</span>
+                        <label>{t('profile.phone')}</label>
+                        <span>{userDetails.phone || t('profile.notProvided')}</span>
                       </div>
 
                       <div className="profile-actions">
@@ -193,7 +197,9 @@ const ProfilePage = () => {
                           className="common-btn common-btn-secondary"
                           onClick={() => setIsEditing(true)}
                         >
-                          {userDetails.phone ? 'Update Phone Number' : 'Add Phone Number'}
+                          {userDetails.phone
+                            ? t('profile.updatePhoneNumber')
+                            : t('profile.addPhoneNumber')}
                         </button>
                       </div>
                     </>
@@ -205,13 +211,13 @@ const ProfilePage = () => {
 
           {activeSection === 'security' && (
             <div className="profile-section">
-              <h2 className="section-title">Security Settings</h2>
+              <h2 className="section-title">{t('profile.securitySettings')}</h2>
               <div className="profile-card">
                 <TwoFactorSetup />
                 <div className="security-actions">
                   <Link to="/password-change" className="security-link">
                     <span className="security-icon">🔑</span>
-                    <span>Change Password</span>
+                    <span>{t('profile.changePassword')}</span>
                   </Link>
                 </div>
               </div>
@@ -220,7 +226,7 @@ const ProfilePage = () => {
 
           {activeSection === 'bookings' && (
             <div className="profile-section">
-              <h2 className="section-title">My Bookings</h2>
+              <h2 className="section-title">{t('profile.myBookings')}</h2>
               <div className="profile-card">
                 <BookingList initialBookings={userDetails?.bookings || []} />
               </div>
@@ -229,7 +235,7 @@ const ProfilePage = () => {
 
           {activeSection === 'reviews' && (
             <div className="profile-section">
-              <h2 className="section-title">My Reviews</h2>
+              <h2 className="section-title">{t('profile.myReviews')}</h2>
               <div className="profile-card">
                 <UserReviewList initialReviews={userDetails?.reviews || []} />
               </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useTranslation } from 'react-i18next';
 import ErrorMessage from './ErrorMessage';
 import LoadingSpinner from './LoadingSpinner';
 import { logError } from '../../utils/logger';
@@ -27,11 +28,13 @@ const Form = ({
   children,
   className = '',
   showSubmitButton = true,
-  submitButtonText = 'Submit',
+  submitButtonText,
   errorMessage = '',
   successMessage = '',
   ...rest
 }) => {
+  const { t } = useTranslation();
+  const defaultSubmitText = t('forms.submit');
   // State for form-level messages
   const [formError, setFormError] = useState(errorMessage);
   const [formSuccess, setFormSuccess] = useState(successMessage);
@@ -69,7 +72,7 @@ const Form = ({
       }
     } catch (error) {
       // Show error message
-      setFormError(error.message || 'An error occurred. Please try again.');
+      setFormError(error.message || t('forms.anErrorOccurred'));
       logError('Form submission error', error);
     }
   };
@@ -115,10 +118,10 @@ const Form = ({
                 size="small"
                 color="white"
                 className="form-submit-spinner"
-                label="Submitting..."
+                label={t('forms.submitting')}
               />
             )}
-            {isSubmitting ? 'Submitting...' : submitButtonText}
+            {isSubmitting ? t('forms.submitting') : submitButtonText || defaultSubmitText}
           </button>
         )}
       </form>

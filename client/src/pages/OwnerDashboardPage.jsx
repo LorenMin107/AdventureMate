@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
@@ -10,6 +11,7 @@ import './OwnerDashboardPage.css';
  * Modern dashboard for campground owners showing key metrics and recent activity
  */
 const OwnerDashboardPage = () => {
+  const { t } = useTranslation();
   const { ownerProfile } = useOutletContext();
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
@@ -39,7 +41,7 @@ const OwnerDashboardPage = () => {
     return (
       <div className="owner-loading">
         <div className="owner-loading-spinner"></div>
-        <p>Loading your dashboard...</p>
+        <p>{t('ownerDashboard.loading')}</p>
       </div>
     );
   }
@@ -47,10 +49,10 @@ const OwnerDashboardPage = () => {
   if (error) {
     return (
       <div className="owner-error">
-        <h4>Error Loading Dashboard</h4>
-        <p>There was an error loading your dashboard data. Please try again later.</p>
+        <h4>{t('ownerDashboard.errorTitle')}</h4>
+        <p>{t('ownerDashboard.errorMessage')}</p>
         <button onClick={() => window.location.reload()} className="owner-btn owner-btn-primary">
-          Retry
+          {t('ownerDashboard.retry')}
         </button>
       </div>
     );
@@ -95,9 +97,9 @@ const OwnerDashboardPage = () => {
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return t('ownerDashboard.greeting.morning');
+    if (hour < 17) return t('ownerDashboard.greeting.afternoon');
+    return t('ownerDashboard.greeting.evening');
   };
 
   const getRevenueChange = () => {
@@ -123,22 +125,23 @@ const OwnerDashboardPage = () => {
                 {getGreeting()}, {owner?.businessName || 'Owner'}! 👋
               </h1>
               <p className="header-subtitle">
-                Here's your business overview for{' '}
-                {currentTime.toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+                {t('ownerDashboard.headerSubtitle', {
+                  date: currentTime.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  }),
                 })}
               </p>
             </div>
             <div className="header-stats">
               <div className="header-stat">
-                <span className="stat-label">Active Campgrounds</span>
+                <span className="stat-label">{t('ownerDashboard.activeCampgrounds')}</span>
                 <span className="stat-value">{owner?.totalCampgrounds || 0}</span>
               </div>
               <div className="header-stat">
-                <span className="stat-label">Today's Bookings</span>
+                <span className="stat-label">{t('ownerDashboard.todayBookings')}</span>
                 <span className="stat-value">{stats?.todayBookings || 0}</span>
               </div>
             </div>
@@ -146,11 +149,11 @@ const OwnerDashboardPage = () => {
           <div className="header-actions">
             <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-primary">
               <span className="btn-icon">➕</span>
-              Add Campground
+              {t('ownerDashboard.addCampground')}
             </Link>
             <Link to="/owner/analytics" className="owner-btn owner-btn-secondary">
               <span className="btn-icon">📊</span>
-              Analytics
+              {t('ownerDashboard.analytics')}
             </Link>
           </div>
         </div>
@@ -162,15 +165,15 @@ const OwnerDashboardPage = () => {
           <div className="alert-content">
             <div className="alert-icon">🔒</div>
             <div className="alert-text">
-              <h4>Complete Your Verification</h4>
+              <h4>{t('ownerDashboard.verificationAlert.title')}</h4>
               <p>
-                Your account verification is{' '}
-                <strong>{ownerProfile?.verificationStatusDisplay?.toLowerCase()}</strong>. Complete
-                verification to start accepting bookings and receiving payments.
+                {t('ownerDashboard.verificationAlert.message', {
+                  status: ownerProfile?.verificationStatusDisplay?.toLowerCase(),
+                })}
               </p>
             </div>
             <Link to="/owner/verification" className="owner-btn owner-btn-outline">
-              Complete Verification
+              {t('ownerDashboard.verificationAlert.button')}
             </Link>
           </div>
         </div>
@@ -192,8 +195,8 @@ const OwnerDashboardPage = () => {
             </div>
           </div>
           <div className="stat-value">{formatCurrency(stats?.totalRevenue)}</div>
-          <div className="stat-label">Total Revenue</div>
-          <div className="stat-period">Last 30 days</div>
+          <div className="stat-label">{t('ownerDashboard.stats.totalRevenue')}</div>
+          <div className="stat-period">{t('ownerDashboard.stats.last30Days')}</div>
         </div>
 
         <div className="owner-stat-card bookings-card">
@@ -206,8 +209,8 @@ const OwnerDashboardPage = () => {
             </div>
           </div>
           <div className="stat-value">{stats?.totalBookings || 0}</div>
-          <div className="stat-label">Total Bookings</div>
-          <div className="stat-period">All time</div>
+          <div className="stat-label">{t('ownerDashboard.stats.totalBookings')}</div>
+          <div className="stat-period">{t('ownerDashboard.stats.allTime')}</div>
         </div>
 
         <div className="owner-stat-card campgrounds-card">
@@ -220,8 +223,8 @@ const OwnerDashboardPage = () => {
             </div>
           </div>
           <div className="stat-value">{owner?.totalCampgrounds || 0}</div>
-          <div className="stat-label">Campgrounds</div>
-          <div className="stat-period">Total listings</div>
+          <div className="stat-label">{t('ownerDashboard.stats.campgrounds')}</div>
+          <div className="stat-period">{t('ownerDashboard.stats.totalListings')}</div>
         </div>
 
         <div className="owner-stat-card rating-card">
@@ -232,8 +235,8 @@ const OwnerDashboardPage = () => {
             </div>
           </div>
           <div className="stat-value">{stats?.averageRating?.toFixed(1) || '0.0'}</div>
-          <div className="stat-label">Average Rating</div>
-          <div className="stat-period">Customer satisfaction</div>
+          <div className="stat-label">{t('ownerDashboard.stats.averageRating')}</div>
+          <div className="stat-period">{t('ownerDashboard.stats.customerSatisfaction')}</div>
         </div>
       </div>
 
@@ -242,11 +245,11 @@ const OwnerDashboardPage = () => {
         <div className="owner-card bookings-card">
           <div className="card-header">
             <div className="card-title">
-              <h3>Recent Bookings</h3>
-              <span className="card-subtitle">Latest customer reservations</span>
+              <h3>{t('ownerDashboard.recentBookings.title')}</h3>
+              <span className="card-subtitle">{t('ownerDashboard.recentBookings.subtitle')}</span>
             </div>
             <Link to="/owner/bookings" className="view-all-link">
-              View All Bookings
+              {t('ownerDashboard.recentBookings.viewAll')}
             </Link>
           </div>
 
@@ -261,7 +264,7 @@ const OwnerDashboardPage = () => {
                   </div>
                   <div className="booking-info">
                     <div className="booking-guest">
-                      <strong>{booking.user?.username || 'Guest'}</strong>
+                      <strong>{booking.user?.username || t('ownerBookings.guest')}</strong>
                       <span className="booking-email">{booking.user?.email}</span>
                     </div>
                     <div className="booking-details">
@@ -284,12 +287,10 @@ const OwnerDashboardPage = () => {
           ) : (
             <div className="empty-state">
               <div className="empty-icon">📅</div>
-              <h4>No Recent Bookings</h4>
-              <p>
-                Your recent bookings will appear here once guests start booking your campgrounds.
-              </p>
+              <h4>{t('ownerDashboard.recentBookings.noBookings')}</h4>
+              <p>{t('ownerDashboard.recentBookings.noBookingsMessage')}</p>
               <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-outline">
-                Add Your First Campground
+                {t('ownerDashboard.recentBookings.addFirstCampground')}
               </Link>
             </div>
           )}
@@ -299,11 +300,11 @@ const OwnerDashboardPage = () => {
         <div className="owner-card campgrounds-card">
           <div className="card-header">
             <div className="card-title">
-              <h3>My Campgrounds</h3>
-              <span className="card-subtitle">Manage your listings</span>
+              <h3>{t('ownerDashboard.myCampgrounds.title')}</h3>
+              <span className="card-subtitle">{t('ownerDashboard.myCampgrounds.subtitle')}</span>
             </div>
             <Link to="/owner/campgrounds" className="view-all-link">
-              Manage All
+              {t('ownerDashboard.myCampgrounds.manageAll')}
             </Link>
           </div>
 
@@ -338,22 +339,27 @@ const OwnerDashboardPage = () => {
                     <h4>{campground.title}</h4>
                     <p className="campground-location">{campground.location}</p>
                     <div className="campground-stats">
-                      <span className="stat">${campground.price}/night</span>
-                      <span className="stat">{campground.reviews?.length || 0} reviews</span>
+                      <span className="stat">
+                        ${campground.price}/{t('ownerDashboard.myCampgrounds.perNight')}
+                      </span>
+                      <span className="stat">
+                        {campground.reviews?.length || 0}{' '}
+                        {t('ownerDashboard.myCampgrounds.reviews')}
+                      </span>
                     </div>
                     <div className="campground-actions">
                       <Link
                         to={`/owner/campgrounds/${campground._id}`}
                         className="owner-btn owner-btn-secondary"
                       >
-                        Manage
+                        {t('ownerDashboard.myCampgrounds.manage')}
                       </Link>
                       <Link
                         to={`/campgrounds/${campground._id}`}
                         className="owner-btn owner-btn-outline"
                         target="_blank"
                       >
-                        View
+                        {t('ownerDashboard.myCampgrounds.view')}
                       </Link>
                     </div>
                   </div>
@@ -363,10 +369,10 @@ const OwnerDashboardPage = () => {
           ) : (
             <div className="empty-state">
               <div className="empty-icon">🏕️</div>
-              <h4>No Campgrounds Yet</h4>
-              <p>Start by adding your first campground to begin accepting bookings.</p>
+              <h4>{t('ownerDashboard.myCampgrounds.noCampgrounds')}</h4>
+              <p>{t('ownerDashboard.myCampgrounds.noCampgroundsMessage')}</p>
               <Link to="/owner/campgrounds/new" className="owner-btn owner-btn-primary">
-                Add Your First Campground
+                {t('ownerDashboard.myCampgrounds.addFirstCampground')}
               </Link>
             </div>
           )}
@@ -376,16 +382,16 @@ const OwnerDashboardPage = () => {
         <div className="owner-card quick-actions-card">
           <div className="card-header">
             <div className="card-title">
-              <h3>Quick Actions</h3>
-              <span className="card-subtitle">Common tasks</span>
+              <h3>{t('ownerDashboard.quickActions.title')}</h3>
+              <span className="card-subtitle">{t('ownerDashboard.quickActions.subtitle')}</span>
             </div>
           </div>
           <div className="quick-actions-grid">
             <Link to="/owner/campgrounds/new" className="quick-action-item">
               <div className="action-icon">➕</div>
               <div className="action-text">
-                <h4>Add Campground</h4>
-                <p>Create a new campground listing</p>
+                <h4>{t('ownerDashboard.quickActions.addCampground.title')}</h4>
+                <p>{t('ownerDashboard.quickActions.addCampground.description')}</p>
               </div>
               <div className="action-arrow">→</div>
             </Link>
@@ -393,8 +399,8 @@ const OwnerDashboardPage = () => {
             <Link to="/owner/bookings?status=pending" className="quick-action-item">
               <div className="action-icon">⏳</div>
               <div className="action-text">
-                <h4>Pending Bookings</h4>
-                <p>Review and approve bookings</p>
+                <h4>{t('ownerDashboard.quickActions.pendingBookings.title')}</h4>
+                <p>{t('ownerDashboard.quickActions.pendingBookings.description')}</p>
               </div>
               {stats?.pendingBookings > 0 && (
                 <div className="action-badge">{stats.pendingBookings}</div>
@@ -405,8 +411,8 @@ const OwnerDashboardPage = () => {
             <Link to="/owner/analytics" className="quick-action-item">
               <div className="action-icon">📊</div>
               <div className="action-text">
-                <h4>View Analytics</h4>
-                <p>Check your performance metrics</p>
+                <h4>{t('ownerDashboard.quickActions.viewAnalytics.title')}</h4>
+                <p>{t('ownerDashboard.quickActions.viewAnalytics.description')}</p>
               </div>
               <div className="action-arrow">→</div>
             </Link>
@@ -414,8 +420,8 @@ const OwnerDashboardPage = () => {
             <Link to="/owner/profile" className="quick-action-item">
               <div className="action-icon">⚙️</div>
               <div className="action-text">
-                <h4>Account Settings</h4>
-                <p>Update your profile and preferences</p>
+                <h4>{t('ownerDashboard.quickActions.accountSettings.title')}</h4>
+                <p>{t('ownerDashboard.quickActions.accountSettings.description')}</p>
               </div>
               <div className="action-arrow">→</div>
             </Link>
@@ -426,41 +432,50 @@ const OwnerDashboardPage = () => {
         <div className="owner-card insights-card">
           <div className="card-header">
             <div className="card-title">
-              <h3>Performance Insights</h3>
-              <span className="card-subtitle">This month's highlights</span>
+              <h3>{t('ownerDashboard.performanceInsights.title')}</h3>
+              <span className="card-subtitle">
+                {t('ownerDashboard.performanceInsights.subtitle')}
+              </span>
             </div>
           </div>
           <div className="insights-grid">
             <div className="insight-item">
               <div className="insight-icon">📈</div>
               <div className="insight-content">
-                <h4>Revenue Growth</h4>
+                <h4>{t('ownerDashboard.performanceInsights.revenueGrowth.title')}</h4>
                 <p>
                   {revenueChange
-                    ? `${revenueChange.isPositive ? '+' : '-'}${revenueChange.percentage}% from last month`
-                    : 'No data available'}
+                    ? t(
+                        `ownerDashboard.performanceInsights.revenueGrowth.${revenueChange.isPositive ? 'positive' : 'negative'}`,
+                        { percentage: revenueChange.percentage }
+                      )
+                    : t('ownerDashboard.performanceInsights.revenueGrowth.noData')}
                 </p>
               </div>
             </div>
             <div className="insight-item">
               <div className="insight-icon">👥</div>
               <div className="insight-content">
-                <h4>Customer Satisfaction</h4>
+                <h4>{t('ownerDashboard.performanceInsights.customerSatisfaction.title')}</h4>
                 <p>
                   {stats?.averageRating
-                    ? `${stats.averageRating.toFixed(1)}/5.0 average rating`
-                    : 'No reviews yet'}
+                    ? t('ownerDashboard.performanceInsights.customerSatisfaction.rating', {
+                        rating: stats.averageRating.toFixed(1),
+                      })
+                    : t('ownerDashboard.performanceInsights.customerSatisfaction.noReviews')}
                 </p>
               </div>
             </div>
             <div className="insight-item">
               <div className="insight-icon">🎯</div>
               <div className="insight-content">
-                <h4>Occupancy Rate</h4>
+                <h4>{t('ownerDashboard.performanceInsights.occupancyRate.title')}</h4>
                 <p>
                   {stats?.occupancyRate
-                    ? `${stats.occupancyRate.toFixed(1)}% average occupancy`
-                    : 'Calculating...'}
+                    ? t('ownerDashboard.performanceInsights.occupancyRate.rate', {
+                        rate: stats.occupancyRate.toFixed(1),
+                      })
+                    : t('ownerDashboard.performanceInsights.occupancyRate.calculating')}
                 </p>
               </div>
             </div>

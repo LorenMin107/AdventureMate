@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
@@ -11,6 +12,7 @@ import './UserList.css';
  * @returns {JSX.Element} User list component
  */
 const UserList = () => {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,13 +78,11 @@ const UserList = () => {
   };
 
   if (!currentUser?.isAdmin) {
-    return (
-      <div className="user-list-unauthorized">You do not have permission to access this page.</div>
-    );
+    return <div className="user-list-unauthorized">{t('userList.unauthorizedMessage')}</div>;
   }
 
   if (loading) {
-    return <div className="user-list-loading">Loading users...</div>;
+    return <div className="user-list-loading">{t('userList.loading')}</div>;
   }
 
   if (error) {
@@ -92,7 +92,7 @@ const UserList = () => {
   return (
     <div className="user-list">
       <div className="user-list-header">
-        <h1>User Management</h1>
+        <h1>{t('userList.managementTitle')}</h1>
         <div className="user-list-actions">
           <select
             value={pagination.limit}
@@ -101,10 +101,10 @@ const UserList = () => {
             }
             className="user-list-limit"
           >
-            <option value="5">5 per page</option>
-            <option value="10">10 per page</option>
-            <option value="25">25 per page</option>
-            <option value="50">50 per page</option>
+            <option value="5">{t('userList.limitOptions.5')}</option>
+            <option value="10">{t('userList.limitOptions.10')}</option>
+            <option value="25">{t('userList.limitOptions.25')}</option>
+            <option value="50">{t('userList.limitOptions.50')}</option>
           </select>
         </div>
       </div>
@@ -117,24 +117,24 @@ const UserList = () => {
                 className={`sortable ${sort.field === 'username' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('username')}
               >
-                Username
+                {t('userList.table.username')}
               </th>
               <th
                 className={`sortable ${sort.field === 'email' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('email')}
               >
-                Email
+                {t('userList.table.email')}
               </th>
-              <th>Role</th>
+              <th>{t('userList.table.role')}</th>
               <th
                 className={`sortable ${sort.field === 'createdAt' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('createdAt')}
               >
-                Joined
+                {t('userList.table.joined')}
               </th>
-              <th>Bookings</th>
-              <th>Reviews</th>
-              <th>Actions</th>
+              <th>{t('userList.table.bookings')}</th>
+              <th>{t('userList.table.reviews')}</th>
+              <th>{t('userList.table.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -144,7 +144,7 @@ const UserList = () => {
                 <td>{user.email}</td>
                 <td>
                   <span className={`user-role ${user.isAdmin ? 'admin' : 'user'}`}>
-                    {user.isAdmin ? 'Admin' : 'User'}
+                    {user.isAdmin ? t('userList.role.admin') : t('userList.role.user')}
                   </span>
                 </td>
                 <td>{new Date(user.createdAt).toLocaleDateString()}</td>
@@ -152,7 +152,7 @@ const UserList = () => {
                 <td>{user.reviews?.length || 0}</td>
                 <td>
                   <Link to={`/admin/users/${user._id}`} className="user-list-view-button">
-                    View
+                    {t('userList.actions.view')}
                   </Link>
                 </td>
               </tr>
@@ -168,31 +168,34 @@ const UserList = () => {
             disabled={pagination.page === 1}
             className="pagination-button"
           >
-            First
+            {t('userList.pagination.first')}
           </button>
           <button
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page === 1}
             className="pagination-button"
           >
-            Previous
+            {t('userList.pagination.previous')}
           </button>
           <span className="pagination-info">
-            Page {pagination.page} of {pagination.totalPages}
+            {t('userList.pagination.pageInfo', {
+              currentPage: pagination.page,
+              totalPages: pagination.totalPages,
+            })}
           </span>
           <button
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >
-            Next
+            {t('userList.pagination.next')}
           </button>
           <button
             onClick={() => handlePageChange(pagination.totalPages)}
             disabled={pagination.page === pagination.totalPages}
             className="pagination-button"
           >
-            Last
+            {t('userList.pagination.last')}
           </button>
         </div>
       )}

@@ -1,0 +1,59 @@
+{
+  "navigation": {
+    "home": "หน้าแรก",
+    "campgrounds": "ลานแคมป์",
+    "about": "เกี่ยวกับเรา",
+    "contact": "ติดต่อ",
+    "login": "เข้าสู่ระบบ",
+    "register": "สมัครสมาชิก",
+    "profile": "โปรไฟล์",
+    "logout": "ออกจากระบบ",
+    "dashboard": "แดชบอร์ด",
+    "bookings": "การจองของฉัน",
+    "reviews": "รีวิวของฉัน"
+  },
+  "actions": {
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "delete": "ลบ",
+    "edit": "แก้ไข",
+    "submit": "ส่ง",
+    "back": "กลับ",
+    "next": "ถัดไป",
+    "previous": "ก่อนหน้า",
+    "book": "จองเลย",
+    "view": "ดู",
+    "add": "เพิ่ม",
+    "remove": "ลบ"
+  },
+  "status": {
+    "loading": "กำลังโหลด...",
+    "error": "ข้อผิดพลาด",
+    "success": "สำเร็จ",
+    "warning": "คำเตือน",
+    "pending": "รอดำเนินการ",
+    "approved": "อนุมัติแล้ว",
+    "rejected": "ปฏิเสธแล้ว"
+  },
+  "currency": {
+    "usd": "ดอลลาร์สหรัฐ",
+    "thb": "บาท",
+    "from": "เริ่มต้น"
+  },
+  "time": {
+    "days": "วัน",
+    "nights": "คืน",
+    "hours": "ชั่วโมง",
+    "minutes": "นาที"
+  },
+  "common": {
+    "stars": "ดาว",
+    "reviews": "รีวิว",
+    "perNight": "ต่อคืน",
+    "perPerson": "ต่อคน",
+    "total": "รวม",
+    "subtotal": "ยอดรวม",
+    "tax": "ภาษี",
+    "fees": "ค่าธรรมเนียม"
+  }
+}

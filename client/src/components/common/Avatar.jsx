@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 
 const Avatar = ({ name, email, size = 'medium', className = '', showFullFirstName = false }) => {
+  const { t } = useTranslation();
   // Get initials from name or email
   const getInitials = (str) => {
     if (!str) return 'U';
@@ -62,7 +64,7 @@ const Avatar = ({ name, email, size = 'medium', className = '', showFullFirstNam
     <div
       className={`inline-flex items-center justify-center rounded-full text-white font-medium 
       ${sizeClasses[size]} ${getBackgroundColor(name || email)} ${className}`}
-      aria-label={name || email || 'User avatar'}
+      aria-label={name || email || t('common.userAvatar')}
     >
       {showFullFirstName ? getFirstName(name || email) : getInitials(name || email)}
     </div>

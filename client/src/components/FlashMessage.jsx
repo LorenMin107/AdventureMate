@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import './FlashMessage.css';
 
@@ -7,6 +8,7 @@ import './FlashMessage.css';
  * @returns {JSX.Element} Flash message component
  */
 const FlashMessage = () => {
+  const { t } = useTranslation();
   const { messages, removeMessage } = useFlashMessage();
 
   if (messages.length === 0) {
@@ -21,7 +23,7 @@ const FlashMessage = () => {
           <button
             className="flash-message-close"
             onClick={() => removeMessage(message.id)}
-            aria-label="Close message"
+            aria-label={t('flashMessage.closeMessage')}
           >
             &times;
           </button>

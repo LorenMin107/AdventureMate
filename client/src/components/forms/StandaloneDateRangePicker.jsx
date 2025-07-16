@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DatePicker from 'react-datepicker';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import 'react-datepicker/dist/react-datepicker.css';
 import './DateRangePicker.css';
@@ -35,6 +36,7 @@ const StandaloneDateRangePicker = ({
   error = '',
   ...rest
 }) => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [tempStartDate, setTempStartDate] = useState(null);
@@ -52,7 +54,7 @@ const StandaloneDateRangePicker = ({
     const start = parseDate(startDate);
     const end = parseDate(endDate);
 
-    if (!start && !end) return 'Select dates';
+    if (!start && !end) return t('forms.selectDates');
     if (start && !end) return `${start.toLocaleDateString()} - ?`;
 
     return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
