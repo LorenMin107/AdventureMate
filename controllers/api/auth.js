@@ -173,6 +173,7 @@ module.exports.login = asyncHandler(async (req, res) => {
         isOwner: user.isOwner,
         isEmailVerified: user.isEmailVerified,
         isTwoFactorEnabled: user.isTwoFactorEnabled,
+        profile: user.profile || {},
       },
     });
   }
@@ -193,6 +194,7 @@ module.exports.login = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
       isOwner: user.isOwner,
       isEmailVerified: user.isEmailVerified,
+      profile: user.profile || {},
     },
   });
 });
@@ -734,6 +736,7 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
           isOwner: user.isOwner,
           isEmailVerified: user.isEmailVerified,
           isTwoFactorEnabled: user.isTwoFactorEnabled,
+          profile: user.profile || {},
         },
       });
     }
@@ -754,6 +757,7 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
         isAdmin: user.isAdmin,
         isOwner: user.isOwner,
         isEmailVerified: user.isEmailVerified,
+        profile: user.profile || {},
       },
     });
   } catch (error) {
@@ -786,6 +790,7 @@ module.exports.checkAuthStatus = asyncHandler(async (req, res) => {
       isOwner: req.user.isOwner || false,
       isEmailVerified: req.user.isEmailVerified,
       isTwoFactorEnabled: req.user.isTwoFactorEnabled || false,
+      profile: req.user.profile || {},
     };
 
     return res.json({

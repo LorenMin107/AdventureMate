@@ -35,6 +35,8 @@ class AuthService {
    * @param {boolean} requiresTwoFactor - Whether 2FA is required
    */
   updateAuthCache(user, requiresTwoFactor = false) {
+    console.log('AuthService: updateAuthCache called with:', user);
+
     // Get the current cached auth status to compare
     const currentCache = this.getCachedAuth();
     const newCache = user ? { user, requiresTwoFactor } : null;
@@ -55,9 +57,11 @@ class AuthService {
       };
       localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(cacheData));
       localStorage.setItem(AUTH_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
+      console.log('AuthService: Cache updated with user data:', user);
     } else {
       localStorage.removeItem(AUTH_CACHE_KEY);
       localStorage.removeItem(AUTH_CACHE_EXPIRY);
+      console.log('AuthService: Cache cleared');
     }
 
     // Only broadcast if there's an actual change in authentication status
@@ -65,6 +69,16 @@ class AuthService {
       logInfo('Auth status changed, broadcasting to other tabs');
       localStorage.setItem(AUTH_STATUS_UPDATED_KEY, Date.now().toString());
     }
+  }
+
+  /**
+   * Clear the auth cache to force fresh data fetch
+   */
+  clearAuthCache() {
+    localStorage.removeItem(AUTH_CACHE_KEY);
+    localStorage.removeItem(AUTH_CACHE_EXPIRY);
+    localStorage.removeItem(AUTH_DEBOUNCE_KEY);
+    logInfo('Auth cache cleared');
   }
 
   /**
@@ -114,6 +128,7 @@ class AuthService {
 
       // If we have a valid cache and not forcing a check, use it
       if (!forceCheck && cachedAuth) {
+        console.log('AuthService: Using cached auth status:', cachedAuth);
         logInfo('Using cached auth status');
         return cachedAuth;
       }
@@ -186,7 +201,8 @@ class AuthService {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
 
-      // Update the cache with the latest authentication status
+      // Clear the cache and update with fresh data
+      this.clearAuthCache();
       this.updateAuthCache(data.user, false);
 
       return data.user;
@@ -255,7 +271,8 @@ class AuthService {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
 
-      // Update the cache with the latest authentication status
+      // Clear the cache and update with fresh data
+      this.clearAuthCache();
       this.updateAuthCache(data.user, false);
 
       return data.user;
@@ -592,7 +609,8 @@ class AuthService {
         localStorage.setItem('refreshToken', data.refreshToken);
       }
 
-      // Update the cache with the latest authentication status
+      // Clear the cache and update with fresh data
+      this.clearAuthCache();
       this.updateAuthCache(data.user, false);
 
       return data.user;

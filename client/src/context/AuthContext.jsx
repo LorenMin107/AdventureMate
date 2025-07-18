@@ -39,6 +39,18 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is logged in on initial load
   useEffect(() => {
+    // Detect page refresh
+    const isPageRefresh =
+      performance.navigation.type === 1 ||
+      (window.performance &&
+        window.performance.getEntriesByType('navigation')[0]?.type === 'reload');
+
+    // Clear cache on page refresh to ensure fresh data
+    if (isPageRefresh) {
+      console.log('AuthContext: Page refresh detected, clearing cache');
+      authService.clearAuthCache();
+    }
+
     // Generate a unique ID for this tab
     const generateTabId = () => {
       return Date.now().toString() + Math.random().toString(36).substring(2);
@@ -60,19 +72,24 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         const authData = await authService.checkAuthStatus(forceCheck);
 
+        console.log('AuthContext: checkAuthStatus result:', authData);
+
         if (authData) {
           // Only set the user as currentUser if they don't require 2FA
           // This prevents users from being considered "authenticated" before completing 2FA
           if (authData.requiresTwoFactor) {
+            console.log('AuthContext: 2FA required, not setting currentUser');
             setCurrentUser(null);
             setRequiresTwoFactor(true);
             dispatchAuthStateChange(false);
           } else {
+            console.log('AuthContext: Setting currentUser:', authData.user);
             setCurrentUser(authData.user);
             setRequiresTwoFactor(false);
             dispatchAuthStateChange(!!authData.user);
           }
         } else {
+          console.log('AuthContext: No auth data, clearing currentUser');
           setCurrentUser(null);
           setRequiresTwoFactor(false);
           dispatchAuthStateChange(false);
@@ -94,8 +111,28 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    // If this is a new tab, force a check with the server
-    checkAuthStatus(isNewTab);
+    // Clear cache and force a check on initial load to ensure fresh data
+    authService.clearAuthCache();
+    checkAuthStatus(true);
+
+    // Set up page refresh detection
+    const handleBeforeUnload = () => {
+      // Mark that we're about to refresh
+      sessionStorage.setItem('page_refreshing', 'true');
+    };
+
+    const handlePageShow = (event) => {
+      // Check if this is a page show after a refresh
+      if (event.persisted || sessionStorage.getItem('page_refreshing')) {
+        console.log('AuthContext: Page refresh detected via page show event');
+        sessionStorage.removeItem('page_refreshing');
+        authService.clearAuthCache();
+        checkAuthStatus(true);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('pageshow', handlePageShow);
 
     // Set up an interval to periodically check auth status
     // Increase interval to 10 minutes (600,000 ms)
@@ -150,9 +187,14 @@ export const AuthProvider = ({ children }) => {
 
     // Add event listener for user profile updates
     const handleUserProfileUpdate = (event) => {
+      console.log('AuthContext: userProfileUpdated event received:', event.detail);
       if (event.detail && event.detail.updatedUser) {
+        console.log('AuthContext: Updating currentUser with:', event.detail.updatedUser);
         logInfo('User profile update detected, updating currentUser');
         setCurrentUser(event.detail.updatedUser);
+
+        // Also update the AuthService cache to persist the changes
+        authService.updateAuthCache(event.detail.updatedUser, false);
       }
     };
     window.addEventListener('userProfileUpdated', handleUserProfileUpdate);
@@ -164,6 +206,8 @@ export const AuthProvider = ({ children }) => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('authStateChange', handleAuthStateChange);
       window.removeEventListener('userProfileUpdated', handleUserProfileUpdate);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('pageshow', handlePageShow);
     };
   }, []);
 

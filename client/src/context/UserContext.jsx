@@ -32,23 +32,46 @@ export const UserProvider = ({ children }) => {
   // Fetch user details when the user is authenticated
   useEffect(() => {
     if (isAuthenticated && currentUser?._id) {
+      console.log('UserContext: User authenticated, fetching details for:', currentUser._id);
       fetchUserDetails();
     } else {
+      console.log('UserContext: User not authenticated, clearing details');
       setUserDetails(null);
     }
   }, [isAuthenticated, currentUser?._id]);
 
+  // Listen for auth state changes to force refresh
+  useEffect(() => {
+    const handleAuthStateChange = (event) => {
+      if (event.detail && event.detail.isAuthenticated && currentUser?._id) {
+        console.log('UserContext: Auth state change detected, refreshing user details');
+        fetchUserDetails();
+      }
+    };
+
+    window.addEventListener('authStateChange', handleAuthStateChange);
+    return () => {
+      window.removeEventListener('authStateChange', handleAuthStateChange);
+    };
+  }, [currentUser?._id]);
+
   // Fetch detailed user data including reviews and bookings
   const fetchUserDetails = async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      console.log('UserContext: fetchUserDetails called but user not authenticated');
+      return;
+    }
 
+    console.log('UserContext: Fetching user details...');
     setLoading(true);
     setError(null);
 
     try {
       const response = await apiClient.get('/users/profile');
+      console.log('UserContext: Received user details:', response.data.user);
       setUserDetails(response.data.user);
     } catch (err) {
+      console.log('UserContext: Error fetching user details:', err);
       logError('Error fetching user details', err);
       setError(err.response?.data?.message || err.message || 'Failed to fetch user details');
     } finally {
@@ -77,7 +100,7 @@ export const UserProvider = ({ children }) => {
   };
 
   // Update user profile
-  const updateProfile = async (profileData) => {
+  const updateProfile = async (profileData, headers = {}) => {
     console.log('UserContext updateProfile called with:', profileData);
 
     if (!isAuthenticated) {
@@ -89,7 +112,7 @@ export const UserProvider = ({ children }) => {
 
     try {
       console.log('Making API call to update profile...');
-      const response = await apiClient.put('/users/profile', profileData);
+      const response = await apiClient.put('/users/profile', profileData, { headers });
       console.log('API response:', response);
       const updatedUser = response.data.user;
 
@@ -104,6 +127,8 @@ export const UserProvider = ({ children }) => {
           username: updatedUser.username,
           profile: updatedUser.profile,
         };
+
+        console.log('UserContext: Dispatching userProfileUpdated event with:', updatedCurrentUser);
 
         // Dispatch an event to notify AuthContext to update
         const event = new CustomEvent('userProfileUpdated', {

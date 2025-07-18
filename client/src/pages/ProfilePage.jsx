@@ -17,59 +17,38 @@ import './ProfilePage.css';
 const ProfilePage = () => {
   const { t } = useTranslation();
   const { userDetails, loading, error, updateProfile, setUserDetails } = useUser();
-  const [phone, setPhone] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [updateError, setUpdateError] = useState(null);
-  const [updateSuccess, setUpdateSuccess] = useState(false);
-  const [phoneError, setPhoneError] = useState('');
   const [activeSection, setActiveSection] = useState('personal');
+  const [updateError, setUpdateError] = useState('');
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   // New state for editing display name and username
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editDisplayName, setEditDisplayName] = useState('');
   const [editUsername, setEditUsername] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editProfilePicture, setEditProfilePicture] = useState(null);
+  const [editProfilePicturePreview, setEditProfilePicturePreview] = useState(null);
   const [editError, setEditError] = useState('');
   const [editLoading, setEditLoading] = useState(false);
   const [editSuccess, setEditSuccess] = useState(false);
   const [editDisplayNameError, setEditDisplayNameError] = useState('');
   const [editUsernameError, setEditUsernameError] = useState('');
+  const [editPhoneError, setEditPhoneError] = useState('');
+  const [editProfilePictureError, setEditProfilePictureError] = useState('');
+  const [removeProfilePicture, setRemoveProfilePicture] = useState(false);
 
   // Initialize phone state with user's phone number when userDetails is loaded
   useEffect(() => {
-    if (userDetails?.phone) {
-      setPhone(userDetails.phone);
-    }
     if (userDetails) {
-      setEditDisplayName(userDetails.profile?.name || userDetails.username || '');
+      // Don't fall back to username - keep display name independent
+      setEditDisplayName(userDetails.profile?.name || '');
       setEditUsername(userDetails.username || '');
+      setEditPhone(userDetails.phone || '');
+      setEditProfilePicturePreview(userDetails.profile?.picture || null);
     }
   }, [userDetails]);
 
-  // Handle form submission for phone
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (phone && !validatePhone(phone)) {
-      setPhoneError(t('profile.invalidPhoneNumber'));
-      return;
-    }
-    setUpdateError(null);
-    setUpdateSuccess(false);
-    try {
-      await updateProfile({ phone });
-      setIsEditing(false);
-      setUpdateSuccess(true);
-      setTimeout(() => setUpdateSuccess(false), 3000);
-    } catch (err) {
-      logError('Error updating profile', err);
-      setUpdateError(t('profile.updateError'));
-    }
-  };
-
-  // Validate phone number format
-  const validatePhone = (phoneNumber) => {
-    const phoneRegex = /^\+?[0-9]{10,15}$/;
-    return phoneRegex.test(phoneNumber);
-  };
+  // Validate phone number format (moved to edit modal validation)
 
   const validateDisplayName = (name) => {
     if (!name || name.trim().length < 2) {
@@ -94,20 +73,75 @@ const ProfilePage = () => {
     return '';
   };
 
-  // Handle phone input change
-  const handlePhoneChange = (e) => {
-    setPhone(e.target.value);
-    setPhoneError('');
+  const validatePhone = (phoneNumber) => {
+    if (phoneNumber && !/^\+?[0-9]{10,15}$/.test(phoneNumber)) {
+      return t('profile.invalidPhoneNumber');
+    }
+    return '';
+  };
+
+  const validateProfilePicture = (file) => {
+    if (!file) return '';
+
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      return t('profilePicture.invalidFileType');
+    }
+
+    // Check file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return t('profilePicture.fileTooLarge');
+    }
+
+    return '';
+  };
+
+  const handleProfilePictureSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const error = validateProfilePicture(file);
+      setEditProfilePictureError(error);
+
+      if (!error) {
+        setEditProfilePicture(file);
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setEditProfilePicturePreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  const handleRemoveProfilePicture = () => {
+    setEditProfilePicture(null);
+    setEditProfilePicturePreview(null);
+    setEditProfilePictureError('');
+    setRemoveProfilePicture(true);
+    // Clear the file input
+    const fileInput = document.getElementById('profile-picture-input-modal');
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
   // Handle edit modal open
   const openEditModal = () => {
-    setEditDisplayName(userDetails?.profile?.name || userDetails?.username || '');
+    // Don't fall back to username - keep display name independent
+    setEditDisplayName(userDetails?.profile?.name || '');
     setEditUsername(userDetails?.username || '');
+    setEditPhone(userDetails?.phone || '');
+    setEditProfilePicturePreview(userDetails?.profile?.picture || null);
+    setEditProfilePicture(null);
+    setRemoveProfilePicture(false);
     setEditError('');
     setEditSuccess(false);
     setEditDisplayNameError('');
     setEditUsernameError('');
+    setEditPhoneError('');
+    setEditProfilePictureError('');
     setEditModalOpen(true);
   };
 
@@ -117,24 +151,62 @@ const ProfilePage = () => {
     setEditError('');
     setEditDisplayNameError('');
     setEditUsernameError('');
+    setEditPhoneError('');
+    setEditProfilePictureError('');
     setEditLoading(true);
 
     // Frontend validation
     const displayNameErr = validateDisplayName(editDisplayName);
     const usernameErr = validateUsername(editUsername);
-    if (displayNameErr || usernameErr) {
+    const phoneErr = validatePhone(editPhone);
+    const profilePictureErr = validateProfilePicture(editProfilePicture);
+
+    if (displayNameErr || usernameErr || phoneErr || profilePictureErr) {
       setEditDisplayNameError(displayNameErr);
       setEditUsernameError(usernameErr);
+      setEditPhoneError(phoneErr);
+      setEditProfilePictureError(profilePictureErr);
       setEditLoading(false);
       return;
     }
+
     try {
       console.log('Starting profile update...');
+      console.log('removeProfilePicture flag:', removeProfilePicture);
+      console.log('editProfilePicture:', editProfilePicture);
+
+      // Create FormData if we have a profile picture
+      let profileData;
+      let headers = {};
+
+      if (editProfilePicture) {
+        profileData = new FormData();
+        profileData.append('username', editUsername);
+        profileData.append('profileName', editDisplayName);
+        profileData.append('phone', editPhone);
+        profileData.append('profilePicture', editProfilePicture);
+        headers = { 'Content-Type': 'multipart/form-data' };
+        console.log('Sending new profile picture');
+      } else if (removeProfilePicture) {
+        // Handle profile picture removal
+        profileData = {
+          username: editUsername,
+          profileName: editDisplayName,
+          phone: editPhone,
+          removeProfilePicture: true,
+        };
+        console.log('Sending profile picture removal request');
+      } else {
+        profileData = {
+          username: editUsername,
+          profileName: editDisplayName,
+          phone: editPhone,
+        };
+        console.log('Sending profile update without picture changes');
+      }
+
       // Use the updateProfile function from UserContext
-      const result = await updateProfile({
-        username: editUsername,
-        profileName: editDisplayName,
-      });
+      const result = await updateProfile(profileData, headers);
 
       console.log('Profile update result:', result);
 
@@ -162,6 +234,7 @@ const ProfilePage = () => {
           validationErrors.forEach((e) => {
             if (e.field === 'username') setEditUsernameError(e.message);
             if (e.field === 'profileName') setEditDisplayNameError(e.message);
+            if (e.field === 'phone') setEditPhoneError(e.message);
             // Add more fields as needed
           });
           // If no field-specific error, show general error
@@ -175,6 +248,10 @@ const ProfilePage = () => {
             setEditUsernameError(backendError);
           } else if (backendError && backendError.toLowerCase().includes('name')) {
             setEditDisplayNameError(backendError);
+          } else if (backendError && backendError.toLowerCase().includes('phone')) {
+            setEditPhoneError(backendError);
+          } else if (backendError && backendError.toLowerCase().includes('picture')) {
+            setEditProfilePictureError(backendError);
           } else {
             setEditError(backendError || t('profile.updateError'));
           }
@@ -208,6 +285,10 @@ const ProfilePage = () => {
       editUsernameError,
       'displayName:',
       editDisplayNameError,
+      'phone:',
+      editPhoneError,
+      'picture:',
+      editProfilePictureError,
       'general:',
       editError
     );
@@ -217,6 +298,63 @@ const ProfilePage = () => {
         <div className="profile-edit-modal">
           <h2>{t('profile.editProfile')}</h2>
           <form onSubmit={handleEditSave}>
+            {/* Profile Picture Section */}
+            <div className="profile-field">
+              <label>{t('profilePicture.profilePicture')}</label>
+              <div className="profile-picture-upload-section">
+                <div className="profile-picture-preview">
+                  {editProfilePicturePreview ? (
+                    <img
+                      src={editProfilePicturePreview}
+                      alt="Profile preview"
+                      className="profile-picture-preview-img"
+                    />
+                  ) : userDetails.profile?.picture && !removeProfilePicture ? (
+                    <img
+                      src={userDetails.profile.picture}
+                      alt="Current profile"
+                      className="profile-picture-preview-img"
+                    />
+                  ) : (
+                    <div className="profile-picture-placeholder">
+                      {(userDetails.profile?.name || userDetails.username || 'U')
+                        .charAt(0)
+                        .toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="profile-picture-controls">
+                  <input
+                    type="file"
+                    id="profile-picture-input-modal"
+                    accept="image/*"
+                    onChange={handleProfilePictureSelect}
+                    className="profile-picture-input"
+                  />
+                  <label
+                    htmlFor="profile-picture-input-modal"
+                    className="profile-picture-choose-btn"
+                  >
+                    {t('profilePicture.chooseFile')}
+                  </label>
+                  {(editProfilePicturePreview ||
+                    (userDetails.profile?.picture && !removeProfilePicture)) && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveProfilePicture}
+                      className="profile-picture-remove-btn"
+                    >
+                      {t('profilePicture.remove')}
+                    </button>
+                  )}
+                </div>
+                {editProfilePictureError && (
+                  <div className="profile-update-error">{editProfilePictureError}</div>
+                )}
+              </div>
+            </div>
+
+            {/* Display Name Field */}
             <div className="profile-field">
               <label>{t('profile.displayName')}</label>
               <input
@@ -227,12 +365,14 @@ const ProfilePage = () => {
                   setEditDisplayNameError(validateDisplayName(e.target.value));
                 }}
                 maxLength={50}
-                required
+                placeholder={t('profile.displayNamePlaceholder')}
               />
               {editDisplayNameError && (
                 <div className="profile-update-error">{editDisplayNameError}</div>
               )}
             </div>
+
+            {/* Username Field */}
             <div className="profile-field">
               <label>{t('profile.username')}</label>
               <input
@@ -243,12 +383,42 @@ const ProfilePage = () => {
                   setEditUsernameError(validateUsername(e.target.value));
                 }}
                 maxLength={30}
+                placeholder={t('profile.usernamePlaceholder')}
                 required
               />
               <span className="profile-username-hint">@{editUsername}</span>
               {editUsernameError && <div className="profile-update-error">{editUsernameError}</div>}
             </div>
+
+            {/* Phone Number Field */}
+            <div className="profile-field">
+              <label>{t('profile.phoneNumber')}</label>
+              <input
+                type="text"
+                value={editPhone}
+                onChange={(e) => {
+                  setEditPhone(e.target.value);
+                  setEditPhoneError(validatePhone(e.target.value));
+                }}
+                placeholder={t('profile.enterPhoneNumber')}
+              />
+              {editPhoneError && <div className="profile-update-error">{editPhoneError}</div>}
+            </div>
+
+            {/* Email Field (Read-only) */}
+            <div className="profile-field">
+              <label>{t('profile.email')}</label>
+              <input
+                type="email"
+                value={userDetails.email}
+                disabled
+                className="profile-field-disabled"
+              />
+              <span className="profile-field-note">{t('profile.emailNote')}</span>
+            </div>
+
             {editError && <div className="profile-update-error">{editError}</div>}
+
             <div className="profile-actions">
               <button type="submit" className="save-button" disabled={editLoading}>
                 {editLoading ? t('profile.saving') : t('profile.save')}
@@ -284,7 +454,7 @@ const ProfilePage = () => {
         </div>
         <div>
           <h1 className="profile-page-title">
-            {userDetails.profile?.name || userDetails.username}
+            {userDetails.profile?.name || t('profile.noDisplayName')}
           </h1>
           <div className="profile-username-handle">@{userDetails.username}</div>
         </div>
@@ -338,11 +508,12 @@ const ProfilePage = () => {
           {activeSection === 'personal' && (
             <div className="profile-section">
               <h2 className="section-title">{t('profile.personalInformation')}</h2>
+
               <div className="profile-card">
                 <div className="profile-info">
                   <div className="profile-field">
                     <label>{t('profile.displayName')}</label>
-                    <span>{userDetails.profile?.name || userDetails.username}</span>
+                    <span>{userDetails.profile?.name || t('profile.noDisplayName')}</span>
                   </div>
                   <div className="profile-field">
                     <label>{t('profile.username')}</label>
@@ -352,55 +523,10 @@ const ProfilePage = () => {
                     <label>{t('profile.email')}</label>
                     <span>{userDetails.email}</span>
                   </div>
-                  {isEditing ? (
-                    <form onSubmit={handleSubmit} className="profile-form">
-                      <div className="profile-field">
-                        <label htmlFor="phone">{t('profile.phoneNumber')}</label>
-                        <input
-                          type="text"
-                          id="phone"
-                          value={phone}
-                          onChange={handlePhoneChange}
-                          placeholder={t('profile.enterPhoneNumber')}
-                          className={phoneError ? 'input-error' : ''}
-                        />
-                        {phoneError && <div className="error-message">{phoneError}</div>}
-                      </div>
-                      <div className="profile-actions">
-                        <button type="submit" className="save-button">
-                          {t('profile.save')}
-                        </button>
-                        <button
-                          type="button"
-                          className="cancel-button"
-                          onClick={() => {
-                            setIsEditing(false);
-                            setPhone(userDetails.phone || '');
-                            setPhoneError('');
-                          }}
-                        >
-                          {t('profile.cancel')}
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <>
-                      <div className="profile-field">
-                        <label>{t('profile.phone')}</label>
-                        <span>{userDetails.phone || t('profile.notProvided')}</span>
-                      </div>
-                      <div className="profile-actions">
-                        <button
-                          className="common-btn common-btn-secondary"
-                          onClick={() => setIsEditing(true)}
-                        >
-                          {userDetails.phone
-                            ? t('profile.updatePhoneNumber')
-                            : t('profile.addPhoneNumber')}
-                        </button>
-                      </div>
-                    </>
-                  )}
+                  <div className="profile-field">
+                    <label>{t('profile.phone')}</label>
+                    <span>{userDetails.phone || t('profile.notProvided')}</span>
+                  </div>
                 </div>
               </div>
             </div>

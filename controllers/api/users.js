@@ -17,6 +17,7 @@ const {
   createPasswordChangeAuditLog,
 } = require('../../utils/passwordUtils');
 const { logError, logInfo, logWarn } = require('../../utils/logger');
+const { cloudinary } = require('../../cloudinary');
 const Invite = require('../../models/invite');
 const Trip = require('../../models/trip');
 
@@ -253,6 +254,7 @@ module.exports.getUser = async (req, res) => {
       isOwner: user.isOwner || false,
       isEmailVerified: user.isEmailVerified,
       isTwoFactorEnabled: user.isTwoFactorEnabled || false,
+      profile: user.profile || {},
       reviews: user.reviews,
       bookings: user.bookings,
     };
@@ -278,13 +280,96 @@ module.exports.checkAuthStatus = async (req, res) => {
   });
 };
 
+module.exports.getProfile = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'You must be logged in to get your profile' });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Populate reviews
+    await user.populate('reviews');
+
+    // Get only bookings that belong to this user
+    const userBookings = await Booking.find({
+      user: user._id,
+      _id: { $in: user.bookings }, // Ensure booking is in user's bookings array
+    }).populate([
+      {
+        path: 'campground',
+        select: 'title location images',
+      },
+      {
+        path: 'campsite',
+        select: 'name description features price capacity images',
+      },
+    ]);
+
+    // Replace the bookings array with the filtered bookings
+    user.bookings = userBookings;
+
+    // Ensure all bookings have valid campground and campsite data
+    const Campground = require('../../models/campground');
+    const Campsite = require('../../models/campsite');
+
+    // Validate and fix any missing campground or campsite references
+    for (let booking of user.bookings) {
+      if (!booking.campground) {
+        // Try to find the campground
+        const campground = await Campground.findById(booking.campgroundId);
+        if (campground) {
+          booking.campground = campground;
+        }
+      }
+      if (!booking.campsite && booking.campsiteId) {
+        // Try to find the campsite
+        const campsite = await Campsite.findById(booking.campsiteId);
+        if (campsite) {
+          booking.campsite = campsite;
+        }
+      }
+    }
+
+    // Create user response object
+    const userResponse = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      isAdmin: user.isAdmin || false,
+      isOwner: user.isOwner || false,
+      isEmailVerified: user.isEmailVerified,
+      isTwoFactorEnabled: user.isTwoFactorEnabled || false,
+      profile: user.profile || {},
+      reviews: user.reviews || [],
+      bookings: user.bookings || [],
+    };
+
+    res.json({
+      user: userResponse,
+      emailVerified: user.isEmailVerified,
+    });
+  } catch (error) {
+    logError('Error getting profile', error, {
+      userId: req.user?._id,
+      endpoint: '/api/v1/users/profile',
+    });
+    res.status(400).json({ error: error.message || 'Failed to get profile' });
+  }
+};
+
 module.exports.updateProfile = async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'You must be logged in to update your profile' });
     }
 
-    const { phone, username, profileName } = req.body;
+    const { phone, username, profileName, removeProfilePicture } = req.body;
 
     // Find the user by ID
     const user = await User.findById(req.user._id);
@@ -309,6 +394,65 @@ module.exports.updateProfile = async (req, res) => {
     if (profileName !== undefined) {
       if (!user.profile) user.profile = {};
       user.profile.name = profileName;
+    }
+
+    // Handle profile picture removal if requested
+    if (removeProfilePicture && user.profile?.picture) {
+      try {
+        // Extract public ID from the URL
+        const urlParts = user.profile.picture.split('/');
+        const publicId = urlParts[urlParts.length - 1].split('.')[0];
+        await cloudinary.uploader.destroy(publicId);
+        logInfo('Profile picture removed from Cloudinary', { userId: user._id, publicId });
+
+        // Remove the picture URL from user profile
+        if (!user.profile) user.profile = {};
+        user.profile.picture = null;
+      } catch (deleteError) {
+        logWarn('Failed to delete profile picture from Cloudinary', deleteError, {
+          userId: user._id,
+        });
+        // Still remove the URL from the database even if Cloudinary deletion fails
+        if (!user.profile) user.profile = {};
+        user.profile.picture = null;
+      }
+    }
+
+    // Handle profile picture upload if provided
+    if (req.file) {
+      // Delete old profile picture from Cloudinary if it exists
+      if (user.profile?.picture) {
+        try {
+          // Extract public ID from the URL
+          const urlParts = user.profile.picture.split('/');
+          const publicId = urlParts[urlParts.length - 1].split('.')[0];
+          await cloudinary.uploader.destroy(publicId);
+          logInfo('Old profile picture deleted from Cloudinary', { userId: user._id, publicId });
+        } catch (deleteError) {
+          logWarn('Failed to delete old profile picture', deleteError, { userId: user._id });
+          // Continue with upload even if deletion fails
+        }
+      }
+
+      // Upload new image to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'profile-pictures',
+        transformation: [
+          { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+          { quality: 'auto', fetch_format: 'auto' },
+        ],
+        public_id: `user-${user._id}-${Date.now()}`,
+      });
+
+      // Update user profile with new picture URL
+      if (!user.profile) user.profile = {};
+      user.profile.picture = result.secure_url;
+
+      logInfo('Profile picture uploaded successfully', {
+        userId: user._id,
+        publicId: result.public_id,
+        url: result.secure_url,
+      });
     }
 
     await user.save();
@@ -409,6 +553,147 @@ module.exports.updateProfile = async (req, res) => {
       endpoint: '/api/v1/users/profile',
     });
     res.status(400).json({ error: error.message || 'Failed to update profile' });
+  }
+};
+
+module.exports.uploadProfilePicture = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'You must be logged in to upload a profile picture' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    // Find the user
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Delete old profile picture from Cloudinary if it exists
+    if (user.profile?.picture) {
+      try {
+        // Extract public ID from the URL
+        const urlParts = user.profile.picture.split('/');
+        const publicId = urlParts[urlParts.length - 1].split('.')[0];
+        await cloudinary.uploader.destroy(publicId);
+        logInfo('Old profile picture deleted from Cloudinary', { userId: user._id, publicId });
+      } catch (deleteError) {
+        logWarn('Failed to delete old profile picture', deleteError, { userId: user._id });
+        // Continue with upload even if deletion fails
+      }
+    }
+
+    // Upload new image to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'profile-pictures',
+      transformation: [
+        { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+        { quality: 'auto', fetch_format: 'auto' },
+      ],
+      public_id: `user-${user._id}-${Date.now()}`,
+    });
+
+    // Update user profile with new picture URL
+    if (!user.profile) user.profile = {};
+    user.profile.picture = result.secure_url;
+    await user.save();
+
+    logInfo('Profile picture uploaded successfully', {
+      userId: user._id,
+      publicId: result.public_id,
+      url: result.secure_url,
+    });
+
+    // Return updated user data
+    const userResponse = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      isAdmin: user.isAdmin || false,
+      isOwner: user.isOwner || false,
+      isEmailVerified: user.isEmailVerified,
+      isTwoFactorEnabled: user.isTwoFactorEnabled || false,
+      profile: user.profile || {},
+    };
+
+    res.json({
+      user: userResponse,
+      message: 'Profile picture uploaded successfully',
+    });
+  } catch (error) {
+    logError('Error uploading profile picture', error, {
+      userId: req.user?._id,
+      endpoint: '/api/v1/users/profile-picture',
+    });
+    res.status(400).json({ error: error.message || 'Failed to upload profile picture' });
+  }
+};
+
+module.exports.removeProfilePicture = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res
+        .status(401)
+        .json({ error: 'You must be logged in to remove your profile picture' });
+    }
+
+    // Find the user
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Delete profile picture from Cloudinary if it exists
+    if (user.profile?.picture) {
+      try {
+        // Extract public ID from the URL
+        const urlParts = user.profile.picture.split('/');
+        const publicId = urlParts[urlParts.length - 1].split('.')[0];
+        await cloudinary.uploader.destroy(publicId);
+        logInfo('Profile picture deleted from Cloudinary', { userId: user._id, publicId });
+      } catch (deleteError) {
+        logWarn('Failed to delete profile picture from Cloudinary', deleteError, {
+          userId: user._id,
+        });
+        // Continue with removal even if Cloudinary deletion fails
+      }
+    }
+
+    // Remove profile picture from user profile
+    if (user.profile) {
+      user.profile.picture = undefined;
+      await user.save();
+    }
+
+    logInfo('Profile picture removed successfully', { userId: user._id });
+
+    // Return updated user data
+    const userResponse = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      isAdmin: user.isAdmin || false,
+      isOwner: user.isOwner || false,
+      isEmailVerified: user.isEmailVerified,
+      isTwoFactorEnabled: user.isTwoFactorEnabled || false,
+      profile: user.profile || {},
+    };
+
+    res.json({
+      user: userResponse,
+      message: 'Profile picture removed successfully',
+    });
+  } catch (error) {
+    logError('Error removing profile picture', error, {
+      userId: req.user?._id,
+      endpoint: '/api/v1/users/profile-picture',
+    });
+    res.status(400).json({ error: error.message || 'Failed to remove profile picture' });
   }
 };
 

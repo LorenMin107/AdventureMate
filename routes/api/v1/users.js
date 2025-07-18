@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
 const users = require('../../../controllers/api/users');
 const catchAsync = require('../../../utils/catchAsync');
 const {
@@ -9,6 +11,32 @@ const {
 } = require('../../../middleware/jwtAuth');
 const { validate } = require('../../../middleware/validators');
 const { userValidators } = require('../../../middleware/validators');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: function (req, file, cb) {
+    // Check file type
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  },
+});
 
 // Register a new user - handled by auth.js
 // This route is kept for backward compatibility but redirects to the v1 auth endpoint
@@ -46,13 +74,13 @@ router.get('/status', (req, res) => {
   });
 });
 
-// Get current user data
+// Get current user profile
 router.get(
   '/profile',
   authenticateJWT,
   requireAuth,
   requireEmailVerified,
-  catchAsync(users.getUser)
+  catchAsync(users.getProfile)
 );
 
 // Update user profile
@@ -61,8 +89,28 @@ router.put(
   authenticateJWT,
   requireAuth,
   requireEmailVerified,
+  upload.single('profilePicture'),
   validate(userValidators.updateProfile),
   catchAsync(users.updateProfile)
+);
+
+// Upload profile picture
+router.post(
+  '/profile-picture',
+  authenticateJWT,
+  requireAuth,
+  requireEmailVerified,
+  upload.single('profilePicture'),
+  catchAsync(users.uploadProfilePicture)
+);
+
+// Remove profile picture
+router.delete(
+  '/profile-picture',
+  authenticateJWT,
+  requireAuth,
+  requireEmailVerified,
+  catchAsync(users.removeProfilePicture)
 );
 
 // Submit a contact form
