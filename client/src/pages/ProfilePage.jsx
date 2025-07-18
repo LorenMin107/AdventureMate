@@ -7,6 +7,7 @@ import TwoFactorSetup from '../components/TwoFactorSetup';
 import PasswordChangeForm from '../components/PasswordChangeForm';
 import BookingList from '../components/BookingList';
 import UserReviewList from '../components/UserReviewList';
+import CSSIsolationWrapper from '../components/CSSIsolationWrapper';
 import { logError } from '../utils/logger';
 import apiClient from '../utils/api';
 import './ProfilePage.css';
@@ -296,11 +297,22 @@ const ProfilePage = () => {
     return (
       <div className="profile-edit-modal-overlay">
         <div className="profile-edit-modal">
-          <h2>{t('profile.editProfile')}</h2>
-          <form onSubmit={handleEditSave}>
+          <div className="modal-header">
+            <h2>{t('profile.editProfile')}</h2>
+            <button
+              type="button"
+              className="modal-close-btn"
+              onClick={() => setEditModalOpen(false)}
+              disabled={editLoading}
+            >
+              ×
+            </button>
+          </div>
+
+          <form onSubmit={handleEditSave} className="modal-form">
             {/* Profile Picture Section */}
-            <div className="profile-field">
-              <label>{t('profilePicture.profilePicture')}</label>
+            <div className="form-section">
+              <h3 className="section-title">{t('profilePicture.profilePicture')}</h3>
               <div className="profile-picture-upload-section">
                 <div className="profile-picture-preview">
                   {editProfilePicturePreview ? (
@@ -348,78 +360,87 @@ const ProfilePage = () => {
                     </button>
                   )}
                 </div>
-                {editProfilePictureError && (
-                  <div className="profile-update-error">{editProfilePictureError}</div>
-                )}
               </div>
-            </div>
-
-            {/* Display Name Field */}
-            <div className="profile-field">
-              <label>{t('profile.displayName')}</label>
-              <input
-                type="text"
-                value={editDisplayName}
-                onChange={(e) => {
-                  setEditDisplayName(e.target.value);
-                  setEditDisplayNameError(validateDisplayName(e.target.value));
-                }}
-                maxLength={50}
-                placeholder={t('profile.displayNamePlaceholder')}
-              />
-              {editDisplayNameError && (
-                <div className="profile-update-error">{editDisplayNameError}</div>
+              {editProfilePictureError && (
+                <div className="form-error">{editProfilePictureError}</div>
               )}
             </div>
 
-            {/* Username Field */}
-            <div className="profile-field">
-              <label>{t('profile.username')}</label>
-              <input
-                type="text"
-                value={editUsername}
-                onChange={(e) => {
-                  setEditUsername(e.target.value);
-                  setEditUsernameError(validateUsername(e.target.value));
-                }}
-                maxLength={30}
-                placeholder={t('profile.usernamePlaceholder')}
-                required
-              />
-              <span className="profile-username-hint">@{editUsername}</span>
-              {editUsernameError && <div className="profile-update-error">{editUsernameError}</div>}
+            {/* Personal Information Section */}
+            <div className="form-section">
+              <h3 className="section-title">{t('profile.personalInformation')}</h3>
+
+              <div className="form-row">
+                <div className="form-field">
+                  <label htmlFor="display-name">{t('profile.displayName')}</label>
+                  <input
+                    id="display-name"
+                    type="text"
+                    value={editDisplayName}
+                    onChange={(e) => {
+                      setEditDisplayName(e.target.value);
+                      setEditDisplayNameError(validateDisplayName(e.target.value));
+                    }}
+                    maxLength={50}
+                    placeholder={t('profile.displayNamePlaceholder')}
+                  />
+                  {editDisplayNameError && <div className="form-error">{editDisplayNameError}</div>}
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="username">{t('profile.username')}</label>
+                  <div className="input-with-hint">
+                    <input
+                      id="username"
+                      type="text"
+                      value={editUsername}
+                      onChange={(e) => {
+                        setEditUsername(e.target.value);
+                        setEditUsernameError(validateUsername(e.target.value));
+                      }}
+                      maxLength={30}
+                      placeholder={t('profile.usernamePlaceholder')}
+                      required
+                    />
+                    <span className="input-hint">@{editUsername}</span>
+                  </div>
+                  {editUsernameError && <div className="form-error">{editUsernameError}</div>}
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-field">
+                  <label htmlFor="phone">{t('profile.phoneNumber')}</label>
+                  <input
+                    id="phone"
+                    type="text"
+                    value={editPhone}
+                    onChange={(e) => {
+                      setEditPhone(e.target.value);
+                      setEditPhoneError(validatePhone(e.target.value));
+                    }}
+                    placeholder={t('profile.enterPhoneNumber')}
+                  />
+                  {editPhoneError && <div className="form-error">{editPhoneError}</div>}
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="email">{t('profile.email')}</label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={userDetails.email}
+                    disabled
+                    className="form-field-disabled"
+                  />
+                  <span className="field-note">{t('profile.emailNote')}</span>
+                </div>
+              </div>
             </div>
 
-            {/* Phone Number Field */}
-            <div className="profile-field">
-              <label>{t('profile.phoneNumber')}</label>
-              <input
-                type="text"
-                value={editPhone}
-                onChange={(e) => {
-                  setEditPhone(e.target.value);
-                  setEditPhoneError(validatePhone(e.target.value));
-                }}
-                placeholder={t('profile.enterPhoneNumber')}
-              />
-              {editPhoneError && <div className="profile-update-error">{editPhoneError}</div>}
-            </div>
+            {editError && <div className="form-error global-error">{editError}</div>}
 
-            {/* Email Field (Read-only) */}
-            <div className="profile-field">
-              <label>{t('profile.email')}</label>
-              <input
-                type="email"
-                value={userDetails.email}
-                disabled
-                className="profile-field-disabled"
-              />
-              <span className="profile-field-note">{t('profile.emailNote')}</span>
-            </div>
-
-            {editError && <div className="profile-update-error">{editError}</div>}
-
-            <div className="profile-actions">
+            <div className="modal-actions">
               <button type="submit" className="save-button" disabled={editLoading}>
                 {editLoading ? t('profile.saving') : t('profile.save')}
               </button>
@@ -465,104 +486,132 @@ const ProfilePage = () => {
       {editModalOpen && renderEditModal()}
       {console.log('Modal should be open:', editModalOpen)}
       {editSuccess && <div className="profile-update-success">{t('profile.updateSuccess')}</div>}
-      <div className="profile-container">
-        <div className="profile-sidebar">
-          <nav className="profile-nav">
-            <ul className="profile-nav-list">
-              <li
-                className={`profile-nav-item ${activeSection === 'personal' ? 'active' : ''}`}
-                onClick={() => setActiveSection('personal')}
-              >
-                <span className="profile-nav-icon">👤</span>
-                <span>{t('profile.personalInfo')}</span>
-              </li>
-              <li
-                className={`profile-nav-item ${activeSection === 'security' ? 'active' : ''}`}
-                onClick={() => setActiveSection('security')}
-              >
-                <span className="profile-nav-icon">🔒</span>
-                <span>{t('profile.security')}</span>
-              </li>
-              <li
-                className={`profile-nav-item ${activeSection === 'bookings' ? 'active' : ''}`}
-                onClick={() => setActiveSection('bookings')}
-              >
-                <span className="profile-nav-icon">🏕️</span>
-                <span>{t('profile.bookings')}</span>
-              </li>
-              <li
-                className={`profile-nav-item ${activeSection === 'reviews' ? 'active' : ''}`}
-                onClick={() => setActiveSection('reviews')}
-              >
-                <span className="profile-nav-icon">⭐</span>
-                <span>{t('profile.reviews')}</span>
-              </li>
-            </ul>
-          </nav>
-        </div>
-        <div className="profile-content">
-          {updateError && <div className="profile-update-error">{updateError}</div>}
-          {updateSuccess && (
-            <div className="profile-update-success">{t('profile.updateSuccess')}</div>
-          )}
-          {activeSection === 'personal' && (
-            <div className="profile-section">
-              <h2 className="section-title">{t('profile.personalInformation')}</h2>
+      <CSSIsolationWrapper>
+        <div className="profile-container">
+          <div className="profile-sidebar">
+            <nav className="profile-nav">
+              <ul className="profile-nav-list">
+                <li
+                  className={`profile-nav-item ${activeSection === 'personal' ? 'active' : ''}`}
+                  onClick={() => setActiveSection('personal')}
+                >
+                  <span className="profile-nav-icon">👤</span>
+                  <span>{t('profile.personalInfo')}</span>
+                </li>
+                <li
+                  className={`profile-nav-item ${activeSection === 'security' ? 'active' : ''}`}
+                  onClick={() => setActiveSection('security')}
+                >
+                  <span className="profile-nav-icon">🔒</span>
+                  <span>{t('profile.security')}</span>
+                </li>
+                <li
+                  className={`profile-nav-item ${activeSection === 'bookings' ? 'active' : ''}`}
+                  onClick={() => setActiveSection('bookings')}
+                >
+                  <span className="profile-nav-icon">🏕️</span>
+                  <span>{t('profile.bookings')}</span>
+                </li>
+                <li
+                  className={`profile-nav-item ${activeSection === 'reviews' ? 'active' : ''}`}
+                  onClick={() => setActiveSection('reviews')}
+                >
+                  <span className="profile-nav-icon">⭐</span>
+                  <span>{t('profile.reviews')}</span>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div className="profile-content">
+            {updateError && <div className="profile-update-error">{updateError}</div>}
+            {updateSuccess && (
+              <div className="profile-update-success">{t('profile.updateSuccess')}</div>
+            )}
+            {activeSection === 'personal' && (
+              <div className="profile-section">
+                <h2 className="section-title">{t('profile.personalInformation')}</h2>
 
-              <div className="profile-card">
-                <div className="profile-info">
-                  <div className="profile-field">
-                    <label>{t('profile.displayName')}</label>
-                    <span>{userDetails.profile?.name || t('profile.noDisplayName')}</span>
-                  </div>
-                  <div className="profile-field">
-                    <label>{t('profile.username')}</label>
-                    <span>@{userDetails.username}</span>
-                  </div>
-                  <div className="profile-field">
-                    <label>{t('profile.email')}</label>
-                    <span>{userDetails.email}</span>
-                  </div>
-                  <div className="profile-field">
-                    <label>{t('profile.phone')}</label>
-                    <span>{userDetails.phone || t('profile.notProvided')}</span>
+                <div className="profile-card">
+                  <div className="profile-info">
+                    <div className="profile-field">
+                      <label>{t('profile.displayName')}</label>
+                      <span>{userDetails.profile?.name || t('profile.noDisplayName')}</span>
+                    </div>
+                    <div className="profile-field">
+                      <label>{t('profile.username')}</label>
+                      <span>@{userDetails.username}</span>
+                    </div>
+                    <div className="profile-field">
+                      <label>{t('profile.email')}</label>
+                      <span>{userDetails.email}</span>
+                    </div>
+                    <div className="profile-field">
+                      <label>{t('profile.phone')}</label>
+                      <span>{userDetails.phone || t('profile.notProvided')}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-          {activeSection === 'security' && (
-            <div className="profile-section">
-              <h2 className="section-title">{t('profile.securitySettings')}</h2>
-              <div className="profile-card">
-                <TwoFactorSetup />
-                <div className="security-actions">
-                  <Link to="/password-change" className="security-link">
-                    <span className="security-icon">🔑</span>
-                    <span>{t('profile.changePassword')}</span>
-                  </Link>
+            )}
+            {activeSection === 'security' && (
+              <div className="profile-section">
+                <h2 className="section-title">{t('profile.securitySettings')}</h2>
+                <div className="profile-card">
+                  <TwoFactorSetup />
+                  <div className="security-actions">
+                    {/* Only show Change Password link for non-Google OAuth users */}
+                    {!userDetails?.googleId && (
+                      <Link to="/password-change" className="security-link">
+                        <span className="security-icon">🔑</span>
+                        <span>{t('profile.changePassword')}</span>
+                      </Link>
+                    )}
+                    {/* Show Google account notice for Google OAuth users */}
+                    {userDetails?.googleId && (
+                      <div className="google-account-notice">
+                        <span className="security-icon">🔐</span>
+                        <div className="notice-content">
+                          <span className="notice-title">
+                            {t('profile.googleAccount') || 'Google Account'}
+                          </span>
+                          <span className="notice-description">
+                            {t('profile.googleAccountDescription') ||
+                              'Password managed through Google'}
+                          </span>
+                        </div>
+                        <a
+                          href="https://myaccount.google.com/security"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="google-settings-link-small"
+                        >
+                          {t('profile.openGoogleSettings') || 'Settings'}
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-          {activeSection === 'bookings' && (
-            <div className="profile-section">
-              <h2 className="section-title">{t('profile.myBookings')}</h2>
-              <div className="profile-card">
-                <BookingList initialBookings={userDetails?.bookings || []} />
+            )}
+            {activeSection === 'bookings' && (
+              <div className="profile-section">
+                <h2 className="section-title">{t('profile.myBookings')}</h2>
+                <div className="profile-card">
+                  <BookingList initialBookings={userDetails?.bookings || []} />
+                </div>
               </div>
-            </div>
-          )}
-          {activeSection === 'reviews' && (
-            <div className="profile-section">
-              <h2 className="section-title">{t('profile.myReviews')}</h2>
-              <div className="profile-card">
-                <UserReviewList initialReviews={userDetails?.reviews || []} />
+            )}
+            {activeSection === 'reviews' && (
+              <div className="profile-section">
+                <h2 className="section-title">{t('profile.myReviews')}</h2>
+                <div className="profile-card">
+                  <UserReviewList initialReviews={userDetails?.reviews || []} />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      </CSSIsolationWrapper>
     </div>
   );
 };

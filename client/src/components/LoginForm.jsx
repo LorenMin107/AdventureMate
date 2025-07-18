@@ -16,7 +16,7 @@ import './LoginForm.css';
  */
 const LoginForm = () => {
   const { t } = useTranslation();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -59,9 +59,9 @@ const LoginForm = () => {
     setFormError('');
 
     // Validate form
-    if (!username.trim()) {
-      console.log('🔍 LoginForm: Username validation failed');
-      setFormError(t('auth.usernameRequired'));
+    if (!email.trim()) {
+      console.log('🔍 LoginForm: Email validation failed');
+      setFormError(t('auth.emailRequired'));
       return;
     }
 
@@ -73,7 +73,7 @@ const LoginForm = () => {
 
     console.log('🔍 LoginForm: Starting login attempt');
     try {
-      const result = await login(username, password, rememberMe);
+      const result = await login(email, password, rememberMe);
       console.log('🔍 LoginForm: Login result:', result);
 
       // Check if login failed (returned null)
@@ -120,7 +120,7 @@ const LoginForm = () => {
 
   // Handle cancellation of 2FA verification
   const handleCancelTwoFactor = () => {
-    setUsername('');
+    setEmail('');
     setPassword('');
     setRememberMe(false);
     // Clear the 2FA state by calling logout to reset auth state
@@ -146,14 +146,14 @@ const LoginForm = () => {
 
       <form onSubmit={handleSubmit} className="common-login-form">
         <div className="common-form-group">
-          <label htmlFor="username">{t('auth.username')}</label>
+          <label htmlFor="email">{t('auth.email')}</label>
           <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
-            placeholder={t('auth.username')}
+            placeholder={t('auth.email')}
           />
         </div>
 

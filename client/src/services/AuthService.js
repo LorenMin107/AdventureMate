@@ -159,15 +159,15 @@ class AuthService {
 
   /**
    * Login a user
-   * @param {string} username - The username or email
+   * @param {string} email - The email address
    * @param {string} password - The password
    * @param {boolean} rememberMe - Whether to remember the user
    * @returns {Promise<Object>} The user object if login is successful
    */
-  async login(username, password, rememberMe = false) {
+  async login(email, password, rememberMe = false) {
     try {
       const response = await apiClient.post('/auth/login', {
-        username,
+        email,
         password,
         rememberMe,
       });
@@ -463,11 +463,21 @@ class AuthService {
 
       // Extract meaningful error message from API response
       if (err.response && err.response.data) {
+        const errorData = err.response.data;
+
+        // Handle Google OAuth account error specifically
+        if (errorData.code === 'GOOGLE_OAUTH_ACCOUNT') {
+          const googleError = new Error(errorData.message);
+          googleError.response = err.response;
+          googleError.status = err.response.status;
+          googleError.code = errorData.code;
+          googleError.email = errorData.email;
+          throw googleError;
+        }
+
         // API error response with specific error message
         const errorMessage =
-          err.response.data.error ||
-          err.response.data.message ||
-          'Failed to request password reset';
+          errorData.error || errorData.message || 'Failed to request password reset';
 
         // Create a new error with the API response data
         const apiError = new Error(errorMessage);

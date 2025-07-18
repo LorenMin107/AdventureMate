@@ -34,7 +34,7 @@ describe('LoginForm', () => {
     expect(screen.getByRole('heading', { name: /login/i })).toBeInTheDocument();
 
     // Check for form fields
-    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
 
     // Check for login button
@@ -52,10 +52,10 @@ describe('LoginForm', () => {
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     // Check for validation error
-    expect(await screen.findByText(/username is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/email is required/i)).toBeInTheDocument();
 
-    // Fill in username but not password
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
+    // Fill in email but not password
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     // Check for password validation error
@@ -72,7 +72,7 @@ describe('LoginForm', () => {
     renderLoginForm();
 
     // Fill in the form
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
     fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'password123' } });
 
     // Submit the form
@@ -84,7 +84,7 @@ describe('LoginForm', () => {
         '/api/v1/auth/login',
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify({ username: 'testuser', password: 'password123' }),
+          body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
         })
       );
     });

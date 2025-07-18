@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { logError } from '../utils/logger';
 import './ForgotPasswordPage.css';
 
@@ -10,8 +11,9 @@ import './ForgotPasswordPage.css';
  */
 const ForgotPasswordPage = () => {
   const { requestPasswordReset, loading: authLoading, error: authError } = useAuth();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState('idle'); // idle, loading, success, error
+  const [status, setStatus] = useState('idle'); // idle, loading, success, error, google-oauth
   const [message, setMessage] = useState('');
   const [emailError, setEmailError] = useState('');
 
@@ -46,9 +48,16 @@ const ForgotPasswordPage = () => {
       );
     } catch (error) {
       logError('Error requesting password reset', error);
-      setStatus('error');
-      // For security reasons, don't reveal if the email exists or not
-      setMessage('If your email is registered, you will receive a password reset link shortly.');
+
+      // Handle Google OAuth account error specifically
+      if (error.code === 'GOOGLE_OAUTH_ACCOUNT') {
+        setStatus('google-oauth');
+        setMessage(error.message);
+      } else {
+        setStatus('error');
+        // For security reasons, don't reveal if the email exists or not
+        setMessage('If your email is registered, you will receive a password reset link shortly.');
+      }
     }
   };
 
@@ -110,6 +119,34 @@ const ForgotPasswordPage = () => {
               <Link to="/" className="btn btn-secondary">
                 Go to Homepage
               </Link>
+            </div>
+          </div>
+        )}
+
+        {status === 'google-oauth' && (
+          <div className="forgot-password-status google-oauth">
+            <div className="google-oauth-icon">🔐</div>
+            <h2>{t('resetPassword.googleOAuthError.title')}</h2>
+            <p>{message}</p>
+            <div className="google-oauth-info">
+              <p>
+                <strong>{t('resetPassword.googleOAuthError.explanation')}</strong>
+                <br />
+                {t('resetPassword.googleOAuthError.explanationText')}
+              </p>
+              <div className="google-oauth-actions">
+                <a
+                  href="https://myaccount.google.com/security"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                >
+                  {t('resetPassword.googleOAuthError.manageGoogleAccount')}
+                </a>
+                <Link to="/login" className="btn btn-secondary">
+                  {t('resetPassword.googleOAuthError.backToLogin')}
+                </Link>
+              </div>
             </div>
           </div>
         )}

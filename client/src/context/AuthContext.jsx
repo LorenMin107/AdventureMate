@@ -212,7 +212,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (username, password, rememberMe = false) => {
+  const login = async (email, password, rememberMe = false) => {
     console.log('🔍 AuthContext: login function called');
     setLoading(true);
     setError(null);
@@ -221,7 +221,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       console.log('🔍 AuthContext: Calling authService.login');
-      const result = await authService.login(username, password, rememberMe);
+      const result = await authService.login(email, password, rememberMe);
       console.log('🔍 AuthContext: authService.login result:', result);
 
       // Check if 2FA is required

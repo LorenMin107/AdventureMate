@@ -57,7 +57,6 @@
     "confirmPassword": "ยืนยันรหัสผ่าน",
     "firstName": "ชื่อ",
     "lastName": "นามสกุล",
-    "username": "ชื่อผู้ใช้",
     "forgotPassword": "ลืมรหัสผ่าน?",
     "resetPassword": "รีเซ็ตรหัสผ่าน",
     "rememberMe": "จดจำฉัน",
@@ -72,8 +71,6 @@
     "verifyEmail": "ยืนยันอีเมล",
     "loginTitle": "เข้าสู่ระบบบัญชีของคุณ",
     "registerTitle": "สมัครสมาชิก AdventureMate",
-    "usernameRequired": "ต้องกรอกชื่อผู้ใช้",
-    "passwordRequired": "ต้องกรอกรหัสผ่าน",
     "emailInvalid": "กรุณากรอกอีเมลที่ถูกต้อง",
     "passwordTooWeak": "กรุณาเลือกรหัสผ่านที่แข็งแกร่งกว่า",
     "phoneRequired": "ต้องกรอกหมายเลขโทรศัพท์",
@@ -728,7 +725,6 @@
     "reviews": "รีวิว",
     "personalInformation": "ข้อมูลส่วนตัว",
     "displayName": "ชื่อที่แสดง",
-    "username": "ชื่อผู้ใช้",
     "email": "อีเมล",
     "phone": "โทรศัพท์",
     "phoneNumber": "หมายเลขโทรศัพท์",
@@ -736,7 +732,6 @@
     "notProvided": "ไม่ได้ระบุ",
     "noDisplayName": "ไม่ได้ตั้งชื่อที่แสดง",
     "displayNamePlaceholder": "ใส่ชื่อที่แสดงของคุณ",
-    "usernamePlaceholder": "ใส่ชื่อผู้ใช้ของคุณ",
     "emailNote": "ไม่สามารถเปลี่ยนอีเมลได้",
     "invalidPhoneNumber": "กรุณาใส่หมายเลขโทรศัพท์ที่ถูกต้อง",
     "updatePhoneNumber": "อัปเดตหมายเลขโทรศัพท์",
@@ -751,7 +746,10 @@
     "securitySettings": "การตั้งค่าความปลอดภัย",
     "changePassword": "เปลี่ยนรหัสผ่าน",
     "myBookings": "การจองของฉัน",
-    "myReviews": "รีวิวของฉัน"
+    "myReviews": "รีวิวของฉัน",
+    "googleAccount": "บัญชี Google",
+    "googleAccountDescription": "รหัสผ่านจัดการผ่าน Google",
+    "openGoogleSettings": "การตั้งค่า"
   },
   "profilePicture": {
     "profilePicture": "รูปโปรไฟล์",
@@ -839,7 +837,10 @@
     "successMessage": "เปลี่ยนรหัสผ่านสำเร็จ!",
     "failedToChange": "ไม่สามารถเปลี่ยนรหัสผ่านได้",
     "keepAccountSecure": "รักษาความปลอดภัยของบัญชีของคุณโดยการอัปเดตรหัสผ่านเป็นประจำ",
-    "backToProfile": "← กลับไปยังโปรไฟล์"
+    "backToProfile": "← กลับไปยังโปรไฟล์",
+    "googleOAuthTitle": "ตรวจพบบัญชี Google",
+    "googleOAuthMessage": "คุณเข้าสู่ระบบด้วยบัญชี Google การเปลี่ยนรหัสผ่านจัดการผ่านการตั้งค่าบัญชี Google ของคุณ",
+    "openGoogleSettings": "เปิดการตั้งค่าบัญชี Google"
   },
   "resetPassword": {
     "title": "รีเซ็ตรหัสผ่าน",
@@ -852,6 +853,14 @@
     "hidePassword": "ซ่อนรหัสผ่าน",
     "passwordRequired": "ต้องป้อนรหัสผ่าน",
     "chooseStrongerPassword": "กรุณาเลือกรหัสผ่านที่แข็งแกร่งกว่า",
+    "googleOAuthError": {
+      "title": "ตรวจพบบัญชี Google",
+      "message": "อีเมลนี้เชื่อมโยงกับบัญชี Google การรีเซ็ตรหัสผ่านไม่พร้อมใช้งานสำหรับผู้ใช้ Google OAuth กรุณาใช้บัญชี Google ของคุณเพื่อเข้าสู่ระบบ",
+      "explanation": "ทำไมฉันจึงไม่สามารถรีเซ็ตรหัสผ่านได้?",
+      "explanationText": "อีเมลนี้เชื่อมโยงกับบัญชี Google ผู้ใช้ Google OAuth จัดการรหัสผ่านผ่านการตั้งค่าบัญชี Google ไม่ใช่ผ่านแอปพลิเคชันของเรา",
+      "manageGoogleAccount": "จัดการบัญชี Google",
+      "backToLogin": "กลับไปยังล็อกอิน"
+    },
     "confirmPasswordRequired": "กรุณายืนยันรหัสผ่านของคุณ",
     "passwordsDoNotMatch": "รหัสผ่านไม่ตรงกัน",
     "passwordMust": "รหัสผ่านต้อง:",

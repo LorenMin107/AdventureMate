@@ -137,7 +137,11 @@ const userValidators = {
   ],
 
   login: [
-    body('username').notEmpty().withMessage('Username is required'),
+    body('email')
+      .notEmpty()
+      .withMessage('Email is required')
+      .isEmail()
+      .withMessage('Must be a valid email address'),
     body('password').notEmpty().withMessage('Password is required'),
   ],
 

@@ -105,18 +105,18 @@ module.exports.register = asyncHandler(async (req, res) => {
 });
 
 /**
- * Login with username and password
+ * Login with email and password
  * Returns JWT access token and refresh token
  */
 module.exports.login = asyncHandler(async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   // Find the user
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ email });
   if (!user) {
     return res.status(401).json({
       error: 'Invalid credentials',
-      message: 'Username or password is incorrect',
+      message: 'Email or password is incorrect',
     });
   }
 
@@ -125,7 +125,7 @@ module.exports.login = asyncHandler(async (req, res) => {
   if (!isValid) {
     return res.status(401).json({
       error: 'Invalid credentials',
-      message: 'Username or password is incorrect',
+      message: 'Email or password is incorrect',
     });
   }
 
@@ -533,6 +533,23 @@ module.exports.requestPasswordReset = asyncHandler(async (req, res) => {
     });
   }
 
+  // Check if the user is a Google OAuth user
+  if (user.googleId) {
+    logInfo('Password reset requested for Google OAuth user', {
+      email,
+      userId: user._id,
+      googleId: user.googleId,
+    });
+
+    return res.status(400).json({
+      error: 'Google OAuth Account',
+      message:
+        'This email is associated with a Google account. Password resets are not available for Google OAuth users. Please use your Google account to sign in.',
+      code: 'GOOGLE_OAUTH_ACCOUNT',
+      email: email,
+    });
+  }
+
   // Generate a password reset token
   const resetToken = await generatePasswordResetToken(user, req);
 
@@ -736,6 +753,7 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
           isOwner: user.isOwner,
           isEmailVerified: user.isEmailVerified,
           isTwoFactorEnabled: user.isTwoFactorEnabled,
+          googleId: user.googleId || null,
           profile: user.profile || {},
         },
       });
@@ -757,6 +775,7 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
         isAdmin: user.isAdmin,
         isOwner: user.isOwner,
         isEmailVerified: user.isEmailVerified,
+        googleId: user.googleId || null,
         profile: user.profile || {},
       },
     });
@@ -790,6 +809,7 @@ module.exports.checkAuthStatus = asyncHandler(async (req, res) => {
       isOwner: req.user.isOwner || false,
       isEmailVerified: req.user.isEmailVerified,
       isTwoFactorEnabled: req.user.isTwoFactorEnabled || false,
+      googleId: req.user.googleId || null, // Add googleId to identify OAuth users
       profile: req.user.profile || {},
     };
 

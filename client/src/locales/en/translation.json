@@ -57,7 +57,6 @@
     "confirmPassword": "Confirm Password",
     "firstName": "First Name",
     "lastName": "Last Name",
-    "username": "Username",
     "forgotPassword": "Forgot Password?",
     "resetPassword": "Reset Password",
     "rememberMe": "Remember Me",
@@ -72,8 +71,6 @@
     "verifyEmail": "Verify Email",
     "loginTitle": "Log in to your account",
     "registerTitle": "Sign up for AdventureMate",
-    "usernameRequired": "Username is required",
-    "passwordRequired": "Password is required",
     "emailInvalid": "Please enter a valid email address",
     "passwordTooWeak": "Please choose a stronger password",
     "phoneRequired": "Phone number is required",
@@ -728,7 +725,6 @@
     "reviews": "Reviews",
     "personalInformation": "Personal Information",
     "displayName": "Display Name",
-    "username": "Username",
     "email": "Email",
     "phone": "Phone",
     "phoneNumber": "Phone Number",
@@ -736,7 +732,6 @@
     "notProvided": "Not provided",
     "noDisplayName": "No display name set",
     "displayNamePlaceholder": "Enter your display name",
-    "usernamePlaceholder": "Enter your username",
     "emailNote": "Email cannot be changed",
     "invalidPhoneNumber": "Please enter a valid phone number",
     "updatePhoneNumber": "Update Phone Number",
@@ -750,7 +745,10 @@
     "securitySettings": "Security Settings",
     "changePassword": "Change Password",
     "myBookings": "My Bookings",
-    "myReviews": "My Reviews"
+    "myReviews": "My Reviews",
+    "googleAccount": "Google Account",
+    "googleAccountDescription": "Password managed through Google",
+    "openGoogleSettings": "Settings"
   },
   "profilePicture": {
     "profilePicture": "Profile Picture",
@@ -838,7 +836,10 @@
     "successMessage": "Password changed successfully!",
     "failedToChange": "Failed to change password",
     "keepAccountSecure": "Keep your account secure by updating your password regularly",
-    "backToProfile": "← Back to Profile"
+    "backToProfile": "← Back to Profile",
+    "googleOAuthTitle": "Google Account Detected",
+    "googleOAuthMessage": "You are signed in with a Google account. Password changes are managed through your Google account settings.",
+    "openGoogleSettings": "Open Google Account Settings"
   },
   "resetPassword": {
     "title": "Reset Password",
@@ -851,6 +852,14 @@
     "hidePassword": "Hide password",
     "passwordRequired": "Password is required",
     "chooseStrongerPassword": "Please choose a stronger password",
+    "googleOAuthError": {
+      "title": "Google Account Detected",
+      "message": "This email is associated with a Google account. Password resets are not available for Google OAuth users. Please use your Google account to sign in.",
+      "explanation": "Why can't I reset my password?",
+      "explanationText": "This email is associated with a Google account. Google OAuth users manage their passwords through their Google account settings, not through our application.",
+      "manageGoogleAccount": "Manage Google Account",
+      "backToLogin": "Back to Login"
+    },
     "confirmPasswordRequired": "Please confirm your password",
     "passwordsDoNotMatch": "Passwords do not match",
     "passwordMust": "Password must:",
