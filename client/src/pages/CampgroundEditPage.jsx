@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import CampgroundForm from '../components/CampgroundForm';
+import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
 import './CampgroundNewPage.css'; // Reuse the same CSS
 
@@ -25,22 +26,12 @@ const CampgroundEditPage = () => {
     const fetchCampground = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/v1/campgrounds/${id}`);
+        const response = await apiClient.get(`/campgrounds/${id}`);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          // Check if the error response is in the new standardized format
-          const errorMessage =
-            errorData.status === 'error'
-              ? errorData.error || errorData.message
-              : `Failed to fetch campground: ${response.status}`;
-          throw new Error(errorMessage);
-        }
-
-        const data = await response.json();
-
-        // Check if the response is in the new standardized format
-        const campgroundData = data.status && data.data ? data.data.campground : data.campground;
+        // Handle the ApiResponse format
+        const responseData = response.data;
+        const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
+        const campgroundData = data.campground;
 
         if (!campgroundData) {
           throw new Error('Campground data not found in response');
@@ -68,7 +59,7 @@ const CampgroundEditPage = () => {
     } else if (!isAuthenticated) {
       navigate('/login');
     }
-  }, [id, currentUser, isAuthenticated, navigate]);
+  }, [id, currentUser, isAuthenticated, navigate, t]);
 
   if (loading) {
     return (

@@ -26,6 +26,27 @@ const publicApiEndpoints = [
   { method: 'GET', pattern: /^\/api\/v1\/forum\/categories\/?(\?.*)?$/ },
   { method: 'GET', pattern: /^\/api\/v1\/forum\/stats\/?(\?.*)?$/ },
   { method: 'GET', pattern: /^\/api\/v1\/forum\/[^\/]+\/?(\?.*)?$/ },
+
+  // Weather (public endpoint)
+  { method: 'GET', pattern: /^\/api\/v1\/weather\/?(\?.*)?$/ },
+
+  // Safety Alerts (public read access)
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/safety-alerts\/?(\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/safety-alerts\/active\/?(\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/safety-alerts\/[^\/]+\/?$/ },
+
+  // Mapbox (public endpoint)
+  { method: 'GET', pattern: /^\/api\/v1\/mapbox\/geocode\/?(\?.*)?$/ },
+
+  // Cloudinary (public endpoints for URL generation)
+  { method: 'GET', pattern: /^\/api\/v1\/cloudinary\/url\/?(\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/cloudinary\/thumbnail\/?(\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/cloudinary\/responsive\/?(\?.*)?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/cloudinary\/metadata\/?(\?.*)?$/ },
+
+  // Auth endpoints (public for registration/login)
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/register\/?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/login\/?$/ },
 ];
 
 /**

@@ -32,10 +32,17 @@ export const LanguageProvider = ({ children }) => {
   }, [i18n]);
 
   // Change language function
-  const changeLanguage = (language) => {
+  const changeLanguage = async (language) => {
     if (['en', 'th'].includes(language)) {
       setCurrentLanguage(language);
-      i18n.changeLanguage(language);
+
+      try {
+        // Force reload of resources and change language
+        await i18n.changeLanguage(language);
+      } catch (error) {
+        console.error('LanguageContext: Error changing language:', error);
+      }
+
       localStorage.setItem('myancamp-language', language);
       setCurrency(language === 'th' ? 'THB' : 'USD');
     }

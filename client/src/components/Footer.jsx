@@ -25,9 +25,7 @@ const Footer = () => {
             <p className="footer-description">{t('footer.description')}</p>
             <div className="footer-social">
               {/* Placeholder social icons (replace with real icons as needed) */}
-              <a href="#" aria-label="Facebook" className="footer-social-link" tabIndex={0}>
-                FB
-              </a>
+
               <a href="#" aria-label="Twitter" className="footer-social-link" tabIndex={0}>
                 TW
               </a>

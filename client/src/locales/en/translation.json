@@ -28,7 +28,8 @@
     "optional": "Optional",
     "english": "English",
     "thai": "Thai",
-    "phone": "Phone"
+    "phone": "Phone",
+    "phoneOptional": "Phone (Optional)"
   },
   "navigation": {
     "home": "Home",
@@ -108,7 +109,21 @@
       "alreadyLoggedIn": "You are already logged in. Redirecting you to the trip...",
       "checkingInvite": "Checking your invite...",
       "invalidInvite": "This invite is invalid or has expired."
-    }
+    },
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "connectingToGoogle": "Connecting to Google...",
+    "loginWithGoogle": "Login with Google",
+    "googleLoginError": "Failed to login with Google",
+    "googleLoginSuccess": "Successfully logged in with Google!",
+    "alreadyLoggedIn": "You are already logged in. Please log out first to use Google login.",
+    "completingGoogleLogin": "Completing Google Login...",
+    "pleaseWait": "Please wait while we complete your login.",
+    "redirectingToHome": "Redirecting you to the home page...",
+    "redirectingToLogin": "Redirecting you back to the login page...",
+    "emailAlreadyRegisteredWithGoogle": "An account with this email already exists. Please log in using your email and password instead of Google OAuth.",
+    "twoFactorVerificationRequired": "Two-factor authentication required. Please enter your code.",
+    "invalidGrantError": "The Google login session has expired or the authorization code has already been used. Please try logging in again."
   },
   "campgrounds": {
     "title": "Campgrounds",
@@ -712,6 +727,7 @@
     "bookings": "Bookings",
     "reviews": "Reviews",
     "personalInformation": "Personal Information",
+    "displayName": "Display Name",
     "username": "Username",
     "email": "Email",
     "phone": "Phone",
@@ -720,6 +736,8 @@
     "notProvided": "Not provided",
     "updatePhoneNumber": "Update Phone Number",
     "addPhoneNumber": "Add Phone Number",
+    "editProfile": "Edit Profile",
+    "saving": "Saving...",
     "save": "Save",
     "cancel": "Cancel",
     "updateSuccess": "Profile updated successfully!",
@@ -2363,9 +2381,6 @@
     "details": "Details",
     "edit": "Edit",
     "new": "New"
-  },
-  "common": {
-    "userAvatar": "User avatar"
   },
   "twoFactorVerification": {
     "title": "Two-Factor Authentication",

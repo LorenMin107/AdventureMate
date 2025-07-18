@@ -284,7 +284,7 @@ module.exports.updateProfile = async (req, res) => {
       return res.status(401).json({ error: 'You must be logged in to update your profile' });
     }
 
-    const { phone } = req.body;
+    const { phone, username, profileName } = req.body;
 
     // Find the user by ID
     const user = await User.findById(req.user._id);
@@ -293,7 +293,24 @@ module.exports.updateProfile = async (req, res) => {
     }
 
     // Update the phone number
-    user.phone = phone;
+    if (phone !== undefined) user.phone = phone;
+
+    // Update username if provided and different
+    if (username && username !== user.username) {
+      // Check uniqueness
+      const existingUser = await User.findOne({ username });
+      if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+        return res.status(400).json({ error: 'Username is already taken' });
+      }
+      user.username = username;
+    }
+
+    // Update display name (profile.name) if provided
+    if (profileName !== undefined) {
+      if (!user.profile) user.profile = {};
+      user.profile.name = profileName;
+    }
+
     await user.save();
 
     // Fetch the updated user
@@ -321,20 +338,14 @@ module.exports.updateProfile = async (req, res) => {
     updatedUser.bookings = userBookings;
 
     // Ensure all bookings have valid campground and campsite data
-    // If a booking has an invalid reference, fetch the data directly
     const Campground = require('../../models/campground');
     const Campsite = require('../../models/campsite');
-
-    // Process each booking to ensure campground and campsite data is available
     for (let i = 0; i < updatedUser.bookings.length; i++) {
       const booking = updatedUser.bookings[i];
-
-      // Check if campground data is missing and try to fetch it
       if (!booking.campground || !booking.campground.title) {
         try {
           const campground = await Campground.findById(booking.campground);
           if (campground) {
-            // Update the booking's campground data
             booking.campground = {
               _id: campground._id,
               title: campground.title,
@@ -345,17 +356,14 @@ module.exports.updateProfile = async (req, res) => {
         } catch (err) {
           logError('Error fetching campground data', err, {
             userId: req.user?._id,
-            reviewId: review._id,
+            reviewId: booking._id,
           });
         }
       }
-
-      // Check if campsite data is missing and try to fetch it
       if (booking.campsite && (!booking.campsite.name || typeof booking.campsite === 'string')) {
         try {
           const campsite = await Campsite.findById(booking.campsite);
           if (campsite) {
-            // Update the booking's campsite data
             booking.campsite = {
               _id: campsite._id,
               name: campsite.name,
@@ -387,6 +395,7 @@ module.exports.updateProfile = async (req, res) => {
       isTwoFactorEnabled: updatedUser.isTwoFactorEnabled || false,
       reviews: updatedUser.reviews,
       bookings: updatedUser.bookings,
+      profile: updatedUser.profile || {},
     };
 
     res.json({

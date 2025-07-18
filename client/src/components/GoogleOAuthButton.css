@@ -1,0 +1,96 @@
+.google-oauth-button {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.google-oauth-button:hover:not(:disabled) {
+  background-color: var(--color-border);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--color-card-shadow);
+}
+
+.google-oauth-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+}
+
+.google-oauth-button:disabled,
+.google-oauth-button-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.google-oauth-button-disabled {
+  background-color: var(--color-border);
+  color: var(--color-breadcrumb-text);
+}
+
+.google-oauth-button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.google-oauth-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.google-oauth-text {
+  font-weight: 500;
+  color: var(--color-text);
+  transition: color 0.3s ease;
+}
+
+/* Loading state */
+.google-oauth-button:disabled .google-oauth-text {
+  color: var(--color-breadcrumb-text);
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .google-oauth-button {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .google-oauth-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .google-oauth-button-content {
+    gap: 0.5rem;
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .google-oauth-button {
+    border-color: var(--color-border);
+    background-color: var(--color-card-bg);
+  }
+
+  .google-oauth-button:hover:not(:disabled) {
+    background-color: var(--color-border);
+  }
+}

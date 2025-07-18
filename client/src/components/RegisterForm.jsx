@@ -6,6 +6,7 @@ import { logError } from '../utils/logger';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import CSSIsolationWrapper from './CSSIsolationWrapper';
 import { useTranslation } from 'react-i18next';
+
 import './RegisterForm.css';
 import apiClient from '../utils/api';
 
@@ -176,11 +177,11 @@ const RegisterForm = () => {
       return false;
     }
 
-    // Phone validation
-    if (!formData.phone.trim()) {
-      setFormError(t('auth.phoneRequired'));
-      return false;
-    }
+    // Phone validation - now optional
+    // if (!formData.phone.trim()) {
+    //   setFormError(t('auth.phoneRequired'));
+    //   return false;
+    // }
 
     return true;
   };
@@ -295,7 +296,7 @@ const RegisterForm = () => {
         </div>
 
         <div className="common-form-group">
-          <label htmlFor="phone">{t('common.phone')}</label>
+          <label htmlFor="phone">{t('common.phoneOptional')}</label>
           <input
             type="tel"
             id="phone"
@@ -303,8 +304,7 @@ const RegisterForm = () => {
             value={formData.phone}
             onChange={handleChange}
             disabled={loading}
-            required
-            placeholder={t('common.phone')}
+            placeholder={t('common.phoneOptional')}
           />
         </div>
 

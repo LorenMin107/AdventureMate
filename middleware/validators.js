@@ -140,6 +140,23 @@ const userValidators = {
     body('username').notEmpty().withMessage('Username is required'),
     body('password').notEmpty().withMessage('Password is required'),
   ],
+
+  updateProfile: [
+    body('username')
+      .optional()
+      .isLength({ min: 3, max: 30 })
+      .withMessage('Username must be between 3 and 30 characters')
+      .matches(/^[a-zA-Z0-9_]+$/)
+      .withMessage('Username can only contain letters, numbers, and underscores'),
+    body('profileName')
+      .optional()
+      .isLength({ min: 2, max: 50 })
+      .withMessage('Display name must be between 2 and 50 characters'),
+    body('phone')
+      .optional()
+      .matches(/^\+?[0-9]{10,15}$/)
+      .withMessage('Phone number must be between 10 and 15 digits'),
+  ],
 };
 
 /**

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import TwoFactorVerification from './TwoFactorVerification';
+import GoogleOAuthButton from './GoogleOAuthButton';
 import { logError } from '../utils/logger';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import CSSIsolationWrapper from './CSSIsolationWrapper';
@@ -20,8 +21,16 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [formError, setFormError] = useState('');
-  const { login, error, loading, requiresTwoFactor, clearLoginAttempt, currentUser, logout } =
-    useAuth();
+  const {
+    login,
+    error,
+    loading,
+    requiresTwoFactor,
+    clearLoginAttempt,
+    currentUser,
+    logout,
+    isAuthenticated,
+  } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
   const navigate = useNavigate();
 
@@ -34,6 +43,14 @@ const LoginForm = () => {
       }
     };
   }, [clearLoginAttempt]);
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log('User is already authenticated, redirecting to home');
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     console.log('🔍 LoginForm: handleSubmit called');
@@ -182,6 +199,23 @@ const LoginForm = () => {
           {loading ? t('auth.loggingIn') : t('auth.continue')}
         </button>
       </form>
+
+      {/* Divider */}
+      <div className="login-form-divider">
+        <span className="login-form-divider-text">{t('auth.or') || 'or'}</span>
+      </div>
+
+      {/* Google OAuth Button */}
+      <GoogleOAuthButton
+        onSuccess={(user) => {
+          addSuccessMessage(t('auth.googleLoginSuccess') || 'Successfully logged in with Google!');
+          navigate('/');
+        }}
+        onError={(error) => {
+          addErrorMessage(error);
+        }}
+        disabled={loading}
+      />
 
       <div className="common-form-footer">
         <p>

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { logError } from '../utils/logger';
 import './ForumNewPostPage.css'; // Reuse the same CSS
+import apiClient from '../utils/api';
 
 /**
  * ForumEditPage component for editing existing forum posts
@@ -35,11 +36,8 @@ const ForumEditPage = () => {
   } = useQuery({
     queryKey: ['forum-post', id],
     queryFn: async () => {
-      const response = await fetch(`/api/v1/forum/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch forum post');
-      }
-      const data = await response.json();
+      const response = await apiClient.get(`/forum/${id}`);
+      const data = response.data;
       return data.data?.post || data.post;
     },
     enabled: !!id && isAuthenticated,
@@ -48,21 +46,8 @@ const ForumEditPage = () => {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async (updatedData) => {
-      const response = await fetch(`/api/v1/forum/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update forum post');
-      }
-
-      return response.json();
+      const response = await apiClient.put(`/forum/${id}`, updatedData);
+      return response.data;
     },
     onSuccess: (data) => {
       // Invalidate and refetch related queries

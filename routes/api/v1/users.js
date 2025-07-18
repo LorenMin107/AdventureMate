@@ -7,6 +7,8 @@ const {
   requireAuth,
   requireEmailVerified,
 } = require('../../../middleware/jwtAuth');
+const { validate } = require('../../../middleware/validators');
+const { userValidators } = require('../../../middleware/validators');
 
 // Register a new user - handled by auth.js
 // This route is kept for backward compatibility but redirects to the v1 auth endpoint
@@ -59,6 +61,7 @@ router.put(
   authenticateJWT,
   requireAuth,
   requireEmailVerified,
+  validate(userValidators.updateProfile),
   catchAsync(users.updateProfile)
 );
 

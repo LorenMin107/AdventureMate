@@ -148,12 +148,22 @@ export const AuthProvider = ({ children }) => {
     };
     window.addEventListener('authStateChange', handleAuthStateChange);
 
+    // Add event listener for user profile updates
+    const handleUserProfileUpdate = (event) => {
+      if (event.detail && event.detail.updatedUser) {
+        logInfo('User profile update detected, updating currentUser');
+        setCurrentUser(event.detail.updatedUser);
+      }
+    };
+    window.addEventListener('userProfileUpdated', handleUserProfileUpdate);
+
     // Clean up the interval and event listeners when the component unmounts
     return () => {
       clearInterval(intervalId);
       window.removeEventListener('storage', handleStorageChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('authStateChange', handleAuthStateChange);
+      window.removeEventListener('userProfileUpdated', handleUserProfileUpdate);
     };
   }, []);
 
@@ -349,30 +359,26 @@ export const AuthProvider = ({ children }) => {
   const googleLogin = async (code, redirectUri) => {
     setLoading(true);
     setError(null);
+    setRequiresTwoFactor(false);
 
     try {
-      const user = await authService.googleLogin(code, redirectUri);
-      setCurrentUser(user);
-      return user;
+      const result = await authService.googleLogin(code, redirectUri);
+
+      // Check if 2FA is required
+      if (result && result.requiresTwoFactor) {
+        console.log('🔍 AuthContext: Google login requires 2FA');
+        setRequiresTwoFactor(true);
+        // Set the user temporarily for 2FA verification
+        setCurrentUser(result.user);
+        return result;
+      }
+
+      // Regular login successful
+      setCurrentUser(result);
+      dispatchAuthStateChange(true);
+      return result;
     } catch (err) {
       setError(err.message || 'Failed to login with Google');
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Facebook login function
-  const facebookLogin = async (code, redirectUri) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const user = await authService.facebookLogin(code, redirectUri);
-      setCurrentUser(user);
-      return user;
-    } catch (err) {
-      setError(err.message || 'Failed to login with Facebook');
       throw err;
     } finally {
       setLoading(false);
@@ -408,7 +414,6 @@ export const AuthProvider = ({ children }) => {
       resetPassword,
       changePassword,
       googleLogin,
-      facebookLogin,
       requiresTwoFactor,
       isAuthenticated: !!currentUser && currentUser?.isEmailVerified && !requiresTwoFactor,
       clearLoginAttempt,

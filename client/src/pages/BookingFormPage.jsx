@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BookingForm from '../components/BookingForm';
+import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
 import './BookingFormPage.css';
 
@@ -21,22 +22,12 @@ const BookingFormPage = () => {
   useEffect(() => {
     const fetchCampground = async () => {
       try {
-        const response = await fetch(`/api/v1/campgrounds/${id}`);
+        const response = await apiClient.get(`/campgrounds/${id}`);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          // Check if the error response is in the new standardized format
-          const errorMessage =
-            errorData.status === 'error'
-              ? errorData.error || errorData.message
-              : `Failed to fetch campground: ${response.status}`;
-          throw new Error(errorMessage);
-        }
-
-        const data = await response.json();
-
-        // Check if the response is in the new standardized format
-        const campgroundData = data.status && data.data ? data.data.campground : data.campground;
+        // Handle the ApiResponse format
+        const responseData = response.data;
+        const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
+        const campgroundData = data.campground;
 
         if (!campgroundData) {
           throw new Error('Campground data not found in response');
@@ -61,16 +52,12 @@ const BookingFormPage = () => {
     const fetchCampsites = async () => {
       setLoadingCampsites(true);
       try {
-        const response = await fetch(`/api/v1/campgrounds/${campground._id}/campsites`);
+        const response = await apiClient.get(`/campgrounds/${campground._id}/campsites`);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch campsites');
-        }
-
-        const data = await response.json();
-
-        // Check if the response is in the standardized format
-        const campsitesData = data.status && data.data ? data.data.campsites : data.campsites;
+        // Handle the ApiResponse format
+        const responseData = response.data;
+        const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
+        const campsitesData = data.campsites;
 
         if (!campsitesData) {
           throw new Error('Campsites data not found in response');

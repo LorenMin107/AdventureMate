@@ -554,7 +554,7 @@ class AuthService {
    * Login with Google
    * @param {string} code - The authorization code
    * @param {string} redirectUri - The redirect URI
-   * @returns {Promise<Object>} The user object if login is successful
+   * @returns {Promise<Object>} The user object if login is successful, or 2FA data if required
    */
   async googleLogin(code, redirectUri) {
     try {
@@ -564,6 +564,22 @@ class AuthService {
       });
 
       const data = response.data;
+
+      // Check if 2FA is required
+      if (data.requiresTwoFactor) {
+        // Store temporary access token for 2FA verification
+        if (data.tempAccessToken) {
+          localStorage.setItem('tempAccessToken', data.tempAccessToken);
+        }
+        this.updateAuthCache(null, true);
+        // Return 2FA data instead of user object
+        return {
+          requiresTwoFactor: true,
+          userId: data.user._id,
+          user: data.user,
+          tempAccessToken: data.tempAccessToken,
+        };
+      }
 
       // Store JWT tokens
       if (data.accessToken) {
@@ -582,42 +598,20 @@ class AuthService {
       return data.user;
     } catch (err) {
       logError('Error logging in with Google', err);
-      throw err;
-    }
-  }
 
-  /**
-   * Login with Facebook
-   * @param {string} code - The authorization code
-   * @param {string} redirectUri - The redirect URI
-   * @returns {Promise<Object>} The user object if login is successful
-   */
-  async facebookLogin(code, redirectUri) {
-    try {
-      const response = await apiClient.post('/auth/facebook', {
-        code,
-        redirectUri,
-      });
+      // Handle specific error cases
+      if (err.response && err.response.data) {
+        const errorData = err.response.data;
 
-      const data = response.data;
-
-      // Store JWT tokens
-      if (data.accessToken) {
-        this.accessToken = data.accessToken;
-        localStorage.setItem('accessToken', data.accessToken);
-        this.scheduleTokenRefresh();
-      }
-      if (data.refreshToken) {
-        this.refreshToken = data.refreshToken;
-        localStorage.setItem('refreshToken', data.refreshToken);
+        // Create a new error with the specific error information
+        const apiError = new Error(errorData.message || 'Google OAuth failed');
+        apiError.response = err.response;
+        apiError.status = err.response.status;
+        apiError.code = errorData.code;
+        apiError.email = errorData.email;
+        throw apiError;
       }
 
-      // Update the cache with the latest authentication status
-      this.updateAuthCache(data.user, false);
-
-      return data.user;
-    } catch (err) {
-      logError('Error logging in with Facebook', err);
       throw err;
     }
   }

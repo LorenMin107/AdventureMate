@@ -51,7 +51,7 @@ const BookingForm = ({ campground }) => {
     setLoadingCampsites(true);
     try {
       // Add date parameters to the request if they are provided
-      let url = `/api/v1/campgrounds/${campground._id}/campsites`;
+      let url = `/campgrounds/${campground._id}/campsites`;
       if (startDate && endDate) {
         url += `?startDate=${startDate}&endDate=${endDate}`;
       }

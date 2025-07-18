@@ -21,12 +21,12 @@ export const passwordSchema = yup
   .string()
   .min(8, 'Password must be at least 8 characters')
   .matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
     'Password must contain at least one uppercase letter, one lowercase letter, and one number'
   )
   .required('Password is required');
 
-export const confirmPasswordSchema = (fieldName = 'password') => 
+export const confirmPasswordSchema = (fieldName = 'password') =>
   yup
     .string()
     .oneOf([yup.ref(fieldName), null], 'Passwords must match')
@@ -76,10 +76,7 @@ export const bookingSchema = yup.object({
   endDate: yup
     .date()
     .typeError('Please enter a valid date')
-    .min(
-      yup.ref('startDate'),
-      'End date must be after start date'
-    )
+    .min(yup.ref('startDate'), 'End date must be after start date')
     .required('End date is required'),
 });
 

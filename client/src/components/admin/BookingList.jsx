@@ -87,7 +87,7 @@ const BookingList = ({ initialBookings = [] }) => {
     const { booking } = cancelDialog;
 
     try {
-      await apiClient.delete(`/api/v1/admin/bookings/${booking._id}`);
+      await apiClient.delete(`/admin/bookings/${booking._id}`);
 
       // Remove the booking from the list
       setBookings(bookings.filter((b) => b._id !== booking._id));

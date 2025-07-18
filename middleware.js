@@ -62,14 +62,26 @@ module.exports.isReviewAuthorApi = async (req, res, next) => {
 
 module.exports.validateBookingDates = async (req, res, next) => {
   const { startDate, endDate, campsiteId } = req.body;
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
-  if (startDate < tomorrow || endDate < tomorrow) {
+  // Get tomorrow's date at midnight (start of day) for proper comparison
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  // Convert input dates to Date objects for proper comparison
+  const startDateObj = new Date(startDate);
+  const endDateObj = new Date(endDate);
+
+  // Set time to start of day for consistent comparison
+  startDateObj.setHours(0, 0, 0, 0);
+  endDateObj.setHours(0, 0, 0, 0);
+
+  if (startDateObj < tomorrow || endDateObj < tomorrow) {
     req.flash('error', 'Booking dates must be in the future.');
     return res.redirect(`/campgrounds/${req.params.id}`);
   }
 
-  if (new Date(endDate) < new Date(startDate)) {
+  if (endDateObj < startDateObj) {
     req.flash('error', 'End date cannot be before start date.');
     return res.redirect(`/campgrounds/${req.params.id}`);
   }
@@ -106,13 +118,25 @@ module.exports.validateBookingDates = async (req, res, next) => {
 // API version of validateBookingDates middleware that returns JSON instead of redirecting
 module.exports.validateBookingDatesApi = async (req, res, next) => {
   const { startDate, endDate, campsiteId } = req.body;
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 
-  if (startDate < tomorrow || endDate < tomorrow) {
+  // Get tomorrow's date at midnight (start of day) for proper comparison
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  // Convert input dates to Date objects for proper comparison
+  const startDateObj = new Date(startDate);
+  const endDateObj = new Date(endDate);
+
+  // Set time to start of day for consistent comparison
+  startDateObj.setHours(0, 0, 0, 0);
+  endDateObj.setHours(0, 0, 0, 0);
+
+  if (startDateObj < tomorrow || endDateObj < tomorrow) {
     return res.status(400).json({ error: 'Booking dates must be in the future' });
   }
 
-  if (new Date(endDate) < new Date(startDate)) {
+  if (endDateObj < startDateObj) {
     return res.status(400).json({ error: 'End date cannot be before start date' });
   }
 

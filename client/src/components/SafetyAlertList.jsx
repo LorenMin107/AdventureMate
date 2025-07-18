@@ -46,7 +46,9 @@ const SafetyAlertList = ({
 
         // If initialAlerts are provided, use them instead of fetching
         if (initialAlerts && initialAlerts.length > 0) {
-          console.log('Using initialAlerts provided by parent:', initialAlerts);
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Using initialAlerts provided by parent count:', initialAlerts.length);
+          }
           setAlerts(initialAlerts);
           setLoading(false);
           return;
@@ -70,34 +72,31 @@ const SafetyAlertList = ({
         });
 
         const responseData = response.data;
-        console.log('Raw API Response:', responseData);
-        console.log('Response data structure:', {
-          hasData: !!responseData.data,
-          dataKeys: responseData.data ? Object.keys(responseData.data) : [],
-          hasAlerts: !!(responseData.data && responseData.data.alerts),
-          alertsLength: responseData.data?.alerts?.length || 0,
-        });
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Raw API Response structure:', {
+            hasData: !!responseData.data,
+            hasAlerts: !!(responseData.data && responseData.data.alerts),
+            alertsLength: responseData.data?.alerts?.length || 0,
+          });
+        }
 
         const alertsToSet = responseData.data?.alerts || [];
-        console.log('Alerts to set:', alertsToSet);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Alerts to set count:', alertsToSet.length);
+        }
 
-        // Debug logging for API response
-        console.log('API Response for safety alerts:', {
-          responseData,
-          alertsToSet,
-          alertsWithAcknowledgment: alertsToSet.map((alert) => ({
-            id: alert._id,
-            title: alert.title,
-            acknowledgedBy: alert.acknowledgedBy,
-            acknowledgedByLength: (alert.acknowledgedBy || []).length,
-            requiresAcknowledgement: alert.requiresAcknowledgement,
-            acknowledgedByDetails: (alert.acknowledgedBy || []).map((ack) => ({
-              user: ack.user,
-              userString: ack.user?.toString(),
-              acknowledgedAt: ack.acknowledgedAt,
+        // Debug logging for API response (simplified)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('API Response for safety alerts:', {
+            alertsCount: alertsToSet.length,
+            alertsWithAcknowledgment: alertsToSet.map((alert) => ({
+              id: alert._id,
+              title: alert.title,
+              acknowledgedByLength: (alert.acknowledgedBy || []).length,
+              requiresAcknowledgement: alert.requiresAcknowledgement,
             })),
-          })),
-        });
+          });
+        }
 
         setAlerts(alertsToSet);
       } catch (err) {
@@ -124,7 +123,9 @@ const SafetyAlertList = ({
   // Update alerts when initialAlerts change (for when parent component refreshes the merged alerts)
   useEffect(() => {
     if (initialAlerts && initialAlerts.length > 0) {
-      console.log('Updating alerts from initialAlerts:', initialAlerts);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Updating alerts from initialAlerts count:', initialAlerts.length);
+      }
       setAlerts(initialAlerts);
     }
   }, [initialAlerts]);
@@ -166,8 +167,10 @@ const SafetyAlertList = ({
 
   const handleAcknowledgeAlert = async (alertId) => {
     try {
-      console.log('Attempting to acknowledge alert:', alertId);
-      console.log('Entity type:', entityType, 'Entity ID:', entityId);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Attempting to acknowledge alert:', alertId);
+        console.log('Entity type:', entityType, 'Entity ID:', entityId);
+      }
 
       // Find the alert to determine if it's campsite-specific or campground-level
       const alert = alerts.find((a) => a._id === alertId);
@@ -202,10 +205,14 @@ const SafetyAlertList = ({
         refreshUrl = `/${entityPath}/${entityId}/safety-alerts${endpoint}`;
       }
 
-      console.log('Acknowledgment URL:', acknowledgmentUrl);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Acknowledgment URL:', acknowledgmentUrl);
+      }
 
       const response = await apiClient.post(acknowledgmentUrl);
-      console.log('Acknowledgment response:', response.data);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Acknowledgment response status:', response.status);
+      }
 
       // Immediately update the local state to hide the acknowledge button
       setAlerts((prevAlerts) =>
@@ -226,7 +233,9 @@ const SafetyAlertList = ({
       );
 
       // Refresh the alerts to get the updated acknowledgment status
-      console.log('Refresh URL:', refreshUrl);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Refresh URL:', refreshUrl);
+      }
 
       const refreshResponse = await apiClient.get(refreshUrl, {
         headers: {
@@ -240,22 +249,18 @@ const SafetyAlertList = ({
 
       const responseData = refreshResponse.data;
       const updatedAlerts = responseData.data?.alerts || [];
-      console.log('Updated alerts:', updatedAlerts);
-      console.log(
-        'Updated alert acknowledgment status:',
-        updatedAlerts.map((alert) => ({
-          id: alert._id,
-          title: alert.title,
-          acknowledgedBy: alert.acknowledgedBy,
-          acknowledgedByLength: (alert.acknowledgedBy || []).length,
-          requiresAcknowledgement: alert.requiresAcknowledgement,
-          acknowledgedByDetails: (alert.acknowledgedBy || []).map((ack) => ({
-            user: ack.user,
-            userString: ack.user?.toString(),
-            acknowledgedAt: ack.acknowledgedAt,
-          })),
-        }))
-      );
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Updated alerts count:', updatedAlerts.length);
+        console.log(
+          'Updated alert acknowledgment status:',
+          updatedAlerts.map((alert) => ({
+            id: alert._id,
+            title: alert.title,
+            acknowledgedByLength: (alert.acknowledgedBy || []).length,
+            requiresAcknowledgement: alert.requiresAcknowledgement,
+          }))
+        );
+      }
       setAlerts(updatedAlerts);
 
       // Notify parent component that an alert was acknowledged
@@ -282,7 +287,9 @@ const SafetyAlertList = ({
 
         const finalResponseData = finalRefreshResponse.data;
         const finalUpdatedAlerts = finalResponseData.data?.alerts || [];
-        console.log('Final refresh - Updated alerts:', finalUpdatedAlerts);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Final refresh - Updated alerts count:', finalUpdatedAlerts.length);
+        }
         setAlerts(finalUpdatedAlerts);
       } catch (refreshErr) {
         console.error('Error in final refresh:', refreshErr);
@@ -299,15 +306,19 @@ const SafetyAlertList = ({
         const status = err.response.status;
         const data = err.response.data;
 
-        console.log('Error response status:', status);
-        console.log('Error response data:', data);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Error response status:', status);
+          console.log('Error response data:', data);
+        }
 
         if (status === 404) {
           errorMessage = 'Safety alert not found. It may have been deleted.';
         } else if (status === 400) {
           if (data?.message === 'Already acknowledged') {
             // If already acknowledged, just refresh the data and don't show an error
-            console.log('Alert already acknowledged, refreshing data...');
+            if (process.env.NODE_ENV === 'development') {
+              console.log('Alert already acknowledged, refreshing data...');
+            }
 
             // Refresh the alerts to get the updated acknowledgment status
             const endpoint = showActiveOnly ? '/active' : '';
@@ -327,7 +338,12 @@ const SafetyAlertList = ({
 
               const refreshData = refreshResponse.data;
               const refreshedAlerts = refreshData.data?.alerts || [];
-              console.log('Refreshed alerts after already acknowledged:', refreshedAlerts);
+              if (process.env.NODE_ENV === 'development') {
+                console.log(
+                  'Refreshed alerts after already acknowledged count:',
+                  refreshedAlerts.length
+                );
+              }
               setAlerts(refreshedAlerts);
 
               // Don't show error, just return
@@ -442,16 +458,16 @@ const SafetyAlertList = ({
     );
   }
 
-  console.log('SafetyAlertList render state:', {
-    loading,
-    error,
-    alertsLength: alerts?.length || 0,
-    alerts,
-    showActiveOnly,
-    showAllForAcknowledgment,
-    entityId,
-    entityType,
-  });
+  // Debug logging for render state (simplified)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('SafetyAlertList render state:', {
+      loading,
+      error: error ? 'Error present' : null,
+      alertsLength: alerts?.length || 0,
+      showActiveOnly,
+      showAllForAcknowledgment,
+    });
+  }
 
   if (!alerts || alerts.length === 0) {
     // Check if user is authenticated
@@ -498,59 +514,26 @@ const SafetyAlertList = ({
                 if (!ack || !ack.user) return false;
 
                 // Handle both populated user object and user ID string
-                const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
+                const ackUserId = typeof ack.user === 'object' ? ack.user?._id : ack.user;
                 const currentUserId = currentUser._id;
 
-                return ackUserId.toString() === currentUserId.toString();
+                return ackUserId?.toString() === currentUserId?.toString();
               })
             : false;
 
           const canAcknowledge =
             currentUser && alert.requiresAcknowledgement === true && !userAcknowledged;
 
-          // Debug logging
-          console.log('Alert acknowledgment check:', {
-            alertId: alert._id,
-            alertTitle: alert.title,
-            requiresAcknowledgement: alert.requiresAcknowledgement,
-            acknowledgedBy: alert.acknowledgedBy,
-            currentUserId: currentUser?._id,
-            canAcknowledge,
-            userAcknowledged,
-            acknowledgedByLength: (alert.acknowledgedBy || []).length,
-            acknowledgedByDetails: (alert.acknowledgedBy || []).map((ack) => ({
-              user: ack.user,
-              userType: typeof ack.user,
-              userString: ack.user?.toString(),
-              userObjectId: typeof ack.user === 'object' ? ack.user._id : null,
-              currentUserString: currentUser?._id?.toString(),
-              match: (() => {
-                if (!ack || !ack.user) return false;
-                const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
-                const currentUserId = currentUser?._id;
-                return ackUserId?.toString() === currentUserId?.toString();
-              })(),
-            })),
-            // Additional debugging for the acknowledgment check
-            acknowledgmentCheckDetails: {
-              hasCurrentUser: !!currentUser,
-              hasAcknowledgedBy: !!(alert.acknowledgedBy && alert.acknowledgedBy.length > 0),
-              acknowledgmentArray: alert.acknowledgedBy || [],
-              userAcknowledgmentCheck: (alert.acknowledgedBy || []).map((ack) => ({
-                ackUser: ack.user,
-                ackUserType: typeof ack.user,
-                ackUserString: ack.user?.toString(),
-                ackUserObjectId: typeof ack.user === 'object' ? ack.user._id : null,
-                currentUserString: currentUser?._id?.toString(),
-                isMatch: (() => {
-                  if (!ack || !ack.user) return false;
-                  const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
-                  const currentUserId = currentUser?._id;
-                  return ackUserId?.toString() === currentUserId?.toString();
-                })(),
-              })),
-            },
-          });
+          // Debug logging (simplified)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Alert acknowledgment check:', {
+              alertId: alert._id,
+              alertTitle: alert.title,
+              requiresAcknowledgement: alert.requiresAcknowledgement,
+              canAcknowledge,
+              userAcknowledged,
+            });
+          }
 
           return (
             <div

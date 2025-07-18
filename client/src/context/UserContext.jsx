@@ -76,8 +76,10 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // Update user profile (placeholder for future implementation)
+  // Update user profile
   const updateProfile = async (profileData) => {
+    console.log('UserContext updateProfile called with:', profileData);
+
     if (!isAuthenticated) {
       throw new Error('You must be logged in to update your profile');
     }
@@ -86,13 +88,48 @@ export const UserProvider = ({ children }) => {
     setError(null);
 
     try {
-      // This is a placeholder for a future API endpoint
+      console.log('Making API call to update profile...');
       const response = await apiClient.put('/users/profile', profileData);
-      setUserDetails(response.data.user);
-      return response.data.user;
+      console.log('API response:', response);
+      const updatedUser = response.data.user;
+
+      // Update both UserContext and AuthContext
+      setUserDetails(updatedUser);
+
+      // Update AuthContext's currentUser if it exists
+      if (currentUser) {
+        // Create a new currentUser object with updated fields
+        const updatedCurrentUser = {
+          ...currentUser,
+          username: updatedUser.username,
+          profile: updatedUser.profile,
+        };
+
+        // Dispatch an event to notify AuthContext to update
+        const event = new CustomEvent('userProfileUpdated', {
+          detail: { updatedUser: updatedCurrentUser },
+        });
+        window.dispatchEvent(event);
+      }
+
+      console.log('Profile update successful, returning success result');
+      return { success: true, user: updatedUser };
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to update profile');
-      throw err;
+      console.log('Profile update failed with error:', err);
+      console.log('Error response data:', err.response?.data);
+
+      // Don't set the global error state for validation errors
+      // Let the component handle them locally
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to update profile';
+
+      const result = {
+        success: false,
+        error: err.response?.data || err.message,
+        message: errorMessage,
+      };
+
+      console.log('Returning error result:', result);
+      return result;
     } finally {
       setLoading(false);
     }
@@ -190,6 +227,7 @@ export const UserProvider = ({ children }) => {
     fetchUserDetails,
     submitContact,
     updateProfile,
+    setUserDetails,
     initiate2FASetup,
     verify2FASetup,
     disable2FA,

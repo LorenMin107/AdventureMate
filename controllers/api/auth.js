@@ -61,7 +61,15 @@ module.exports.register = asyncHandler(async (req, res) => {
   const hashedPassword = await hashPassword(password);
 
   // Create and register the new user
-  const user = new User({ email, username, phone, password: hashedPassword });
+  const user = new User({
+    email,
+    username,
+    phone,
+    password: hashedPassword,
+    profile: {
+      name: username, // Use username as the display name for traditional registrations
+    },
+  });
   await user.save();
   const registeredUser = user;
 
@@ -577,10 +585,10 @@ module.exports.resetPassword = asyncHandler(async (req, res) => {
     // Hash the new password
     const { hashPassword } = require('../../utils/passwordUtils');
     const hashedPassword = await hashPassword(password);
-    
+
     // Update the user's password
     user.password = hashedPassword;
-    
+
     // Add audit log entry directly to the user document
     // Create the password change event
     const passwordChangeEvent = {
@@ -657,14 +665,25 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
 
     const { sub: googleId, email, name, picture } = profileResponse.data;
 
-    // Check if the user already exists
+    // Check if the user already exists with this Google ID
     let user = await User.findOne({ googleId: googleId });
 
-    // If user doesn't exist but email is registered, link the accounts
+    // If user doesn't exist with Google ID, check if email is already registered
     if (!user && email) {
-      user = await User.findOne({ email });
-      if (user) {
-        // Link the Google account to the existing user
+      const existingUserWithEmail = await User.findOne({ email });
+      if (existingUserWithEmail) {
+        // Check if the existing user has a password (traditional registration)
+        if (existingUserWithEmail.password) {
+          return res.status(409).json({
+            error: 'Account Conflict',
+            message:
+              'An account with this email already exists. Please log in using your email and password instead of Google OAuth.',
+            code: 'EMAIL_ALREADY_REGISTERED',
+            email: email,
+          });
+        }
+        // If user exists but has no password (OAuth-only account), link the accounts
+        user = existingUserWithEmail;
         user.googleId = googleId;
         await user.save();
       }
@@ -697,7 +716,29 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
       await user.save();
     }
 
-    // Generate tokens
+    // ENFORCE 2FA FOR GOOGLE OAUTH USERS
+    if (user.isTwoFactorEnabled) {
+      // Generate a temporary access token for 2FA verification (10 minutes)
+      const { generateAccessToken } = require('../../utils/jwtUtils');
+      const tempAccessToken = generateAccessToken(user, '10m');
+
+      return res.status(200).json({
+        requiresTwoFactor: true,
+        message: 'Two-factor authentication required',
+        tempAccessToken,
+        user: {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          isOwner: user.isOwner,
+          isEmailVerified: user.isEmailVerified,
+          isTwoFactorEnabled: user.isTwoFactorEnabled,
+        },
+      });
+    }
+
+    // If 2FA is not enabled, proceed as before
     const accessToken = generateAccessToken(user);
     const refreshToken = await generateRefreshToken(user, req);
 
@@ -762,111 +803,4 @@ module.exports.checkAuthStatus = asyncHandler(async (req, res) => {
     emailVerified: false,
     requiresTwoFactor: false,
   });
-});
-
-/**
- * Facebook OAuth login/signup
- * This endpoint handles the OAuth flow with Facebook
- * It can be used for both login and signup
- */
-module.exports.facebookAuth = asyncHandler(async (req, res) => {
-  const { code, redirectUri } = req.body;
-
-  if (!code || !redirectUri) {
-    return res.status(400).json({
-      error: 'Bad Request',
-      message: 'Authorization code and redirect URI are required',
-    });
-  }
-
-  try {
-    // Exchange the authorization code for an access token
-    const tokenResponse = await axios.get('https://graph.facebook.com/v12.0/oauth/access_token', {
-      params: {
-        client_id: process.env.FACEBOOK_APP_ID,
-        client_secret: process.env.FACEBOOK_APP_SECRET,
-        redirect_uri: redirectUri,
-        code,
-      },
-    });
-
-    const { access_token } = tokenResponse.data;
-
-    // Get the user's profile information
-    const profileResponse = await axios.get('https://graph.facebook.com/me', {
-      params: {
-        fields: 'id,name,email,picture',
-        access_token,
-      },
-    });
-
-    const { id: facebookId, email, name, picture } = profileResponse.data;
-
-    // Check if the user already exists
-    let user = await User.findOne({ facebookId: facebookId });
-
-    // If user doesn't exist but email is registered, link the accounts
-    if (!user && email) {
-      user = await User.findOne({ email });
-      if (user) {
-        // Link the Facebook account to the existing user
-        user.facebookId = facebookId;
-        await user.save();
-      }
-    }
-
-    // If user still doesn't exist, create a new account
-    if (!user) {
-      // Generate a random password for the user
-      const randomPassword = crypto.randomBytes(16).toString('hex');
-
-      // Hash the random password
-      const hashedPassword = await hashPassword(randomPassword);
-
-      // Create a new user
-      user = new User({
-        username: (email ? email.split('@')[0] : 'fb_user') + '_' + Date.now().toString().slice(-4),
-        email: email || `fb_${facebookId}@placeholder.com`, // Some Facebook users might not have an email
-        facebookId,
-        password: hashedPassword,
-        isEmailVerified: !!email, // Only mark as verified if email is provided
-        emailVerifiedAt: email ? new Date() : undefined,
-        profile: {
-          name,
-          picture: picture?.data?.url,
-        },
-      });
-
-      // Save the user
-      await user.save();
-    }
-
-    // Generate tokens
-    const accessToken = generateAccessToken(user);
-    const refreshToken = await generateRefreshToken(user, req);
-
-    // Return the tokens
-    res.json({
-      accessToken,
-      refreshToken: refreshToken.token,
-      expiresAt: refreshToken.expiresAt,
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        isOwner: user.isOwner,
-        isEmailVerified: user.isEmailVerified,
-      },
-    });
-  } catch (error) {
-    logError('Facebook OAuth error', error, {
-      responseData: error.response?.data,
-      message: error.message,
-    });
-    return res.status(400).json({
-      error: 'OAuth Error',
-      message: 'Failed to authenticate with Facebook',
-    });
-  }
 });

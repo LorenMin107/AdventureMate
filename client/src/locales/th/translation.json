@@ -28,7 +28,8 @@
     "optional": "ไม่บังคับ",
     "english": "อังกฤษ",
     "thai": "ไทย",
-    "phone": "โทรศัพท์"
+    "phone": "โทรศัพท์",
+    "phoneOptional": "โทรศัพท์ (ไม่บังคับ)"
   },
   "navigation": {
     "home": "หน้าแรก",
@@ -108,7 +109,21 @@
       "alreadyLoggedIn": "คุณเข้าสู่ระบบแล้ว กำลังเปลี่ยนเส้นทางไปยังการเดินทาง...",
       "checkingInvite": "กำลังตรวจสอบคำเชิญของคุณ...",
       "invalidInvite": "คำเชิญนี้ไม่ถูกต้องหรือหมดอายุแล้ว"
-    }
+    },
+    "or": "หรือ",
+    "continueWithGoogle": "ดำเนินการต่อด้วย Google",
+    "connectingToGoogle": "กำลังเชื่อมต่อกับ Google...",
+    "loginWithGoogle": "เข้าสู่ระบบด้วย Google",
+    "googleLoginError": "ไม่สามารถเข้าสู่ระบบด้วย Google ได้",
+    "googleLoginSuccess": "เข้าสู่ระบบด้วย Google สำเร็จแล้ว!",
+    "alreadyLoggedIn": "คุณเข้าสู่ระบบแล้ว กรุณาออกจากระบบก่อนเพื่อใช้การเข้าสู่ระบบด้วย Google",
+    "completingGoogleLogin": "กำลังเสร็จสิ้นการเข้าสู่ระบบด้วย Google...",
+    "pleaseWait": "กรุณารอสักครู่ในขณะที่เราดำเนินการเข้าสู่ระบบให้เสร็จสิ้น",
+    "redirectingToHome": "กำลังเปลี่ยนเส้นทางไปยังหน้าหลัก...",
+    "redirectingToLogin": "กำลังเปลี่ยนเส้นทางกลับไปยังหน้าเข้าสู่ระบบ...",
+    "emailAlreadyRegisteredWithGoogle": "มีบัญชีที่มีอีเมลนี้อยู่แล้ว กรุณาเข้าสู่ระบบโดยใช้อีเมลและรหัสผ่านแทนการใช้ Google OAuth",
+    "twoFactorVerificationRequired": "ต้องใช้การยืนยันตัวตนแบบสองขั้นตอน กรุณาใส่รหัสของคุณ",
+    "invalidGrantError": "เซสชันการเข้าสู่ระบบ Google หมดอายุหรือรหัสการอนุญาตถูกใช้ไปแล้ว กรุณาลองเข้าสู่ระบบใหม่อีกครั้ง"
   },
   "campgrounds": {
     "title": "ค่ายพักแรม",
@@ -712,6 +727,7 @@
     "bookings": "การจอง",
     "reviews": "รีวิว",
     "personalInformation": "ข้อมูลส่วนตัว",
+    "displayName": "ชื่อที่แสดง",
     "username": "ชื่อผู้ใช้",
     "email": "อีเมล",
     "phone": "โทรศัพท์",
@@ -720,6 +736,8 @@
     "notProvided": "ไม่ได้ระบุ",
     "updatePhoneNumber": "อัปเดตหมายเลขโทรศัพท์",
     "addPhoneNumber": "เพิ่มหมายเลขโทรศัพท์",
+    "editProfile": "แก้ไขโปรไฟล์",
+    "saving": "กำลังบันทึก...",
     "save": "บันทึก",
     "cancel": "ยกเลิก",
     "updateSuccess": "อัปเดตโปรไฟล์สำเร็จ!",
@@ -2394,9 +2412,6 @@
     "details": "รายละเอียด",
     "edit": "แก้ไข",
     "new": "ใหม่"
-  },
-  "common": {
-    "userAvatar": "รูปโปรไฟล์ผู้ใช้"
   },
   "twoFactorVerification": {
     "title": "การยืนยันตัวตนแบบสองขั้นตอน",

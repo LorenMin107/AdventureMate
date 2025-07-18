@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import CampsiteForm from '../components/CampsiteForm';
+import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
 import './CampsiteNewPage.css';
 
@@ -26,16 +27,12 @@ const CampsiteNewPage = () => {
       if (!campgroundId) return;
 
       try {
-        const response = await fetch(`/api/v1/campgrounds/${campgroundId}`);
+        const response = await apiClient.get(`/campgrounds/${campgroundId}`);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch campground');
-        }
-
-        const data = await response.json();
-
-        // Check if the response is in the standardized format
-        const campgroundData = data.status && data.data ? data.data.campground : data.campground;
+        // Handle the ApiResponse format
+        const responseData = response.data;
+        const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
+        const campgroundData = data.campground;
 
         if (!campgroundData) {
           throw new Error('Campground data not found in response');
@@ -51,7 +48,7 @@ const CampsiteNewPage = () => {
     };
 
     fetchCampground();
-  }, [campgroundId]);
+  }, [campgroundId, t]);
 
   // Check if user is the owner of the campground
   const isOwner =

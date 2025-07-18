@@ -15,7 +15,7 @@ const UserSchema = new Schema(
     },
     phone: {
       type: String,
-      required: true,
+      required: false, // Make phone optional for OAuth users
     },
     // Add password field for JWT authentication
     password: {
@@ -45,11 +45,7 @@ const UserSchema = new Schema(
       sparse: true,
       unique: true,
     },
-    facebookId: {
-      type: String,
-      sparse: true,
-      unique: true,
-    },
+
     profile: {
       name: {
         type: String,

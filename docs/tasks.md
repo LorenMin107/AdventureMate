@@ -2,7 +2,43 @@
 
 ## Recent Updates
 
-### Internationalization (i18n) Implementation (Latest)
+### Profile Update Error Handling Fix (Latest)
+
+**Status:** ✅ Completed  
+**Date:** July 2025  
+**Priority:** High
+
+#### Issue Resolved:
+
+- **Problem**: Profile update validation errors were showing generic "Request failed with status code 400" error page instead of field-specific error messages in the modal
+- **Root Cause**: UserContext was setting global error state and re-throwing errors, causing them to bubble up to the error boundary
+- **Solution**: Modified error handling to return error information instead of throwing, allowing local component handling
+
+#### Technical Implementation:
+
+- **UserContext.jsx**: Modified `updateProfile` function to return result objects instead of throwing errors
+  - Success: `{ success: true, user: updatedUser }`
+  - Error: `{ success: false, error: responseData, message: errorMessage }`
+- **ProfilePage.jsx**: Updated `handleEditSave` to handle the new return format and display field-specific errors
+- **Error Boundary**: No longer triggered for validation errors, only for unhandled errors
+- **Modal Behavior**: Stays open on validation errors, closes only on successful updates
+
+#### Benefits:
+
+- **Better UX**: Users see specific error messages under relevant input fields
+- **No Generic Error Pages**: Validation errors handled locally without triggering error boundary
+- **Consistent Error Handling**: Follows the same pattern as other form validations in the app
+- **Improved Debugging**: Clear separation between validation errors and system errors
+
+#### Files Modified:
+
+- `client/src/context/UserContext.jsx` - Updated error handling in updateProfile function
+- `client/src/pages/ProfilePage.jsx` - Modified handleEditSave to process error results
+- Error handling now properly displays "Username is already taken" and other validation messages
+
+---
+
+### Internationalization (i18n) Implementation
 
 **Status:** ✅ Completed  
 **Date:** July 2025  

@@ -14,6 +14,9 @@ const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage'));
 const PasswordChangePage = lazy(() => import('../pages/PasswordChangePage'));
 
+// OAuth callback pages
+const GoogleOAuthCallbackPage = lazy(() => import('../pages/GoogleOAuthCallbackPage'));
+
 // Lazy load components for code splitting
 const HomePage = lazy(() => import('../pages/HomePage'));
 const CampgroundsPage = lazy(() => import('../pages/CampgroundsPage'));
@@ -133,6 +136,14 @@ const routes = [
         element: (
           <Suspense fallback={<LoadingFallback />}>
             <ResetPasswordPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'auth/google/callback',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <GoogleOAuthCallbackPage />
           </Suspense>
         ),
       },

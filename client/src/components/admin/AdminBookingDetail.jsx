@@ -104,7 +104,7 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
 
   const handleCancelConfirm = async () => {
     try {
-      await apiClient.delete(`/api/v1/admin/bookings/${booking._id}`);
+      await apiClient.delete(`/admin/bookings/${booking._id}`);
 
       // Navigate back to bookings list
       navigate('/admin/bookings');

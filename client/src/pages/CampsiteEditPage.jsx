@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import CampsiteForm from '../components/CampsiteForm';
+import apiClient from '../utils/api';
 import { logError } from '../utils/logger';
 import './CampsiteNewPage.css'; // Reuse the same CSS
 
@@ -27,16 +28,12 @@ const CampsiteEditPage = () => {
       if (!id) return;
 
       try {
-        const response = await fetch(`/api/v1/campsites/${id}`);
+        const response = await apiClient.get(`/campsites/${id}`);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch campsite');
-        }
-
-        const data = await response.json();
-
-        // Check if the response is in the standardized format
-        const campsiteData = data.status && data.data ? data.data.campsite : data.campsite;
+        // Handle the ApiResponse format
+        const responseData = response.data;
+        const data = responseData.data || responseData; // Handle both ApiResponse format and direct data
+        const campsiteData = data.campsite;
 
         if (!campsiteData) {
           throw new Error('Campsite data not found in response');
@@ -51,19 +48,12 @@ const CampsiteEditPage = () => {
               ? campsiteData.campground._id
               : campsiteData.campground;
 
-          const campgroundResponse = await fetch(`/api/v1/campgrounds/${campgroundId}`);
+          const campgroundResponse = await apiClient.get(`/campgrounds/${campgroundId}`);
 
-          if (!campgroundResponse.ok) {
-            throw new Error('Failed to fetch parent campground');
-          }
-
-          const campgroundData = await campgroundResponse.json();
-
-          // Check if the response is in the standardized format
-          const campgroundInfo =
-            campgroundData.status && campgroundData.data
-              ? campgroundData.data.campground
-              : campgroundData.campground;
+          // Handle the ApiResponse format
+          const campgroundResponseData = campgroundResponse.data;
+          const campgroundData = campgroundResponseData.data || campgroundResponseData; // Handle both ApiResponse format and direct data
+          const campgroundInfo = campgroundData.campground;
 
           if (!campgroundInfo) {
             throw new Error('Campground data not found in response');
@@ -80,7 +70,7 @@ const CampsiteEditPage = () => {
     };
 
     fetchCampsite();
-  }, [id]);
+  }, [id, t]);
 
   // Check if user is the owner of the campground
   const isOwner =

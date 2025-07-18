@@ -7,8 +7,12 @@ const LanguageSwitcher = ({ className = '' }) => {
   const { currentLanguage, changeLanguage } = useLanguage();
   const { t } = useTranslation();
 
-  const handleLanguageChange = (language) => {
-    changeLanguage(language);
+  const handleLanguageChange = async (language) => {
+    try {
+      await changeLanguage(language);
+    } catch (error) {
+      console.error('LanguageSwitcher: Error changing language:', error);
+    }
   };
 
   return (

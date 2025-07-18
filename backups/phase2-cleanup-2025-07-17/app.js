@@ -26,7 +26,12 @@ const {
   logSecurity,
 } = require('./utils/logger');
 
+const campgroundRoutes = require('./routes/campgrounds');
+const reviewRoutes = require('./routes/reviews');
+const userRoutes = require('./routes/users');
+const bookingRoutes = require('./routes/bookings');
 const User = require('./models/user');
+const adminRoutes = require('./routes/admin');
 const { addBookingCountToUser, addConfigToTemplates } = require('./middleware');
 
 const ExpressError = require('./utils/ExpressError'); // import the ExpressError class from the utils folder
@@ -175,8 +180,23 @@ app.use('/api', versionRoutes());
 // API Routes
 const apiV1Routes = require('./routes/api/v1');
 
+// Import migration utilities
+const { createRedirectMiddleware, logRouteUsage } = require('./scripts/migrate-to-api-routes');
+
+// Traditional Routes (DEPRECATED - will be removed after migration)
+// These routes are kept temporarily for backward compatibility
+// but will redirect to API routes
+app.use('/campgrounds/:id/reviews', reviewRoutes); // use the review routes
+app.use('/campgrounds', campgroundRoutes); // use the campground routes
+app.use('/bookings', bookingRoutes);
+app.use('/admin', adminRoutes);
+app.use('/', userRoutes); // use the user routes
+
 // Versioned API Routes
 app.use('/api/v1', apiV1Routes); // use the versioned API routes
+
+// Log current route configuration
+logRouteUsage(app);
 
 // API Documentation
 app.use(
