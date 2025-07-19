@@ -12,39 +12,70 @@ export const useLanguage = () => {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const { i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const [currency, setCurrency] = useState('USD');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize language from localStorage or browser preference
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('myancamp-language');
-    if (savedLanguage && ['en', 'th'].includes(savedLanguage)) {
-      setCurrentLanguage(savedLanguage);
-      i18n.changeLanguage(savedLanguage);
-      setCurrency(savedLanguage === 'th' ? 'THB' : 'USD');
-    } else {
-      // Default to English
-      setCurrentLanguage('en');
-      i18n.changeLanguage('en');
-      setCurrency('USD');
+    const initializeLanguage = async () => {
+      try {
+        const savedLanguage = localStorage.getItem('myancamp-language');
+        if (savedLanguage && ['en', 'th'].includes(savedLanguage)) {
+          setCurrentLanguage(savedLanguage);
+          setCurrency(savedLanguage === 'th' ? 'THB' : 'USD');
+        } else {
+          // Default to English
+          setCurrentLanguage('en');
+          setCurrency('USD');
+        }
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('LanguageContext: Error initializing language:', error);
+        setCurrentLanguage('en');
+        setCurrency('USD');
+        setIsInitialized(true);
+      }
+    };
+
+    initializeLanguage();
+  }, []);
+
+  // Use useTranslation only after initialization, with error handling
+  let i18n = null;
+  try {
+    const translation = useTranslation();
+    i18n = translation.i18n;
+  } catch (error) {
+    console.error('LanguageContext: Error using useTranslation:', error);
+  }
+
+  // Update i18n when currentLanguage changes
+  useEffect(() => {
+    if (isInitialized && i18n && i18n.changeLanguage) {
+      try {
+        i18n.changeLanguage(currentLanguage);
+      } catch (error) {
+        console.error('LanguageContext: Error changing language:', error);
+      }
     }
-  }, [i18n]);
+  }, [currentLanguage, i18n, isInitialized]);
 
   // Change language function
   const changeLanguage = async (language) => {
     if (['en', 'th'].includes(language)) {
       setCurrentLanguage(language);
+      localStorage.setItem('myancamp-language', language);
+      setCurrency(language === 'th' ? 'THB' : 'USD');
 
       try {
         // Force reload of resources and change language
-        await i18n.changeLanguage(language);
+        if (i18n && i18n.changeLanguage) {
+          await i18n.changeLanguage(language);
+        }
       } catch (error) {
         console.error('LanguageContext: Error changing language:', error);
       }
-
-      localStorage.setItem('myancamp-language', language);
-      setCurrency(language === 'th' ? 'THB' : 'USD');
     }
   };
 

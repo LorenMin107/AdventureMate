@@ -17,7 +17,7 @@ class MapboxService {
       });
       return response.data;
     } catch (error) {
-      console.error('Geocoding failed:', error);
+      // Error logging handled by caller
       throw error;
     }
   }
@@ -36,7 +36,7 @@ class MapboxService {
       });
       return response.data;
     } catch (error) {
-      console.error('Reverse geocoding failed:', error);
+      // Error logging handled by caller
       throw error;
     }
   }

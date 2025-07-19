@@ -12,6 +12,7 @@ import ReviewForm from '../components/ReviewForm';
 import CampsiteList from '../components/CampsiteList';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { logError, logInfo } from '../utils/logger';
+import cacheManager from '../utils/cacheManager';
 import './CampgroundDetailPage.css';
 
 /**
@@ -47,12 +48,32 @@ const CampgroundDetailPage = () => {
     campground: null,
   });
 
+  // Subscribe to cache invalidation events
+  useEffect(() => {
+    const handleReviewCacheInvalidation = (entityId) => {
+      if (entityId === id) {
+        logInfo('Received cache invalidation for campground', { campgroundId: id });
+        // Force refresh of campground data
+        window.location.reload();
+      }
+    };
+
+    // Subscribe to review and campground cache invalidation events
+    cacheManager.subscribe('reviews', handleReviewCacheInvalidation);
+    cacheManager.subscribe('campgrounds', handleReviewCacheInvalidation);
+
+    return () => {
+      cacheManager.unsubscribe('reviews', handleReviewCacheInvalidation);
+      cacheManager.unsubscribe('campgrounds', handleReviewCacheInvalidation);
+    };
+  }, [id]);
+
   // Fetch campground data
   useEffect(() => {
     // Add a cache mechanism to prevent excessive API calls
     const CAMPGROUND_CACHE_KEY = `campground_${id}_cache`;
     const CAMPGROUND_CACHE_EXPIRY = `campground_${id}_cache_expiry`;
-    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    const CACHE_DURATION = 2 * 60 * 1000; // Reduced to 2 minutes for more frequent updates
 
     const fetchCampground = async () => {
       setLoading(true);
@@ -89,7 +110,9 @@ const CampgroundDetailPage = () => {
         // No valid cache, make the API call
         logInfo('No valid campground cache, making API call', { id });
 
-        const response = await apiClient.get(`/campgrounds/${id}`);
+        // Add cache-busting parameter to prevent browser caching
+        const timestamp = Date.now();
+        const response = await apiClient.get(`/campgrounds/${id}?_t=${timestamp}`);
 
         // With apiClient, the response is already parsed and in response.data
         const data = response.data;
@@ -283,35 +306,41 @@ const CampgroundDetailPage = () => {
     const updatedReviews = [...reviews, newReview];
     setReviews(updatedReviews);
 
-    // Update reviews cache
+    // Clear both reviews cache and campground cache to force fresh fetches on next load
     if (campground && campground._id) {
       const REVIEWS_CACHE_KEY = `reviews_${campground._id}_cache`;
       const REVIEWS_CACHE_EXPIRY = `reviews_${campground._id}_cache_expiry`;
-      const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+      const CAMPGROUND_CACHE_KEY = `campground_${campground._id}_cache`;
+      const CAMPGROUND_CACHE_EXPIRY = `campground_${campground._id}_cache_expiry`;
 
-      localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(updatedReviews));
-      localStorage.setItem(REVIEWS_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
+      // Remove both caches to force fresh API calls
+      localStorage.removeItem(REVIEWS_CACHE_KEY);
+      localStorage.removeItem(REVIEWS_CACHE_EXPIRY);
+      localStorage.removeItem(CAMPGROUND_CACHE_KEY);
+      localStorage.removeItem(CAMPGROUND_CACHE_EXPIRY);
 
-      logInfo('Updated reviews cache after adding review', { campgroundId: campground._id });
+      logInfo('Cleared reviews and campground cache after adding review', {
+        campgroundId: campground._id,
+      });
     }
   };
 
   // Handle review deletion
+
   const handleReviewDeleted = (reviewId) => {
     // Update reviews state
     const updatedReviews = reviews.filter((review) => review._id !== reviewId);
     setReviews(updatedReviews);
 
-    // Update reviews cache
+    // Invalidate caches using cache manager
     if (campground && campground._id) {
-      const REVIEWS_CACHE_KEY = `reviews_${campground._id}_cache`;
-      const REVIEWS_CACHE_EXPIRY = `reviews_${campground._id}_cache_expiry`;
-      const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+      cacheManager.invalidateEntity('reviews', reviewId);
+      cacheManager.invalidateEntity('campgrounds', campground._id);
 
-      localStorage.setItem(REVIEWS_CACHE_KEY, JSON.stringify(updatedReviews));
-      localStorage.setItem(REVIEWS_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
-
-      logInfo('Updated reviews cache after deleting review', { campgroundId: campground._id });
+      logInfo('Invalidated caches after deleting review', {
+        reviewId,
+        campgroundId: campground._id,
+      });
     }
   };
 
@@ -320,7 +349,7 @@ const CampgroundDetailPage = () => {
     // Add a cache mechanism to prevent excessive API calls
     const REVIEWS_CACHE_KEY = `reviews_${campgroundId}_cache`;
     const REVIEWS_CACHE_EXPIRY = `reviews_${campgroundId}_cache_expiry`;
-    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    const CACHE_DURATION = 1 * 60 * 1000; // 1 minute for very frequent updates
 
     try {
       // Check if we have a cached reviews data that's still valid
@@ -338,7 +367,9 @@ const CampgroundDetailPage = () => {
       // No valid cache, make the API call
       logInfo('No valid reviews cache, making API call', { campgroundId });
 
-      const response = await apiClient.get(`/campgrounds/${campgroundId}/reviews`);
+      // Add cache-busting parameter to prevent browser caching
+      const timestamp = Date.now();
+      const response = await apiClient.get(`/campgrounds/${campgroundId}/reviews?_t=${timestamp}`);
 
       // With apiClient, the response is already parsed and in response.data
       const data = response.data;

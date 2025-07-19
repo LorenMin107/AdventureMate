@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
 
     // Clear cache on page refresh to ensure fresh data
     if (isPageRefresh) {
-      console.log('AuthContext: Page refresh detected, clearing cache');
+      logInfo('Page refresh detected, clearing cache');
       authService.clearAuthCache();
     }
 
@@ -72,24 +72,24 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         const authData = await authService.checkAuthStatus(forceCheck);
 
-        console.log('AuthContext: checkAuthStatus result:', authData);
+        logInfo('checkAuthStatus result received');
 
         if (authData) {
           // Only set the user as currentUser if they don't require 2FA
           // This prevents users from being considered "authenticated" before completing 2FA
           if (authData.requiresTwoFactor) {
-            console.log('AuthContext: 2FA required, not setting currentUser');
+            logInfo('2FA required, not setting currentUser');
             setCurrentUser(null);
             setRequiresTwoFactor(true);
             dispatchAuthStateChange(false);
           } else {
-            console.log('AuthContext: Setting currentUser:', authData.user);
+            logInfo('Setting currentUser');
             setCurrentUser(authData.user);
             setRequiresTwoFactor(false);
             dispatchAuthStateChange(!!authData.user);
           }
         } else {
-          console.log('AuthContext: No auth data, clearing currentUser');
+          logInfo('No auth data, clearing currentUser');
           setCurrentUser(null);
           setRequiresTwoFactor(false);
           dispatchAuthStateChange(false);
@@ -124,7 +124,7 @@ export const AuthProvider = ({ children }) => {
     const handlePageShow = (event) => {
       // Check if this is a page show after a refresh
       if (event.persisted || sessionStorage.getItem('page_refreshing')) {
-        console.log('AuthContext: Page refresh detected via page show event');
+        logInfo('Page refresh detected via page show event');
         sessionStorage.removeItem('page_refreshing');
         authService.clearAuthCache();
         checkAuthStatus(true);
@@ -187,9 +187,9 @@ export const AuthProvider = ({ children }) => {
 
     // Add event listener for user profile updates
     const handleUserProfileUpdate = (event) => {
-      console.log('AuthContext: userProfileUpdated event received:', event.detail);
+      logInfo('userProfileUpdated event received');
       if (event.detail && event.detail.updatedUser) {
-        console.log('AuthContext: Updating currentUser with:', event.detail.updatedUser);
+        logInfo('Updating currentUser');
         logInfo('User profile update detected, updating currentUser');
         setCurrentUser(event.detail.updatedUser);
 
@@ -213,32 +213,32 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (email, password, rememberMe = false) => {
-    console.log('🔍 AuthContext: login function called');
+    logInfo('Login function called');
     setLoading(true);
     setError(null);
     setRequiresTwoFactor(false);
     setIsLoginAttempt(true);
 
     try {
-      console.log('🔍 AuthContext: Calling authService.login');
+      logInfo('Calling authService.login');
       const result = await authService.login(email, password, rememberMe);
-      console.log('🔍 AuthContext: authService.login result:', result);
+      logInfo('authService.login result received');
 
       // Check if 2FA is required
       if (result && result.requiresTwoFactor) {
-        console.log('🔍 AuthContext: 2FA required');
+        logInfo('2FA required');
         setRequiresTwoFactor(true);
         // Set the user temporarily for 2FA verification
         setCurrentUser(result.user);
         return { requiresTwoFactor: true, userId: result.userId };
       }
 
-      console.log('🔍 AuthContext: Login successful, setting currentUser');
+      logInfo('Login successful, setting currentUser');
       setCurrentUser(result);
       dispatchAuthStateChange(true);
       return result;
     } catch (err) {
-      console.log('🔍 AuthContext: Login error caught:', err);
+      logError('Login error caught', err);
       // Extract error message from the error object
       let errorMessage = 'Failed to login';
 
@@ -250,12 +250,12 @@ export const AuthProvider = ({ children }) => {
         errorMessage = err.message;
       }
 
-      console.log('🔍 AuthContext: Setting error message:', errorMessage);
+      logError('Setting error message', { errorMessage });
       setError(errorMessage);
       // Don't throw the error - let the component handle it
       return null;
     } finally {
-      console.log('🔍 AuthContext: Login function finally block');
+      logInfo('Login function completed');
       setLoading(false);
       setIsLoginAttempt(false);
     }
@@ -410,7 +410,7 @@ export const AuthProvider = ({ children }) => {
 
       // Check if 2FA is required
       if (result && result.requiresTwoFactor) {
-        console.log('🔍 AuthContext: Google login requires 2FA');
+        logInfo('Google login requires 2FA');
         setRequiresTwoFactor(true);
         // Set the user temporarily for 2FA verification
         setCurrentUser(result.user);

@@ -10,7 +10,9 @@
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 0.5rem;
   color: var(--color-text);
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .review-item {
@@ -19,7 +21,9 @@
   padding: 1rem;
   margin-bottom: 1rem;
   box-shadow: 0 1px 3px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .review-header {
@@ -66,7 +70,9 @@
   background-color: var(--color-card-bg);
   border-radius: 8px;
   margin-top: 1rem;
-  transition: color 0.3s ease, background-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .review-list-error {
@@ -117,11 +123,20 @@
   background-color: var(--color-card-bg);
   border-radius: 8px;
   margin-top: 1rem;
-  transition: color 0.3s ease, background-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .review-list-login-message a {
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
+}
+
+/* User Review List specific styles */
+.review-list-header {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
 }

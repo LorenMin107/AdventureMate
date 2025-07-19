@@ -1,6 +1,7 @@
 const { body, param, query, validationResult } = require('express-validator');
 const ApiResponse = require('../utils/ApiResponse');
 const ExpressError = require('../utils/ExpressError');
+const { logWarn } = require('../utils/logger');
 
 /**
  * Middleware to validate request data
@@ -29,8 +30,7 @@ const validate = (validations) => {
     }
 
     // Log validation errors for debugging
-    console.log('Validation errors:', errors.array());
-    console.log('Request body:', req.body);
+    logWarn('Validation errors', { errors: errors.array(), body: req.body });
 
     // Format validation errors
     const extractedErrors = errors.array().map((err) => ({

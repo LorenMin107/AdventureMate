@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import CampgroundCard from './CampgroundCard';
+import VirtualList from './common/VirtualList';
 import useCampgrounds from '../hooks/useCampgrounds';
 import apiClient from '../utils/api';
 import './CampgroundList.css';
@@ -26,21 +27,23 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
   const campgrounds = data?.campgrounds || [];
 
   // Filter campgrounds by search term and location
-  const filteredCampgrounds = campgrounds.filter((campground) => {
-    // Check if campground matches the search term
-    const matchesSearchTerm =
-      !searchTerm ||
-      campground.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      campground.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      campground.location.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredCampgrounds = useMemo(() => {
+    return campgrounds.filter((campground) => {
+      // Check if campground matches the search term
+      const matchesSearchTerm =
+        !searchTerm ||
+        campground.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        campground.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        campground.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Check if campground matches the location filter
-    const matchesLocation =
-      !locationFilter || campground.location.toLowerCase().includes(locationFilter.toLowerCase());
+      // Check if campground matches the location filter
+      const matchesLocation =
+        !locationFilter || campground.location.toLowerCase().includes(locationFilter.toLowerCase());
 
-    // Return true if campground matches both filters
-    return matchesSearchTerm && matchesLocation;
-  });
+      // Return true if campground matches both filters
+      return matchesSearchTerm && matchesLocation;
+    });
+  }, [campgrounds, searchTerm, locationFilter]);
 
   // No view toggle needed - only grid view is supported
 
@@ -77,6 +80,16 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
     );
   }
 
+  // Render function for virtual list items
+  const renderCampgroundItem = (campground, index) => (
+    <div className="campground-item" key={campground._id}>
+      <CampgroundCard campground={campground} />
+    </div>
+  );
+
+  // Use virtual scrolling for large datasets (more than 50 items)
+  const useVirtualScrolling = filteredCampgrounds.length > 50;
+
   return (
     <div className="campground-list-container">
       <div className="campground-list-header">
@@ -86,15 +99,33 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
             plural: filteredCampgrounds.length !== 1 ? 's' : '',
           })}
         </div>
+        {useVirtualScrolling && (
+          <div className="virtual-scrolling-indicator">{t('campgroundList.virtualScrolling')}</div>
+        )}
       </div>
 
-      <div className="campground-list grid">
-        {filteredCampgrounds.map((campground) => (
-          <div className="campground-item" key={campground._id}>
-            <CampgroundCard campground={campground} />
-          </div>
-        ))}
-      </div>
+      {useVirtualScrolling ? (
+        <VirtualList
+          items={filteredCampgrounds}
+          itemHeight={300} // Approximate height of campground card
+          containerHeight={600}
+          buffer={3}
+          renderItem={renderCampgroundItem}
+          loading={isLoading}
+          error={isError ? error?.message : null}
+          emptyMessage={t('campgroundList.noResults.message')}
+          className="campground-virtual-list"
+          itemClassName="campground-virtual-item"
+        />
+      ) : (
+        <div className="campground-list grid">
+          {filteredCampgrounds.map((campground) => (
+            <div className="campground-item" key={campground._id}>
+              <CampgroundCard campground={campground} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

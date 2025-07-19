@@ -107,32 +107,7 @@ module.exports.createBooking = async (req, res) => {
       'campground'
     );
 
-    // Debug logging for safety alert acknowledgment check
-    console.log('Backend - Campground alerts acknowledgment check:', {
-      campgroundId: campground._id,
-      userId: req.user._id,
-      alertsCount: campgroundAlerts.length,
-      alertsWithAcknowledgment: campgroundAlerts.map((alert) => ({
-        id: alert._id,
-        title: alert.title,
-        requiresAcknowledgement: alert.requiresAcknowledgement,
-        acknowledgedBy: alert.acknowledgedBy,
-        acknowledgedByLength: (alert.acknowledgedBy || []).length,
-        acknowledgedByDetails: (alert.acknowledgedBy || []).map((ack) => ({
-          user: ack.user,
-          userType: typeof ack.user,
-          userString: ack.user?.toString(),
-          userObjectId: typeof ack.user === 'object' ? ack.user._id : null,
-          currentUserString: req.user._id?.toString(),
-          match: (() => {
-            if (!ack || !ack.user) return false;
-            const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
-            const currentUserId = req.user._id;
-            return ackUserId?.toString() === currentUserId?.toString();
-          })(),
-        })),
-      })),
-    });
+    // Debug logging removed for production performance
 
     const unacknowledgedCampgroundAlerts = campgroundAlerts.filter((alert) => {
       if (!alert.requiresAcknowledgement) {

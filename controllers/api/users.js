@@ -741,91 +741,43 @@ module.exports.getUserReviews = async (req, res) => {
       return res.status(401).json({ error: 'You must be logged in to view your reviews' });
     }
 
-    // Find all campgrounds that have reviews by the current user
-    const campgrounds = await Campground.find({ reviews: { $exists: true, $ne: [] } }).populate({
-      path: 'reviews',
-      match: { author: req.user._id },
-      populate: { path: 'author', select: 'username' },
-    });
+    // Directly query reviews by the user with populated campground data
+    // This approach is more reliable and avoids timing issues with MongoDB Atlas
+    const userReviews = await Review.find({ author: req.user._id })
+      .populate('author', 'username')
+      .populate('campground', 'title location')
+      .sort({ _id: -1 }); // Sort by newest first
 
-    // Extract and format the reviews
-    let userReviews = [];
+    // Format the reviews to ensure consistent structure
+    const formattedReviews = userReviews.map((review) => {
+      const reviewObj = review.toObject();
 
-    for (const campground of campgrounds) {
-      // Only include campgrounds that have reviews by the current user after population
-      if (campground.reviews && campground.reviews.length > 0) {
-        // Add campground info to each review
-        const reviewsWithCampground = campground.reviews.map((review) => {
-          // Convert to plain object to allow adding properties
-          const reviewObj = review.toObject();
-          reviewObj.campground = {
-            _id: campground._id,
-            title: campground.title || 'Unknown Campground', // Provide a default if title is missing
-            location: campground.location,
-          };
-          return reviewObj;
+      // Ensure campground data is properly structured
+      if (reviewObj.campground) {
+        reviewObj.campground = {
+          _id: reviewObj.campground._id,
+          title: reviewObj.campground.title || 'Unknown Campground',
+          location: reviewObj.campground.location || 'Unknown Location',
+        };
+      } else {
+        // If campground data is missing, try to fetch it
+        logError('Review missing campground data', {
+          reviewId: reviewObj._id,
+          userId: req.user._id,
         });
-
-        userReviews = [...userReviews, ...reviewsWithCampground];
+        reviewObj.campground = {
+          _id: null,
+          title: 'Unknown Campground',
+          location: 'Unknown Location',
+        };
       }
-    }
 
-    // Process each review to ensure campground data is available
-    for (let i = 0; i < userReviews.length; i++) {
-      const review = userReviews[i];
-
-      // Check if campground data is missing or incomplete and try to fetch it
-      if (
-        !review.campground ||
-        !review.campground.title ||
-        review.campground.title === 'Unknown Campground'
-      ) {
-        try {
-          // Only try to fetch if we have a campground ID
-          if (review.campground && review.campground._id) {
-            const campground = await Campground.findById(review.campground._id);
-            if (campground) {
-              // Update the review's campground data
-              review.campground = {
-                _id: campground._id,
-                title: campground.title || 'Unknown Campground',
-                location: campground.location,
-              };
-            }
-          } else if (review.campground_id) {
-            // Try using campground_id if it exists
-            const campground = await Campground.findById(review.campground_id);
-            if (campground) {
-              // Update the review's campground data
-              review.campground = {
-                _id: campground._id,
-                title: campground.title || 'Unknown Campground',
-                location: campground.location,
-              };
-            }
-          }
-        } catch (err) {
-          logError('Error fetching campground data for review', err, {
-            userId: req.user?._id,
-            reviewId: review._id,
-          });
-        }
-      }
-    }
-
-    // Sort reviews by _id (which contains a timestamp) as a fallback since createdAt might not be available
-    // ObjectId's first 4 bytes represent a timestamp
-    userReviews.sort((a, b) => {
-      // If both have _id, use that for sorting (newer ObjectIds are "greater")
-      if (a._id && b._id) {
-        return b._id.toString().localeCompare(a._id.toString());
-      }
-      return 0;
+      return reviewObj;
     });
 
     res.json({
-      reviews: userReviews,
-      count: userReviews.length,
+      reviews: formattedReviews,
+      count: formattedReviews.length,
     });
   } catch (error) {
     logError('Error fetching user reviews', error, {

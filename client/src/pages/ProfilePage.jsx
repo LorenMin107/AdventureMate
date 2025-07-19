@@ -5,7 +5,6 @@ import { useUser } from '../context/UserContext';
 import { useAuth } from '../context/AuthContext';
 import TwoFactorSetup from '../components/TwoFactorSetup';
 import PasswordChangeForm from '../components/PasswordChangeForm';
-import BookingList from '../components/BookingList';
 import UserReviewList from '../components/UserReviewList';
 import CSSIsolationWrapper from '../components/CSSIsolationWrapper';
 import { logError } from '../utils/logger';
@@ -505,13 +504,7 @@ const ProfilePage = () => {
                   <span className="profile-nav-icon">🔒</span>
                   <span>{t('profile.security')}</span>
                 </li>
-                <li
-                  className={`profile-nav-item ${activeSection === 'bookings' ? 'active' : ''}`}
-                  onClick={() => setActiveSection('bookings')}
-                >
-                  <span className="profile-nav-icon">🏕️</span>
-                  <span>{t('profile.bookings')}</span>
-                </li>
+
                 <li
                   className={`profile-nav-item ${activeSection === 'reviews' ? 'active' : ''}`}
                   onClick={() => setActiveSection('reviews')}
@@ -593,19 +586,12 @@ const ProfilePage = () => {
                 </div>
               </div>
             )}
-            {activeSection === 'bookings' && (
-              <div className="profile-section">
-                <h2 className="section-title">{t('profile.myBookings')}</h2>
-                <div className="profile-card">
-                  <BookingList initialBookings={userDetails?.bookings || []} />
-                </div>
-              </div>
-            )}
+
             {activeSection === 'reviews' && (
               <div className="profile-section">
                 <h2 className="section-title">{t('profile.myReviews')}</h2>
                 <div className="profile-card">
-                  <UserReviewList initialReviews={userDetails?.reviews || []} />
+                  <UserReviewList />
                 </div>
               </div>
             )}

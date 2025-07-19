@@ -30,29 +30,7 @@ export const checkSafetyAlertAcknowledgments = (alerts, currentUser) => {
       return ackUserId.toString() === currentUserId.toString();
     });
 
-    // Debug logging
-    console.log('SafetyAlertUtils - Alert acknowledgment check:', {
-      alertId: alert._id,
-      alertTitle: alert.title,
-      requiresAcknowledgement: alert.requiresAcknowledgement,
-      acknowledgedBy: alert.acknowledgedBy,
-      acknowledgedByLength: (alert.acknowledgedBy || []).length,
-      currentUserId: currentUser._id,
-      hasAcknowledged,
-      acknowledgedByDetails: (alert.acknowledgedBy || []).map((ack) => ({
-        user: ack.user,
-        userType: typeof ack.user,
-        userString: ack.user?.toString(),
-        userObjectId: typeof ack.user === 'object' ? ack.user._id : null,
-        currentUserString: currentUser._id?.toString(),
-        match: (() => {
-          if (!ack || !ack.user) return false;
-          const ackUserId = typeof ack.user === 'object' ? ack.user._id : ack.user;
-          const currentUserId = currentUser._id;
-          return ackUserId?.toString() === currentUserId?.toString();
-        })(),
-      })),
-    });
+    // Debug logging removed for production performance
 
     return !hasAcknowledged;
   });

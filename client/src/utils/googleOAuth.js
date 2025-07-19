@@ -31,7 +31,7 @@ export const initializeGoogleOAuth = () => {
     };
 
     script.onerror = () => {
-      console.error('Failed to load Google OAuth script');
+      // Error logging handled by caller
       resolve(false);
     };
 
@@ -85,7 +85,7 @@ export const handleGoogleOAuthCallback = async (code, onSuccess, onError) => {
       onError(data.message || 'Google OAuth failed');
     }
   } catch (error) {
-    console.error('Google OAuth callback error:', error);
+    // Error logging handled by caller
     onError('Failed to complete Google OAuth');
   }
 };

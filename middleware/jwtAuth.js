@@ -47,6 +47,13 @@ const publicApiEndpoints = [
   // Auth endpoints (public for registration/login)
   { method: 'POST', pattern: /^\/api\/v1\/auth\/register\/?$/ },
   { method: 'POST', pattern: /^\/api\/v1\/auth\/login\/?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/refresh\/?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/forgot-password\/?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/reset-password\/?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/verify-email\/?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/resend-verification\/?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/auth\/status\/?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/google\/?$/ },
 ];
 
 /**
@@ -61,6 +68,31 @@ const isPublicApiEndpoint = (req) => {
 };
 
 /**
+ * Check if the request requires authentication
+ * @param {Object} req - Express request object
+ * @returns {Boolean} - True if the request requires authentication
+ */
+const requiresAuthentication = (req) => {
+  // All API v1 endpoints require authentication unless they're in the public list
+  return req.originalUrl.includes('/api/v1/') && !isPublicApiEndpoint(req);
+};
+
+/**
+ * Send authentication error response
+ * @param {Object} res - Express response object
+ * @param {string} error - Error type
+ * @param {string} message - Error message
+ * @param {number} statusCode - HTTP status code
+ */
+const sendAuthError = (res, error, message, statusCode = 401) => {
+  if (res.headersSent) {
+    return;
+  }
+
+  return ApiResponse.error(error, message, statusCode).send(res);
+};
+
+/**
  * Middleware to authenticate requests using JWT
  * This middleware checks for a valid JWT in the Authorization header
  * and sets req.user if the token is valid
@@ -72,38 +104,21 @@ const authenticateJWT = async (req, res, next) => {
 
     if (!token) {
       // No token provided
-      // Check if this is an API endpoint that requires authentication
-      if (
-        req.originalUrl.includes('/api/v1/') &&
-        !req.originalUrl.includes('/auth/') &&
-        !req.originalUrl.includes('/public/') &&
-        !isPublicApiEndpoint(req)
-      ) {
-        // Log the missing token for debugging
+      if (requiresAuthentication(req)) {
         logDebug('JWT authentication failed: No token provided', {
           method: req.method,
           url: req.originalUrl,
           ip: req.ip,
         });
 
-        // For API endpoints that require authentication, return 401
-        if (
-          req.headers['x-requested-with'] === 'XMLHttpRequest' ||
-          req.headers.accept?.includes('application/json')
-        ) {
-          return ApiResponse.error(
-            'Authentication required',
-            'No authentication token provided',
-            401
-          ).send(res);
-        }
+        return sendAuthError(res, 'Authentication required', 'No authentication token provided');
       }
+      // For public endpoints, continue without authentication
       return next();
     }
 
     // Verify the token
     try {
-      // Use await with verifyAccessToken since it's now an async function
       const decoded = await verifyAccessToken(token);
 
       // Find the user
@@ -116,19 +131,11 @@ const authenticateJWT = async (req, res, next) => {
           url: req.originalUrl,
         });
 
-        // For API endpoints that require authentication, return 401
-        if (
-          req.originalUrl.includes('/api/v1/') &&
-          !req.originalUrl.includes('/auth/') &&
-          !req.originalUrl.includes('/public/') &&
-          !isPublicApiEndpoint(req) &&
-          (req.headers['x-requested-with'] === 'XMLHttpRequest' ||
-            req.headers.accept?.includes('application/json'))
-        ) {
-          return ApiResponse.error('Authentication failed', 'User not found', 401).send(res);
+        if (requiresAuthentication(req)) {
+          return sendAuthError(res, 'Authentication failed', 'User not found');
         }
-
-        return next(); // User not found, continue without authentication
+        // For public endpoints, continue without authentication
+        return next();
       }
 
       // Set the user in the request object
@@ -140,58 +147,40 @@ const authenticateJWT = async (req, res, next) => {
 
       next();
     } catch (tokenError) {
-      // Provide detailed error information based on the type of error
-      if (tokenError.name === 'TokenExpiredError') {
-        logWarn('JWT authentication failed: Token expired', {
-          method: req.method,
-          url: req.originalUrl,
-          ip: req.ip,
-        });
-        // For API endpoints that explicitly require authentication, return 401
-        if (
-          req.originalUrl.includes('/api/v1/') &&
-          req.headers['x-requested-with'] === 'XMLHttpRequest'
-        ) {
-          return ApiResponse.error(
-            'Token expired',
-            'Your authentication token has expired. Please refresh the token or log in again.',
-            401
-          ).send(res);
-        }
-      } else if (tokenError.name === 'RevokedTokenError') {
-        logWarn('JWT authentication failed: Token revoked', {
-          method: req.method,
-          url: req.originalUrl,
-          ip: req.ip,
-        });
-        // For API endpoints that explicitly require authentication, return 401
-        if (
-          req.originalUrl.includes('/api/v1/') &&
-          req.headers['x-requested-with'] === 'XMLHttpRequest'
-        ) {
-          return ApiResponse.error(
-            'Token revoked',
-            'Your authentication token has been revoked. Please log in again.',
-            401
-          ).send(res);
-        }
-      } else if (tokenError.name === 'JsonWebTokenError') {
-        logWarn('JWT authentication failed: Invalid token', {
-          method: req.method,
-          url: req.originalUrl,
-          error: tokenError.message,
-          ip: req.ip,
-        });
-      } else {
-        logWarn('JWT authentication failed', {
-          errorName: tokenError.name,
-          errorMessage: tokenError.message,
-          method: req.method,
-          url: req.originalUrl,
-        });
-      }
+      // Log the authentication failure
+      logWarn('JWT authentication failed', {
+        errorName: tokenError.name,
+        errorMessage: tokenError.message,
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip,
+      });
 
-      // For regular requests, continue without authentication
+      if (requiresAuthentication(req)) {
+        // Provide specific error messages based on the type of error
+        if (tokenError.name === 'TokenExpiredError') {
+          return sendAuthError(
+            res,
+            'Token expired',
+            'Your authentication token has expired. Please refresh the token or log in again.'
+          );
+        } else if (tokenError.name === 'RevokedTokenError') {
+          return sendAuthError(
+            res,
+            'Token revoked',
+            'Your authentication token has been revoked. Please log in again.'
+          );
+        } else if (tokenError.name === 'JsonWebTokenError') {
+          return sendAuthError(
+            res,
+            'Invalid token',
+            'The provided authentication token is invalid.'
+          );
+        } else {
+          return sendAuthError(res, 'Authentication failed', 'Token verification failed');
+        }
+      }
+      // For public endpoints, continue without authentication
       next();
     }
   } catch (error) {
@@ -200,6 +189,11 @@ const authenticateJWT = async (req, res, next) => {
       url: req.originalUrl,
       ip: req.ip,
     });
+
+    if (requiresAuthentication(req)) {
+      return sendAuthError(res, 'Authentication error', 'An error occurred during authentication');
+    }
+    // For public endpoints, continue without authentication
     next();
   }
 };
@@ -210,10 +204,7 @@ const authenticateJWT = async (req, res, next) => {
  */
 const requireAuth = (req, res, next) => {
   if (!req.user) {
-    return res.status(401).json({
-      error: 'Unauthorized',
-      message: 'Authentication required',
-    });
+    return sendAuthError(res, 'Unauthorized', 'Authentication required');
   }
   next();
 };
@@ -224,10 +215,7 @@ const requireAuth = (req, res, next) => {
  */
 const requireAdmin = (req, res, next) => {
   if (!req.user.isAdmin) {
-    return res.status(403).json({
-      error: 'Forbidden',
-      message: 'Admin privileges required',
-    });
+    return ApiResponse.error('Forbidden', 'Admin privileges required', 403).send(res);
   }
   next();
 };
@@ -238,10 +226,7 @@ const requireAdmin = (req, res, next) => {
  */
 const requireOwner = (req, res, next) => {
   if (!req.user.isOwner) {
-    return res.status(403).json({
-      error: 'Forbidden',
-      message: 'Owner privileges required',
-    });
+    return ApiResponse.error('Forbidden', 'Owner privileges required', 403).send(res);
   }
   next();
 };
@@ -252,11 +237,11 @@ const requireOwner = (req, res, next) => {
  */
 const requireEmailVerified = (req, res, next) => {
   if (!req.user.isEmailVerified) {
-    return res.status(403).json({
-      error: 'Forbidden',
-      message:
-        'Email verification required. Please verify your email address before accessing this resource.',
-    });
+    return ApiResponse.error(
+      'Forbidden',
+      'Email verification required. Please verify your email address before accessing this resource.',
+      403
+    ).send(res);
   }
   next();
 };

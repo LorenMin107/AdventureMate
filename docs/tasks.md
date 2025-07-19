@@ -2,6 +2,73 @@
 
 ## Recent Updates
 
+### Safety Alert Delete Functionality Fix (Latest)
+
+**Status:** ✅ Completed  
+**Date:** July 2025  
+**Priority:** High
+
+#### Issue Resolved:
+
+- **Problem**: Safety alert deletion was failing with 404 errors when trying to delete campground-level alerts using campsite endpoints
+- **Root Cause**: Frontend was using `entityType` prop to determine API endpoint instead of checking actual alert properties
+- **Solution**: Updated delete function to check alert properties (`alert.campsite` vs `alert.campground`) and use appropriate endpoint
+
+#### Technical Implementation:
+
+- **SafetyAlertList.jsx**: Modified `handleDeleteConfirm` function to use same logic as `handleAcknowledgeAlert`
+  - Check `alert.campsite` → use `/campsite-safety-alerts/{campsiteId}/safety-alerts/{alertId}`
+  - Check `alert.campground` → use `/campgrounds/{campgroundId}/safety-alerts/{alertId}`
+  - Fallback to original logic if neither exists
+- **Enhanced Logging**: Added detailed console logging for debugging alert properties and URL construction
+- **Error Handling**: Improved error logging to show response status and data
+
+#### Benefits:
+
+- **Correct Endpoint Usage**: Alerts now use the appropriate API endpoint based on their actual type
+- **Better Debugging**: Enhanced logging helps identify endpoint selection issues
+- **Consistent Logic**: Delete function now follows same pattern as acknowledge function
+- **Improved Reliability**: Eliminates 404 errors for mixed alert types
+
+#### Files Modified:
+
+- `client/src/components/SafetyAlertList.jsx` - Updated handleDeleteConfirm function with alert property checking
+- Enhanced error handling and debugging for safety alert operations
+
+---
+
+### Redis Configuration Fix (Latest)
+
+**Status:** ✅ Completed  
+**Date:** July 2025  
+**Priority:** Medium
+
+#### Issue Resolved:
+
+- **Problem**: Docker container was connecting to Redis container instead of local Redis instance
+- **Root Cause**: `REDIS_HOST=localhost` in Docker container refers to container itself, not host machine
+- **Solution**: Updated Docker configuration to use `host.docker.internal` for local Redis connection
+
+#### Technical Implementation:
+
+- **docker-compose.override.yml**: Added `REDIS_HOST: host.docker.internal` to app service environment
+- **docker-compose.yml**: Removed Redis dependency from app service since using local Redis
+- **Container Configuration**: App now connects to host machine's Redis instance instead of containerized Redis
+
+#### Benefits:
+
+- **Local Redis Usage**: Application uses existing local Redis setup instead of containerized version
+- **Data Persistence**: Redis data persists across container restarts
+- **Simplified Architecture**: No need to manage separate Redis container for development
+- **Better Performance**: Direct connection to local Redis instance
+
+#### Files Modified:
+
+- `docker-compose.override.yml` - Added Redis host configuration
+- `docker-compose.yml` - Removed Redis service dependency from app
+
+---
+
 ### Profile Update Error Handling Fix (Latest)
 
 **Status:** ✅ Completed  
@@ -392,7 +459,7 @@
 - [x] Add API response compression
 - [x] Implement rate limiting
 - [x] Add API versioning
-- [ ] Implement database connection pooling
+- [x] Implement database connection pooling
 
 #### Frontend Tasks:
 
@@ -401,9 +468,9 @@
 - [x] Add performance monitoring (logging)
 - [x] Implement code splitting with Vite
 - [x] Add React Query for efficient data fetching
-- [ ] Implement virtual scrolling for large lists
-- [ ] Add progressive web app features
-- [ ] Create offline functionality
+- [x] Implement virtual scrolling for large lists
+- [x] Add progressive web app features
+- [x] Create offline functionality
 
 ---
 

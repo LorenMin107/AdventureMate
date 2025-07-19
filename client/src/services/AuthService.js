@@ -35,7 +35,7 @@ class AuthService {
    * @param {boolean} requiresTwoFactor - Whether 2FA is required
    */
   updateAuthCache(user, requiresTwoFactor = false) {
-    console.log('AuthService: updateAuthCache called with:', user);
+    // Debug logging removed for security
 
     // Get the current cached auth status to compare
     const currentCache = this.getCachedAuth();
@@ -57,11 +57,11 @@ class AuthService {
       };
       localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(cacheData));
       localStorage.setItem(AUTH_CACHE_EXPIRY, (Date.now() + CACHE_DURATION).toString());
-      console.log('AuthService: Cache updated with user data:', user);
+      logInfo('Auth cache updated');
     } else {
       localStorage.removeItem(AUTH_CACHE_KEY);
       localStorage.removeItem(AUTH_CACHE_EXPIRY);
-      console.log('AuthService: Cache cleared');
+      logInfo('Auth cache cleared');
     }
 
     // Only broadcast if there's an actual change in authentication status
@@ -128,7 +128,6 @@ class AuthService {
 
       // If we have a valid cache and not forcing a check, use it
       if (!forceCheck && cachedAuth) {
-        console.log('AuthService: Using cached auth status:', cachedAuth);
         logInfo('Using cached auth status');
         return cachedAuth;
       }

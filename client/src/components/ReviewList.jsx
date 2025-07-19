@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import StarRating from './StarRating';
+import ConfirmDialog from './common/ConfirmDialog';
 import apiClient from '../utils/api';
 import { logError, logInfo } from '../utils/logger';
 import './ReviewList.css';
@@ -16,9 +18,11 @@ import './ReviewList.css';
  * @returns {JSX.Element} Review list component
  */
 const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
+  const { t } = useTranslation();
   const [reviews, setReviews] = useState(initialReviews);
   const [loading, setLoading] = useState(!initialReviews.length);
   const [error, setError] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, reviewId: null });
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -47,10 +51,12 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
     fetchReviews();
   }, [campgroundId, initialReviews]);
 
-  const handleDeleteReview = async (reviewId) => {
-    if (!window.confirm('Are you sure you want to delete this review?')) {
-      return;
-    }
+  const handleDeleteReview = (reviewId) => {
+    setDeleteDialog({ open: true, reviewId });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const { reviewId } = deleteDialog;
 
     try {
       await apiClient.delete(`/campgrounds/${campgroundId}/reviews/${reviewId}`);
@@ -64,8 +70,14 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
       }
     } catch (err) {
       logError('Error deleting review', err);
-      alert('Failed to delete review. Please try again later.');
+      alert(t('reviews.deleteError') || 'Failed to delete review. Please try again later.');
+    } finally {
+      setDeleteDialog({ open: false, reviewId: null });
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ open: false, reviewId: null });
   };
 
   if (loading) {
@@ -84,19 +96,22 @@ const ReviewList = ({ campgroundId, initialReviews = [], onReviewDeleted }) => {
     <div className="review-list">
       <h3 className="review-list-title">Reviews ({reviews.length})</h3>
 
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title={t('reviews.deleteConfirmTitle') || 'Delete Review'}
+        message={t('reviews.deleteConfirm')}
+        confirmLabel={t('reviews.delete')}
+        cancelLabel={t('common.cancel')}
+      />
+
       {reviews.map((review) => {
         // Handle cases where author might be null or missing
         const author = review.author || {};
         const canDelete = currentUser && (currentUser._id === author._id || currentUser.isAdmin);
 
-        // Log review data for debugging
-        logInfo('Rendering review', {
-          reviewId: review._id,
-          authorId: author._id,
-          authorUsername: author.username,
-          rating: review.rating,
-          hasBody: !!review.body,
-        });
+        // Debug logging removed for security
 
         return (
           <div key={review._id} id={`review-${review._id}`} className="review-item">

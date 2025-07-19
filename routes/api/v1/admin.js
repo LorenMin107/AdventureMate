@@ -8,6 +8,7 @@ const redisCache = require('../../../utils/redis');
 const ApiResponse = require('../../../utils/ApiResponse');
 const { asyncHandler } = require('../../../utils/errorHandler');
 const { logInfo, logWarn } = require('../../../utils/logger');
+const dbMonitor = require('../../../utils/dbMonitor');
 
 // All routes in this file require authentication
 router.use(authenticateJWT);
@@ -195,6 +196,41 @@ router.get(
     };
 
     return ApiResponse.success(status, 'Cache status retrieved successfully').send(res);
+  })
+);
+
+/**
+ * @route GET /api/v1/admin/database/health
+ * @desc Get database connection pool health status
+ * @access Admin only
+ */
+router.get(
+  '/database/health',
+  asyncHandler(async (req, res) => {
+    const health = dbMonitor.getHealthCheck();
+    const config = dbMonitor.getConfig();
+
+    const response = {
+      health,
+      config,
+      timestamp: new Date().toISOString(),
+    };
+
+    return ApiResponse.success(response, 'Database health status retrieved successfully').send(res);
+  })
+);
+
+/**
+ * @route GET /api/v1/admin/database/stats
+ * @desc Get detailed database connection pool statistics
+ * @access Admin only
+ */
+router.get(
+  '/database/stats',
+  asyncHandler(async (req, res) => {
+    const stats = dbMonitor.getConnectionStats();
+
+    return ApiResponse.success(stats, 'Database statistics retrieved successfully').send(res);
   })
 );
 

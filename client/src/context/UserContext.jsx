@@ -32,10 +32,10 @@ export const UserProvider = ({ children }) => {
   // Fetch user details when the user is authenticated
   useEffect(() => {
     if (isAuthenticated && currentUser?._id) {
-      console.log('UserContext: User authenticated, fetching details for:', currentUser._id);
+      logInfo('User authenticated, fetching details');
       fetchUserDetails();
     } else {
-      console.log('UserContext: User not authenticated, clearing details');
+      logInfo('User not authenticated, clearing details');
       setUserDetails(null);
     }
   }, [isAuthenticated, currentUser?._id]);
@@ -44,7 +44,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     const handleAuthStateChange = (event) => {
       if (event.detail && event.detail.isAuthenticated && currentUser?._id) {
-        console.log('UserContext: Auth state change detected, refreshing user details');
+        logInfo('Auth state change detected, refreshing user details');
         fetchUserDetails();
       }
     };
@@ -58,20 +58,20 @@ export const UserProvider = ({ children }) => {
   // Fetch detailed user data including reviews and bookings
   const fetchUserDetails = async () => {
     if (!isAuthenticated) {
-      console.log('UserContext: fetchUserDetails called but user not authenticated');
+      logInfo('fetchUserDetails called but user not authenticated');
       return;
     }
 
-    console.log('UserContext: Fetching user details...');
+    logInfo('Fetching user details');
     setLoading(true);
     setError(null);
 
     try {
       const response = await apiClient.get('/users/profile');
-      console.log('UserContext: Received user details:', response.data.user);
+      logInfo('User details received');
       setUserDetails(response.data.user);
     } catch (err) {
-      console.log('UserContext: Error fetching user details:', err);
+      logError('Error fetching user details', err);
       logError('Error fetching user details', err);
       setError(err.response?.data?.message || err.message || 'Failed to fetch user details');
     } finally {
@@ -101,7 +101,7 @@ export const UserProvider = ({ children }) => {
 
   // Update user profile
   const updateProfile = async (profileData, headers = {}) => {
-    console.log('UserContext updateProfile called with:', profileData);
+    logInfo('updateProfile called');
 
     if (!isAuthenticated) {
       throw new Error('You must be logged in to update your profile');
@@ -128,7 +128,7 @@ export const UserProvider = ({ children }) => {
           profile: updatedUser.profile,
         };
 
-        console.log('UserContext: Dispatching userProfileUpdated event with:', updatedCurrentUser);
+        logInfo('Dispatching userProfileUpdated event');
 
         // Dispatch an event to notify AuthContext to update
         const event = new CustomEvent('userProfileUpdated', {

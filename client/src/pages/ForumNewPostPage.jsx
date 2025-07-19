@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../utils/api';
@@ -8,6 +9,7 @@ import { logError } from '../utils/logger';
 import './ForumNewPostPage.css';
 
 const ForumNewPostPage = () => {
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ const ForumNewPostPage = () => {
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
-        setErrors({ general: 'Failed to create post. Please try again.' });
+        setErrors({ general: t('forum.newPost.failedToCreate') });
       }
     },
   });
@@ -70,27 +72,27 @@ const ForumNewPostPage = () => {
     const newErrors = {};
 
     if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
+      newErrors.title = t('forum.newPost.titleRequired');
     } else if (formData.title.length < 5) {
-      newErrors.title = 'Title must be at least 5 characters';
+      newErrors.title = t('forum.newPost.titleTooShort');
     } else if (formData.title.length > 200) {
-      newErrors.title = 'Title cannot exceed 200 characters';
+      newErrors.title = t('forum.newPost.titleTooLong');
     }
 
     if (!formData.content.trim()) {
-      newErrors.content = 'Content is required';
+      newErrors.content = t('forum.newPost.contentRequired');
     } else if (formData.content.length < 10) {
-      newErrors.content = 'Content must be at least 10 characters';
+      newErrors.content = t('forum.newPost.contentTooShort');
     } else if (formData.content.length > 5000) {
-      newErrors.content = 'Content cannot exceed 5000 characters';
+      newErrors.content = t('forum.newPost.contentTooLong');
     }
 
     if (!formData.category) {
-      newErrors.category = 'Category is required';
+      newErrors.category = t('forum.newPost.categoryRequired');
     }
 
     if (!formData.type) {
-      newErrors.type = 'Post type is required';
+      newErrors.type = t('forum.newPost.typeRequired');
     }
 
     // Validate tags
@@ -100,11 +102,11 @@ const ForumNewPostPage = () => {
         .map((tag) => tag.trim())
         .filter((tag) => tag);
       if (tags.length > 10) {
-        newErrors.tags = 'Maximum 10 tags allowed';
+        newErrors.tags = t('forum.newPost.tagsTooMany');
       }
       for (const tag of tags) {
         if (tag.length > 20) {
-          newErrors.tags = 'Each tag cannot exceed 20 characters';
+          newErrors.tags = t('forum.newPost.tagTooLong');
           break;
         }
       }
@@ -167,8 +169,8 @@ const ForumNewPostPage = () => {
     <div className={`forum-new-post-page ${theme}`}>
       <div className="new-post-container">
         <div className="page-header">
-          <h1>Create New Post</h1>
-          <p>Share your thoughts, ask questions, or start a discussion with the community</p>
+          <h1>{t('forum.newPost.pageTitle')}</h1>
+          <p>{t('forum.newPost.pageSubtitle')}</p>
         </div>
 
         <div className="form-container">
@@ -178,7 +180,7 @@ const ForumNewPostPage = () => {
             {/* Title */}
             <div className="form-group">
               <label htmlFor="title" className="form-label">
-                Title *
+                {t('forum.newPost.postTitle')} *
               </label>
               <input
                 type="text"
@@ -187,18 +189,20 @@ const ForumNewPostPage = () => {
                 value={formData.title}
                 onChange={handleInputChange}
                 className={`form-input ${errors.title ? 'error' : ''}`}
-                placeholder="Enter a descriptive title for your post..."
+                placeholder={t('forum.newPost.postTitlePlaceholder')}
                 maxLength={200}
               />
               {errors.title && <div className="error-message">{errors.title}</div>}
-              <div className="char-count">{formData.title.length}/200 characters</div>
+              <div className="char-count">
+                {formData.title.length}/200 {t('forum.newPost.characters')}
+              </div>
             </div>
 
             {/* Category and Type */}
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="category" className="form-label">
-                  Category *
+                  {t('forum.newPost.category')} *
                 </label>
                 <select
                   id="category"
@@ -218,7 +222,7 @@ const ForumNewPostPage = () => {
 
               <div className="form-group">
                 <label htmlFor="type" className="form-label">
-                  Post Type *
+                  {t('forum.newPost.type')} *
                 </label>
                 <select
                   id="type"
@@ -227,8 +231,8 @@ const ForumNewPostPage = () => {
                   onChange={handleInputChange}
                   className={`form-select ${errors.type ? 'error' : ''}`}
                 >
-                  <option value="discussion">💬 Discussion</option>
-                  <option value="question">❓ Question</option>
+                  <option value="discussion">{t('forum.newPost.discussion')}</option>
+                  <option value="question">{t('forum.newPost.question')}</option>
                 </select>
                 {errors.type && <div className="error-message">{errors.type}</div>}
               </div>
@@ -237,7 +241,7 @@ const ForumNewPostPage = () => {
             {/* Content */}
             <div className="form-group">
               <label htmlFor="content" className="form-label">
-                Content *
+                {t('forum.newPost.content')} *
               </label>
               <textarea
                 id="content"
@@ -245,18 +249,20 @@ const ForumNewPostPage = () => {
                 value={formData.content}
                 onChange={handleInputChange}
                 className={`form-textarea ${errors.content ? 'error' : ''}`}
-                placeholder="Write your post content here..."
+                placeholder={t('forum.newPost.contentPlaceholder')}
                 rows="8"
                 maxLength={5000}
               />
               {errors.content && <div className="error-message">{errors.content}</div>}
-              <div className="char-count">{formData.content.length}/5000 characters</div>
+              <div className="char-count">
+                {formData.content.length}/5000 {t('forum.newPost.characters')}
+              </div>
             </div>
 
             {/* Tags */}
             <div className="form-group">
               <label htmlFor="tags" className="form-label">
-                Tags (optional)
+                {t('forum.newPost.tags')}
               </label>
               <input
                 type="text"
@@ -265,12 +271,10 @@ const ForumNewPostPage = () => {
                 value={formData.tags}
                 onChange={handleInputChange}
                 className={`form-input ${errors.tags ? 'error' : ''}`}
-                placeholder="camping, equipment, tips (comma-separated)"
+                placeholder={t('forum.newPost.tagsPlaceholder')}
               />
               {errors.tags && <div className="error-message">{errors.tags}</div>}
-              <div className="help-text">
-                Add relevant tags to help others find your post. Separate multiple tags with commas.
-              </div>
+              <div className="help-text">{t('forum.newPost.tagsHelpText')}</div>
             </div>
 
             {/* Form Actions */}
@@ -281,7 +285,7 @@ const ForumNewPostPage = () => {
                 className="btn btn-secondary"
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('forum.newPost.cancel')}
               </button>
               <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                 {isSubmitting ? t('forum.newPost.creating') : t('forum.newPost.createPost')}
@@ -291,14 +295,14 @@ const ForumNewPostPage = () => {
 
           {/* Posting Guidelines */}
           <div className="posting-guidelines">
-            <h3>Posting Guidelines</h3>
+            <h3>{t('forum.newPost.postingGuidelines.title')}</h3>
             <ul>
-              <li>Be respectful and constructive in your posts</li>
-              <li>Use clear, descriptive titles</li>
-              <li>Provide relevant details and context</li>
-              <li>Use appropriate categories and tags</li>
-              <li>Check for similar posts before creating new ones</li>
-              <li>Follow community rules and guidelines</li>
+              <li>{t('forum.newPost.postingGuidelines.respectful')}</li>
+              <li>{t('forum.newPost.postingGuidelines.clearTitles')}</li>
+              <li>{t('forum.newPost.postingGuidelines.relevantDetails')}</li>
+              <li>{t('forum.newPost.postingGuidelines.appropriateCategories')}</li>
+              <li>{t('forum.newPost.postingGuidelines.checkSimilar')}</li>
+              <li>{t('forum.newPost.postingGuidelines.followRules')}</li>
             </ul>
           </div>
         </div>

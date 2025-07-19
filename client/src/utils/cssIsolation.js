@@ -78,7 +78,7 @@ export const ISOLATION_PATTERNS = {
 export const getScopedClass = (pattern, prefix) => {
   const baseClass = ISOLATION_PATTERNS[pattern];
   if (!baseClass) {
-    console.warn(`Unknown pattern: ${pattern}`);
+    // Unknown pattern - handled gracefully
     return '';
   }
   return scopeClass(prefix, baseClass);

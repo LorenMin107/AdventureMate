@@ -4,7 +4,27 @@ AdventureMate is a comprehensive full-stack web application for discovering, boo
 
 ## 🎉 Latest Updates - Error Handling & UX Improvements
 
-### Profile Update Error Handling Fix (Latest)
+### Safety Alert Delete Functionality Fix (Latest)
+
+**Status:** ✅ Completed  
+**Date:** July 2025
+
+- ✅ **Fixed safety alert deletion** - Resolved 404 errors when deleting campground-level alerts using campsite endpoints
+- ✅ **Smart endpoint detection** - System now automatically detects alert type and uses appropriate API endpoint
+- ✅ **Enhanced error logging** - Improved debugging with detailed console output for alert operations
+- ✅ **Consistent logic** - Delete function now follows same pattern as acknowledge function for reliability
+
+### Redis Configuration Fix (Latest)
+
+**Status:** ✅ Completed  
+**Date:** July 2025
+
+- ✅ **Fixed Docker Redis connection** - Application now connects to local Redis instance instead of containerized Redis
+- ✅ **Improved data persistence** - Redis data persists across container restarts
+- ✅ **Simplified architecture** - No need to manage separate Redis container for development
+- ✅ **Better performance** - Direct connection to local Redis instance
+
+### Profile Update Error Handling Fix
 
 **Status:** ✅ Completed  
 **Date:** July 2025
@@ -19,6 +39,7 @@ AdventureMate is a comprehensive full-stack web application for discovering, boo
 The application has successfully completed the migration to API-only architecture:
 
 - ✅ **Traditional routes removed** - All functionality now uses `/api/v1/*` endpoints
+- ✅ **EJS templates removed** - Complete removal of server-side rendering dependencies
 - ✅ **JWT authentication** - Secure token-based authentication
 - ✅ **Performance optimized** - Enhanced caching and response times
 - ✅ **Security hardened** - Latest security best practices applied
@@ -26,7 +47,9 @@ The application has successfully completed the migration to API-only architectur
 
 ### Architecture Overview
 
-The application now uses a modern, scalable API architecture:
+The application now uses a modern, scalable API-only architecture with React frontend:
+
+**Backend (API-Only):**
 
 ```
 /api/v1/
@@ -45,6 +68,14 @@ The application now uses a modern, scalable API architecture:
 ├── mapbox/         # Geocoding services
 └── cloudinary/     # Image optimization
 ```
+
+**Frontend (React SPA):**
+
+- Modern React 18 with Vite
+- React Router for client-side routing
+- React Query for server state management
+- Complete internationalization (English/Thai)
+- Responsive design with custom components
 
 ### Key Benefits
 
@@ -74,6 +105,63 @@ npm run test:api
 ```
 
 For detailed API documentation, see [API Documentation](./docs/api.md).
+
+## 🐳 Docker Development
+
+### Quick Start with Docker
+
+```bash
+# Start all services (uses local Redis)
+docker-compose up -d
+
+# Start with development tools
+docker-compose --profile tools up -d
+
+# View logs
+docker-compose logs -f app
+
+# Restart application
+docker-compose restart app
+
+# Stop all services
+docker-compose down
+```
+
+### Docker Configuration
+
+- **Application**: Runs on port 3001 (backend) and 5173 (frontend)
+- **MongoDB**: Runs on port 27017 with persistent data
+- **Redis**: Uses local Redis instance (not containerized) for better performance
+- **Development Tools**: Mongo Express (8081) and Redis Commander (8082) available with `--profile tools`
+
+### Environment Variables
+
+The Docker setup automatically loads environment variables from your `.env` file. Key configurations:
+
+- **Database**: MongoDB Atlas connection string
+- **Redis**: Local Redis instance via `host.docker.internal`
+- **API Keys**: Mapbox, Cloudinary, Stripe, OpenWeatherMap
+- **JWT Secrets**: Secure token management
+
+### Docker Commands Reference
+
+```bash
+# Basic operations
+docker-compose up -d          # Start all services
+docker-compose down           # Stop all services
+docker-compose restart app    # Restart application
+docker-compose logs -f app    # Follow application logs
+
+# Development tools
+docker-compose --profile tools up -d    # Start with Mongo Express & Redis Commander
+docker-compose exec app sh              # Access application shell
+docker-compose exec mongodb mongosh     # Access MongoDB shell
+
+# Monitoring
+docker-compose ps                       # Check container status
+docker stats                           # Monitor resource usage
+docker-compose logs app --tail=20      # View recent logs
+```
 
 ## 🚀 Features
 
@@ -108,7 +196,6 @@ For detailed API documentation, see [API Documentation](./docs/api.md).
 ### For Campers
 
 - **User Authentication & Security**
-
   - Email/password registration with email verification
   - Two-factor authentication (2FA) with QR code setup
   - JWT-based authentication with secure token management
@@ -117,7 +204,6 @@ For detailed API documentation, see [API Documentation](./docs/api.md).
   - Toggle password visibility in login and registration forms
 
 - **Campground Discovery**
-
   - Browse campgrounds with advanced filtering and search
   - Interactive maps with Mapbox integration and clustering
   - **Real-time Weather Integration**: Current weather and 3-day forecast for each campground location
@@ -126,7 +212,6 @@ For detailed API documentation, see [API Documentation](./docs/api.md).
   - Responsive design for mobile and desktop
 
 - **Booking System**
-
   - Reserve campsites with flexible date selection
   - Secure payment processing with Stripe integration
   - Booking management (view, modify, cancel)
@@ -134,7 +219,6 @@ For detailed API documentation, see [API Documentation](./docs/api.md).
   - Booking history and receipts
 
 - **Review & Rating System**
-
   - Leave detailed ratings and reviews for campgrounds
   - View other users' reviews with helpful voting
   - Photo uploads in reviews
@@ -186,13 +270,11 @@ For detailed API documentation, see [API Documentation](./docs/api.md).
 ### For Campground Owners
 
 - **Owner Dashboard**
-
   - Real-time analytics and performance metrics
   - Revenue tracking and booking statistics
   - Customer insights and feedback analysis
 
 - **Campground Management**
-
   - Create and manage multiple campgrounds
   - **Advanced Location Input System**: Interactive Mapbox map picker with search and autocomplete
   - Add/edit campsites with detailed information
@@ -200,14 +282,12 @@ For detailed API documentation, see [API Documentation](./docs/api.md).
   - Photo gallery management with Cloudinary
 
 - **Booking Management**
-
   - View and manage all bookings
   - Accept, reject, or modify reservations
   - Customer communication tools
   - Calendar view for availability
 
 - **Safety Alerts Management**
-
   - Create and manage safety alerts for campgrounds
   - Set alert acknowledgment requirements
   - Track user acknowledgments
@@ -221,21 +301,18 @@ For detailed API documentation, see [API Documentation](./docs/api.md).
 ### For Administrators
 
 - **Admin Dashboard**
-
   - Comprehensive platform overview
   - User, campground, and booking statistics
   - Revenue and growth analytics
   - System health monitoring
 
 - **User Management**
-
   - View and manage all user accounts
   - Handle user permissions and roles
   - Account verification and moderation
   - Support ticket management
 
 - **Content Moderation**
-
   - Review and approve campground listings
   - Moderate user reviews and comments
   - Handle reports and disputes

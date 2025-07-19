@@ -72,31 +72,8 @@ const SafetyAlertList = ({
         });
 
         const responseData = response.data;
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Raw API Response structure:', {
-            hasData: !!responseData.data,
-            hasAlerts: !!(responseData.data && responseData.data.alerts),
-            alertsLength: responseData.data?.alerts?.length || 0,
-          });
-        }
-
+        // Debug logging removed for security
         const alertsToSet = responseData.data?.alerts || [];
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Alerts to set count:', alertsToSet.length);
-        }
-
-        // Debug logging for API response (simplified)
-        if (process.env.NODE_ENV === 'development') {
-          console.log('API Response for safety alerts:', {
-            alertsCount: alertsToSet.length,
-            alertsWithAcknowledgment: alertsToSet.map((alert) => ({
-              id: alert._id,
-              title: alert.title,
-              acknowledgedByLength: (alert.acknowledgedBy || []).length,
-              requiresAcknowledgement: alert.requiresAcknowledgement,
-            })),
-          });
-        }
 
         setAlerts(alertsToSet);
       } catch (err) {
@@ -123,9 +100,7 @@ const SafetyAlertList = ({
   // Update alerts when initialAlerts change (for when parent component refreshes the merged alerts)
   useEffect(() => {
     if (initialAlerts && initialAlerts.length > 0) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Updating alerts from initialAlerts count:', initialAlerts.length);
-      }
+      // Debug logging removed for security
       setAlerts(initialAlerts);
     }
   }, [initialAlerts]);
@@ -142,8 +117,32 @@ const SafetyAlertList = ({
     const { alert } = deleteDialog;
 
     try {
-      const entityPath = entityType === 'campsite' ? 'campsite-safety-alerts' : 'campgrounds';
-      await apiClient.delete(`/${entityPath}/${entityId}/safety-alerts/${alert._id}`);
+      // Determine the correct endpoint based on the alert's actual properties
+      let deleteUrl;
+
+      if (alert.campsite) {
+        // This is a campsite-specific alert
+        deleteUrl = `/campsite-safety-alerts/${alert.campsite}/safety-alerts/${alert._id}`;
+      } else if (alert.campground) {
+        // This is a campground-level alert
+        const campgroundId =
+          typeof alert.campground === 'object' ? alert.campground._id : alert.campground;
+        deleteUrl = `/campgrounds/${campgroundId}/safety-alerts/${alert._id}`;
+      } else {
+        // Fallback to the current entity type
+        const entityPath = entityType === 'campsite' ? 'campsite-safety-alerts' : 'campgrounds';
+        deleteUrl = `/${entityPath}/${entityId}/safety-alerts/${alert._id}`;
+      }
+
+      console.log('Deleting safety alert with URL:', deleteUrl);
+      console.log('Alert properties:', {
+        id: alert._id,
+        campsite: alert.campsite,
+        campground: alert.campground,
+        entityType,
+      });
+
+      await apiClient.delete(deleteUrl);
 
       // Update local state
       setAlerts(alerts.filter((a) => a._id !== alert._id));
@@ -157,7 +156,9 @@ const SafetyAlertList = ({
       setDeleteDialog({ open: false, alert: null });
     } catch (err) {
       logError('Error deleting safety alert', err);
-      alert(t('safetyAlerts.list.deleteError'));
+      console.error('Error deleting safety alert:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
     }
   };
 
@@ -167,10 +168,7 @@ const SafetyAlertList = ({
 
   const handleAcknowledgeAlert = async (alertId) => {
     try {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Attempting to acknowledge alert:', alertId);
-        console.log('Entity type:', entityType, 'Entity ID:', entityId);
-      }
+      // Debug logging removed for security
 
       // Find the alert to determine if it's campsite-specific or campground-level
       const alert = alerts.find((a) => a._id === alertId);
@@ -205,14 +203,10 @@ const SafetyAlertList = ({
         refreshUrl = `/${entityPath}/${entityId}/safety-alerts${endpoint}`;
       }
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Acknowledgment URL:', acknowledgmentUrl);
-      }
+      // Debug logging removed for security
 
       const response = await apiClient.post(acknowledgmentUrl);
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Acknowledgment response status:', response.status);
-      }
+      // Debug logging removed for security
 
       // Immediately update the local state to hide the acknowledge button
       setAlerts((prevAlerts) =>
@@ -233,9 +227,7 @@ const SafetyAlertList = ({
       );
 
       // Refresh the alerts to get the updated acknowledgment status
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Refresh URL:', refreshUrl);
-      }
+      // Debug logging removed for security
 
       const refreshResponse = await apiClient.get(refreshUrl, {
         headers: {
@@ -249,18 +241,7 @@ const SafetyAlertList = ({
 
       const responseData = refreshResponse.data;
       const updatedAlerts = responseData.data?.alerts || [];
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Updated alerts count:', updatedAlerts.length);
-        console.log(
-          'Updated alert acknowledgment status:',
-          updatedAlerts.map((alert) => ({
-            id: alert._id,
-            title: alert.title,
-            acknowledgedByLength: (alert.acknowledgedBy || []).length,
-            requiresAcknowledgement: alert.requiresAcknowledgement,
-          }))
-        );
-      }
+      // Debug logging removed for security
       setAlerts(updatedAlerts);
 
       // Notify parent component that an alert was acknowledged
@@ -458,16 +439,7 @@ const SafetyAlertList = ({
     );
   }
 
-  // Debug logging for render state (simplified)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('SafetyAlertList render state:', {
-      loading,
-      error: error ? 'Error present' : null,
-      alertsLength: alerts?.length || 0,
-      showActiveOnly,
-      showAllForAcknowledgment,
-    });
-  }
+  // Debug logging removed for security
 
   if (!alerts || alerts.length === 0) {
     // Check if user is authenticated
@@ -524,16 +496,7 @@ const SafetyAlertList = ({
           const canAcknowledge =
             currentUser && alert.requiresAcknowledgement === true && !userAcknowledged;
 
-          // Debug logging (simplified)
-          if (process.env.NODE_ENV === 'development') {
-            console.log('Alert acknowledgment check:', {
-              alertId: alert._id,
-              alertTitle: alert.title,
-              requiresAcknowledgement: alert.requiresAcknowledgement,
-              canAcknowledge,
-              userAcknowledged,
-            });
-          }
+          // Debug logging removed for security
 
           return (
             <div

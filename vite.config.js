@@ -5,6 +5,10 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // Reduce React development mode logging
+    __DEV__: false,
+  },
   root: path.resolve(__dirname, 'client'),
   build: {
     outDir: path.resolve(__dirname, 'public/dist'),
@@ -21,6 +25,12 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: '0.0.0.0', // Allow external connections
+    hmr: {
+      port: 5173,
+      host: 'localhost',
+      clientPort: 5173,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:3001',

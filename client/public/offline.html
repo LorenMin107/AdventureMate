@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AdventureMate - Offline</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+      }
+
+      .offline-container {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 90%;
+      }
+
+      .offline-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        display: block;
+      }
+
+      h1 {
+        color: #2d3748;
+        margin-bottom: 15px;
+        font-size: 28px;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        color: #718096;
+        margin-bottom: 30px;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .features {
+        background: #f7fafc;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 30px 0;
+        text-align: left;
+      }
+
+      .features h3 {
+        color: #2d3748;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+
+      .feature-list {
+        list-style: none;
+      }
+
+      .feature-list li {
+        color: #4a5568;
+        margin-bottom: 8px;
+        padding-left: 20px;
+        position: relative;
+      }
+
+      .feature-list li:before {
+        content: '✓';
+        color: #48bb78;
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+      }
+
+      .retry-button {
+        background: #4299e1;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: 20px;
+      }
+
+      .retry-button:hover {
+        background: #3182ce;
+      }
+
+      .retry-button:active {
+        transform: translateY(1px);
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        background: #e53e3e;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .cached-content {
+        margin-top: 30px;
+        padding: 20px;
+        background: #edf2f7;
+        border-radius: 8px;
+        border-left: 4px solid #4299e1;
+      }
+
+      .cached-content h4 {
+        color: #2d3748;
+        margin-bottom: 10px;
+      }
+
+      .cached-content p {
+        color: #4a5568;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 480px) {
+        .offline-container {
+          padding: 30px 20px;
+          margin: 20px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        .offline-icon {
+          font-size: 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-container">
+      <span class="offline-icon">📡</span>
+      <h1>You're Offline</h1>
+      <p class="subtitle">
+        <span class="status-indicator"></span>
+        No internet connection detected
+      </p>
+
+      <div class="features">
+        <h3>What you can still do:</h3>
+        <ul class="feature-list">
+          <li>View previously visited campgrounds</li>
+          <li>Access your saved trips and bookmarks</li>
+          <li>Read cached reviews and information</li>
+          <li>Use the app's offline features</li>
+          <li>View your profile and settings</li>
+        </ul>
+      </div>
+
+      <div class="cached-content">
+        <h4>📱 Progressive Web App</h4>
+        <p>
+          AdventureMate works offline! Your recent data is cached locally. Once you're back online,
+          any offline actions will be synchronized automatically.
+        </p>
+      </div>
+
+      <button class="retry-button" onclick="window.location.reload()">🔄 Try Again</button>
+    </div>
+
+    <script>
+      // Check for network connectivity
+      function checkConnection() {
+        if (navigator.onLine) {
+          window.location.reload();
+        }
+      }
+
+      // Listen for online event
+      window.addEventListener('online', checkConnection);
+
+      // Check connection every 5 seconds
+      setInterval(checkConnection, 5000);
+
+      // Add some interactivity
+      document.querySelector('.retry-button').addEventListener('click', function () {
+        this.textContent = '🔄 Checking...';
+        this.disabled = true;
+
+        setTimeout(() => {
+          this.textContent = '🔄 Try Again';
+          this.disabled = false;
+        }, 2000);
+      });
+    </script>
+  </body>
+</html>

@@ -3,7 +3,7 @@
 
 // Load environment variables from .env file in non-production environments
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+  require('dotenv').config({ path: require('path').resolve(process.cwd(), '.env') });
 }
 
 // Helper function to validate required environment variables
@@ -25,7 +25,22 @@ const validateEnv = (envVars) => {
 const db = {
   url: process.env.DB_URL || 'mongodb://localhost:27017/adventure-mate',
   options: {
-    // Removed deprecated options that are no longer needed in MongoDB driver 4.0+
+    // Connection pooling configuration
+    maxPoolSize: parseInt(process.env.DB_MAX_POOL_SIZE, 10) || 10, // Maximum number of connections in the pool
+    minPoolSize: parseInt(process.env.DB_MIN_POOL_SIZE, 10) || 2, // Minimum number of connections in the pool
+    maxIdleTimeMS: parseInt(process.env.DB_MAX_IDLE_TIME_MS, 10) || 30000, // Maximum time a connection can remain idle (30 seconds)
+    serverSelectionTimeoutMS: parseInt(process.env.DB_SERVER_SELECTION_TIMEOUT_MS, 10) || 5000, // Timeout for server selection (5 seconds)
+    socketTimeoutMS: parseInt(process.env.DB_SOCKET_TIMEOUT_MS, 10) || 45000, // Socket timeout (45 seconds)
+    connectTimeoutMS: parseInt(process.env.DB_CONNECT_TIMEOUT_MS, 10) || 10000, // Connection timeout (10 seconds)
+    // Connection pool monitoring
+    monitorCommands: process.env.NODE_ENV === 'development', // Enable command monitoring in development
+    // Retry configuration
+    retryWrites: true,
+    retryReads: true,
+    // Write concern
+    w: 'majority',
+    // Read preference
+    readPreference: 'primary',
   },
 };
 
@@ -73,7 +88,7 @@ const server = {
 
 // Session configuration
 const session = {
-  secret: process.env.SESSION_SECRET || 'thisisnotagoodsecret',
+  secret: process.env.SESSION_SECRET,
   name: 'session',
   resave: false,
   saveUninitialized: true,
@@ -86,7 +101,7 @@ const session = {
   storeOptions: {
     touchAfter: 24 * 60 * 60, // 24 hours in seconds
     crypto: {
-      secret: process.env.SESSION_STORE_SECRET || 'thisisnotagoodsecret',
+      secret: process.env.SESSION_STORE_SECRET,
     },
   },
 };
@@ -168,8 +183,8 @@ const csp = {
 
 // JWT configuration
 const jwt = {
-  accessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET || 'access_token_secret_dev_only',
-  refreshTokenSecret: process.env.JWT_REFRESH_TOKEN_SECRET || 'refresh_token_secret_dev_only',
+  accessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
+  refreshTokenSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
   accessTokenExpiry: process.env.JWT_ACCESS_TOKEN_EXPIRY || '15m', // 15 minutes
   refreshTokenExpiry: process.env.JWT_REFRESH_TOKEN_EXPIRY || '7d', // 7 days
 };
@@ -214,18 +229,24 @@ const compression = {
   ],
 };
 
-// Validate required environment variables in production
+// Validate required environment variables for ALL environments
+// This ensures we fail fast if critical secrets are missing
+validateEnv({
+  SESSION_SECRET: session.secret,
+  SESSION_STORE_SECRET: session.storeOptions.crypto.secret,
+  JWT_ACCESS_TOKEN_SECRET: jwt.accessTokenSecret,
+  JWT_REFRESH_TOKEN_SECRET: jwt.refreshTokenSecret,
+});
+
+// Additional validation for production environment
 if (server.isProduction) {
   validateEnv({
     DB_URL: db.url,
-    SESSION_SECRET: session.secret,
     CLOUDINARY_CLOUD_NAME: cloudinary.cloudName,
     CLOUDINARY_KEY: cloudinary.apiKey,
     CLOUDINARY_SECRET: cloudinary.apiSecret,
     MAPBOX_TOKEN: mapbox.token,
     STRIPE_SECRET_KEY: stripe.secretKey,
-    JWT_ACCESS_TOKEN_SECRET: jwt.accessTokenSecret,
-    JWT_REFRESH_TOKEN_SECRET: jwt.refreshTokenSecret,
   });
 }
 

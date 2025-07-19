@@ -5,7 +5,7 @@ const Review = require('./models/review');
 const User = require('./models/user');
 const Booking = require('./models/booking');
 const config = require('./config');
-const { logDebug, logWarn } = require('./utils/logger');
+const { logDebug, logWarn, logInfo } = require('./utils/logger');
 
 // API version of isLoggedIn middleware that returns JSON instead of redirecting
 // Uses JWT-based authentication
@@ -50,13 +50,45 @@ module.exports.isAuthorApi = async (req, res, next) => {
 // API version of isReviewAuthor middleware that returns JSON instead of redirecting
 module.exports.isReviewAuthorApi = async (req, res, next) => {
   const { id, reviewId } = req.params;
+
+  logInfo('isReviewAuthorApi middleware called', {
+    campgroundId: id,
+    reviewId: reviewId,
+    userId: req.user?._id,
+  });
+
   const review = await Review.findById(reviewId);
   if (!review) {
+    logWarn('Review not found in isReviewAuthorApi', {
+      reviewId: reviewId,
+      campgroundId: id,
+      userId: req.user?._id,
+    });
     return res.status(404).json({ error: 'Review not found' });
   }
+
+  logInfo('Review found in isReviewAuthorApi', {
+    reviewId: reviewId,
+    reviewAuthorId: review.author,
+    userId: req.user?._id,
+    isAdmin: req.user?.isAdmin,
+  });
+
   if (!review.author.equals(req.user._id) && !req.user.isAdmin) {
+    logWarn('User not authorized to delete review', {
+      reviewId: reviewId,
+      reviewAuthorId: review.author,
+      userId: req.user?._id,
+      isAdmin: req.user?.isAdmin,
+    });
     return res.status(403).json({ error: 'You do not have permission to modify this review' });
   }
+
+  logInfo('User authorized to delete review', {
+    reviewId: reviewId,
+    userId: req.user?._id,
+  });
+
   next();
 };
 
@@ -260,19 +292,5 @@ module.exports.isOwnerApi = async (req, res, next) => {
 
   // Add the campground to the request for potential use in route handlers
   req.campground = campground;
-  next();
-};
-
-// Add configuration to res.locals for use in templates
-module.exports.addConfigToTemplates = (req, res, next) => {
-  // Add only the configuration values that templates need
-  res.locals.config = {
-    mapbox: {
-      token: config.mapbox.token,
-    },
-    environment: config.server.env,
-    isDevelopment: config.server.isDevelopment,
-    isProduction: config.server.isProduction,
-  };
   next();
 };

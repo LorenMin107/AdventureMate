@@ -153,4 +153,100 @@ const UserSchema = new Schema(
   { timestamps: true }
 ); // Add timestamps option
 
+// Post-delete middleware to clean up orphaned references
+UserSchema.post('findOneAndDelete', async function (doc) {
+  if (doc) {
+    const { logInfo, logError } = require('../utils/logger');
+
+    try {
+      // Import models
+      const Review = require('./review');
+      const Campground = require('./campground');
+      const Booking = require('./booking');
+      const Trip = require('./trip');
+      const SafetyAlert = require('./safetyAlert');
+      const OwnerApplication = require('./ownerApplication');
+
+      // Clean up reviews authored by this user
+      const deletedReviews = await Review.deleteMany({ author: doc._id });
+      logInfo('Cleaned up reviews after user deletion', {
+        userId: doc._id,
+        deletedReviews: deletedReviews.deletedCount,
+      });
+
+      // Remove review references from campgrounds
+      const updatedCampgrounds = await Campground.updateMany(
+        { reviews: { $in: doc.reviews } },
+        { $pull: { reviews: { $in: doc.reviews } } }
+      );
+      logInfo('Removed review references from campgrounds', {
+        userId: doc._id,
+        updatedCampgrounds: updatedCampgrounds.modifiedCount,
+      });
+
+      // Clean up bookings by this user
+      const deletedBookings = await Booking.deleteMany({ user: doc._id });
+      logInfo('Cleaned up bookings after user deletion', {
+        userId: doc._id,
+        deletedBookings: deletedBookings.deletedCount,
+      });
+
+      // Clean up trips by this user
+      const deletedTrips = await Trip.deleteMany({ user: doc._id });
+      logInfo('Cleaned up trips after user deletion', {
+        userId: doc._id,
+        deletedTrips: deletedTrips.deletedCount,
+      });
+
+      // Clean up safety alerts by this user
+      const deletedSafetyAlerts = await SafetyAlert.deleteMany({ createdBy: doc._id });
+      logInfo('Cleaned up safety alerts after user deletion', {
+        userId: doc._id,
+        deletedSafetyAlerts: deletedSafetyAlerts.deletedCount,
+      });
+
+      // Clean up owner applications by this user
+      const deletedApplications = await OwnerApplication.deleteMany({ user: doc._id });
+      logInfo('Cleaned up owner applications after user deletion', {
+        userId: doc._id,
+        deletedApplications: deletedApplications.deletedCount,
+      });
+
+      // Remove user from shared trips
+      const updatedSharedTrips = await Trip.updateMany(
+        { sharedTrips: doc._id },
+        { $pull: { sharedTrips: doc._id } }
+      );
+      logInfo('Removed user from shared trips', {
+        userId: doc._id,
+        updatedSharedTrips: updatedSharedTrips.modifiedCount,
+      });
+
+      // Remove user from trip collaborators
+      const updatedCollaboratorTrips = await Trip.updateMany(
+        { collaborators: doc._id },
+        { $pull: { collaborators: doc._id } }
+      );
+      logInfo('Removed user from trip collaborators', {
+        userId: doc._id,
+        updatedCollaboratorTrips: updatedCollaboratorTrips.modifiedCount,
+      });
+
+      // Remove user acknowledgments from safety alerts
+      const updatedSafetyAlerts = await SafetyAlert.updateMany(
+        { 'acknowledgedBy.user': doc._id },
+        { $pull: { acknowledgedBy: { user: doc._id } } }
+      );
+      logInfo('Removed user acknowledgments from safety alerts', {
+        userId: doc._id,
+        updatedSafetyAlerts: updatedSafetyAlerts.modifiedCount,
+      });
+    } catch (error) {
+      logError('Error cleaning up orphaned references after user deletion', error, {
+        userId: doc._id,
+      });
+    }
+  }
+});
+
 module.exports = mongoose.model('User', UserSchema);

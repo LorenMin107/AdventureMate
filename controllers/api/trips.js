@@ -203,7 +203,7 @@ exports.inviteCollaborator = asyncHandler(async (req, res) => {
         inviterMessage,
       });
     } catch (err) {
-      console.error('Failed to send trip invite email:', err);
+      logError('Failed to send trip invite email', err, { tripId: trip._id, email });
     }
     return res.json({ message: 'Collaborator invited successfully' });
   } else {
@@ -237,7 +237,7 @@ exports.inviteCollaborator = asyncHandler(async (req, res) => {
         inviterMessage,
       });
     } catch (err) {
-      console.error('Failed to send trip invite email to non-registered user:', err);
+      logError('Failed to send trip invite email to non-registered user', err, { email });
     }
     return res.json({ message: 'Invite sent to non-registered user' });
   }
@@ -452,7 +452,7 @@ exports.removeSelfAsCollaborator = asyncHandler(async (req, res) => {
   req.user.sharedTrips = req.user.sharedTrips.filter((tid) => !tid.equals(trip._id));
   await req.user.save();
   res.json({ message: 'You have been removed from this trip' });
-  console.log(
+  logDebug(
     '[removeSelfAsCollaborator] req.user._id:',
     req.user._id,
     '| trip.collaborators:',

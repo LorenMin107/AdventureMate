@@ -1,0 +1,278 @@
+/* VirtualList Component Styles */
+
+.virtual-list-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--bg-color, #ffffff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.virtual-list-scroll-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb, #c1c1c1) var(--scrollbar-track, #f1f1f1);
+}
+
+/* Webkit scrollbar styles */
+.virtual-list-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.virtual-list-scroll-container::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, #f1f1f1);
+  border-radius: 4px;
+}
+
+.virtual-list-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #c1c1c1);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.virtual-list-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, #a8a8a8);
+}
+
+.virtual-list-content {
+  position: relative;
+  will-change: transform;
+}
+
+.virtual-list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, #e5e5e5);
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.virtual-list-item:hover {
+  background-color: var(--hover-bg-color, #f8f9fa);
+  transform: translateX(2px);
+}
+
+.virtual-list-item:last-child {
+  border-bottom: none;
+}
+
+.virtual-list-item:active {
+  transform: translateX(1px);
+  background-color: var(--active-bg-color, #e9ecef);
+}
+
+/* Loading states */
+.virtual-list-loading,
+.virtual-list-loading-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-muted, #6c757d);
+  font-size: 14px;
+  gap: 12px;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--spinner-track, #e9ecef);
+  border-top: 2px solid var(--spinner-color, #007bff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error states */
+.virtual-list-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--error-color, #dc3545);
+  font-size: 14px;
+  gap: 12px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 24px;
+}
+
+/* Empty states */
+.virtual-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-muted, #6c757d);
+  font-size: 14px;
+  gap: 12px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 24px;
+}
+
+/* Intersection observer target */
+.virtual-list-intersection-target {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .virtual-list-item {
+    padding: 10px 12px;
+  }
+
+  .virtual-list-loading,
+  .virtual-list-loading-more,
+  .virtual-list-error,
+  .virtual-list-empty {
+    padding: 30px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .virtual-list-item {
+    padding: 8px 10px;
+  }
+
+  .virtual-list-loading,
+  .virtual-list-loading-more,
+  .virtual-list-error,
+  .virtual-list-empty {
+    padding: 20px 12px;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .virtual-list-container {
+    background: var(--dark-bg-color, #2d3748);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .virtual-list-item {
+    border-bottom-color: var(--dark-border-color, #4a5568);
+    color: var(--dark-text-color, #e2e8f0);
+  }
+
+  .virtual-list-item:hover {
+    background-color: var(--dark-hover-bg-color, #4a5568);
+  }
+
+  .virtual-list-item:active {
+    background-color: var(--dark-active-bg-color, #2d3748);
+  }
+
+  .virtual-list-scroll-container::-webkit-scrollbar-track {
+    background: var(--dark-scrollbar-track, #4a5568);
+  }
+
+  .virtual-list-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--dark-scrollbar-thumb, #718096);
+  }
+
+  .virtual-list-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-scrollbar-thumb-hover, #a0aec0);
+  }
+
+  .virtual-list-loading,
+  .virtual-list-loading-more,
+  .virtual-list-empty {
+    color: var(--dark-text-muted, #a0aec0);
+  }
+
+  .loading-spinner {
+    border-color: var(--dark-spinner-track, #4a5568);
+    border-top-color: var(--dark-spinner-color, #63b3ed);
+  }
+
+  .virtual-list-error {
+    color: var(--dark-error-color, #fc8181);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .virtual-list-item {
+    border-bottom-width: 2px;
+  }
+
+  .virtual-list-item:hover {
+    background-color: var(--high-contrast-hover-bg, #000000);
+    color: var(--high-contrast-hover-text, #ffffff);
+  }
+
+  .loading-spinner {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .virtual-list-item {
+    transition: none;
+  }
+
+  .virtual-list-item:hover {
+    transform: none;
+  }
+
+  .loading-spinner {
+    animation: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.virtual-list-item:focus {
+  outline: 2px solid var(--focus-color, #007bff);
+  outline-offset: -2px;
+}
+
+.virtual-list-scroll-container:focus {
+  outline: 2px solid var(--focus-color, #007bff);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .virtual-list-container {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .virtual-list-scroll-container {
+    overflow: visible;
+    height: auto !important;
+  }
+
+  .virtual-list-content {
+    transform: none !important;
+  }
+
+  .virtual-list-item {
+    break-inside: avoid;
+    border-bottom: 1px solid #000;
+  }
+}

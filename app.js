@@ -4,7 +4,7 @@ const config = require('./config');
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const ejsMate = require('ejs-mate');
+
 const methodOverride = require('method-override'); // to use PUT and DELETE requests in forms
 // JWT authentication is now used instead of passport sessions
 const mongoSanitize = require('express-mongo-sanitize'); // sanitize user input to prevent NoSQL Injection
@@ -12,7 +12,7 @@ const helmet = require('helmet'); // to set various HTTP headers for security (s
 const cors = require('cors'); // to allow cross-origin requests
 const cookieParser = require('cookie-parser'); // to parse cookies
 const compression = require('compression'); // for response compression
-const { setFlashMessages, readFlashMessages } = require('./middleware/flashMessages'); // custom flash messages middleware
+
 const swaggerUi = require('swagger-ui-express'); // for API documentation
 const swaggerDocument = require('./docs/swagger.json'); // swagger documentation
 
@@ -27,19 +27,29 @@ const {
 } = require('./utils/logger');
 
 const User = require('./models/user');
-const { addBookingCountToUser, addConfigToTemplates } = require('./middleware');
+const { addBookingCountToUser } = require('./middleware');
 
 const ExpressError = require('./utils/ExpressError'); // import the ExpressError class from the utils folder
 const ApiResponse = require('./utils/ApiResponse'); // import the ApiResponse class for standardized API responses
 const redisCache = require('./utils/redis'); // import Redis cache utility
+const dbMonitor = require('./utils/dbMonitor'); // import database monitoring utility
 
 // Connect to MongoDB and Redis using configuration
 // Using async IIFE for better error handling with async/await
 (async () => {
   try {
-    // Connect to MongoDB
-    await mongoose.connect(config.db.url);
-    logInfo('Database connected successfully', { url: config.db.url });
+    // Connect to MongoDB with connection pooling
+    await mongoose.connect(config.db.url, config.db.options);
+    logInfo('Database connected successfully with connection pooling', {
+      url: config.db.url,
+      maxPoolSize: config.db.options.maxPoolSize,
+      minPoolSize: config.db.options.minPoolSize,
+    });
+
+    // Start database connection pool monitoring
+    if (config.server.isDevelopment) {
+      dbMonitor.startMonitoring(60000); // Monitor every minute in development
+    }
 
     // Connect to Redis (optional - app will work without Redis)
     try {
@@ -59,9 +69,15 @@ const redisCache = require('./utils/redis'); // import Redis cache utility
     if (!config.server.isProduction) {
       try {
         const localMongoUrl = 'mongodb://localhost:27017/myan-camp';
-        logInfo('Attempting to connect to local MongoDB', { url: localMongoUrl });
-        await mongoose.connect(localMongoUrl);
-        logInfo('Connected to local MongoDB', { url: localMongoUrl });
+        logInfo('Attempting to connect to local MongoDB with connection pooling', {
+          url: localMongoUrl,
+        });
+        await mongoose.connect(localMongoUrl, config.db.options);
+        logInfo('Connected to local MongoDB with connection pooling', {
+          url: localMongoUrl,
+          maxPoolSize: config.db.options.maxPoolSize,
+          minPoolSize: config.db.options.minPoolSize,
+        });
 
         // Try Redis connection again
         try {
@@ -89,10 +105,6 @@ const redisCache = require('./utils/redis'); // import Redis cache utility
 
 const app = express(); // create an instance of express app to use its methods
 
-app.engine('ejs', ejsMate); // set ejs-mate as the engine for ejs files
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views')); // set the views directory
-
 app.use(express.urlencoded({ extended: true })); // to parse the form data
 app.use(express.json()); // to parse JSON data
 app.use(methodOverride('_method'));
@@ -107,7 +119,7 @@ app.use(mongoSanitize({ replaceWith: '_' })); // sanitize user input to prevent 
 app.use(cors(config.cors));
 
 app.use(cookieParser()); // to parse cookies
-app.use(setFlashMessages); // to set flash messages in cookies
+
 app.use(helmet()); // to set various HTTP headers for security
 
 // Content Security Policy (CSP) to prevent XSS attacks using centralized config
@@ -142,16 +154,6 @@ app.post('/csp-violation-report-endpoint', express.json(), (req, res) => {
 
 // JWT authentication is now used instead of passport sessions
 app.use(addBookingCountToUser);
-app.use(addConfigToTemplates); // Add configuration to res.locals for use in templates
-
-// Make current user available in all templates
-app.use((req, res, next) => {
-  res.locals.currentUser = req.user;
-  next();
-});
-
-// Read flash messages from cookies and make them available in templates
-app.use(readFlashMessages);
 
 // Import API versioning middleware
 const { versionRoutes, deprecateEndpoint } = require('./middleware/apiVersioning');
@@ -191,10 +193,6 @@ app.use(
     },
   })
 );
-
-app.get('/', (req, res) => {
-  res.render('home');
-});
 
 // Serve React app
 if (process.env.NODE_ENV === 'production') {

@@ -40,15 +40,7 @@ const SearchAutocomplete = ({
   const suggestions = suggestionsData?.suggestions || [];
   const popularTerms = suggestionsData?.popularTerms || [];
 
-  // Debug logging
-  console.log('SearchAutocomplete debug:', {
-    inputValue,
-    suggestionsData,
-    suggestions,
-    popularTerms,
-    isLoading,
-    isOpen,
-  });
+  // Debug logging removed for security
 
   // Update input value when prop changes
   useEffect(() => {
