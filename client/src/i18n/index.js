@@ -50,6 +50,9 @@ i18n
     keySeparator: '.',
     nsSeparator: ':',
   })
+  .then(() => {
+    console.log('i18n initialized successfully');
+  })
   .catch((error) => {
     console.error('i18n initialization error:', error);
   });

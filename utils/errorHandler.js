@@ -38,31 +38,26 @@ const errorHandler = (err, req, res, next) => {
     logInfo(`Other Error: ${message}`, logContext);
   }
 
-  // Check if the request is an API request
-  if (req.originalUrl.startsWith('/api')) {
-    // Enhanced: Return detailed Mongoose validation errors if present
-    if (err.name === 'ValidationError' && err.errors) {
-      const errors = Object.keys(err.errors).map((field) => ({
-        field,
-        message: err.errors[field].message,
-      }));
-      return ApiResponse.error(
-        'Validation Error',
-        'The provided data failed validation',
-        400,
-        errors
-      ).send(res);
-    }
-    // Return standardized JSON error response for API requests
+  // Enhanced: Return detailed Mongoose validation errors if present
+  if (err.name === 'ValidationError' && err.errors) {
+    const errors = Object.keys(err.errors).map((field) => ({
+      field,
+      message: err.errors[field].message,
+    }));
     return ApiResponse.error(
-      message,
-      err.detail || 'An error occurred while processing your request',
-      statusCode
+      'Validation Error',
+      'The provided data failed validation',
+      400,
+      errors
     ).send(res);
   }
 
-  // Render error template for traditional requests
-  res.status(statusCode).render('error', { err });
+  // Return standardized JSON error response for all requests
+  return ApiResponse.error(
+    message,
+    err.detail || 'An error occurred while processing your request',
+    statusCode
+  ).send(res);
 };
 
 /**

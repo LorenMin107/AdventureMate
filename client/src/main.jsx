@@ -20,6 +20,7 @@ const queryClient = new QueryClient({
   },
 });
 
+// Render the app immediately - i18n will handle its own initialization
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
