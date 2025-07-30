@@ -1,16 +1,25 @@
 .weather-box {
-  background: var(--color-card-bg, #1a1a1a);
-  border: 1px solid var(--color-border, #333);
+  background: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
   border-radius: 12px;
   padding: 16px;
   margin: 8px 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   max-width: 300px;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--color-text, #e2e8f0);
+  color: var(--color-text, #2d3748);
+}
+
+.weather-box.light {
+  --color-card-bg: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text: #2d3748;
+  --color-text-secondary: #718096;
+  --color-border-light: #e2e8f0;
+  --color-error: #e53e3e;
 }
 
 .weather-box.dark {
@@ -19,6 +28,7 @@
   --color-text: #e2e8f0;
   --color-text-secondary: #a0aec0;
   --color-border-light: #2d3748;
+  --color-error: #e53e3e;
 }
 
 /* Loading State */
@@ -97,7 +107,7 @@
 .temp-value {
   font-size: 2rem;
   font-weight: 600;
-  color: var(--color-text, #ffffff);
+  color: var(--color-text, #2d3748);
   line-height: 1;
   font-feature-settings: 'tnum';
   font-variant-numeric: tabular-nums;
@@ -105,7 +115,7 @@
 
 .temp-unit {
   font-size: 1rem;
-  color: var(--color-text-secondary, #a0aec0);
+  color: var(--color-text-secondary, #718096);
   font-weight: 500;
   line-height: 1;
   opacity: 0.8;
@@ -122,7 +132,7 @@
 .weather-description {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-text, #333);
+  color: var(--color-text, #2d3748);
   text-transform: capitalize;
   line-height: 1.2;
 }
@@ -132,7 +142,7 @@
   flex-direction: column;
   gap: 2px;
   font-size: 0.75rem;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary, #718096);
   line-height: 1.2;
 }
 
@@ -147,7 +157,7 @@
 .forecast-title {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-text, #e2e8f0);
+  color: var(--color-text, #2d3748);
   margin: 0 0 12px 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -175,7 +185,7 @@
 .forecast-date {
   width: 90px;
   font-size: 0.8rem;
-  color: var(--color-text, #e2e8f0);
+  color: var(--color-text, #2d3748);
   font-weight: 500;
   opacity: 0.9;
 }
@@ -199,14 +209,14 @@
 .temp-max {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--color-text, #ffffff);
+  color: var(--color-text, #2d3748);
   min-width: 30px;
   text-align: right;
 }
 
 .temp-min {
   font-size: 0.8rem;
-  color: var(--color-text-secondary, #a0aec0);
+  color: var(--color-text-secondary, #718096);
   min-width: 24px;
   text-align: right;
 }
@@ -217,27 +227,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* Dark theme adjustments */
-.weather-box.dark .temp-value {
-  color: var(--color-text, #e2e8f0);
-}
-
-.weather-box.dark .weather-description {
-  color: var(--color-text, #e2e8f0);
-}
-
-.weather-box.dark .forecast-title {
-  color: var(--color-text, #e2e8f0);
-}
-
-.weather-box.dark .temp-max {
-  color: var(--color-text, #e2e8f0);
-}
-
-.weather-box.dark .forecast-day {
-  border-bottom-color: var(--color-border, #4a5568);
 }
 
 /* Responsive adjustments */
@@ -298,14 +287,27 @@
   padding: 12px;
   margin: 0;
   align-self: stretch;
-  background: rgba(26, 26, 26, 0.95);
+  background: var(--color-card-bg, #ffffff);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   width: 100%;
   box-sizing: border-box;
   font-size: 12px;
   border-radius: 8px;
-  border: 1px solid var(--color-border-light, #2d3748);
+  border: 1px solid var(--color-border, #e2e8f0);
+  color: var(--color-text, #2d3748);
+}
+
+.weather-box.compact.light {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--color-border, #e2e8f0);
+  color: var(--color-text, #2d3748);
+}
+
+.weather-box.compact.dark {
+  background: rgba(26, 26, 26, 0.95);
+  border-color: var(--color-border, #2d3748);
+  color: var(--color-text, #e2e8f0);
 }
 
 .weather-box.compact .weather-loading,
@@ -349,7 +351,7 @@
 .temp-value-compact {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--color-text, #ffffff);
+  color: var(--color-text, #2d3748);
   line-height: 1;
   font-feature-settings: 'tnum';
   font-variant-numeric: tabular-nums;
@@ -357,7 +359,7 @@
 
 .temp-unit-compact {
   font-size: 0.8rem;
-  color: var(--color-text-secondary, #a0aec0);
+  color: var(--color-text-secondary, #718096);
   font-weight: 500;
   line-height: 1;
   opacity: 0.8;
@@ -365,7 +367,7 @@
 
 .weather-desc-compact {
   font-size: 0.75rem;
-  color: var(--color-text-secondary, #a0aec0);
+  color: var(--color-text-secondary, #718096);
   text-transform: capitalize;
   flex: 1;
   min-width: 0;
@@ -400,7 +402,7 @@
 .forecast-date-compact {
   width: 70px;
   font-size: 0.7rem;
-  color: var(--color-text, #e2e8f0);
+  color: var(--color-text, #2d3748);
   font-weight: 500;
   opacity: 0.9;
 }
@@ -424,14 +426,14 @@
 .temp-max-compact {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-text, #ffffff);
+  color: var(--color-text, #2d3748);
   min-width: 25px;
   text-align: right;
 }
 
 .temp-min-compact {
   font-size: 0.7rem;
-  color: var(--color-text-secondary, #a0aec0);
+  color: var(--color-text-secondary, #718096);
   min-width: 20px;
   text-align: right;
 }

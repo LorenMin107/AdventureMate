@@ -37,11 +37,31 @@
 }
 
 .logo {
-  font-size: 1.3rem; /* Reduced font size from 1.5rem to 1.3rem */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
   font-weight: bold;
   color: var(--color-header-text);
   text-decoration: none;
   transition: color 0.3s ease;
+}
+
+.logo-image {
+  height: 2rem;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--color-header-text);
+  transition: color 0.3s ease;
+}
+
+.logo:hover .logo-text {
+  color: var(--color-primary);
 }
 
 .nav-list {
@@ -135,5 +155,38 @@
 @media (max-width: 768px) {
   .theme-dropdown-menu {
     right: -1rem;
+  }
+}
+
+/* Responsive design for mobile devices */
+@media (max-width: 768px) {
+  .theme-dropdown-menu {
+    right: -50px;
+  }
+
+  .logo-image {
+    height: 1.5rem;
+  }
+
+  .logo-text {
+    font-size: 1.1rem;
+  }
+
+  .nav-item {
+    margin-left: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-image {
+    height: 1.2rem;
+  }
+
+  .logo-text {
+    font-size: 1rem;
+  }
+
+  .nav-item {
+    margin-left: 0.5rem;
   }
 }

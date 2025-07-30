@@ -274,18 +274,24 @@ const tryStartServer = async (initialPort, maxAttempts = 5) => {
   process.exit(1);
 };
 
-// Start the server with port from config
-tryStartServer(config.server.port);
+// Export the app for testing
+module.exports = app;
 
-// Graceful shutdown handlers
-process.on('SIGTERM', async () => {
-  logInfo('SIGTERM received, shutting down gracefully');
-  await redisCache.disconnect();
-  process.exit(0);
-});
+// Only start the server if this file is run directly (not when imported for testing)
+if (require.main === module) {
+  // Start the server with port from config
+  tryStartServer(config.server.port);
 
-process.on('SIGINT', async () => {
-  logInfo('SIGINT received, shutting down gracefully');
-  await redisCache.disconnect();
-  process.exit(0);
-});
+  // Graceful shutdown handlers
+  process.on('SIGTERM', async () => {
+    logInfo('SIGTERM received, shutting down gracefully');
+    await redisCache.disconnect();
+    process.exit(0);
+  });
+
+  process.on('SIGINT', async () => {
+    logInfo('SIGINT received, shutting down gracefully');
+    await redisCache.disconnect();
+    process.exit(0);
+  });
+}

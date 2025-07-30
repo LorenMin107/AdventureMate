@@ -5,6 +5,7 @@ const SafetyAlert = require('../../models/safetyAlert');
 const config = require('../../config');
 const stripe = require('stripe')(config.stripe.secretKey);
 const { logError, logInfo, logDebug } = require('../../utils/logger');
+const { sendBookingConfirmationEmail } = require('../../utils/emailService');
 
 function calculateDaysAndPrice(startDate, endDate, pricePerNight) {
   const start = new Date(startDate);
@@ -540,6 +541,30 @@ module.exports.handlePaymentSuccess = async (req, res) => {
       bookingId: booking._id,
       timestamp,
     });
+
+    // Send booking confirmation email
+    try {
+      // Populate the booking with campground and campsite data for the email
+      const populatedBooking = await Booking.findById(booking._id)
+        .populate('campground', 'title location')
+        .populate('campsite', 'name description price capacity');
+
+      await sendBookingConfirmationEmail(req.user, populatedBooking);
+      logInfo('Booking confirmation email sent successfully', {
+        sessionId: session_id,
+        bookingId: booking._id,
+        userEmail: req.user.email,
+        timestamp,
+      });
+    } catch (emailError) {
+      logError('Failed to send booking confirmation email', emailError, {
+        sessionId: session_id,
+        bookingId: booking._id,
+        userEmail: req.user.email,
+        timestamp,
+      });
+      // Don't fail the booking process if email fails
+    }
 
     // Update campground with booking
     const campground = await Campground.findById(id);

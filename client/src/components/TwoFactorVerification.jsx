@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import { useTranslation } from 'react-i18next';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { logError } from '../utils/logger';
 import CSSIsolationWrapper from './CSSIsolationWrapper';
 import './TwoFactorVerification.css';
@@ -42,6 +43,7 @@ const TwoFactorVerification = ({ userId, onCancel }) => {
   return (
     <CSSIsolationWrapper section="common" className="two-factor-verification-container">
       <div className="common-form-logo">
+        <img src="/logo.png" alt="AdventureMate" className="common-logo-image" />
         <span className="common-logo-text">AdventureMate</span>
       </div>
 

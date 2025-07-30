@@ -30,6 +30,7 @@ export default defineConfig({
       port: 5173,
       host: 'localhost',
       clientPort: 5173,
+      overlay: false, // Disable error overlay to prevent connection issues
     },
     proxy: {
       '/api': {
@@ -39,6 +40,12 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path,
       },
+    },
+    // Add headers to prevent CORS issues
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
   },
   resolve: {

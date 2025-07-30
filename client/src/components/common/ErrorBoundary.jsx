@@ -16,6 +16,56 @@ class ErrorBoundary extends React.Component {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
+  // Function to clear all caches and reload
+  handleRefreshWithCacheClear = () => {
+    try {
+      // Clear localStorage cache
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (
+          key &&
+          (key.includes('cache') ||
+            key.includes('campground') ||
+            key.includes('reviews') ||
+            key.includes('auth') ||
+            key.includes('user') ||
+            key.includes('booking') ||
+            key.includes('trip'))
+        ) {
+          keysToRemove.push(key);
+        }
+      }
+
+      keysToRemove.forEach((key) => {
+        localStorage.removeItem(key);
+        console.log('Cleared cache key:', key);
+      });
+
+      // Clear sessionStorage
+      sessionStorage.clear();
+
+      // Clear browser cache for this page
+      if ('caches' in window) {
+        caches.keys().then((cacheNames) => {
+          cacheNames.forEach((cacheName) => {
+            caches.delete(cacheName);
+            console.log('Cleared cache:', cacheName);
+          });
+        });
+      }
+
+      console.log('All caches cleared, reloading page...');
+
+      // Force reload with cache bypass
+      window.location.reload(true);
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+      // Fallback to regular reload
+      window.location.reload();
+    }
+  };
+
   render() {
     if (this.state.hasError) {
       // You can render any custom fallback UI
@@ -24,7 +74,7 @@ class ErrorBoundary extends React.Component {
           <h2>Something went wrong.</h2>
           <p>Please refresh the page or try again later.</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={this.handleRefreshWithCacheClear}
             style={{
               padding: '10px 20px',
               backgroundColor: '#007bff',
@@ -34,7 +84,7 @@ class ErrorBoundary extends React.Component {
               cursor: 'pointer',
             }}
           >
-            Refresh Page
+            Clear Cache & Reload
           </button>
         </div>
       );

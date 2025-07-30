@@ -4,6 +4,7 @@ import apiClient from '../utils/api';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logError } from '../utils/logger';
+import { useTranslation } from 'react-i18next';
 import './EmailVerificationRequired.css';
 
 /**
@@ -12,6 +13,7 @@ import './EmailVerificationRequired.css';
  */
 const EmailVerificationRequired = () => {
   const { currentUser, logout } = useAuth();
+  const { t } = useTranslation();
   const [resendStatus, setResendStatus] = useState('idle'); // idle, loading, success, error
   const [resendMessage, setResendMessage] = useState('');
   const [logoutStatus, setLogoutStatus] = useState('idle'); // idle, loading

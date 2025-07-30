@@ -383,7 +383,7 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
   };
 
   return (
-    <div className="campground-form-container">
+    <div className="campground-form-container" data-testid="campground-form">
       <h2>{isEditing ? t('campgrounds.editCampground') : t('campgrounds.createNewCampground')}</h2>
 
       {error && <div className="form-error-message">{error}</div>}
@@ -399,6 +399,7 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
             onChange={handleChange}
             className={validationErrors.title ? 'error' : ''}
             disabled={loading}
+            data-testid="initial-data"
           />
           {validationErrors.title && (
             <div className="validation-error">{validationErrors.title}</div>

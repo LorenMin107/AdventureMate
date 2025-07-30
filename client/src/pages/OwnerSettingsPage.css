@@ -1,4 +1,21 @@
 /* Owner Settings Page Styles */
+
+/* Define missing variables for theme support */
+:root {
+  --color-hover-bg: #f8f9fa;
+  --color-input-bg: white;
+  --color-disabled-bg: #f8f9fa;
+  --color-text-secondary: #6c757d;
+}
+
+/* Dark theme variables */
+[data-theme='dark'] {
+  --color-hover-bg: #2d2d2d;
+  --color-input-bg: #1e1e1e;
+  --color-disabled-bg: #2d2d2d;
+  --color-text-secondary: #a1a1aa;
+}
+
 .owner-settings {
   min-height: 100vh;
   background-color: var(--color-background);
@@ -90,11 +107,11 @@
 
 /* Enhanced Owner Cards */
 .owner-card {
-  background: white;
+  background: var(--color-card-bg, white);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--color-border, #e9ecef);
 }
 
 /* Navigation Card */
@@ -122,15 +139,17 @@
   transition: all 0.2s ease;
   min-width: 120px;
   white-space: nowrap;
+  color: var(--color-text, #333);
 }
 
 .settings-nav .nav-item:hover {
-  background: #f8f9fa;
+  background: var(--color-hover-bg, #f8f9fa);
+  color: var(--color-primary, #2c5530);
 }
 
 .settings-nav .nav-item.active {
-  background: #2c5530;
-  color: white;
+  background: var(--color-primary, #2c5530);
+  color: var(--color-button-text, white);
 }
 
 .settings-nav .nav-icon {
@@ -163,14 +182,14 @@
 
 .section-header h2 {
   margin: 0;
-  color: #2c5530;
+  color: var(--color-primary, #2c5530);
   font-size: 1.5rem;
   font-weight: 600;
 }
 
 .section-subtitle {
   margin: 0;
-  color: #6c757d;
+  color: var(--color-text-secondary, #6c757d);
   font-size: 1rem;
 }
 
@@ -195,7 +214,7 @@
 
 .form-group label {
   font-weight: 500;
-  color: #495057;
+  color: var(--color-text, #495057);
   font-size: 0.9rem;
 }
 
@@ -203,78 +222,75 @@
 .form-group select,
 .form-group textarea {
   padding: 0.75rem 1rem;
-  border: 2px solid #dee2e6;
+  border: 2px solid var(--color-border, #dee2e6);
   border-radius: 8px;
   font-size: 0.9rem;
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
-  background: white;
-  color: #495057;
+  background: var(--color-input-bg, white);
+  color: var(--color-text, #495057);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #2c5530;
+  border-color: var(--color-primary, #2c5530);
   box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
 }
 
 .form-group input:disabled,
 .form-group select:disabled,
 .form-group textarea:disabled {
-  background: #f8f9fa;
-  color: #6c757d;
+  background: var(--color-disabled-bg, #f8f9fa);
+  color: var(--color-text-muted, #6c757d);
   cursor: not-allowed;
 }
 
 /* Address Section */
 .address-section {
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--color-border, #e9ecef);
   border-radius: 8px;
   padding: 1.5rem;
-  background: #f8f9fa;
+  margin-bottom: 2rem;
 }
 
 .address-section h3 {
   margin: 0 0 1rem 0;
-  color: #2c5530;
+  color: var(--color-primary, #2c5530);
   font-size: 1.2rem;
   font-weight: 600;
 }
 
-/* Checkbox Groups */
+/* Checkbox Styles */
 .checkbox-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .checkbox-label {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.75rem;
-  cursor: pointer;
   padding: 1rem;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--color-border, #e9ecef);
   border-radius: 8px;
-  background: #f8f9fa;
+  cursor: pointer;
   transition: all 0.2s ease;
+  background: var(--color-hover-bg, #f8f9fa);
 }
 
 .checkbox-label:hover {
-  background: #e9ecef;
-  border-color: #2c5530;
+  background: var(--color-hover-bg, #e9ecef);
+  border-color: var(--color-primary, #2c5530);
 }
 
 .checkbox-label input[type='checkbox'] {
-  margin: 0;
-  width: 18px;
-  height: 18px;
-  accent-color: #2c5530;
-  flex-shrink: 0;
-  margin-top: 0.125rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--color-primary, #2c5530);
 }
 
 .checkbox-label input[type='checkbox']:disabled {
@@ -283,11 +299,8 @@
 }
 
 .checkbox-label small {
-  display: block;
-  color: #6c757d;
+  color: var(--color-text-muted, #6c757d);
   font-size: 0.8rem;
-  margin-top: 0.25rem;
-  font-weight: normal;
 }
 
 /* Security Options */
@@ -299,30 +312,30 @@
 
 .security-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border: 1px solid #e9ecef;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid var(--color-border, #e9ecef);
   border-radius: 8px;
-  background: #f8f9fa;
+  background: var(--color-hover-bg, #f8f9fa);
   transition: all 0.2s ease;
 }
 
 .security-item:hover {
-  background: #e9ecef;
-  border-color: #2c5530;
+  background: var(--color-hover-bg, #e9ecef);
+  border-color: var(--color-primary, #2c5530);
 }
 
 .security-info h3 {
   margin: 0 0 0.5rem 0;
-  color: #495057;
-  font-size: 1.1rem;
+  color: var(--color-text, #495057);
+  font-size: 1rem;
   font-weight: 600;
 }
 
 .security-info p {
   margin: 0;
-  color: #6c757d;
+  color: var(--color-text-muted, #6c757d);
   font-size: 0.9rem;
 }
 
@@ -335,30 +348,30 @@
 
 .notification-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border: 1px solid #e9ecef;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid var(--color-border, #e9ecef);
   border-radius: 8px;
-  background: #f8f9fa;
+  background: var(--color-hover-bg, #f8f9fa);
   transition: all 0.2s ease;
 }
 
 .notification-item:hover {
-  background: #e9ecef;
-  border-color: #2c5530;
+  background: var(--color-hover-bg, #e9ecef);
+  border-color: var(--color-primary, #2c5530);
 }
 
 .notification-info h3 {
   margin: 0 0 0.5rem 0;
-  color: #495057;
-  font-size: 1.1rem;
+  color: var(--color-text, #495057);
+  font-size: 1rem;
   font-weight: 600;
 }
 
 .notification-info p {
   margin: 0;
-  color: #6c757d;
+  color: var(--color-text-muted, #6c757d);
   font-size: 0.9rem;
 }
 
@@ -427,60 +440,60 @@ input:checked + .toggle-slider:before {
   margin-bottom: 1rem;
 }
 
-/* Button Styles */
+/* Owner Button Styles */
 .owner-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
-  text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  gap: 0.5rem;
-  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .owner-btn-primary {
-  background: #2c5530;
-  color: white;
+  background: var(--color-primary, #2c5530);
+  color: var(--color-button-text, white);
 }
 
 .owner-btn-primary:hover {
-  background: #1e3a21;
+  background: var(--color-primary-hover, #1e3a21);
   transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .owner-btn-outline {
   background: transparent;
-  color: #2c5530;
-  border: 2px solid #2c5530;
+  color: var(--color-primary, #2c5530);
+  border: 2px solid var(--color-primary, #2c5530);
 }
 
 .owner-btn-outline:hover {
-  background: #2c5530;
-  color: white;
-  transform: translateY(-1px);
+  background: var(--color-primary, #2c5530);
+  color: var(--color-button-text, white);
 }
 
-/* Loading and Error States */
+/* Loading States */
 .owner-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
+  padding: 2rem;
   text-align: center;
+  color: var(--color-text, #495057);
 }
 
 .owner-loading-spinner {
-  width: 3rem;
-  height: 3rem;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #2c5530;
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border, #f3f3f3);
+  border-top: 3px solid var(--color-primary, #2c5530);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
@@ -496,28 +509,28 @@ input:checked + .toggle-slider:before {
 }
 
 .owner-loading p {
-  color: #6c757d;
-  font-size: 1.1rem;
   margin: 0;
+  color: var(--color-text-muted, #6c757d);
 }
 
+/* Error States */
 .owner-error {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
-}
-
-.owner-error h4 {
-  color: #dc3545;
+  background: var(--color-error-light, #f8d7da);
+  color: var(--color-error, #721c24);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-error-light, #f5c6cb);
   margin-bottom: 1rem;
 }
 
+.owner-error h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-error, #721c24);
+}
+
 .owner-error p {
-  color: #6c757d;
-  margin-bottom: 1.5rem;
+  margin: 0;
+  color: var(--color-error, #721c24);
 }
 
 /* Responsive Design */

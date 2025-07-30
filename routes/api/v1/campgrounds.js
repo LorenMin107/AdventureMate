@@ -9,24 +9,27 @@ const multer = require('multer');
 const { storage } = require('../../../cloudinary');
 const upload = multer({ storage });
 
-// Get all campgrounds
+// Get all campgrounds (public)
 router.get('/', catchAsync(campgrounds.index));
 
-// Search campgrounds
+// Search campgrounds (public)
 router.get(
   '/search',
   validate(campgroundValidators.search),
   catchAsync(campgrounds.searchCampgrounds)
 );
 
-// Get search suggestions/autocomplete
+// Get search suggestions/autocomplete (public)
 router.get(
   '/suggestions',
   validate(campgroundValidators.suggestions),
   catchAsync(campgrounds.getSearchSuggestions)
 );
 
-// Create a new campground
+// Get a specific campground (public)
+router.get('/:id', validate(campgroundValidators.show), catchAsync(campgrounds.showCampground));
+
+// Create a new campground (requires authentication)
 router.post(
   '/',
   isLoggedInApi,
@@ -36,10 +39,7 @@ router.post(
   catchAsync(campgrounds.createCampground)
 );
 
-// Get a specific campground
-router.get('/:id', validate(campgroundValidators.show), catchAsync(campgrounds.showCampground));
-
-// Update a campground
+// Update a campground (requires authentication)
 router.put(
   '/:id',
   isLoggedInApi,
@@ -49,7 +49,7 @@ router.put(
   catchAsync(campgrounds.updateCampground)
 );
 
-// Delete a campground
+// Delete a campground (requires authentication)
 router.delete(
   '/:id',
   isLoggedInApi,

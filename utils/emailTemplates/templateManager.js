@@ -531,7 +531,7 @@ const renderPasswordResetEmailText = ({ username, resetUrl }) => {
  * @returns {string} HTML template
  */
 const renderBookingConfirmationEmail = ({ username, booking }) => {
-  const { campground, campsite, startDate, endDate, totalPrice } = booking;
+  const { campground, campsite, startDate, endDate, totalPrice, totalDays, guests } = booking;
   const formattedStartDate = new Date(startDate).toLocaleDateString();
   const formattedEndDate = new Date(endDate).toLocaleDateString();
 
@@ -628,24 +628,28 @@ const renderBookingConfirmationEmail = ({ username, booking }) => {
     <body>
       <div class="container">
         <div class="header">
-          <h1>MyanCamp</h1>
+          <h1>AdventureMate</h1>
         </div>
         <div class="content">
           <h2>Booking Confirmation</h2>
           <p>Hello ${username},</p>
-          <p>Thank you for your booking with MyanCamp. Your reservation has been confirmed!</p>
+          <p>Thank you for your booking with AdventureMate. Your reservation has been confirmed!</p>
           
           <div class="booking-details">
             <h3>Booking Details</h3>
             <table>
               <tr>
                 <th>Campground:</th>
-                <td>${campground.name}</td>
+                <td>${campground.title}</td>
               </tr>
-              <tr>
+              ${
+                campsite
+                  ? `<tr>
                 <th>Campsite:</th>
                 <td>${campsite.name}</td>
-              </tr>
+              </tr>`
+                  : ''
+              }
               <tr>
                 <th>Check-in:</th>
                 <td>${formattedStartDate}</td>
@@ -654,26 +658,28 @@ const renderBookingConfirmationEmail = ({ username, booking }) => {
                 <th>Check-out:</th>
                 <td>${formattedEndDate}</td>
               </tr>
+              <tr>
+                <th>Duration:</th>
+                <td>${totalDays} day${totalDays !== 1 ? 's' : ''}</td>
+              </tr>
+              <tr>
+                <th>Guests:</th>
+                <td>${guests} guest${guests !== 1 ? 's' : ''}</td>
+              </tr>
             </table>
             <div class="total-price">
               Total: $${totalPrice.toFixed(2)}
             </div>
           </div>
           
-          <p>You can view your booking details and manage your reservation by clicking the button below:</p>
-          
-          <div style="text-align: center;">
-            <a href="https://myancamp.com/bookings/${booking._id}" class="button">View Booking</a>
-          </div>
-          
           <p>If you have any questions or need to make changes to your booking, please contact us.</p>
           
           <p>We hope you enjoy your stay!</p>
           
-          <p>Best regards,<br>The MyanCamp Team</p>
+          <p>Best regards,<br>The AdventureMate Team</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} MyanCamp. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} AdventureMate. All rights reserved.</p>
           <p>This is an automated message, please do not reply to this email.</p>
         </div>
       </div>
@@ -690,34 +696,33 @@ const renderBookingConfirmationEmail = ({ username, booking }) => {
  * @returns {string} Text template
  */
 const renderBookingConfirmationEmailText = ({ username, booking }) => {
-  const { campground, campsite, startDate, endDate, totalPrice, _id } = booking;
+  const { campground, campsite, startDate, endDate, totalPrice, totalDays, guests } = booking;
   const formattedStartDate = new Date(startDate).toLocaleDateString();
   const formattedEndDate = new Date(endDate).toLocaleDateString();
 
   return `
     Hello ${username},
     
-    Thank you for your booking with MyanCamp. Your reservation has been confirmed!
+    Thank you for your booking with AdventureMate. Your reservation has been confirmed!
     
-    Booking Details:
-    ---------------
-    Campground: ${campground.name}
-    Campsite: ${campsite.name}
-    Check-in: ${formattedStartDate}
-    Check-out: ${formattedEndDate}
-    Total: $${totalPrice.toFixed(2)}
-    
-    You can view your booking details and manage your reservation by visiting:
-    https://myancamp.com/bookings/${_id}
+    BOOKING DETAILS:
+    - Campground: ${campground.title}
+    ${campsite ? `- Campsite: ${campsite.name}` : ''}
+    - Check-in: ${formattedStartDate}
+    - Check-out: ${formattedEndDate}
+    - Duration: ${totalDays} day${totalDays !== 1 ? 's' : ''}
+    - Guests: ${guests} guest${guests !== 1 ? 's' : ''}
+    - Total: $${totalPrice.toFixed(2)}
     
     If you have any questions or need to make changes to your booking, please contact us.
     
     We hope you enjoy your stay!
     
     Best regards,
-    The MyanCamp Team
+    The AdventureMate Team
     
-    © ${new Date().getFullYear()} MyanCamp. All rights reserved.
+    ---
+    © ${new Date().getFullYear()} AdventureMate. All rights reserved.
     This is an automated message, please do not reply to this email.
   `;
 };

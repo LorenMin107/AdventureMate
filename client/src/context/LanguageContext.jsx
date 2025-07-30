@@ -16,16 +16,9 @@ export const LanguageProvider = ({ children }) => {
   const [currency, setCurrency] = useState('USD');
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Always call useTranslation to follow Rules of Hooks
-  let translation = null;
-  let i18n = null;
-
-  try {
-    translation = useTranslation();
-    i18n = translation.i18n;
-  } catch (error) {
-    console.error('LanguageContext: Error using useTranslation:', error);
-  }
+  // Always call useTranslation at the top level to follow Rules of Hooks
+  const translation = useTranslation();
+  const i18n = translation.i18n;
 
   // Initialize language from localStorage or browser preference
   useEffect(() => {

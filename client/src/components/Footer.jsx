@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import { FaTwitter, FaInstagram } from 'react-icons/fa';
 import './Footer.css';
 
 const Footer = () => {
@@ -24,13 +25,11 @@ const Footer = () => {
             <h3 className="footer-title">AdventureMate</h3>
             <p className="footer-description">{t('footer.description')}</p>
             <div className="footer-social">
-              {/* Placeholder social icons (replace with real icons as needed) */}
-
               <a href="#" aria-label="Twitter" className="footer-social-link" tabIndex={0}>
-                TW
+                <FaTwitter />
               </a>
               <a href="#" aria-label="Instagram" className="footer-social-link" tabIndex={0}>
-                IG
+                <FaInstagram />
               </a>
             </div>
           </div>

@@ -137,6 +137,7 @@ const LoginForm = () => {
   return (
     <CSSIsolationWrapper section="common" className="login-form-container">
       <div className="common-form-logo">
+        <img src="/logo.png" alt="AdventureMate" className="common-logo-image" />
         <span className="common-logo-text">AdventureMate</span>
       </div>
 

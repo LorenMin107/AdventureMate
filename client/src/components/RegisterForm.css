@@ -14,6 +14,16 @@
 .common-form-logo {
   text-align: center;
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.common-logo-image {
+  height: 2rem;
+  width: auto;
+  object-fit: contain;
 }
 
 .common-logo-text {
@@ -265,9 +275,12 @@
 
 @media (max-width: 600px) {
   .register-form-container.common-page {
-    margin: 1.5rem;
     padding: 1.5rem;
-    max-width: 100%;
+    margin: 1rem;
+  }
+
+  .common-logo-image {
+    height: 1.5rem;
   }
 
   .common-logo-text {
@@ -275,7 +288,7 @@
   }
 
   .register-form-container.common-page h2 {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
   }
 
   .common-form-group input {
@@ -289,15 +302,19 @@
 
 @media (max-width: 480px) {
   .register-form-container.common-page {
-    margin: 1rem;
-    padding: 1.25rem;
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+
+  .common-logo-image {
+    height: 1.2rem;
   }
 
   .common-logo-text {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
   }
 
   .register-form-container.common-page h2 {
-    font-size: 1.125rem;
+    font-size: 1.2rem;
   }
 }

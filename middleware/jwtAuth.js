@@ -13,6 +13,7 @@ const publicApiEndpoints = [
   { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/?$/ },
   { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/search\/?$/ },
   { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/campgrounds\?.*$/ }, // Allow query parameters
 
   // Campsites
   { method: 'GET', pattern: /^\/api\/v1\/campgrounds\/[^\/]+\/campsites\/?$/ },

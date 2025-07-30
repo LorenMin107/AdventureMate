@@ -1,6 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '../../test-utils';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from '../../context/AuthContext';
 import ProtectedRoute from '../ProtectedRoute';
 import { useAuth } from '../../context/AuthContext';
 
@@ -9,7 +8,7 @@ jest.mock('../../context/AuthContext', () => {
   const originalModule = jest.requireActual('../../context/AuthContext');
   return {
     ...originalModule,
-    useAuth: jest.fn()
+    useAuth: jest.fn(),
   };
 });
 
@@ -38,11 +37,11 @@ describe('ProtectedRoute', () => {
     useAuth.mockReturnValue({
       loading: true,
       isAuthenticated: false,
-      currentUser: null
+      currentUser: null,
     });
-    
+
     renderProtectedRoute();
-    
+
     // Check for loading state
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
@@ -52,25 +51,25 @@ describe('ProtectedRoute', () => {
     useAuth.mockReturnValue({
       loading: false,
       isAuthenticated: false,
-      currentUser: null
+      currentUser: null,
     });
-    
+
     renderProtectedRoute();
-    
+
     // Check that we're redirected to login page
     expect(screen.getByText(/login page/i)).toBeInTheDocument();
   });
 
   test('renders protected content when user is authenticated', () => {
-    // Mock authenticated state
+    // Mock authenticated state with verified email
     useAuth.mockReturnValue({
       loading: false,
       isAuthenticated: true,
-      currentUser: { username: 'testuser' }
+      currentUser: { username: 'testuser', isEmailVerified: true },
     });
-    
+
     renderProtectedRoute();
-    
+
     // Check that protected content is rendered
     expect(screen.getByText(/protected content/i)).toBeInTheDocument();
   });
@@ -80,25 +79,25 @@ describe('ProtectedRoute', () => {
     useAuth.mockReturnValue({
       loading: false,
       isAuthenticated: true,
-      currentUser: { username: 'testuser', isAdmin: false }
+      currentUser: { username: 'testuser', isAdmin: false },
     });
-    
+
     renderProtectedRoute(true); // requireAdmin = true
-    
+
     // Check that we're redirected to home page
     expect(screen.getByText(/home page/i)).toBeInTheDocument();
   });
 
   test('renders admin content when admin user accesses admin route', () => {
-    // Mock authenticated admin state
+    // Mock authenticated admin state with verified email
     useAuth.mockReturnValue({
       loading: false,
       isAuthenticated: true,
-      currentUser: { username: 'admin', isAdmin: true }
+      currentUser: { username: 'admin', isAdmin: true, isEmailVerified: true },
     });
-    
+
     renderProtectedRoute(true); // requireAdmin = true
-    
+
     // Check that protected content is rendered
     expect(screen.getByText(/protected content/i)).toBeInTheDocument();
   });

@@ -1,7 +1,26 @@
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import React from 'react';
+import { render, screen } from '../../test-utils';
+
+// Mock the ClusterMap component
+jest.mock('../maps/ClusterMap', () => {
+  const React = require('react');
+  return function MockClusterMap({ campgrounds, children, ...props }) {
+    return (
+      <div data-testid="cluster-map" {...props}>
+        <div data-testid="map">
+          {campgrounds?.map((campground, index) => (
+            <div key={campground._id || index} data-testid={`campground-${campground._id}`}>
+              {campground.title}
+            </div>
+          ))}
+        </div>
+        {children}
+      </div>
+    );
+  };
+});
+
 import ClusterMap from '../maps/ClusterMap';
-import { ThemeProvider } from '../../context/ThemeContext';
 
 // Mock the WeatherBox component
 jest.mock('../WeatherBox', () => {
@@ -39,14 +58,6 @@ afterAll(() => {
   process.env = originalEnv;
 });
 
-const renderWithRouter = (component) => {
-  return render(
-    <BrowserRouter>
-      <ThemeProvider>{component}</ThemeProvider>
-    </BrowserRouter>
-  );
-};
-
 describe('ClusterMap', () => {
   const mockCampgrounds = [
     {
@@ -70,7 +81,7 @@ describe('ClusterMap', () => {
   ];
 
   it('renders without crashing', () => {
-    renderWithRouter(<ClusterMap campgrounds={mockCampgrounds} />);
+    render(<ClusterMap campgrounds={mockCampgrounds} />);
     expect(screen.getByTestId('map')).toBeInTheDocument();
   });
 

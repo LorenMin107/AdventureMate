@@ -41,7 +41,9 @@ module.exports.isAuthorApi = async (req, res, next) => {
   if (!campground) {
     return res.status(404).json({ error: 'Campground not found' });
   }
-  if (!campground.author.equals(req.user._id) && !req.user.isAdmin) {
+
+  // Check if campground has an owner field and if the user is the owner or admin
+  if (campground.owner && !campground.owner.equals(req.user._id) && !req.user.isAdmin) {
     return res.status(403).json({ error: 'You do not have permission to modify this campground' });
   }
   next();
