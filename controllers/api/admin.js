@@ -177,7 +177,9 @@ module.exports.getAllUsers = async (req, res) => {
     let users = await User.find({})
       .skip(skip)
       .limit(limit)
-      .select('username email isAdmin bookings reviews createdAt')
+      .select(
+        'username email isAdmin isOwner isSuspended suspendedAt suspensionReason suspensionExpiresAt bookings reviews createdAt'
+      )
       .sort(sortOptions);
 
     // For each user, get the active (non-cancelled) bookings
@@ -445,6 +447,275 @@ module.exports.toggleUserOwner = async (req, res) => {
       isOwner,
     });
     return ApiResponse.error('Failed to update user owner status', error.message, 500).send(res);
+  }
+};
+
+// User Suspension Management Functions
+
+module.exports.suspendUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason, duration } = req.body;
+
+    if (!reason) {
+      return ApiResponse.error(
+        'Suspension reason is required',
+        'Please provide a reason for suspending this user',
+        400
+      ).send(res);
+    }
+
+    // Find the user
+    const user = await User.findById(id);
+    if (!user) {
+      return ApiResponse.error('User not found', 'The requested user could not be found', 404).send(
+        res
+      );
+    }
+
+    // Prevent admin from suspending themselves
+    if (req.user._id.toString() === id) {
+      return ApiResponse.error(
+        'You cannot suspend your own account',
+        'Admins cannot suspend their own accounts',
+        400
+      ).send(res);
+    }
+
+    // Prevent admin from suspending other admins
+    if (user.isAdmin && req.user._id.toString() !== id) {
+      return ApiResponse.error(
+        'Cannot suspend admin accounts',
+        'Admin accounts cannot be suspended by other admins',
+        400
+      ).send(res);
+    }
+
+    // Log suspension action with user type information
+    logInfo('Admin suspending user', {
+      adminId: req.user._id,
+      targetUserId: user._id,
+      targetUserEmail: user.email,
+      targetUserType: user.googleId ? 'Google OAuth' : 'Traditional',
+      targetUserRoles: {
+        isAdmin: user.isAdmin,
+        isOwner: user.isOwner,
+      },
+      suspensionReason: reason,
+      duration: duration,
+    });
+
+    if (user.isSuspended) {
+      return ApiResponse.error(
+        'User is already suspended',
+        'This user account is already in a suspended state',
+        400
+      ).send(res);
+    }
+
+    // Calculate suspension expiry date if duration is provided
+    let suspensionExpiresAt = null;
+    if (duration) {
+      const durationInMs = parseInt(duration) * 24 * 60 * 60 * 1000; // Convert days to milliseconds
+      suspensionExpiresAt = new Date(Date.now() + durationInMs);
+    }
+
+    // Suspend the user
+    user.isSuspended = true;
+    user.suspendedAt = new Date();
+    user.suspendedBy = req.user._id;
+    user.suspensionReason = reason;
+    user.suspensionExpiresAt = suspensionExpiresAt;
+
+    await user.save();
+
+    // If user is an owner, also suspend their owner account
+    if (user.isOwner) {
+      const Owner = require('../../models/owner');
+      const owner = await Owner.findOne({ user: user._id });
+
+      if (owner) {
+        owner.isActive = false;
+        owner.suspendedAt = new Date();
+        owner.suspendedBy = req.user._id;
+        owner.suspensionReason = reason;
+        owner.verificationStatus = 'suspended';
+
+        await owner.save();
+
+        logInfo('Owner account also suspended', {
+          userId: user._id,
+          ownerId: owner._id,
+          reason: reason,
+        });
+      }
+    }
+
+    // Revoke all refresh tokens for the user to force logout
+    await revokeAllUserTokens(user._id);
+
+    // Log token revocation for Google OAuth users
+    if (user.googleId) {
+      logInfo('Revoked tokens for Google OAuth user', {
+        userId: user._id,
+        googleId: user.googleId,
+        email: user.email,
+      });
+    }
+
+    // Send suspension notification to user (if email service is available)
+    try {
+      const { sendSuspensionNotification } = require('../../utils/emailService');
+      await sendSuspensionNotification(user.email, {
+        username: user.username,
+        reason: reason,
+        suspendedAt: user.suspendedAt,
+        suspensionExpiresAt: user.suspensionExpiresAt,
+        adminEmail: req.user.email,
+      });
+      logInfo('Suspension notification sent to user', {
+        userId: user._id,
+        email: user.email,
+      });
+    } catch (emailError) {
+      logError('Failed to send suspension notification', emailError, {
+        userId: user._id,
+        email: user.email,
+      });
+      // Don't fail the suspension if email fails
+    }
+
+    const userData = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isOwner: user.isOwner,
+      isSuspended: user.isSuspended,
+      suspendedAt: user.suspendedAt,
+      suspensionReason: user.suspensionReason,
+      suspensionExpiresAt: user.suspensionExpiresAt,
+      googleId: user.googleId || null, // Include Google ID for admin reference
+      createdAt: user.createdAt,
+    };
+
+    return ApiResponse.success({ user: userData }, 'User suspended successfully').send(res);
+  } catch (error) {
+    logError('Error suspending user', error, {
+      endpoint: '/api/v1/admin/users/:id/suspend',
+      userId: req.user?._id,
+      targetUserId: req.params.id,
+      reason: req.body.reason,
+      duration: req.body.duration,
+    });
+    return ApiResponse.error('Failed to suspend user', error.message, 500).send(res);
+  }
+};
+
+module.exports.reactivateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    // Find the user
+    const user = await User.findById(id);
+    if (!user) {
+      return ApiResponse.error('User not found', 'The requested user could not be found', 404).send(
+        res
+      );
+    }
+
+    if (!user.isSuspended) {
+      return ApiResponse.error(
+        'User is not suspended',
+        'This user account is not currently suspended',
+        400
+      ).send(res);
+    }
+
+    // Reactivate the user
+    user.isSuspended = false;
+    user.suspendedAt = null;
+    user.suspendedBy = null;
+    user.suspensionReason = null;
+    user.suspensionExpiresAt = null;
+
+    await user.save();
+
+    // If user is an owner, also reactivate their owner account
+    if (user.isOwner) {
+      const Owner = require('../../models/owner');
+      const owner = await Owner.findOne({ user: user._id });
+
+      if (owner) {
+        owner.isActive = true;
+        owner.suspendedAt = null;
+        owner.suspendedBy = null;
+        owner.suspensionReason = null;
+        owner.verificationStatus = 'verified'; // Restore to verified status
+
+        await owner.save();
+
+        logInfo('Owner account also reactivated', {
+          userId: user._id,
+          ownerId: owner._id,
+          reason: reason,
+        });
+      }
+    }
+
+    // Log reactivation action with user type information
+    logInfo('Admin reactivating user', {
+      adminId: req.user._id,
+      targetUserId: user._id,
+      targetUserEmail: user.email,
+      targetUserType: user.googleId ? 'Google OAuth' : 'Traditional',
+      reactivationReason: reason,
+    });
+
+    // Send reactivation notification to user (if email service is available)
+    try {
+      const { sendReactivationNotification } = require('../../utils/emailService');
+      await sendReactivationNotification(user.email, {
+        username: user.username,
+        reason: reason,
+        adminEmail: req.user.email,
+      });
+      logInfo('Reactivation notification sent to user', {
+        userId: user._id,
+        email: user.email,
+      });
+    } catch (emailError) {
+      logError('Failed to send reactivation notification', emailError, {
+        userId: user._id,
+        email: user.email,
+      });
+      // Don't fail the reactivation if email fails
+    }
+
+    const userData = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isOwner: user.isOwner,
+      isSuspended: user.isSuspended,
+      suspendedAt: user.suspendedAt,
+      suspensionReason: user.suspensionReason,
+      suspensionExpiresAt: user.suspensionExpiresAt,
+      googleId: user.googleId || null, // Include Google ID for admin reference
+      createdAt: user.createdAt,
+    };
+
+    return ApiResponse.success({ user: userData }, 'User reactivated successfully').send(res);
+  } catch (error) {
+    logError('Error reactivating user', error, {
+      endpoint: '/api/v1/admin/users/:id/reactivate',
+      userId: req.user?._id,
+      targetUserId: req.params.id,
+      reason: req.body.reason,
+    });
+    return ApiResponse.error('Failed to reactivate user', error.message, 500).send(res);
   }
 };
 

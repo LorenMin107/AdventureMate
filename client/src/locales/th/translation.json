@@ -1180,6 +1180,7 @@
       "username": "ชื่อผู้ใช้",
       "email": "อีเมล",
       "role": "บทบาท",
+      "status": "สถานะ",
       "joined": "เข้าร่วม",
       "bookings": "การจอง",
       "reviews": "รีวิว",
@@ -1187,7 +1188,12 @@
     },
     "role": {
       "admin": "ผู้ดูแลระบบ",
+      "owner": "เจ้าของ",
       "user": "ผู้ใช้"
+    },
+    "status": {
+      "active": "ใช้งานอยู่",
+      "suspended": "ถูกระงับ"
     },
     "actions": {
       "view": "ดู"
@@ -1497,7 +1503,44 @@
     "cancelBookingTitle": "ยกเลิกการจอง",
     "confirmCancelBookingMessage": "คุณแน่ใจหรือไม่ที่จะยกเลิกการจองนี้สำหรับ{{username}}? การดำเนินการนี้ไม่สามารถยกเลิกได้",
     "cancelBookingButton": "ยกเลิกการจอง",
-    "keepBookingButton": "รักษาการจอง"
+    "keepBookingButton": "รักษาการจอง",
+    "suspensionStatusLabel": "สถานะการระงับ",
+    "suspendedStatus": "ถูกระงับ",
+    "activeStatus": "ใช้งานอยู่",
+    "suspensionReasonLabel": "เหตุผลการระงับ",
+    "suspendedAtLabel": "ถูกระงับเมื่อ",
+    "suspensionExpiresLabel": "การระงับหมดอายุเมื่อ",
+    "suspendButton": "ระงับผู้ใช้",
+    "reactivateButton": "เปิดใช้งานผู้ใช้",
+    "accountTypeLabel": "ประเภทบัญชี",
+    "googleOAuthAccount": "Google OAuth",
+    "traditionalAccount": "แบบดั้งเดิม",
+    "suspensionReasonPrompt": "กรุณาระบุเหตุผลในการระงับผู้ใช้นี้:",
+    "suspensionDurationPrompt": "กรุณาระบุระยะเวลาการระงับเป็นวัน",
+    "reactivationReasonPrompt": "กรุณาระบุเหตุผลในการเปิดใช้งานผู้ใช้นี้ (ไม่บังคับ):",
+    "suspendUserTitle": "ระงับผู้ใช้",
+    "reactivateUserTitle": "เปิดใช้งานผู้ใช้",
+    "confirmSuspensionMessage": "คุณแน่ใจหรือไม่ที่จะ{{action}}ผู้ใช้นี้? การดำเนินการนี้จะส่งผลต่อการเข้าถึงบัญชีของพวกเขา"
+  },
+  "suspensionDialog": {
+    "suspendTitle": "ระงับ {{username}}",
+    "reactivateTitle": "เปิดใช้งาน {{username}}",
+    "suspendMessage": "คุณกำลังจะระงับบัญชีของผู้ใช้นี้ พวกเขาจะถูกออกจากระบบทันทีและไม่สามารถเข้าถึงระบบได้",
+    "reactivateMessage": "คุณกำลังจะเปิดใช้งานบัญชีของผู้ใช้นี้ พวกเขาจะสามารถเข้าสู่ระบบได้อีกครั้ง",
+    "reasonLabel": "เหตุผลในการระงับ",
+    "reactivationReasonLabel": "เหตุผลในการเปิดใช้งาน (ไม่บังคับ)",
+    "reasonPlaceholder": "กรุณาระบุเหตุผลโดยละเอียดในการระงับผู้ใช้นี้...",
+    "reactivationReasonPlaceholder": "กรุณาระบุเหตุผลในการเปิดใช้งานผู้ใช้นี้ (ไม่บังคับ)...",
+    "reasonRequired": "กรุณาระบุเหตุผลในการระงับ",
+    "durationLabel": "ระยะเวลาการระงับ",
+    "durationPlaceholder": "ปล่อยว่างสำหรับการระงับถาวร",
+    "durationHelp": "ปล่อยว่างสำหรับการระงับถาวร หรือใส่จำนวนวันสำหรับการระงับชั่วคราว",
+    "days": "วัน",
+    "invalidDuration": "กรุณาใส่จำนวนวันที่ถูกต้อง (ขั้นต่ำ 1 วัน)",
+    "suspendButton": "ระงับผู้ใช้",
+    "reactivateButton": "เปิดใช้งานผู้ใช้",
+    "cancelButton": "ยกเลิก",
+    "closeDialog": "ปิดกล่องโต้ตอบ"
   },
   "adminOwnerApplication": {
     "title": "ใบสมัครเจ้าของค่ายพักแรม",

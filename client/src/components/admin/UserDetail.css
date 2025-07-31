@@ -25,7 +25,9 @@
   color: var(--color-button-text);
   border-radius: 4px;
   text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .user-detail-back-button:hover {
@@ -43,7 +45,9 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .user-detail-info {
@@ -163,6 +167,37 @@
   background-color: #5a6268;
 }
 
+.user-detail-suspension-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  margin-left: 0.5rem;
+}
+
+.user-detail-suspension-button.suspend {
+  background-color: #dc3545;
+  color: white;
+}
+
+.user-detail-suspension-button.suspend:hover {
+  background-color: #c82333;
+}
+
+.user-detail-suspension-button.reactivate {
+  background-color: #28a745;
+  color: white;
+}
+
+.user-detail-suspension-button.reactivate:hover {
+  background-color: #218838;
+}
+
 .user-status {
   display: inline-block;
   padding: 0.25rem 0.5rem;
@@ -197,7 +232,9 @@
   cursor: pointer;
   font-weight: 500;
   color: var(--color-breadcrumb-text);
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .tab-button:hover {
@@ -214,7 +251,9 @@
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 10px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* Bookings Tab */
@@ -237,7 +276,9 @@
   border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 1px 3px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .user-booking-header {
@@ -283,7 +324,9 @@
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.875rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .user-booking-view-button {
@@ -321,7 +364,9 @@
   border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 1px 3px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .user-review-header {
@@ -372,7 +417,9 @@
   border-radius: 4px;
   text-decoration: none;
   font-size: 0.875rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .user-review-view-button:hover {
@@ -409,7 +456,9 @@
   background-color: var(--color-card-bg);
   border-radius: 8px;
   margin: 2rem 0;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .user-detail-error {

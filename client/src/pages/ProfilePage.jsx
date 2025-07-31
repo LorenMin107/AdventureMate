@@ -389,21 +389,18 @@ const ProfilePage = () => {
 
                 <div className="form-field">
                   <label htmlFor="username">{t('profile.username')}</label>
-                  <div className="input-with-hint">
-                    <input
-                      id="username"
-                      type="text"
-                      value={editUsername}
-                      onChange={(e) => {
-                        setEditUsername(e.target.value);
-                        setEditUsernameError(validateUsername(e.target.value));
-                      }}
-                      maxLength={30}
-                      placeholder={t('profile.usernamePlaceholder')}
-                      required
-                    />
-                    <span className="input-hint">@{editUsername}</span>
-                  </div>
+                  <input
+                    id="username"
+                    type="text"
+                    value={editUsername}
+                    onChange={(e) => {
+                      setEditUsername(e.target.value);
+                      setEditUsernameError(validateUsername(e.target.value));
+                    }}
+                    maxLength={30}
+                    placeholder={t('profile.usernamePlaceholder')}
+                    required
+                  />
                   {editUsernameError && <div className="form-error">{editUsernameError}</div>}
                 </div>
               </div>

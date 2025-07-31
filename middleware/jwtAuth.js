@@ -139,6 +139,92 @@ const authenticateJWT = async (req, res, next) => {
         return next();
       }
 
+      // Check if user is suspended
+      if (user.isSuspended) {
+        logWarn('JWT authentication failed: User is suspended', {
+          userId: user._id,
+          method: req.method,
+          url: req.originalUrl,
+          suspensionReason: user.suspensionReason,
+          suspendedAt: user.suspendedAt,
+        });
+
+        if (requiresAuthentication(req)) {
+          return sendAuthError(
+            res,
+            'Account suspended',
+            'Your account has been suspended. Please contact support for more information.',
+            403
+          );
+        }
+        // For public endpoints, continue without authentication
+        return next();
+      }
+
+      // If user is an owner, also check owner suspension status
+      if (user.isOwner) {
+        const Owner = require('../models/owner');
+        const owner = await Owner.findOne({ user: user._id });
+
+        if (owner && !owner.isActive) {
+          logWarn('JWT authentication failed: Owner account is suspended', {
+            userId: user._id,
+            ownerId: owner._id,
+            method: req.method,
+            url: req.originalUrl,
+            suspensionReason: owner.suspensionReason,
+            suspendedAt: owner.suspendedAt,
+          });
+
+          if (requiresAuthentication(req)) {
+            return sendAuthError(
+              res,
+              'Owner account suspended',
+              'Your owner account has been suspended. Please contact support for more information.',
+              403
+            );
+          }
+          // For public endpoints, continue without authentication
+          return next();
+        }
+      }
+
+      // Check if suspension has expired
+      if (user.suspensionExpiresAt && new Date() > user.suspensionExpiresAt) {
+        // Auto-reactivate the user
+        user.isSuspended = false;
+        user.suspendedAt = null;
+        user.suspendedBy = null;
+        user.suspensionReason = null;
+        user.suspensionExpiresAt = null;
+        await user.save();
+
+        // If user is an owner, also reactivate their owner account
+        if (user.isOwner) {
+          const Owner = require('../models/owner');
+          const owner = await Owner.findOne({ user: user._id });
+
+          if (owner) {
+            owner.isActive = true;
+            owner.suspendedAt = null;
+            owner.suspendedBy = null;
+            owner.suspensionReason = null;
+            owner.verificationStatus = 'verified';
+            await owner.save();
+
+            logInfo('Owner account also auto-reactivated', {
+              userId: user._id,
+              ownerId: owner._id,
+            });
+          }
+        }
+
+        logInfo('User suspension auto-expired', {
+          userId: user._id,
+          originalSuspensionExpiresAt: user.suspensionExpiresAt,
+        });
+      }
+
       // Set the user in the request object
       req.user = user;
       req.isAuthenticated = () => true; // For compatibility with passport

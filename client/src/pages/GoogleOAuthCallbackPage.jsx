@@ -2,8 +2,10 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
+import { useTheme } from '../context/ThemeContext';
 import { extractAuthCodeFromURL, clearOAuthParamsFromURL } from '../utils/googleOAuth';
 import { logError } from '../utils/logger';
+import { debugThemeState, forceRestoreTheme, checkThemeConsistency } from '../utils/themeDebug';
 import { useTranslation } from 'react-i18next';
 import './GoogleOAuthCallbackPage.css';
 
@@ -17,11 +19,23 @@ const GoogleOAuthCallbackPage = () => {
   const location = useLocation();
   const { googleLogin } = useAuth();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
+  const { setSpecificTheme } = useTheme();
   const [status, setStatus] = useState('processing'); // 'processing', 'success', 'error'
   const hasProcessedRef = useRef(false);
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
+      // Restore theme from localStorage after OAuth redirect
+      try {
+        const storedTheme = localStorage.getItem('myancamp-theme');
+        if (storedTheme && ['light', 'dark'].includes(storedTheme)) {
+          console.log('Restoring theme after OAuth redirect:', storedTheme);
+          setSpecificTheme(storedTheme);
+        }
+      } catch (error) {
+        console.warn('Error restoring theme after OAuth redirect:', error);
+      }
+
       // Prevent multiple executions
       if (hasProcessedRef.current) {
         console.log('OAuth callback already processed, skipping...');
@@ -142,7 +156,50 @@ const GoogleOAuthCallbackPage = () => {
     return () => {
       // Don't reset hasProcessedRef here as we want to prevent multiple calls
     };
-  }, [location.search, googleLogin, navigate, addSuccessMessage, addErrorMessage, t]);
+  }, [
+    location.search,
+    googleLogin,
+    navigate,
+    addSuccessMessage,
+    addErrorMessage,
+    t,
+    setSpecificTheme,
+  ]);
+
+  // Additional effect to ensure theme is restored when component mounts
+  useEffect(() => {
+    const restoreTheme = () => {
+      try {
+        // Debug theme state
+        debugThemeState();
+
+        // Check theme consistency
+        const isConsistent = checkThemeConsistency();
+
+        const storedTheme = localStorage.getItem('myancamp-theme');
+        if (storedTheme && ['light', 'dark'].includes(storedTheme)) {
+          console.log('Ensuring theme is restored on OAuth callback page:', storedTheme);
+          setSpecificTheme(storedTheme);
+
+          // Force restore theme as backup
+          setTimeout(() => {
+            forceRestoreTheme();
+          }, 100);
+        }
+
+        if (!isConsistent) {
+          console.warn('Theme inconsistency detected on OAuth callback page');
+        }
+      } catch (error) {
+        console.warn('Error ensuring theme restoration on OAuth callback page:', error);
+      }
+    };
+
+    // Restore theme after a short delay to ensure everything is loaded
+    const timeoutId = setTimeout(restoreTheme, 50);
+
+    return () => clearTimeout(timeoutId);
+  }, [setSpecificTheme]);
 
   const renderContent = () => {
     switch (status) {

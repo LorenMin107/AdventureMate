@@ -156,6 +156,28 @@ module.exports.login = asyncHandler(async (req, res) => {
     });
   }
 
+  // Check if user is suspended
+  if (user.isSuspended) {
+    return res.status(403).json({
+      error: 'Account suspended',
+      message: 'Your account has been suspended. Please contact support for more information.',
+    });
+  }
+
+  // If user is an owner, also check owner suspension status
+  if (user.isOwner) {
+    const Owner = require('../../models/owner');
+    const owner = await Owner.findOne({ user: user._id });
+
+    if (owner && !owner.isActive) {
+      return res.status(403).json({
+        error: 'Owner account suspended',
+        message:
+          'Your owner account has been suspended. Please contact support for more information.',
+      });
+    }
+  }
+
   // Check if 2FA is enabled
   if (user.isTwoFactorEnabled) {
     // Generate a temporary access token for 2FA verification (10 minutes)
@@ -224,6 +246,32 @@ module.exports.refreshToken = asyncHandler(async (req, res) => {
         error: 'Invalid token',
         message: 'User not found',
       });
+    }
+
+    // Check if user is suspended
+    if (user.isSuspended) {
+      // Revoke the refresh token since user is suspended
+      await refreshTokenDoc.revoke();
+      return res.status(403).json({
+        error: 'Account suspended',
+        message: 'Your account has been suspended. Please contact support for more information.',
+      });
+    }
+
+    // If user is an owner, also check owner suspension status
+    if (user.isOwner) {
+      const Owner = require('../../models/owner');
+      const owner = await Owner.findOne({ user: user._id });
+
+      if (owner && !owner.isActive) {
+        // Revoke the refresh token since owner account is suspended
+        await refreshTokenDoc.revoke();
+        return res.status(403).json({
+          error: 'Owner account suspended',
+          message:
+            'Your owner account has been suspended. Please contact support for more information.',
+        });
+      }
     }
 
     // Revoke the old refresh token (token rotation for security)
@@ -733,6 +781,28 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
 
       // Save the user
       await user.save();
+    }
+
+    // Check if user is suspended
+    if (user.isSuspended) {
+      return res.status(403).json({
+        error: 'Account suspended',
+        message: 'Your account has been suspended. Please contact support for more information.',
+      });
+    }
+
+    // If user is an owner, also check owner suspension status
+    if (user.isOwner) {
+      const Owner = require('../../models/owner');
+      const owner = await Owner.findOne({ user: user._id });
+
+      if (owner && !owner.isActive) {
+        return res.status(403).json({
+          error: 'Owner account suspended',
+          message:
+            'Your owner account has been suspended. Please contact support for more information.',
+        });
+      }
     }
 
     // ENFORCE 2FA FOR GOOGLE OAUTH USERS

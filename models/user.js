@@ -73,6 +73,28 @@ const UserSchema = new Schema(
     lastLoginIP: {
       type: String,
     },
+    // User suspension fields
+    isSuspended: {
+      type: Boolean,
+      default: false,
+    },
+    suspendedAt: {
+      type: Date,
+      default: null,
+    },
+    suspendedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    suspensionReason: {
+      type: String,
+      default: null,
+    },
+    suspensionExpiresAt: {
+      type: Date,
+      default: null,
+    },
     // Password history for audit logging
     passwordHistory: [
       {

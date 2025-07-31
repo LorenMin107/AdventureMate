@@ -309,6 +309,195 @@ const sendTripInviteEmail = async ({
   });
 };
 
+/**
+ * Send suspension notification email to user
+ * @param {string} userEmail - User's email address
+ * @param {Object} suspensionData - Suspension details
+ * @param {string} suspensionData.username - Username
+ * @param {string} suspensionData.reason - Suspension reason
+ * @param {Date} suspensionData.suspendedAt - When user was suspended
+ * @param {Date} suspensionData.suspensionExpiresAt - When suspension expires (if temporary)
+ * @param {string} suspensionData.adminEmail - Admin's email who performed the action
+ * @returns {Promise<Object>} Email send info
+ */
+const sendSuspensionNotification = async (userEmail, suspensionData) => {
+  try {
+    const { username, reason, suspendedAt, suspensionExpiresAt, adminEmail } = suspensionData;
+
+    const isTemporary = suspensionData.suspensionExpiresAt;
+    const expiryDate = isTemporary ? new Date(suspensionExpiresAt).toLocaleDateString() : null;
+
+    const subject = isTemporary
+      ? 'Your account has been temporarily suspended'
+      : 'Your account has been suspended';
+
+    const textContent = `
+Dear ${username},
+
+Your account has been ${isTemporary ? 'temporarily suspended' : 'suspended'} from MyanCamp.
+
+Suspension Details:
+- Reason: ${reason}
+- Suspended on: ${new Date(suspendedAt).toLocaleDateString()}
+${isTemporary ? `- Suspension expires: ${expiryDate}` : '- This is a permanent suspension'}
+- Admin contact: ${adminEmail}
+
+If you believe this suspension was made in error, please contact our support team.
+
+Best regards,
+The MyanCamp Team
+    `.trim();
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Account Suspension Notice</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #dc3545; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f8f9fa; }
+        .details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #dc3545; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Account Suspension Notice</h1>
+        </div>
+        <div class="content">
+            <p>Dear ${username},</p>
+            
+            <p>Your account has been <strong>${isTemporary ? 'temporarily suspended' : 'suspended'}</strong> from MyanCamp.</p>
+            
+            <div class="details">
+                <h3>Suspension Details:</h3>
+                <ul>
+                    <li><strong>Reason:</strong> ${reason}</li>
+                    <li><strong>Suspended on:</strong> ${new Date(suspendedAt).toLocaleDateString()}</li>
+                    ${isTemporary ? `<li><strong>Suspension expires:</strong> ${expiryDate}</li>` : '<li><strong>Type:</strong> Permanent suspension</li>'}
+                    <li><strong>Admin contact:</strong> ${adminEmail}</li>
+                </ul>
+            </div>
+            
+            <p>If you believe this suspension was made in error, please contact our support team.</p>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>The MyanCamp Team</p>
+        </div>
+    </div>
+</body>
+</html>
+    `.trim();
+
+    return await sendEmail({
+      to: userEmail,
+      subject: subject,
+      text: textContent,
+      html: htmlContent,
+    });
+  } catch (error) {
+    logError('Failed to send suspension notification email', error, {
+      userEmail,
+      suspensionData,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Send reactivation notification email to user
+ * @param {string} userEmail - User's email address
+ * @param {Object} reactivationData - Reactivation details
+ * @param {string} reactivationData.username - Username
+ * @param {string} reactivationData.reason - Reactivation reason (optional)
+ * @param {string} reactivationData.adminEmail - Admin's email who performed the action
+ * @returns {Promise<Object>} Email send info
+ */
+const sendReactivationNotification = async (userEmail, reactivationData) => {
+  try {
+    const { username, reason, adminEmail } = reactivationData;
+
+    const subject = 'Your account has been reactivated';
+
+    const textContent = `
+Dear ${username},
+
+Your account has been reactivated and you can now access MyanCamp again.
+
+Reactivation Details:
+- Reactivated on: ${new Date().toLocaleDateString()}
+${reason ? `- Reason: ${reason}` : ''}
+- Admin contact: ${adminEmail}
+
+Welcome back to MyanCamp!
+
+Best regards,
+The MyanCamp Team
+    `.trim();
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Account Reactivation Notice</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #28a745; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background-color: #f8f9fa; }
+        .details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #28a745; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Account Reactivation Notice</h1>
+        </div>
+        <div class="content">
+            <p>Dear ${username},</p>
+            
+            <p>Your account has been <strong>reactivated</strong> and you can now access MyanCamp again.</p>
+            
+            <div class="details">
+                <h3>Reactivation Details:</h3>
+                <ul>
+                    <li><strong>Reactivated on:</strong> ${new Date().toLocaleDateString()}</li>
+                    ${reason ? `<li><strong>Reason:</strong> ${reason}</li>` : ''}
+                    <li><strong>Admin contact:</strong> ${adminEmail}</li>
+                </ul>
+            </div>
+            
+            <p>Welcome back to MyanCamp!</p>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>The MyanCamp Team</p>
+        </div>
+    </div>
+</body>
+</html>
+    `.trim();
+
+    return await sendEmail({
+      to: userEmail,
+      subject: subject,
+      text: textContent,
+      html: htmlContent,
+    });
+  } catch (error) {
+    logError('Failed to send reactivation notification email', error, {
+      userEmail,
+      reactivationData,
+    });
+    throw error;
+  }
+};
+
 module.exports = {
   sendEmail,
   sendVerificationEmail,
@@ -317,4 +506,6 @@ module.exports = {
   sendBookingConfirmationEmail,
   sendAccountUpdateEmail,
   sendTripInviteEmail,
+  sendSuspensionNotification,
+  sendReactivationNotification,
 };

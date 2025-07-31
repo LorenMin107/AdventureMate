@@ -126,6 +126,7 @@ const UserList = () => {
                 {t('userList.table.email')}
               </th>
               <th>{t('userList.table.role')}</th>
+              <th>{t('userList.table.status')}</th>
               <th
                 className={`sortable ${sort.field === 'createdAt' ? `sorted-${sort.order}` : ''}`}
                 onClick={() => handleSortChange('createdAt')}
@@ -143,8 +144,21 @@ const UserList = () => {
                 <td>{user.username}</td>
                 <td>{user.email}</td>
                 <td>
-                  <span className={`user-role ${user.isAdmin ? 'admin' : 'user'}`}>
-                    {user.isAdmin ? t('userList.role.admin') : t('userList.role.user')}
+                  <span
+                    className={`user-role ${user.isAdmin ? 'admin' : user.isOwner ? 'owner' : 'user'}`}
+                  >
+                    {user.isAdmin
+                      ? t('userList.role.admin')
+                      : user.isOwner
+                        ? t('userList.role.owner')
+                        : t('userList.role.user')}
+                  </span>
+                </td>
+                <td>
+                  <span className={`user-status ${user.isSuspended ? 'suspended' : 'active'}`}>
+                    {user.isSuspended
+                      ? t('userList.status.suspended')
+                      : t('userList.status.active')}
                   </span>
                 </td>
                 <td>{new Date(user.createdAt).toLocaleDateString()}</td>

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import apiClient from '../../utils/api';
 import { logError } from '../../utils/logger';
 import ConfirmDialog from '../common/ConfirmDialog';
+import SuspensionDialog from './SuspensionDialog';
 import './UserDetail.css';
 
 /**
@@ -34,6 +35,11 @@ const UserDetail = () => {
     open: false,
     booking: null,
   });
+  const [suspensionDialog, setSuspensionDialog] = useState({
+    open: false,
+    action: null,
+  });
+  const [suspensionData, setSuspensionData] = useState(null);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -149,6 +155,48 @@ const UserDetail = () => {
     setBookingDialog({ open: false, booking: null });
   };
 
+  const handleSuspensionClick = () => {
+    setSuspensionDialog({
+      open: true,
+      action: user.isSuspended ? 'reactivate' : 'suspend',
+    });
+  };
+
+  const handleSuspensionConfirm = async (data) => {
+    try {
+      const action = suspensionDialog.action;
+      let response;
+
+      if (action === 'suspend') {
+        response = await apiClient.post(`/admin/users/${id}/suspend`, {
+          reason: data.reason,
+          duration: data.duration,
+        });
+      } else {
+        response = await apiClient.post(`/admin/users/${id}/reactivate`, {
+          reason: data.reason || 'No reason provided',
+        });
+      }
+
+      // Handle the ApiResponse format
+      const responseData = response.data;
+      const responseUser = responseData.data || responseData; // Handle both ApiResponse format and direct data
+      setUser(responseUser.user);
+
+      // Close the dialog
+      setSuspensionDialog({ open: false, action: null });
+      setSuspensionData(null);
+    } catch (err) {
+      logError('Error updating user suspension status', err);
+      alert(err.response?.data?.message || t('userDetail.updateError'));
+    }
+  };
+
+  const handleSuspensionCancel = () => {
+    setSuspensionDialog({ open: false, action: null });
+    setSuspensionData(null);
+  };
+
   if (!currentUser?.isAdmin) {
     return <div className="user-detail-unauthorized">{t('userDetail.unauthorizedMessage')}</div>;
   }
@@ -192,6 +240,15 @@ const UserDetail = () => {
           </div>
 
           <div className="user-detail-info-item">
+            <span className="user-detail-label">{t('userDetail.accountTypeLabel')}:</span>
+            <span className="user-detail-value">
+              {user.googleId
+                ? t('userDetail.googleOAuthAccount')
+                : t('userDetail.traditionalAccount')}
+            </span>
+          </div>
+
+          <div className="user-detail-info-item">
             <span className="user-detail-label">{t('userDetail.roleLabel')}:</span>
             <span
               className={`user-role ${user.isAdmin ? 'admin' : user.isOwner ? 'owner' : 'user'}`}
@@ -210,6 +267,40 @@ const UserDetail = () => {
               {user.isOwner ? t('userDetail.activeOwnerStatus') : t('userDetail.notOwnerStatus')}
             </span>
           </div>
+
+          <div className="user-detail-info-item">
+            <span className="user-detail-label">{t('userDetail.suspensionStatusLabel')}:</span>
+            <span className={`user-status ${user.isSuspended ? 'suspended' : 'active'}`}>
+              {user.isSuspended ? t('userDetail.suspendedStatus') : t('userDetail.activeStatus')}
+            </span>
+          </div>
+
+          {user.isSuspended && (
+            <>
+              <div className="user-detail-info-item">
+                <span className="user-detail-label">{t('userDetail.suspensionReasonLabel')}:</span>
+                <span className="user-detail-value">{user.suspensionReason}</span>
+              </div>
+              <div className="user-detail-info-item">
+                <span className="user-detail-label">{t('userDetail.suspendedAtLabel')}:</span>
+                <span className="user-detail-value">
+                  {user.suspendedAt
+                    ? new Date(user.suspendedAt).toLocaleDateString()
+                    : t('userDetail.unknownDate')}
+                </span>
+              </div>
+              {user.suspensionExpiresAt && (
+                <div className="user-detail-info-item">
+                  <span className="user-detail-label">
+                    {t('userDetail.suspensionExpiresLabel')}:
+                  </span>
+                  <span className="user-detail-value">
+                    {new Date(user.suspensionExpiresAt).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
 
           <div className="user-detail-info-item">
             <span className="user-detail-label">{t('userDetail.joinedLabel')}:</span>
@@ -243,6 +334,12 @@ const UserDetail = () => {
             className={`user-detail-owner-button ${user.isOwner ? 'remove' : 'grant'}`}
           >
             {user.isOwner ? t('userDetail.removeOwnerButton') : t('userDetail.makeOwnerButton')}
+          </button>
+          <button
+            onClick={handleSuspensionClick}
+            className={`user-detail-suspension-button ${user.isSuspended ? 'reactivate' : 'suspend'}`}
+          >
+            {user.isSuspended ? t('userDetail.reactivateButton') : t('userDetail.suspendButton')}
           </button>
         </div>
       </div>
@@ -403,6 +500,14 @@ const UserDetail = () => {
         message={`${t('userDetail.confirmCancelBookingMessage', { username: user?.username })}`}
         confirmLabel={t('userDetail.cancelBookingButton')}
         cancelLabel={t('userDetail.keepBookingButton')}
+      />
+
+      <SuspensionDialog
+        open={suspensionDialog.open}
+        onClose={handleSuspensionCancel}
+        onConfirm={handleSuspensionConfirm}
+        action={suspensionDialog.action}
+        username={user?.username}
       />
     </div>
   );

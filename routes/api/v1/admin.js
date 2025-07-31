@@ -50,6 +50,22 @@ router.patch(
   catchAsync(admin.toggleUserOwner)
 );
 
+// Suspend user - requires admin role and audit logging
+router.post(
+  '/users/:id/suspend',
+  hasRole(['admin']),
+  auditLog('suspend_user', 'user', { includeBody: true }),
+  catchAsync(admin.suspendUser)
+);
+
+// Reactivate user - requires admin role and audit logging
+router.post(
+  '/users/:id/reactivate',
+  hasRole(['admin']),
+  auditLog('reactivate_user', 'user', { includeBody: true }),
+  catchAsync(admin.reactivateUser)
+);
+
 // Owner Application Management - requires specific permissions and audit logging
 router.get(
   '/owner-applications',

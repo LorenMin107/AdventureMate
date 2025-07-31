@@ -21,30 +21,30 @@ const { logError, logInfo, logDebug, logWarn } = require('../../utils/logger');
  */
 exports.initiate2FASetup = async (req, res) => {
   try {
-    logInfo('Initiating 2FA setup', { 
+    logInfo('Initiating 2FA setup', {
       userId: req.user?._id,
-      endpoint: '/api/v1/2fa/setup' 
+      endpoint: '/api/v1/2fa/setup',
     });
 
     // Ensure user is authenticated
     if (!req.user) {
-      logWarn('2FA setup attempted without authentication', { 
-      endpoint: '/api/v1/2fa/setup' 
-    });
+      logWarn('2FA setup attempted without authentication', {
+        endpoint: '/api/v1/2fa/setup',
+      });
       return res.status(401).json({ error: 'Authentication required' });
     }
 
     // Check if 2FA is already enabled
     if (req.user.isTwoFactorEnabled) {
-      logInfo('2FA already enabled', { 
-      userId: req.user._id 
-    });
+      logInfo('2FA already enabled', {
+        userId: req.user._id,
+      });
       return res.status(400).json({ error: '2FA is already enabled for this account' });
     }
 
-    logDebug('Generating 2FA secret', { 
+    logDebug('Generating 2FA secret', {
       userId: req.user._id,
-      username: req.user.username 
+      username: req.user.username,
     });
     // Generate a new secret
     const secret = generateSecret(req.user.username);
@@ -53,21 +53,21 @@ exports.initiate2FASetup = async (req, res) => {
     req.user.twoFactorSecret = secret.base32;
     req.user.twoFactorSetupCompleted = false;
     await req.user.save();
-    logDebug('2FA secret saved', { 
-      userId: req.user._id 
+    logDebug('2FA secret saved', {
+      userId: req.user._id,
     });
 
     // Generate QR code
-    logDebug('Generating 2FA QR code', { 
-      userId: req.user._id 
+    logDebug('Generating 2FA QR code', {
+      userId: req.user._id,
     });
     const qrCode = await generateQRCode(secret.otpauth_url);
-    logDebug('2FA QR code generated successfully', { 
-      userId: req.user._id 
+    logDebug('2FA QR code generated successfully', {
+      userId: req.user._id,
     });
 
-    logDebug('Sending 2FA setup response', { 
-      userId: req.user._id 
+    logDebug('Sending 2FA setup response', {
+      userId: req.user._id,
     });
     res.json({
       message: 'Two-factor authentication setup initiated',
@@ -76,9 +76,9 @@ exports.initiate2FASetup = async (req, res) => {
       setupCompleted: false,
     });
   } catch (error) {
-    logError('Error initiating 2FA setup', error, { 
+    logError('Error initiating 2FA setup', error, {
       userId: req.user?._id,
-      endpoint: '/api/v1/2fa/setup' 
+      endpoint: '/api/v1/2fa/setup',
     });
     res.status(500).json({ error: 'Failed to initiate 2FA setup: ' + error.message });
   }
@@ -131,9 +131,9 @@ exports.verify2FASetup = async (req, res) => {
       setupCompleted: true,
     });
   } catch (error) {
-    logError('Error verifying 2FA setup', error, { 
+    logError('Error verifying 2FA setup', error, {
       userId: req.user?._id,
-      endpoint: '/api/v1/2fa/verify-setup' 
+      endpoint: '/api/v1/2fa/verify-setup',
     });
     res.status(500).json({ error: 'Failed to verify 2FA setup' });
   }
@@ -176,9 +176,9 @@ exports.disable2FA = async (req, res) => {
       message: 'Two-factor authentication disabled successfully',
     });
   } catch (error) {
-    logError('Error disabling 2FA', error, { 
+    logError('Error disabling 2FA', error, {
       userId: req.user?._id,
-      endpoint: '/api/v1/2fa/disable' 
+      endpoint: '/api/v1/2fa/disable',
     });
     res.status(500).json({ error: 'Failed to disable 2FA' });
   }
@@ -227,6 +227,28 @@ exports.verify2FALogin = async (req, res) => {
       });
     }
 
+    // Check if user is suspended before generating final tokens
+    if (user.isSuspended) {
+      return res.status(403).json({
+        error: 'Account suspended',
+        message: 'Your account has been suspended. Please contact support for more information.',
+      });
+    }
+
+    // If user is an owner, also check owner suspension status
+    if (user.isOwner) {
+      const Owner = require('../../models/owner');
+      const owner = await Owner.findOne({ user: user._id });
+
+      if (owner && !owner.isActive) {
+        return res.status(403).json({
+          error: 'Owner account suspended',
+          message:
+            'Your owner account has been suspended. Please contact support for more information.',
+        });
+      }
+    }
+
     // Generate final access and refresh tokens
     const { generateAccessToken, generateRefreshToken } = require('../../utils/jwtUtils');
     const accessToken = generateAccessToken(user);
@@ -251,9 +273,9 @@ exports.verify2FALogin = async (req, res) => {
       expiresAt: refreshToken.expiresAt,
     });
   } catch (error) {
-    logError('Error verifying 2FA login', error, { 
+    logError('Error verifying 2FA login', error, {
       userId: req.user?._id,
-      endpoint: '/api/v1/2fa/verify-login' 
+      endpoint: '/api/v1/2fa/verify-login',
     });
     res.status(500).json({ error: 'Failed to verify 2FA login' });
   }

@@ -1187,7 +1187,44 @@
     "cancelBookingTitle": "Cancel Booking",
     "confirmCancelBookingMessage": "Are you sure you want to cancel this booking for {{username}}? This action cannot be undone.",
     "cancelBookingButton": "Cancel Booking",
-    "keepBookingButton": "Keep Booking"
+    "keepBookingButton": "Keep Booking",
+    "suspensionStatusLabel": "Suspension Status",
+    "suspendedStatus": "Suspended",
+    "activeStatus": "Active",
+    "suspensionReasonLabel": "Suspension Reason",
+    "suspendedAtLabel": "Suspended At",
+    "suspensionExpiresLabel": "Suspension Expires",
+    "suspendButton": "Suspend User",
+    "reactivateButton": "Reactivate User",
+    "accountTypeLabel": "Account Type",
+    "googleOAuthAccount": "Google OAuth",
+    "traditionalAccount": "Traditional",
+    "suspensionReasonPrompt": "Please provide a reason for suspending this user:",
+    "suspensionDurationPrompt": "Please provide the suspension duration in days",
+    "reactivationReasonPrompt": "Please provide a reason for reactivating this user (optional):",
+    "suspendUserTitle": "Suspend User",
+    "reactivateUserTitle": "Reactivate User",
+    "confirmSuspensionMessage": "Are you sure you want to {{action}} this user? This action will affect their account access."
+  },
+  "suspensionDialog": {
+    "suspendTitle": "Suspend {{username}}",
+    "reactivateTitle": "Reactivate {{username}}",
+    "suspendMessage": "You are about to suspend this user's account. They will be immediately logged out and unable to access the system.",
+    "reactivateMessage": "You are about to reactivate this user's account. They will be able to log in again.",
+    "reasonLabel": "Reason for suspension",
+    "reactivationReasonLabel": "Reason for reactivation (optional)",
+    "reasonPlaceholder": "Please provide a detailed reason for suspending this user...",
+    "reactivationReasonPlaceholder": "Please provide a reason for reactivating this user (optional)...",
+    "reasonRequired": "Please provide a reason for suspension",
+    "durationLabel": "Suspension duration",
+    "durationPlaceholder": "Leave empty for permanent suspension",
+    "durationHelp": "Leave empty for permanent suspension, or enter number of days for temporary suspension",
+    "days": "days",
+    "invalidDuration": "Please enter a valid number of days (minimum 1)",
+    "suspendButton": "Suspend User",
+    "reactivateButton": "Reactivate User",
+    "cancelButton": "Cancel",
+    "closeDialog": "Close dialog"
   },
   "adminOwnerApplication": {
     "title": "Owner Applications",
@@ -1400,6 +1437,7 @@
       "username": "Username",
       "email": "Email",
       "role": "Role",
+      "status": "Status",
       "joined": "Joined",
       "bookings": "Bookings",
       "reviews": "Reviews",
@@ -1407,7 +1445,12 @@
     },
     "role": {
       "admin": "Admin",
+      "owner": "Owner",
       "user": "User"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended"
     },
     "actions": {
       "view": "View"
