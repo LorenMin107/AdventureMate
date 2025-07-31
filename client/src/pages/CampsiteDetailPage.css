@@ -103,7 +103,7 @@
 /* Right Column - Booking Section */
 .campsite-booking-column {
   position: sticky;
-  top: 80px; /* Account for fixed navbar height */
+  top: 6rem; /* Match the header height */
   height: fit-content;
 }
 
@@ -722,10 +722,12 @@
 
   .campsite-booking-column {
     position: static;
+    top: auto;
   }
 
   .booking-section {
     margin-top: 1rem;
+    max-width: 100%;
   }
 
   .campsite-booking-form-container {

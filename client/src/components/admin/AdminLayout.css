@@ -16,27 +16,27 @@
   z-index: 999;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid var(--color-border);
-  border-radius: 20px 20px 20px 20px; /* Rounded top and bottom corners */
+  border-radius: 20px 20px 20px 20px;
   transition: all 0.3s ease;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  /* Fallback positioning - will be overridden by JavaScript */
   top: 60px;
-  overflow: hidden; /* Ensure content doesn't overflow rounded corners */
+  overflow: visible;
 }
 
-/* Add scroll effect for navbar - only enhance shadow, keep theme background */
 .admin-navbar.scrolled {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Main navigation section */
 .admin-navbar-main {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.375rem 1rem;
   background-color: var(--color-header-bg);
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
 .admin-nav {
@@ -47,6 +47,14 @@
   max-width: 1200px;
   width: 100%;
   flex-wrap: wrap;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .admin-nav-item {
@@ -155,8 +163,8 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-  transition: left 0.6s ease;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
 }
 
 .admin-nav-group:hover::before {
@@ -164,35 +172,29 @@
 }
 
 .admin-nav-group:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.1);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .admin-nav-group:has(.admin-nav-item.active) {
   background-color: rgba(var(--color-primary-rgb, 46, 125, 50), 0.1);
-  border-color: rgba(var(--color-primary-rgb, 46, 125, 50), 0.3);
-  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb, 46, 125, 50), 0.2);
+  border-color: var(--color-primary);
 }
 
 .admin-nav-divider {
   width: 1px;
-  height: 40px;
-  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2), transparent);
+  height: 2rem;
+  background-color: var(--color-border);
   margin: 0 0.5rem;
-  opacity: 0.6;
 }
 
 .admin-content {
   flex: 1;
-  margin-left: 0;
   padding: 1rem;
-  /* Fallback padding - will be overridden by JavaScript */
-  padding-top: calc(1rem + 70px); /* Reduced padding */
-  background-color: var(--color-background);
-  min-height: calc(100vh - 70px); /* Adjust for reduced navbar height */
-  transition: background-color 0.3s ease;
+  margin-top: 80px;
+  min-height: calc(100vh - 80px);
+  transition: margin-top 0.3s ease;
 }
 
 .admin-layout-unauthorized {
@@ -202,149 +204,308 @@
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
-  background-color: var(--color-background);
   text-align: center;
-  transition: background-color 0.3s ease;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 .admin-layout-unauthorized h2 {
   font-size: 2rem;
-  color: #dc3545; /* Keep error color red for visibility in both themes */
   margin-bottom: 1rem;
-  transition: color 0.3s ease;
+  color: var(--color-error);
 }
 
 .admin-layout-unauthorized p {
-  font-size: 1.25rem;
-  color: var(--color-breadcrumb-text);
+  font-size: 1.1rem;
   margin-bottom: 2rem;
-  transition: color 0.3s ease;
+  color: var(--color-text-muted);
+  max-width: 500px;
 }
 
 .admin-layout-home-link {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background-color: var(--color-primary);
   color: var(--color-button-text);
-  border-radius: 8px;
   text-decoration: none;
+  border-radius: var(--radius-md);
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(var(--color-primary-rgb, 46, 125, 50), 0.2);
 }
 
 .admin-layout-home-link:hover {
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(var(--color-primary-rgb, 46, 125, 50), 0.3);
-  text-decoration: none;
-  color: var(--color-button-text);
+  box-shadow: var(--shadow-md);
 }
 
-/* Responsive styles */
+/* Mobile responsive styles */
 @media (max-width: 768px) {
   .admin-navbar {
-    top: 60px; /* Fallback for mobile */
-    border-radius: 16px 16px 16px 16px; /* Rounded top and bottom corners for mobile */
+    top: 60px;
+    border-radius: 0;
+    width: 100vw;
+    left: 0;
+    right: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    position: fixed;
+    z-index: 999;
   }
 
   .admin-navbar-main {
-    padding: 0.25rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+    min-width: max-content;
+    overflow-x: auto;
+    overflow-y: visible;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    position: relative;
   }
 
   .admin-nav {
     gap: 0.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-wrap: nowrap;
+    overflow-x: visible;
+    padding: 0 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+    min-width: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    position: relative;
+  }
+
+  .admin-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .admin-nav-group {
-    gap: 0.25rem;
-    padding: 0.2rem 0.4rem;
+    flex-shrink: 0;
+    min-width: max-content;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
   }
 
   .admin-nav-divider {
-    height: 30px;
     margin: 0 0.25rem;
+    flex-shrink: 0;
+    position: relative;
   }
 
   .admin-nav-item {
-    padding: 0.375rem 0.5rem;
     min-width: 60px;
     max-width: 70px;
+    padding: 0.375rem 0.5rem;
     font-size: 0.7rem;
+    flex-shrink: 0;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
   }
 
   .admin-nav-icon {
     font-size: 0.9rem;
     margin-bottom: 0.2rem;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
   }
 
   .admin-nav-text {
     font-size: 0.6rem;
     letter-spacing: 0.2px;
+    min-height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.2;
+    overflow: visible;
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
   }
 
   .admin-content {
-    padding: 0.75rem;
-    padding-top: calc(0.75rem + 90px); /* Reduced for mobile */
+    margin-top: 120px;
+    padding: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .admin-navbar {
-    top: 60px; /* Fallback for small screens */
-    border-radius: 12px 12px 12px 12px; /* Rounded top and bottom corners for small screens */
+    top: 60px;
+    border-radius: 0;
+    width: 100vw;
+    left: 0;
+    right: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    position: fixed;
+    z-index: 999;
   }
 
   .admin-navbar-main {
-    padding: 0.2rem 0.5rem;
+    padding: 0.375rem 0.5rem;
+    width: 100%;
+    min-width: max-content;
+    overflow-x: auto;
+    overflow-y: visible;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    position: relative;
   }
 
   .admin-nav {
-    gap: 0.3rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    gap: 0.25rem;
+    padding: 0 0.25rem;
+    width: 100%;
+    min-width: max-content;
+    overflow-x: visible;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    position: relative;
   }
 
   .admin-nav-group {
-    gap: 0.2rem;
-    padding: 0.15rem 0.3rem;
-  }
-
-  .admin-nav-divider {
-    height: 25px;
-    margin: 0 0.2rem;
+    flex-shrink: 0;
+    min-width: max-content;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    position: relative;
   }
 
   .admin-nav-item {
-    padding: 0.3rem 0.4rem;
     min-width: 50px;
     max-width: 60px;
+    padding: 0.25rem 0.375rem;
     font-size: 0.65rem;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: visible;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
   }
 
   .admin-nav-icon {
     font-size: 0.8rem;
     margin-bottom: 0.15rem;
+    min-height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
   }
 
   .admin-nav-text {
     font-size: 0.55rem;
     letter-spacing: 0.1px;
+    min-height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.2;
+    overflow: visible;
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
   }
 
   .admin-content {
+    margin-top: 110px;
     padding: 0.75rem;
-    padding-top: calc(0.75rem + 80px); /* Further reduced for small screens */
   }
 }
 
-/* Add smooth scrolling for the navbar */
-.admin-navbar {
-  scroll-behavior: smooth;
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .admin-nav-item {
+    min-height: 44px;
+    min-width: 60px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .admin-nav-icon {
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .admin-nav-text {
+    min-height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .admin-navbar-main {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .admin-nav {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
 }
 
-/* Add a subtle animation for the navbar on page load */
+/* Ensure all navigation items are visible */
+.admin-nav-item {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-nav-icon {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-nav-text {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-navbar {
+  animation: slideDown 0.3s ease-out;
+}
+
 @keyframes slideDown {
   from {
     transform: translateY(-100%);
@@ -357,5 +518,77 @@
 }
 
 .admin-navbar {
-  animation: slideDown 0.5s ease-out;
+  will-change: transform, opacity;
+}
+
+/* Additional mobile fixes for admin navigation */
+@media (max-width: 768px) {
+  .admin-navbar-main {
+    padding-right: 1rem; /* Add extra padding on the right */
+  }
+
+  .admin-nav {
+    padding-right: 1rem; /* Add extra padding on the right */
+    margin-right: -0.5rem; /* Compensate for the extra padding */
+  }
+
+  /* Ensure the last navigation item is fully visible */
+  .admin-nav-group:last-child {
+    margin-right: 0.5rem;
+  }
+
+  .admin-nav-item:last-child {
+    margin-right: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-navbar-main {
+    padding-right: 0.75rem; /* Add extra padding on the right */
+  }
+
+  .admin-nav {
+    padding-right: 0.75rem; /* Add extra padding on the right */
+    margin-right: -0.25rem; /* Compensate for the extra padding */
+  }
+
+  /* Ensure the last navigation item is fully visible */
+  .admin-nav-group:last-child {
+    margin-right: 0.25rem;
+  }
+
+  .admin-nav-item:last-child {
+    margin-right: 0.25rem;
+  }
+}
+
+/* Force horizontal scroll to show all content */
+.admin-navbar-main {
+  scroll-snap-type: x mandatory;
+}
+
+.admin-nav {
+  scroll-snap-type: x mandatory;
+}
+
+.admin-nav-item {
+  scroll-snap-align: start;
+}
+
+/* Ensure proper scrolling behavior */
+.admin-navbar-main::-webkit-scrollbar {
+  height: 4px;
+}
+
+.admin-navbar-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-navbar-main::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+.admin-navbar-main::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }

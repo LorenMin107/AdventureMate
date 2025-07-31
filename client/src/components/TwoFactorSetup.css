@@ -5,7 +5,11 @@
   background-color: var(--color-card-bg);
   border-radius: 12px;
   box-shadow: 0 6px 20px var(--color-card-shadow);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .setup-title {
@@ -32,7 +36,8 @@
   gap: 1rem;
 }
 
-.status-enabled, .status-disabled {
+.status-enabled,
+.status-disabled {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -83,9 +88,14 @@
 }
 
 /* Button styles */
-.setup-button, .disable-button, .generate-codes-button, 
-.next-button, .verify-button, .done-button, 
-.disable-confirm-button, .generate-confirm-button {
+.setup-button,
+.disable-button,
+.generate-codes-button,
+.next-button,
+.verify-button,
+.done-button,
+.disable-confirm-button,
+.generate-confirm-button {
   padding: 0.75rem;
   border-radius: 4px;
   font-size: 1rem;
@@ -95,34 +105,45 @@
   border: none;
 }
 
-.setup-button, .next-button, .verify-button, .done-button {
+.setup-button,
+.next-button,
+.verify-button,
+.done-button {
   background-color: var(--color-button-bg);
   color: var(--color-button-text);
 }
 
-.setup-button:hover, .next-button:hover, .verify-button:hover, .done-button:hover {
+.setup-button:hover,
+.next-button:hover,
+.verify-button:hover,
+.done-button:hover {
   background-color: var(--color-button-hover);
 }
 
-.disable-button, .disable-confirm-button {
+.disable-button,
+.disable-confirm-button {
   background-color: var(--color-error);
   color: var(--color-button-text);
 }
 
-.disable-button:hover, .disable-confirm-button:hover {
+.disable-button:hover,
+.disable-confirm-button:hover {
   background-color: #c0392b; /* Darker shade of error color */
 }
 
-.generate-codes-button, .generate-confirm-button {
+.generate-codes-button,
+.generate-confirm-button {
   background-color: var(--color-warning);
   color: var(--color-button-text);
 }
 
-.generate-codes-button:hover, .generate-confirm-button:hover {
+.generate-codes-button:hover,
+.generate-confirm-button:hover {
   background-color: #d35400; /* Darker shade of warning color */
 }
 
-.back-button, .cancel-button {
+.back-button,
+.cancel-button {
   background-color: var(--color-card-bg);
   color: var(--color-text);
   border: 1px solid var(--color-border);
@@ -130,10 +151,13 @@
   padding: 0.75rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.1s ease;
 }
 
-.back-button:hover, .cancel-button:hover {
+.back-button:hover,
+.cancel-button:hover {
   background-color: var(--color-border);
   transform: scale(1.01);
 }
@@ -147,8 +171,10 @@ button:disabled {
 }
 
 /* QR code styles */
-.qr-code-container, .verification-container, 
-.backup-codes-container, .disable-container, 
+.qr-code-container,
+.verification-container,
+.backup-codes-container,
+.disable-container,
 .generate-codes-container {
   display: flex;
   flex-direction: column;
@@ -165,7 +191,9 @@ button:disabled {
   border-radius: 8px;
   padding: 1rem;
   border: 1px solid var(--color-border);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .qr-code img {
@@ -200,7 +228,9 @@ button:disabled {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.3s ease;
+  transition:
+    transform 0.1s ease,
+    background-color 0.3s ease;
 }
 
 .retry-button:hover {
@@ -214,7 +244,9 @@ button:disabled {
   border-radius: 8px;
   font-size: 0.9rem;
   border: 1px solid var(--color-border);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .secret-key code {
@@ -227,7 +259,10 @@ button:disabled {
   word-break: break-all;
   color: var(--color-text);
   border: 1px solid var(--color-border);
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .setup-instruction {
@@ -259,7 +294,11 @@ button:disabled {
   background-color: var(--color-card-bg);
   color: var(--color-text);
   letter-spacing: 1px;
-  transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .form-group input:focus {
@@ -290,7 +329,10 @@ button:disabled {
   text-align: center;
   border: 1px solid var(--color-border);
   color: var(--color-text);
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* Add spacing between buttons in two-factor setup actions */

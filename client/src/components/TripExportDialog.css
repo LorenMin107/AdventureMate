@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,18 +13,10 @@
   backdrop-filter: blur(8px);
 }
 
-/* For dark theme, keep only the blur, no dark overlay */
-.dark-theme .export-dialog-overlay,
-.export-dialog-overlay.dark-theme {
-  background-color: transparent;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-
 .export-dialog {
   background-color: var(--color-card-bg);
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px var(--color-card-shadow);
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
@@ -33,22 +25,24 @@
   flex-direction: column;
   animation: modalFadeIn 0.25s ease-out;
   border: 1px solid var(--color-border);
+  color: var(--color-text);
 }
 
 .export-dialog-header {
   padding: 1.5rem 1.75rem 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: var(--color-card-bg);
 }
 
 .export-dialog-header h2 {
   margin: 0 0 0.25rem;
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--color-text);
   line-height: 1.3;
 }
 
@@ -58,13 +52,15 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
 }
 
 .close-button {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: var(--bg-hover);
+  background: var(--color-primary-light);
   border: none;
   border-radius: 50%;
   width: 36px;
@@ -73,21 +69,21 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   transition: all 0.2s ease;
   padding: 0;
   line-height: 1;
 }
 
 .close-button:hover {
-  color: var(--text-color);
-  background: var(--bg-hover);
+  color: var(--color-text);
+  background: var(--color-primary-light);
   transform: rotate(90deg);
 }
 
 .close-button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 .export-dialog-content .export-options {
@@ -95,6 +91,8 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1.5rem 1.75rem;
+  background-color: var(--color-card-bg);
+  color: var(--color-text);
 }
 
 .export-button {
@@ -102,8 +100,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: var(--primary-color);
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-button-text);
   border: none;
   border-radius: 8px;
   font-size: 0.9375rem;
@@ -115,9 +113,9 @@
 }
 
 .export-button:hover {
-  background: var(--primary-dark);
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--color-card-shadow);
 }
 
 .export-button:active {
@@ -126,32 +124,18 @@
 
 .export-button span {
   flex: 1;
+  color: var(--color-button-text);
 }
 
-/* Dark theme support for dialog */
-.dark-theme .export-dialog,
-.export-dialog.dark-theme {
-  background-color: var(--color-card-bg);
+/* Ensure all text elements use proper theme colors */
+.export-dialog * {
+  color: inherit;
+}
+
+.export-dialog p,
+.export-dialog div,
+.export-dialog span {
   color: var(--color-text);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-}
-
-.dark-theme .export-dialog-header,
-.export-dialog.dark-theme .export-dialog-header {
-  border-bottom: 1px solid var(--color-border, #333a45);
-}
-
-.dark-theme .close-button,
-.export-dialog.dark-theme .close-button {
-  background: var(--color-card-bg, #23272f);
-  color: var(--color-text-muted, #b0b8c1);
-}
-
-.dark-theme .close-button:hover,
-.export-dialog.dark-theme .close-button:hover {
-  background: var(--color-primary, #3b82f6);
-  color: #fff;
 }
 
 /* Print styles */
@@ -273,4 +257,21 @@
   .export-dialog-content .export-options {
     padding: 1rem 1rem;
   }
+}
+
+/* Ensure all text elements use proper theme colors */
+.export-dialog * {
+  color: inherit;
+}
+
+.export-dialog p,
+.export-dialog div,
+.export-dialog span,
+.export-dialog h1,
+.export-dialog h2,
+.export-dialog h3,
+.export-dialog h4,
+.export-dialog h5,
+.export-dialog h6 {
+  color: var(--color-text);
 }

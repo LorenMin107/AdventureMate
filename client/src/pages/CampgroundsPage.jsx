@@ -139,10 +139,7 @@ const CampgroundsPage = () => {
             </select>
           </div>
 
-          <CampgroundList
-            searchTerm={isSearching ? searchTerm : ''}
-            locationFilter={isSearching ? locationFilter : ''}
-          />
+          <CampgroundList searchTerm={searchTerm} locationFilter={locationFilter} />
         </div>
       </div>
     </div>

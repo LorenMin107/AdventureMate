@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import apiClient from '../utils/api';
@@ -11,6 +12,7 @@ import './ForumPostPage.css';
 
 const ForumPostPage = () => {
   const { id } = useParams();
+  const { t } = useTranslation();
   const { theme } = useTheme();
   const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();

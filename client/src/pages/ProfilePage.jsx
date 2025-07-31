@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
 import { useUser } from '../context/UserContext';
 import { useAuth } from '../context/AuthContext';
 import TwoFactorSetup from '../components/TwoFactorSetup';
@@ -459,146 +460,149 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="profile-page">
-      <div className="profile-header">
-        <div className="profile-avatar">
-          {userDetails.profile?.picture ? (
-            <img
-              src={userDetails.profile.picture}
-              alt="avatar"
-              style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-            />
-          ) : (
-            (userDetails.profile?.name || userDetails.username || 'U').charAt(0).toUpperCase()
-          )}
-        </div>
-        <div>
-          <h1 className="profile-page-title">
-            {userDetails.profile?.name || t('profile.noDisplayName')}
-          </h1>
-          <div className="profile-username-handle">@{userDetails.username}</div>
-        </div>
-        <button className="edit-button" onClick={openEditModal}>
-          {t('profile.editProfile')}
-        </button>
-      </div>
-      {editModalOpen && renderEditModal()}
-      {console.log('Modal should be open:', editModalOpen)}
-      {editSuccess && <div className="profile-update-success">{t('profile.updateSuccess')}</div>}
-      <CSSIsolationWrapper>
-        <div className="profile-container">
-          <div className="profile-sidebar">
-            <nav className="profile-nav">
-              <ul className="profile-nav-list">
-                <li
-                  className={`profile-nav-item ${activeSection === 'personal' ? 'active' : ''}`}
-                  onClick={() => setActiveSection('personal')}
-                >
-                  <span className="profile-nav-icon">👤</span>
-                  <span>{t('profile.personalInfo')}</span>
-                </li>
-                <li
-                  className={`profile-nav-item ${activeSection === 'security' ? 'active' : ''}`}
-                  onClick={() => setActiveSection('security')}
-                >
-                  <span className="profile-nav-icon">🔒</span>
-                  <span>{t('profile.security')}</span>
-                </li>
-
-                <li
-                  className={`profile-nav-item ${activeSection === 'reviews' ? 'active' : ''}`}
-                  onClick={() => setActiveSection('reviews')}
-                >
-                  <span className="profile-nav-icon">⭐</span>
-                  <span>{t('profile.reviews')}</span>
-                </li>
-              </ul>
-            </nav>
+    <>
+      <div className="profile-page">
+        <div className="profile-header">
+          <div className="profile-avatar">
+            {userDetails.profile?.picture ? (
+              <img
+                src={userDetails.profile.picture}
+                alt="avatar"
+                style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+              />
+            ) : (
+              (userDetails.profile?.name || userDetails.username || 'U').charAt(0).toUpperCase()
+            )}
           </div>
-          <div className="profile-content">
-            {updateError && <div className="profile-update-error">{updateError}</div>}
-            {updateSuccess && (
-              <div className="profile-update-success">{t('profile.updateSuccess')}</div>
-            )}
-            {activeSection === 'personal' && (
-              <div className="profile-section">
-                <h2 className="section-title">{t('profile.personalInformation')}</h2>
+          <div>
+            <h1 className="profile-page-title">
+              {userDetails.profile?.name || t('profile.noDisplayName')}
+            </h1>
+            <div className="profile-username-handle">@{userDetails.username}</div>
+          </div>
+          <button className="edit-button" onClick={openEditModal}>
+            {t('profile.editProfile')}
+          </button>
+        </div>
+        {editSuccess && <div className="profile-update-success">{t('profile.updateSuccess')}</div>}
+        <CSSIsolationWrapper>
+          <div className="profile-container">
+            <div className="profile-sidebar">
+              <nav className="profile-nav">
+                <ul className="profile-nav-list">
+                  <li
+                    className={`profile-nav-item ${activeSection === 'personal' ? 'active' : ''}`}
+                    onClick={() => setActiveSection('personal')}
+                  >
+                    <span className="profile-nav-icon">👤</span>
+                    <span>{t('profile.personalInfo')}</span>
+                  </li>
+                  <li
+                    className={`profile-nav-item ${activeSection === 'security' ? 'active' : ''}`}
+                    onClick={() => setActiveSection('security')}
+                  >
+                    <span className="profile-nav-icon">🔒</span>
+                    <span>{t('profile.security')}</span>
+                  </li>
 
-                <div className="profile-card">
-                  <div className="profile-info">
-                    <div className="profile-field">
-                      <label>{t('profile.displayName')}</label>
-                      <span>{userDetails.profile?.name || t('profile.noDisplayName')}</span>
-                    </div>
-                    <div className="profile-field">
-                      <label>{t('profile.username')}</label>
-                      <span>@{userDetails.username}</span>
-                    </div>
-                    <div className="profile-field">
-                      <label>{t('profile.email')}</label>
-                      <span>{userDetails.email}</span>
-                    </div>
-                    <div className="profile-field">
-                      <label>{t('profile.phone')}</label>
-                      <span>{userDetails.phone || t('profile.notProvided')}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            {activeSection === 'security' && (
-              <div className="profile-section">
-                <h2 className="section-title">{t('profile.securitySettings')}</h2>
-                <div className="profile-card">
-                  <TwoFactorSetup />
-                  <div className="security-actions">
-                    {/* Only show Change Password link for non-Google OAuth users */}
-                    {!userDetails?.googleId && (
-                      <Link to="/password-change" className="security-link">
-                        <span className="security-icon">🔑</span>
-                        <span>{t('profile.changePassword')}</span>
-                      </Link>
-                    )}
-                    {/* Show Google account notice for Google OAuth users */}
-                    {userDetails?.googleId && (
-                      <div className="google-account-notice">
-                        <span className="security-icon">🔐</span>
-                        <div className="notice-content">
-                          <span className="notice-title">
-                            {t('profile.googleAccount') || 'Google Account'}
-                          </span>
-                          <span className="notice-description">
-                            {t('profile.googleAccountDescription') ||
-                              'Password managed through Google'}
-                          </span>
-                        </div>
-                        <a
-                          href="https://myaccount.google.com/security"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="google-settings-link-small"
-                        >
-                          {t('profile.openGoogleSettings') || 'Settings'}
-                        </a>
+                  <li
+                    className={`profile-nav-item ${activeSection === 'reviews' ? 'active' : ''}`}
+                    onClick={() => setActiveSection('reviews')}
+                  >
+                    <span className="profile-nav-icon">⭐</span>
+                    <span>{t('profile.reviews')}</span>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            <div className="profile-content">
+              {updateError && <div className="profile-update-error">{updateError}</div>}
+              {updateSuccess && (
+                <div className="profile-update-success">{t('profile.updateSuccess')}</div>
+              )}
+              {activeSection === 'personal' && (
+                <div className="profile-section">
+                  <h2 className="section-title">{t('profile.personalInformation')}</h2>
+
+                  <div className="profile-card">
+                    <div className="profile-info">
+                      <div className="profile-field">
+                        <label>{t('profile.displayName')}</label>
+                        <span>{userDetails.profile?.name || t('profile.noDisplayName')}</span>
                       </div>
-                    )}
+                      <div className="profile-field">
+                        <label>{t('profile.username')}</label>
+                        <span>@{userDetails.username}</span>
+                      </div>
+                      <div className="profile-field">
+                        <label>{t('profile.email')}</label>
+                        <span>{userDetails.email}</span>
+                      </div>
+                      <div className="profile-field">
+                        <label>{t('profile.phone')}</label>
+                        <span>{userDetails.phone || t('profile.notProvided')}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {activeSection === 'reviews' && (
-              <div className="profile-section">
-                <h2 className="section-title">{t('profile.myReviews')}</h2>
-                <div className="profile-card">
-                  <UserReviewList />
+              )}
+              {activeSection === 'security' && (
+                <div className="profile-section">
+                  <h2 className="section-title">{t('profile.securitySettings')}</h2>
+                  <div className="profile-card">
+                    <TwoFactorSetup />
+                    <div className="security-actions">
+                      {/* Only show Change Password link for non-Google OAuth users */}
+                      {!userDetails?.googleId && (
+                        <Link to="/password-change" className="security-link">
+                          <span className="security-icon">🔑</span>
+                          <span>{t('profile.changePassword')}</span>
+                        </Link>
+                      )}
+                      {/* Show Google account notice for Google OAuth users */}
+                      {userDetails?.googleId && (
+                        <div className="google-account-notice">
+                          <span className="security-icon">🔐</span>
+                          <div className="notice-content">
+                            <span className="notice-title">
+                              {t('profile.googleAccount') || 'Google Account'}
+                            </span>
+                            <span className="notice-description">
+                              {t('profile.googleAccountDescription') ||
+                                'Password managed through Google'}
+                            </span>
+                          </div>
+                          <a
+                            href="https://myaccount.google.com/security"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="google-settings-link-small"
+                          >
+                            {t('profile.openGoogleSettings') || 'Settings'}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {activeSection === 'reviews' && (
+                <div className="profile-section">
+                  <h2 className="section-title">{t('profile.myReviews')}</h2>
+                  <div className="profile-card">
+                    <UserReviewList />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </CSSIsolationWrapper>
-    </div>
+        </CSSIsolationWrapper>
+      </div>
+
+      {/* Render modal outside of CSSIsolationWrapper using portal */}
+      {editModalOpen && createPortal(renderEditModal(), document.body)}
+    </>
   );
 };
 

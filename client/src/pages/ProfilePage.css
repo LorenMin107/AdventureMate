@@ -2,12 +2,31 @@
 .profile-page {
   padding: 2rem;
   margin-top: 70px;
-  min-height: calc(100vh - 70px);
+  min-height: calc(100vh - 70px - 200px);
   background-color: var(--color-background);
   color: var(--color-text);
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+  /* Override CSS isolation that might be causing visibility issues */
+  isolation: auto !important;
+  contain: none !important;
+  overflow: visible !important;
+  position: relative;
+  z-index: 2;
+}
+
+/* Override CSS isolation for profile page specifically */
+.profile-page .common-page {
+  isolation: auto !important;
+  contain: none !important;
+  overflow: visible !important;
+}
+
+.profile-page .common-page * {
+  isolation: auto !important;
+  contain: none !important;
+  overflow: visible !important;
 }
 
 /* Profile Header */
@@ -19,6 +38,7 @@
   background-color: var(--color-card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 8px var(--color-card-shadow);
+  overflow: visible !important;
 }
 
 .profile-avatar {
@@ -34,6 +54,7 @@
   font-weight: 600;
   margin-right: 1.5rem;
   box-shadow: 0 2px 10px var(--color-card-shadow);
+  overflow: visible !important;
 }
 
 .profile-page-title {
@@ -58,6 +79,7 @@
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  overflow: visible !important;
 }
 
 /* Profile Sidebar */
@@ -65,6 +87,7 @@
   position: sticky;
   top: 90px;
   height: fit-content;
+  overflow: visible !important;
 }
 
 .profile-nav {
@@ -72,12 +95,14 @@
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 2px 8px var(--color-card-shadow);
+  overflow: visible !important;
 }
 
 .profile-nav-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  overflow: visible !important;
 }
 
 .profile-nav-item {
@@ -91,6 +116,7 @@
   gap: 0.75rem;
   color: var(--color-text);
   border-left: 3px solid transparent;
+  overflow: visible !important;
 }
 
 .profile-nav-item:hover {
@@ -115,10 +141,12 @@
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px var(--color-card-shadow);
+  overflow: visible !important;
 }
 
 .profile-section {
   margin-bottom: 2rem;
+  overflow: visible !important;
 }
 
 .section-title {
@@ -135,6 +163,7 @@
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1rem;
+  overflow: visible !important;
 }
 
 .profile-info {
@@ -389,47 +418,120 @@
 @media (max-width: 768px) {
   .profile-page {
     padding: 1rem;
-    margin-top: 70px; /* Slightly less margin on mobile */
+    margin-top: 70px;
+    width: 100% !important;
+    min-width: 100% !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
   }
 
   .profile-header {
     flex-direction: column;
     text-align: center;
     gap: 1rem;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    margin-bottom: 1.5rem !important;
+    padding: 1rem !important;
+    box-sizing: border-box !important;
   }
 
   .profile-avatar {
     margin-right: 0;
     margin-bottom: 1rem;
+    width: 70px;
+    height: 70px;
+    font-size: 1.5rem;
+    min-width: 70px !important;
+    min-height: 70px !important;
+    overflow: visible !important;
+    align-self: center !important;
   }
 
   .profile-page-title {
     font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .profile-username-handle {
+    font-size: 1rem;
+    text-align: center !important;
+    width: 100% !important;
   }
 
   .profile-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     gap: 1rem;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
   }
 
   .profile-sidebar {
-    position: static;
+    position: static !important;
     top: auto;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    order: 1 !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-nav {
+    padding: 0.75rem;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    margin-bottom: 1rem !important;
+    box-sizing: border-box !important;
   }
 
   .profile-nav-list {
-    display: flex;
+    display: flex !important;
     overflow-x: auto;
     gap: 0.5rem;
     padding: 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-nav-list::-webkit-scrollbar {
+    display: none;
   }
 
   .profile-nav-item {
-    flex-shrink: 0;
+    flex-shrink: 0 !important;
     padding: 0.75rem 1rem;
     border-radius: 8px;
     border-left: none;
     border-bottom: 3px solid transparent;
+    font-size: 0.9rem;
+    min-width: 120px;
+    justify-content: center;
+    min-height: 44px !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
   }
 
   .profile-nav-item.active {
@@ -439,20 +541,44 @@
 
   .profile-nav-icon {
     margin-right: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .profile-content {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    order: 2 !important;
+    box-sizing: border-box !important;
   }
 
   .profile-card {
     padding: 1.5rem;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    margin-bottom: 1rem !important;
+    box-sizing: border-box !important;
   }
 
   .profile-actions {
     flex-direction: column;
+    gap: 0.75rem;
+    align-items: center !important;
+    width: 100% !important;
   }
 
   .profile-page .edit-button,
   .save-button,
   .cancel-button {
-    width: 100%;
+    width: 100% !important;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+    max-width: 300px !important;
+    box-sizing: border-box !important;
   }
 
   .profile-edit-modal .profile-actions {
@@ -463,10 +589,21 @@
     width: 95vw;
     max-width: 500px;
     margin: 1rem;
+    max-height: 85vh;
   }
 
   .modal-header {
     padding: 1rem 1.5rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .modal-close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
   }
 
   .modal-form {
@@ -479,26 +616,374 @@
     gap: 1rem;
   }
 
+  .form-field input {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+
   .profile-picture-upload-section {
     flex-direction: column;
     align-items: center;
     text-align: center;
     padding: 1rem;
+    gap: 1rem;
+  }
+
+  .profile-picture-preview {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
   }
 
   .profile-picture-controls {
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .profile-picture-choose-btn,
+  .profile-picture-remove-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    min-height: 44px;
     width: 100%;
   }
 
   .modal-actions {
     flex-direction: column;
     gap: 0.75rem;
+    padding: 1rem 1.5rem;
   }
 
   .modal-actions .save-button,
   .modal-actions .cancel-button {
     width: 100%;
     min-width: auto;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .profile-field {
+    padding: 0.75rem 0;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .profile-field label {
+    font-size: 0.9rem;
+    display: block !important;
+    margin-bottom: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  .profile-field span {
+    font-size: 0.95rem;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .security-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .security-link {
+    width: 100% !important;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+    max-width: 300px !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .google-account-notice {
+    padding: 1rem;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .notice-title {
+    font-size: 1rem;
+    width: 100% !important;
+  }
+
+  .notice-description {
+    font-size: 0.9rem;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-page {
+    padding: 0.75rem;
+    margin-top: 60px;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-header {
+    padding: 0.75rem;
+    gap: 0.75rem;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    margin-bottom: 1rem !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 1.25rem;
+    min-width: 60px !important;
+    min-height: 60px !important;
+    overflow: visible !important;
+    align-self: center !important;
+    margin: 0 auto 0.75rem auto !important;
+  }
+
+  .profile-page-title {
+    font-size: 1.3rem;
+    text-align: center !important;
+    margin-bottom: 0.25rem !important;
+    width: 100% !important;
+  }
+
+  .profile-username-handle {
+    font-size: 0.9rem;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .profile-container {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-sidebar {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    order: 1 !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-nav {
+    padding: 0.5rem;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    margin-bottom: 0.75rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-nav-list {
+    padding: 0.25rem;
+    gap: 0.25rem;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-nav-item {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+    min-width: 100px;
+    min-height: 44px !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-nav-icon {
+    font-size: 0.9rem;
+    margin-right: 0.4rem;
+  }
+
+  .profile-content {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    order: 2 !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-card {
+    padding: 1rem;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    margin-bottom: 0.75rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-page .edit-button,
+  .save-button,
+  .cancel-button {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+    max-width: 280px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .profile-edit-modal {
+    width: 98vw;
+    margin: 0.5rem;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .modal-close-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+  }
+
+  .modal-form {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .form-field input {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+
+  .profile-picture-upload-section {
+    padding: 0.75rem;
+  }
+
+  .profile-picture-preview {
+    width: 70px;
+    height: 70px;
+    font-size: 1.75rem;
+  }
+
+  .profile-picture-choose-btn,
+  .profile-picture-remove-btn {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.85rem;
+    min-height: 44px;
+  }
+
+  .modal-actions {
+    padding: 0.75rem 1rem;
+  }
+
+  .modal-actions .save-button,
+  .modal-actions .cancel-button {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .profile-field {
+    padding: 0.6rem 0;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .profile-field label {
+    font-size: 0.85rem;
+    display: block !important;
+    margin-bottom: 0.4rem !important;
+    width: 100% !important;
+  }
+
+  .profile-field span {
+    font-size: 0.9rem;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .security-link {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+    max-width: 280px !important;
+    width: 100% !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .google-account-notice {
+    padding: 0.75rem;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .notice-title {
+    font-size: 0.95rem;
+    width: 100% !important;
+  }
+
+  .notice-description {
+    font-size: 0.85rem;
+    width: 100% !important;
+  }
+
+  .profile-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .security-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center !important;
+    width: 100% !important;
   }
 }
 
@@ -515,6 +1000,8 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .profile-edit-modal {
@@ -527,6 +1014,8 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 10000;
 }
 
 /* Modal Header */

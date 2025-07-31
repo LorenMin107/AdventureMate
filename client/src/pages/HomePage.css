@@ -163,20 +163,23 @@
 
 .hero-scroll-indicator {
   position: absolute;
-  bottom: 3rem;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   animation: bounce 2.5s infinite;
+  z-index: 10;
 }
 
 .scroll-arrow {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-primary);
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--color-primary);
   border-top: none;
   border-left: none;
   transform: rotate(45deg);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
 }
 
 /* Destinations Section - Horizontal Cards with Side Images */
@@ -951,11 +954,18 @@
   .hero-cta {
     flex-direction: column;
     align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
   }
 
   .btn-large {
     width: 100%;
-    max-width: 350px;
+    max-width: 280px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    min-width: 160px;
+    height: 48px;
+    border-radius: 25px;
   }
 
   /* Destinations - Grid layout on mobile */
@@ -1008,8 +1018,11 @@
 
   .destination-cta-btn {
     width: 100%;
-    max-width: 200px;
+    max-width: 180px;
     justify-content: center;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    height: 40px;
   }
 
   /* Features */
@@ -1059,11 +1072,15 @@
   .cta-buttons {
     flex-direction: column;
     align-items: center;
+    gap: 1rem;
   }
 
   .cta-buttons .btn-large {
     width: 100%;
-    max-width: 350px;
+    max-width: 280px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    height: 48px;
   }
 
   .cta-content h2 {
@@ -1078,6 +1095,30 @@
 @media (max-width: 480px) {
   .hero-content {
     padding: 1.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .hero-cta {
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-large {
+    max-width: 240px;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.95rem;
+    height: 44px;
+    min-width: 140px;
+  }
+
+  .hero-scroll-indicator {
+    bottom: 0.5rem;
+  }
+
+  .scroll-arrow {
+    width: 25px;
+    height: 25px;
+    border-width: 1.5px;
   }
 
   .feature-card {
@@ -1096,6 +1137,13 @@
     padding: 1.5rem;
   }
 
+  .destination-cta-btn {
+    max-width: 160px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    height: 36px;
+  }
+
   .step-number {
     width: 60px;
     height: 60px;
@@ -1108,5 +1156,12 @@
 
   .section-subtitle {
     font-size: 1.1rem;
+  }
+
+  .cta-buttons .btn-large {
+    max-width: 240px;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.95rem;
+    height: 44px;
   }
 }

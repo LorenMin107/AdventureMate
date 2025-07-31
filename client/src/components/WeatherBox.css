@@ -451,3 +451,216 @@
 .weather-box.compact.dark .forecast-day-compact {
   border-bottom-color: var(--color-border, #4a5568);
 }
+
+/* Mobile responsive styles for weather box */
+@media (max-width: 768px) {
+  .weather-box {
+    padding: 12px;
+    margin: 6px 0;
+    border-radius: 8px;
+    font-size: 13px;
+    max-width: 280px;
+  }
+
+  .weather-current {
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+
+  .weather-current-main {
+    gap: 8px;
+  }
+
+  .weather-icon {
+    font-size: 2.2rem;
+    width: 44px;
+  }
+
+  .temp-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .temp-unit {
+    font-size: 0.9rem;
+  }
+
+  .weather-details {
+    gap: 6px;
+  }
+
+  .weather-description {
+    font-size: 0.8rem;
+  }
+
+  .weather-meta {
+    font-size: 0.75rem;
+    gap: 8px;
+  }
+
+  .forecast-days {
+    gap: 8px;
+  }
+
+  .forecast-day {
+    padding: 6px;
+    border-radius: 6px;
+  }
+
+  .forecast-date {
+    font-size: 0.7rem;
+  }
+
+  .forecast-icon {
+    font-size: 1.2rem;
+    width: 24px;
+  }
+
+  .temp-max,
+  .temp-min {
+    font-size: 0.75rem;
+  }
+
+  .forecast-desc {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .weather-box {
+    padding: 8px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 12px;
+    max-width: 260px;
+  }
+
+  .weather-current {
+    gap: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+  }
+
+  .weather-current-main {
+    gap: 6px;
+  }
+
+  .weather-icon {
+    font-size: 1.8rem;
+    width: 36px;
+  }
+
+  .temp-value {
+    font-size: 1.3rem;
+  }
+
+  .temp-unit {
+    font-size: 0.8rem;
+  }
+
+  .weather-details {
+    gap: 4px;
+  }
+
+  .weather-description {
+    font-size: 0.75rem;
+  }
+
+  .weather-meta {
+    font-size: 0.7rem;
+    gap: 6px;
+  }
+
+  .forecast-days {
+    gap: 6px;
+  }
+
+  .forecast-day {
+    padding: 4px;
+    border-radius: 4px;
+  }
+
+  .forecast-date {
+    font-size: 0.65rem;
+  }
+
+  .forecast-icon {
+    font-size: 1rem;
+    width: 20px;
+  }
+
+  .temp-max,
+  .temp-min {
+    font-size: 0.7rem;
+  }
+
+  .forecast-desc {
+    font-size: 0.6rem;
+  }
+}
+
+/* Extra compact styles for map popups */
+.weather-box.popup-compact {
+  padding: 6px;
+  margin: 0;
+  border-radius: 4px;
+  font-size: 11px;
+  max-width: none;
+  width: 100%;
+}
+
+.weather-box.popup-compact .weather-current {
+  gap: 4px;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+}
+
+.weather-box.popup-compact .weather-icon {
+  font-size: 1.4rem;
+  width: 28px;
+}
+
+.weather-box.popup-compact .temp-value {
+  font-size: 1rem;
+}
+
+.weather-box.popup-compact .temp-unit {
+  font-size: 0.7rem;
+}
+
+.weather-box.popup-compact .weather-description {
+  font-size: 0.65rem;
+}
+
+.weather-box.popup-compact .weather-meta {
+  font-size: 0.6rem;
+  gap: 4px;
+}
+
+.weather-box.popup-compact .forecast-days {
+  gap: 4px;
+}
+
+.weather-box.popup-compact .forecast-day {
+  padding: 2px;
+  border-radius: 3px;
+}
+
+.weather-box.popup-compact .forecast-date {
+  font-size: 0.55rem;
+}
+
+.weather-box.popup-compact .forecast-icon {
+  font-size: 0.8rem;
+  width: 16px;
+}
+
+.weather-box.popup-compact .temp-max,
+.weather-box.popup-compact .temp-min {
+  font-size: 0.6rem;
+}
+
+.weather-box.popup-compact .forecast-desc {
+  font-size: 0.5rem;
+}

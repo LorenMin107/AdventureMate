@@ -1,0 +1,103 @@
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  min-width: 44px;
+  min-height: 44px;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+.theme-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.theme-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover .theme-icon {
+  transform: rotate(15deg);
+}
+
+/* Header specific styles */
+.header .theme-toggle {
+  margin-left: 0.5rem;
+  color: var(--color-header-text);
+}
+
+.header .theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-header-text);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .theme-toggle {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0.375rem;
+  }
+
+  .theme-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  /* Mobile menu specific styles */
+  .nav-list .theme-toggle {
+    margin: 0.5rem 0;
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-toggle {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0.25rem;
+  }
+
+  .theme-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* Animation for theme switch */
+@keyframes themeSwitch {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+.theme-toggle:active .theme-icon {
+  animation: themeSwitch 0.3s ease;
+}

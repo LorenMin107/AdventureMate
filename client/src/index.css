@@ -449,3 +449,173 @@ button:focus-visible {
   color: var(--color-info);
   border: 1px solid var(--color-info);
 }
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  /* Improve button touch targets */
+  .btn {
+    min-height: 48px;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  /* Improve form inputs */
+  .form-input {
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 48px;
+    border-radius: 8px;
+  }
+
+  /* Improve table responsiveness */
+  .table {
+    font-size: 0.9rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.875rem 0.625rem;
+  }
+
+  /* Improve card spacing */
+  .card {
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    border-radius: 12px;
+  }
+
+  /* Improve badge sizing */
+  .badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Further improve button touch targets */
+  .btn {
+    min-height: 48px;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    width: 100%;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  /* Improve form inputs for small screens */
+  .form-input {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+    min-height: 48px;
+    border-radius: 8px;
+  }
+
+  /* Improve table for small screens */
+  .table {
+    font-size: 0.85rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Improve card spacing for small screens */
+  .card {
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+  }
+
+  /* Improve badge sizing for small screens */
+  .badge {
+    padding: 0.375rem 0.875rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+
+  /* Improve headings for small screens */
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Ensure minimum touch target sizes */
+  .btn {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .form-input {
+    min-height: 48px;
+  }
+
+  /* Improve focus states for touch devices */
+  .btn:focus,
+  .form-input:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .btn:hover {
+    transform: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  /* Add active states for touch feedback */
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  .card:active {
+    transform: scale(0.99);
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+  .card {
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    min-height: 40px;
+  }
+
+  .form-input {
+    padding: 0.625rem;
+    min-height: 40px;
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .btn,
+  .form-input,
+  .card {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
