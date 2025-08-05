@@ -464,10 +464,13 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
                       type="button"
                       className="remove-image-button"
                       onClick={() => toggleImageForDeletion(image.filename)}
+                      title={
+                        imagesToDelete.includes(image.filename)
+                          ? t('campsites.restore')
+                          : t('campsites.remove')
+                      }
                     >
-                      {imagesToDelete.includes(image.filename)
-                        ? t('campsites.restore')
-                        : t('campsites.remove')}
+                      ×
                     </button>
                   </div>
                 ))}
@@ -501,8 +504,9 @@ const CampsiteForm = ({ campgroundId, campsite = null, isEditing = false }) => {
                     type="button"
                     className="remove-image-button"
                     onClick={() => removeSelectedImage(index)}
+                    title={t('campsites.remove')}
                   >
-                    {t('campsites.remove')}
+                    ×
                   </button>
                 </div>
               ))}

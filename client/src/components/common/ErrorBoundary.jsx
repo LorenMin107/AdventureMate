@@ -39,7 +39,6 @@ class ErrorBoundary extends React.Component {
 
       keysToRemove.forEach((key) => {
         localStorage.removeItem(key);
-        console.log('Cleared cache key:', key);
       });
 
       // Clear sessionStorage
@@ -50,12 +49,10 @@ class ErrorBoundary extends React.Component {
         caches.keys().then((cacheNames) => {
           cacheNames.forEach((cacheName) => {
             caches.delete(cacheName);
-            console.log('Cleared cache:', cacheName);
           });
         });
       }
 
-      console.log('All caches cleared, reloading page...');
 
       // Force reload with cache bypass
       window.location.reload(true);

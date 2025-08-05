@@ -267,7 +267,7 @@ describe('API Integration Tests', () => {
       const adminUser = await User.create({
         email: 'admin@example.com',
         username: 'adminuser',
-        password: await hashPassword('AdminPassword123!'),
+        password: hashPassword('AdminPassword123!'),
         isEmailVerified: true,
         isAdmin: true,
       });

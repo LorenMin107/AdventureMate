@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import useOwners from '../hooks/useOwners';
-import PasswordChangeForm from '../components/PasswordChangeForm';
 import { logError } from '../utils/logger';
 import './OwnerSettingsPage.css';
 import { Link } from 'react-router-dom';
@@ -31,25 +30,31 @@ const OwnerSettingsPage = () => {
   const { data: ownerProfile, isLoading, error: fetchError, refetch } = useOwnerProfile();
 
   const [formData, setFormData] = useState({
-    businessName: '',
-    businessType: 'individual',
-    businessPhone: '',
-    businessEmail: '',
+    businessName: ownerProfile.businessName || '',
+    businessType: ownerProfile.businessType || 'individual',
+    businessRegistrationNumber: ownerProfile.businessRegistrationNumber || '',
+    taxId: ownerProfile.taxId || '',
     businessAddress: {
-      street: '',
-      city: '',
-      state: '',
-      zipCode: '',
-      country: 'Myanmar',
+      street: ownerProfile.businessAddress?.street || '',
+      city: ownerProfile.businessAddress?.city || '',
+      state: ownerProfile.businessAddress?.state || '',
+      zipCode: ownerProfile.businessAddress?.zipCode || '',
+      country: 'Thailand',
+    },
+    businessPhone: ownerProfile.businessPhone || '',
+    businessEmail: ownerProfile.businessEmail || currentUser?.email || '',
+    bankingInfo: {
+      accountHolderName: ownerProfile.bankingInfo?.accountHolderName || '',
+      bankName: ownerProfile.bankingInfo?.bankName || '',
+      accountNumber: ownerProfile.bankingInfo?.accountNumber || '',
+      routingNumber: ownerProfile.bankingInfo?.routingNumber || '',
+      swiftCode: ownerProfile.bankingInfo?.swiftCode || '',
     },
     settings: {
-      autoApproveBookings: false,
-      allowInstantBooking: true,
-      cancellationPolicy: 'moderate',
-      minimumStay: 1,
-      maximumStay: 30,
-      checkInTime: '15:00',
-      checkOutTime: '11:00',
+      minimumStay: ownerProfile.settings?.minimumStay || 1,
+      maximumStay: ownerProfile.settings?.maximumStay || 30,
+      checkInTime: ownerProfile.settings?.checkInTime || '15:00',
+      checkOutTime: ownerProfile.settings?.checkOutTime || '11:00',
     },
   });
 
@@ -58,19 +63,25 @@ const OwnerSettingsPage = () => {
       setFormData({
         businessName: ownerProfile.businessName || '',
         businessType: ownerProfile.businessType || 'individual',
-        businessPhone: ownerProfile.businessPhone || '',
-        businessEmail: ownerProfile.businessEmail || currentUser?.email || '',
+        businessRegistrationNumber: ownerProfile.businessRegistrationNumber || '',
+        taxId: ownerProfile.taxId || '',
         businessAddress: {
           street: ownerProfile.businessAddress?.street || '',
           city: ownerProfile.businessAddress?.city || '',
           state: ownerProfile.businessAddress?.state || '',
           zipCode: ownerProfile.businessAddress?.zipCode || '',
-          country: ownerProfile.businessAddress?.country || 'Myanmar',
+          country: 'Thailand',
+        },
+        businessPhone: ownerProfile.businessPhone || '',
+        businessEmail: ownerProfile.businessEmail || currentUser?.email || '',
+        bankingInfo: {
+          accountHolderName: ownerProfile.bankingInfo?.accountHolderName || '',
+          bankName: ownerProfile.bankingInfo?.bankName || '',
+          accountNumber: ownerProfile.bankingInfo?.accountNumber || '',
+          routingNumber: ownerProfile.bankingInfo?.routingNumber || '',
+          swiftCode: ownerProfile.bankingInfo?.swiftCode || '',
         },
         settings: {
-          autoApproveBookings: ownerProfile.settings?.autoApproveBookings || false,
-          allowInstantBooking: ownerProfile.settings?.allowInstantBooking || true,
-          cancellationPolicy: ownerProfile.settings?.cancellationPolicy || 'moderate',
           minimumStay: ownerProfile.settings?.minimumStay || 1,
           maximumStay: ownerProfile.settings?.maximumStay || 30,
           checkInTime: ownerProfile.settings?.checkInTime || '15:00',
@@ -215,20 +226,6 @@ const OwnerSettingsPage = () => {
             >
               <span className="nav-icon">⚙️</span>
               <span className="nav-label">{t('ownerSettings.businessSettings')}</span>
-            </button>
-            <button
-              className={`nav-item ${activeSection === 'security' ? 'active' : ''}`}
-              onClick={() => setActiveSection('security')}
-            >
-              <span className="nav-icon">🔒</span>
-              <span className="nav-label">{t('ownerSettings.security')}</span>
-            </button>
-            <button
-              className={`nav-item ${activeSection === 'notifications' ? 'active' : ''}`}
-              onClick={() => setActiveSection('notifications')}
-            >
-              <span className="nav-icon">🔔</span>
-              <span className="nav-label">{t('ownerSettings.notifications')}</span>
             </button>
           </div>
         </div>
@@ -376,14 +373,12 @@ const OwnerSettingsPage = () => {
                     <div className="form-group">
                       <label htmlFor="businessAddress.country">{t('ownerSettings.country')}</label>
                       <input
-                        type="text"
+                        type="hidden"
                         id="businessAddress.country"
                         name="businessAddress.country"
-                        value={formData.businessAddress.country}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        placeholder={t('ownerSettings.countryPlaceholder')}
+                        value="Thailand"
                       />
+                      <input type="text" value="Thailand" disabled className="disabled-input" />
                     </div>
                   </div>
                 </div>
@@ -400,32 +395,6 @@ const OwnerSettingsPage = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="settings-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="settings.checkInTime">{t('ownerSettings.checkInTime')}</label>
-                    <input
-                      type="time"
-                      id="settings.checkInTime"
-                      name="settings.checkInTime"
-                      value={formData.settings.checkInTime}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="settings.checkOutTime">{t('ownerSettings.checkOutTime')}</label>
-                    <input
-                      type="time"
-                      id="settings.checkOutTime"
-                      name="settings.checkOutTime"
-                      value={formData.settings.checkOutTime}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                    />
-                  </div>
-                </div>
-
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="settings.minimumStay">{t('ownerSettings.minimumStay')}</label>
@@ -456,143 +425,32 @@ const OwnerSettingsPage = () => {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="settings.cancellationPolicy">
-                    {t('ownerSettings.cancellationPolicy')}
-                  </label>
-                  <select
-                    id="settings.cancellationPolicy"
-                    name="settings.cancellationPolicy"
-                    value={formData.settings.cancellationPolicy}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                  >
-                    <option value="flexible">{t('ownerSettings.flexible')}</option>
-                    <option value="moderate">{t('ownerSettings.moderate')}</option>
-                    <option value="strict">{t('ownerSettings.strict')}</option>
-                  </select>
-                </div>
-
-                <div className="checkbox-group">
-                  <label className="checkbox-label">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="settings.checkInTime">{t('ownerSettings.checkInTime')}</label>
                     <input
-                      type="checkbox"
-                      name="settings.autoApproveBookings"
-                      checked={formData.settings.autoApproveBookings}
+                      type="time"
+                      id="settings.checkInTime"
+                      name="settings.checkInTime"
+                      value={formData.settings.checkInTime}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
-                    {t('ownerSettings.autoApproveBookings')}
-                    <small>{t('ownerSettings.autoApproveBookingsDescription')}</small>
-                  </label>
-                </div>
+                  </div>
 
-                <div className="checkbox-group">
-                  <label className="checkbox-label">
+                  <div className="form-group">
+                    <label htmlFor="settings.checkOutTime">{t('ownerSettings.checkOutTime')}</label>
                     <input
-                      type="checkbox"
-                      name="settings.allowInstantBooking"
-                      checked={formData.settings.allowInstantBooking}
+                      type="time"
+                      id="settings.checkOutTime"
+                      name="settings.checkOutTime"
+                      value={formData.settings.checkOutTime}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />
-                    {t('ownerSettings.allowInstantBooking')}
-                    <small>{t('ownerSettings.allowInstantBookingDescription')}</small>
-                  </label>
+                  </div>
                 </div>
               </form>
-            </div>
-          )}
-
-          {/* Security Section */}
-          {activeSection === 'security' && (
-            <div className="settings-section">
-              <div className="section-header">
-                <h2>{t('ownerSettings.security')}</h2>
-                <p className="section-subtitle">{t('ownerSettings.securitySubtitle')}</p>
-              </div>
-
-              <PasswordChangeForm />
-
-              <div className="security-options">
-                <div className="security-option">
-                  <div className="option-info">
-                    <h4>{t('ownerSettings.twoFactorAuthentication')}</h4>
-                    <p>{t('ownerSettings.twoFactorAuthenticationDescription')}</p>
-                  </div>
-                  <button className="owner-btn owner-btn-outline">
-                    {t('ownerSettings.setup2FA')}
-                  </button>
-                </div>
-
-                <div className="security-option">
-                  <div className="option-info">
-                    <h4>{t('ownerSettings.passwordChange')}</h4>
-                    <p>{t('ownerSettings.passwordChangeDescription')}</p>
-                  </div>
-                  <Link to="/password-change" className="owner-btn owner-btn-outline">
-                    {t('ownerSettings.changePassword')}
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Notifications Section */}
-          {activeSection === 'notifications' && (
-            <div className="settings-section">
-              <div className="section-header">
-                <h2>{t('ownerSettings.notificationPreferences')}</h2>
-                <p className="section-subtitle">
-                  {t('ownerSettings.notificationPreferencesSubtitle')}
-                </p>
-              </div>
-
-              <div className="notification-options">
-                <div className="notification-item">
-                  <div className="notification-info">
-                    <h3>{t('ownerSettings.newBookings')}</h3>
-                    <p>{t('ownerSettings.newBookingsDescription')}</p>
-                  </div>
-                  <label className="toggle-switch">
-                    <input type="checkbox" defaultChecked />
-                    <span className="toggle-slider"></span>
-                  </label>
-                </div>
-
-                <div className="notification-item">
-                  <div className="notification-info">
-                    <h3>{t('ownerSettings.bookingUpdates')}</h3>
-                    <p>{t('ownerSettings.bookingUpdatesDescription')}</p>
-                  </div>
-                  <label className="toggle-switch">
-                    <input type="checkbox" defaultChecked />
-                    <span className="toggle-slider"></span>
-                  </label>
-                </div>
-
-                <div className="notification-item">
-                  <div className="notification-info">
-                    <h3>{t('ownerSettings.newReviews')}</h3>
-                    <p>{t('ownerSettings.newReviewsDescription')}</p>
-                  </div>
-                  <label className="toggle-switch">
-                    <input type="checkbox" defaultChecked />
-                    <span className="toggle-slider"></span>
-                  </label>
-                </div>
-
-                <div className="notification-item">
-                  <div className="notification-info">
-                    <h3>{t('ownerSettings.systemUpdates')}</h3>
-                    <p>{t('ownerSettings.systemUpdatesDescription')}</p>
-                  </div>
-                  <label className="toggle-switch">
-                    <input type="checkbox" defaultChecked />
-                    <span className="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
             </div>
           )}
         </div>

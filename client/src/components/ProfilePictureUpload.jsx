@@ -94,7 +94,7 @@ const ProfilePictureUpload = () => {
         fileInputRef.current.value = '';
       }
 
-      // Show success message
+      // Show a success message
       setError('');
     } catch (err) {
       logError('Error uploading profile picture', err);

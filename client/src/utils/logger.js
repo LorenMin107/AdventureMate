@@ -1,7 +1,7 @@
 // Secure frontend logger utility for React apps
 // Only logs in development mode and sanitizes sensitive data
 
-const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+const isDev = false; // Disable all logging for production
 
 // Sanitize sensitive data before logging
 function sanitizeData(data) {
@@ -31,33 +31,17 @@ function sanitizeData(data) {
 }
 
 export function logInfo(message, ...args) {
-  if (isDev) {
-    const sanitizedArgs = args.map((arg) => sanitizeData(arg));
-    // eslint-disable-next-line no-console
-    console.info(`[INFO] ${message}`, ...sanitizedArgs);
-  }
+  // Logging disabled for production
 }
 
 export function logWarn(message, ...args) {
-  if (isDev) {
-    const sanitizedArgs = args.map((arg) => sanitizeData(arg));
-    // eslint-disable-next-line no-console
-    console.warn(`[WARN] ${message}`, ...sanitizedArgs);
-  }
+  // Logging disabled for production
 }
 
 export function logError(message, ...args) {
-  if (isDev) {
-    const sanitizedArgs = args.map((arg) => sanitizeData(arg));
-    // eslint-disable-next-line no-console
-    console.error(`[ERROR] ${message}`, ...sanitizedArgs);
-  }
+  // Logging disabled for production
 }
 
 export function logDebug(message, ...args) {
-  if (isDev) {
-    const sanitizedArgs = args.map((arg) => sanitizeData(arg));
-    // eslint-disable-next-line no-console
-    console.debug(`[DEBUG] ${message}`, ...sanitizedArgs);
-  }
+  // Logging disabled for production
 }

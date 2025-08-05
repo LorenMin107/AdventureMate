@@ -39,6 +39,22 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
       campground.geometry.coordinates.length === 2
   );
 
+  // Force map re-render when theme changes
+  useEffect(() => {
+    if (mapRef.current) {
+      const map = mapRef.current.getMap();
+      if (map) {
+        // Update map style when theme changes
+        const newMapStyle =
+          theme === 'dark'
+            ? 'mapbox://styles/mapbox/dark-v11'
+            : 'mapbox://styles/mapbox/outdoors-v12';
+
+        map.setStyle(newMapStyle);
+      }
+    }
+  }, [theme]);
+
   // If no campgrounds with valid geometry, show a message
   if (validCampgrounds.length === 0) {
     return (
@@ -52,6 +68,7 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
   return (
     <div className="cluster-map-container">
       <Map
+        key={`cluster-map-${theme}`}
         {...viewState}
         ref={mapRef}
         onMove={(evt) => setViewState(evt.viewState)}
@@ -79,10 +96,10 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
               // Pan the map so the marker is visible with enough space for the popup
               const map = mapRef.current && mapRef.current.getMap ? mapRef.current.getMap() : null;
               if (map) {
-                // Offset upward by 180px to make room for the popup
+                // Offset downward by 100px to make room for the popup below
                 map.easeTo({
                   center: [campground.geometry.coordinates[0], campground.geometry.coordinates[1]],
-                  offset: [0, -180],
+                  offset: [0, 100],
                   duration: 800,
                   essential: true,
                 });
@@ -95,23 +112,7 @@ const ClusterMap = ({ campgrounds = [], initialViewState }) => {
           <Popup
             longitude={selectedCampground.geometry.coordinates[0]}
             latitude={selectedCampground.geometry.coordinates[1]}
-            anchor={(() => {
-              const map = mapRef.current && mapRef.current.getMap ? mapRef.current.getMap() : null;
-              if (!map) return 'top';
-              const markerLngLat = [
-                selectedCampground.geometry.coordinates[0],
-                selectedCampground.geometry.coordinates[1],
-              ];
-              const point = map.project(markerLngLat);
-              const mapSize = map.getContainer();
-              const width = mapSize.offsetWidth;
-              const height = mapSize.offsetHeight;
-              const edgeBuffer = 80; // px
-              if (point.y > height - edgeBuffer) return 'bottom'; // near bottom - show popup above
-              if (point.x < edgeBuffer) return 'right'; // near left
-              if (point.x > width - edgeBuffer) return 'left'; // near right
-              return 'top'; // default - show popup below
-            })()}
+            anchor="bottom"
             onClose={() => setSelectedCampground(null)}
             closeButton={false}
             closeOnClick={false}

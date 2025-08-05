@@ -31,7 +31,7 @@ const OwnerCreateProfilePage = () => {
       city: '',
       state: '',
       zipCode: '',
-      country: 'Myanmar',
+      country: 'Thailand',
     },
     businessPhone: '',
     businessEmail: currentUser?.email || '',
@@ -43,9 +43,6 @@ const OwnerCreateProfilePage = () => {
       swiftCode: '',
     },
     settings: {
-      autoApproveBookings: false,
-      allowInstantBooking: true,
-      cancellationPolicy: 'moderate',
       minimumStay: 1,
       maximumStay: 30,
       checkInTime: '15:00',
@@ -377,13 +374,12 @@ const OwnerCreateProfilePage = () => {
                   {t('ownerCreateProfile.businessAddress.country')}
                 </label>
                 <input
-                  type="text"
+                  type="hidden"
                   id="businessAddress.country"
                   name="businessAddress.country"
-                  value={formData.businessAddress.country}
-                  onChange={handleInputChange}
-                  placeholder={t('ownerCreateProfile.businessAddress.countryPlaceholder')}
+                  value="Thailand"
                 />
+                <input type="text" value="Thailand" disabled className="disabled-input" />
               </div>
             </div>
           </div>
@@ -553,54 +549,6 @@ const OwnerCreateProfilePage = () => {
                   max="365"
                 />
               </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="settings.cancellationPolicy">
-                {t('ownerCreateProfile.businessSettings.cancellationPolicy')}
-              </label>
-              <select
-                id="settings.cancellationPolicy"
-                name="settings.cancellationPolicy"
-                value={formData.settings.cancellationPolicy}
-                onChange={handleInputChange}
-              >
-                <option value="flexible">
-                  {t('ownerCreateProfile.businessSettings.cancellationPolicies.flexible')}
-                </option>
-                <option value="moderate">
-                  {t('ownerCreateProfile.businessSettings.cancellationPolicies.moderate')}
-                </option>
-                <option value="strict">
-                  {t('ownerCreateProfile.businessSettings.cancellationPolicies.strict')}
-                </option>
-              </select>
-            </div>
-
-            <div className="checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="settings.autoApproveBookings"
-                  checked={formData.settings.autoApproveBookings}
-                  onChange={handleInputChange}
-                />
-                {t('ownerCreateProfile.businessSettings.autoApproveBookings')}
-                <small>{t('ownerCreateProfile.businessSettings.autoApproveDescription')}</small>
-              </label>
-            </div>
-
-            <div className="checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="settings.allowInstantBooking"
-                  checked={formData.settings.allowInstantBooking}
-                  onChange={handleInputChange}
-                />
-                {t('ownerCreateProfile.businessSettings.allowInstantBooking')}
-                <small>{t('ownerCreateProfile.businessSettings.allowInstantDescription')}</small>
-              </label>
             </div>
           </div>
         );

@@ -15,40 +15,38 @@ const CampgroundsPage = () => {
   const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [locationFilter, setLocationFilter] = useState('');
+  const [sortOption, setSortOption] = useState('default');
   const [isSearching, setIsSearching] = useState(false);
-  const [locations, setLocations] = useState([]);
 
-  // Use the custom hook to fetch campgrounds and locations
+  // Use the custom hook to fetch campgrounds
   const { useAllCampgrounds } = useCampgrounds();
   const { data, isLoading, isError, error } = useAllCampgrounds();
-
-  // Extract locations and campgrounds from data when it's available
-  useEffect(() => {
-    if (data && data.locations) {
-      setLocations(data.locations);
-    }
-  }, [data]);
 
   // Extract campgrounds from data
   const campgrounds = data?.campgrounds || [];
 
-  // Filter campgrounds by search term and location
-  const filteredCampgrounds = campgrounds.filter((campground) => {
-    // Check if campground matches the search term
-    const matchesSearchTerm =
-      !searchTerm ||
-      campground.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      campground.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      campground.location.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filter and sort campgrounds
+  const filteredAndSortedCampgrounds = campgrounds
+    .filter((campground) => {
+      // Check if campground matches the search term
+      const matchesSearchTerm =
+        !searchTerm ||
+        campground.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        campground.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        campground.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-    // Check if campground matches the location filter
-    const matchesLocation =
-      !locationFilter || campground.location.toLowerCase().includes(locationFilter.toLowerCase());
-
-    // Return true if campground matches both filters
-    return matchesSearchTerm && matchesLocation;
-  });
+      return matchesSearchTerm;
+    })
+    .sort((a, b) => {
+      switch (sortOption) {
+        case 'price-low-high':
+          return (a.startingPrice || 0) - (b.startingPrice || 0);
+        case 'price-high-low':
+          return (b.startingPrice || 0) - (a.startingPrice || 0);
+        default:
+          return 0; // No sorting, maintain original order
+      }
+    });
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -57,7 +55,7 @@ const CampgroundsPage = () => {
 
   const handleClearSearch = () => {
     setSearchTerm('');
-    setLocationFilter('');
+    setSortOption('default');
     setIsSearching(false);
   };
 
@@ -107,39 +105,36 @@ const CampgroundsPage = () => {
               {t('campgroundsPage.errorLoadingMap')}{' '}
               {error?.message || t('campgroundsPage.failedToLoadMap')}
             </div>
-          ) : filteredCampgrounds.length === 0 ? (
+          ) : filteredAndSortedCampgrounds.length === 0 ? (
             <div className="map-empty">{t('campgroundsPage.noCampgroundsFound')}</div>
           ) : (
             <div className="map-container">
-              <ClusterMap campgrounds={filteredCampgrounds} />
+              <ClusterMap campgrounds={filteredAndSortedCampgrounds} />
             </div>
           )}
         </div>
 
         {/* Campground List Section */}
         <div className="campgrounds-content">
-          {/* Location Filter */}
-          <div className="location-filter-container">
+          {/* Sort Options */}
+          <div className="sort-container">
             <select
-              value={locationFilter}
-              onChange={(e) => setLocationFilter(e.target.value)}
-              className="location-filter"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="sort-select"
               disabled={isLoading}
             >
-              <option value="">{t('campgroundsPage.allLocations')}</option>
-              {isLoading ? (
-                <option disabled>{t('campgroundsPage.loadingLocations')}</option>
-              ) : (
-                locations.map((location) => (
-                  <option key={location} value={location}>
-                    {location}
-                  </option>
-                ))
-              )}
+              <option value="default">{t('campgroundsPage.sortBy.default')}</option>
+              <option value="price-low-high">{t('campgroundsPage.sortBy.priceLowHigh')}</option>
+              <option value="price-high-low">{t('campgroundsPage.sortBy.priceHighLow')}</option>
             </select>
           </div>
 
-          <CampgroundList searchTerm={searchTerm} locationFilter={locationFilter} />
+          <CampgroundList
+            searchTerm={searchTerm}
+            sortOption={sortOption}
+            campgrounds={filteredAndSortedCampgrounds}
+          />
         </div>
       </div>
     </div>

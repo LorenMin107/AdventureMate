@@ -31,10 +31,13 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
   const [pendingInvites, setPendingInvites] = useState([]);
 
   useEffect(() => {
-    if (trip) {
-      fetchCollaborators();
-      fetchPendingInvites();
-    }
+    const loadData = async () => {
+      if (trip) {
+        await fetchCollaborators();
+        await fetchPendingInvites();
+      }
+    };
+    loadData();
   }, [trip]);
 
   const fetchCollaborators = async () => {
@@ -75,8 +78,8 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
       await apiClient.post(`/trips/${trip._id}/invite`, { email });
       setSuccess(t('shareTripDialog.invitationSent', { email }));
       setEmail('');
-      setTimeout(() => {
-        fetchCollaborators();
+      setTimeout(async () => {
+        await fetchCollaborators();
       }, 500);
     } catch (err) {
       setError(err.response?.data?.error || t('shareTripDialog.failedToSendInvitation'));
@@ -95,7 +98,7 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
     try {
       await apiClient.delete(`/trips/${trip._id}/collaborators/${userId}`);
       setSuccess(t('shareTripDialog.collaboratorRemoved'));
-      fetchCollaborators();
+      await fetchCollaborators();
     } catch (err) {
       setError(err.response?.data?.error || t('shareTripDialog.failedToRemoveCollaborator'));
     } finally {
@@ -111,7 +114,7 @@ const ShareTripDialog = ({ trip, onClose, onUpdate }) => {
     try {
       await apiClient.delete(`/trips/${trip._id}/invites/${encodeURIComponent(inviteEmail)}`);
       setSuccess(t('shareTripDialog.inviteCancelled'));
-      fetchPendingInvites();
+      await fetchPendingInvites();
     } catch (err) {
       setError(err.response?.data?.error || t('shareTripDialog.failedToCancelInvite'));
     } finally {

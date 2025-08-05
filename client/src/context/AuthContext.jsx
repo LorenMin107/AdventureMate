@@ -236,6 +236,23 @@ export const AuthProvider = ({ children }) => {
       logInfo('Login successful, setting currentUser');
       setCurrentUser(result);
       dispatchAuthStateChange(true);
+
+      // Force refresh auth status to ensure we have the latest user data (including owner status)
+      try {
+        logInfo('Forcing auth status refresh after login');
+        const authData = await authService.checkAuthStatus(true);
+        if (authData && authData.user) {
+          logInfo('Updated user data after auth refresh', {
+            isOwner: authData.user.isOwner,
+            isAdmin: authData.user.isAdmin,
+          });
+          setCurrentUser(authData.user);
+        }
+      } catch (refreshError) {
+        logError('Error refreshing auth status after login', refreshError);
+        // Don't fail the login if refresh fails
+      }
+
       return result;
     } catch (err) {
       logError('Login error caught', err);
@@ -271,6 +288,23 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(user);
       setRequiresTwoFactor(false);
       dispatchAuthStateChange(true);
+
+      // Force refresh auth status to ensure we have the latest user data (including owner status)
+      try {
+        logInfo('Forcing auth status refresh after 2FA verification');
+        const authData = await authService.checkAuthStatus(true);
+        if (authData && authData.user) {
+          logInfo('Updated user data after 2FA auth refresh', {
+            isOwner: authData.user.isOwner,
+            isAdmin: authData.user.isAdmin,
+          });
+          setCurrentUser(authData.user);
+        }
+      } catch (refreshError) {
+        logError('Error refreshing auth status after 2FA verification', refreshError);
+        // Don't fail the verification if refresh fails
+      }
+
       return user;
     } catch (err) {
       setError(err.message || 'Failed to verify 2FA token');
@@ -420,6 +454,23 @@ export const AuthProvider = ({ children }) => {
       // Regular login successful
       setCurrentUser(result);
       dispatchAuthStateChange(true);
+
+      // Force refresh auth status to ensure we have the latest user data (including owner status)
+      try {
+        logInfo('Forcing auth status refresh after Google login');
+        const authData = await authService.checkAuthStatus(true);
+        if (authData && authData.user) {
+          logInfo('Updated user data after Google auth refresh', {
+            isOwner: authData.user.isOwner,
+            isAdmin: authData.user.isAdmin,
+          });
+          setCurrentUser(authData.user);
+        }
+      } catch (refreshError) {
+        logError('Error refreshing auth status after Google login', refreshError);
+        // Don't fail the login if refresh fails
+      }
+
       return result;
     } catch (err) {
       setError(err.message || 'Failed to login with Google');

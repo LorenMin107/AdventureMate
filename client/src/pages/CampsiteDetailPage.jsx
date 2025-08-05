@@ -112,7 +112,6 @@ const CampsiteDetailPage = () => {
 
   // Fetch all safety alerts that require acknowledgment for both campsite and parent campground
   const fetchAllAcknowledgmentAlerts = async () => {
-    console.log('fetchAllAcknowledgmentAlerts called with id:', id);
     if (!id) return;
 
     try {
@@ -126,8 +125,6 @@ const CampsiteDetailPage = () => {
         typeof campsiteData.campground === 'object'
           ? campsiteData.campground._id
           : campsiteData.campground;
-      console.log('Campsite data:', campsiteData);
-      console.log('Parent Campground ID:', parentCampgroundId);
 
       // Fetch all alerts for the campsite
       const campsiteAlertsResponse = await apiClient.get(
@@ -137,17 +134,8 @@ const CampsiteDetailPage = () => {
           headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
         }
       );
-      console.log('Raw campsite alerts response:', campsiteAlertsResponse.data);
       const campsiteAlerts = (campsiteAlertsResponse.data.data?.alerts || []).filter(
         (a) => a.requiresAcknowledgement
-      );
-      console.log(
-        'Campsite Alerts (filtered):',
-        campsiteAlerts.map((a) => ({
-          id: a._id,
-          title: a.title,
-          requiresAcknowledgement: a.requiresAcknowledgement,
-        }))
       );
 
       // Fetch all alerts for the parent campground
@@ -160,17 +148,8 @@ const CampsiteDetailPage = () => {
             headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
           }
         );
-        console.log('Raw campground alerts response:', campgroundAlertsResponse.data);
         campgroundAlerts = (campgroundAlertsResponse.data.data?.alerts || []).filter(
           (a) => a.requiresAcknowledgement
-        );
-        console.log(
-          'Campground Alerts (filtered):',
-          campgroundAlerts.map((a) => ({
-            id: a._id,
-            title: a.title,
-            requiresAcknowledgement: a.requiresAcknowledgement,
-          }))
         );
       }
 
@@ -180,11 +159,6 @@ const CampsiteDetailPage = () => {
         allAlertsMap[alert._id] = alert;
       });
       const mergedAlerts = Object.values(allAlertsMap);
-      console.log(
-        'Merged Alerts:',
-        mergedAlerts.map((a) => ({ id: a._id, title: a.title }))
-      );
-      console.log('Final alerts count:', mergedAlerts.length);
       setSafetyAlerts(mergedAlerts);
     } catch (err) {
       console.error('Error in fetchAllAcknowledgmentAlerts:', err);

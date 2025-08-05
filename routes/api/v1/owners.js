@@ -57,6 +57,30 @@ router.patch(
   owners.updateOwnerBookingStatus
 );
 
+// Export Reports
+router.get(
+  '/export/revenue',
+  authenticateJWT,
+  requireAuth,
+  requireOwner,
+  owners.exportRevenueReport
+);
+router.get(
+  '/export/bookings',
+  authenticateJWT,
+  requireAuth,
+  requireOwner,
+  owners.exportBookingReport
+);
+router.get(
+  '/export/reviews',
+  authenticateJWT,
+  requireAuth,
+  requireOwner,
+  owners.exportReviewsReport
+);
+router.get('/export/full', authenticateJWT, requireAuth, requireOwner, owners.exportFullReport);
+
 // Owner Campground Management Routes
 router.get(
   '/campgrounds',

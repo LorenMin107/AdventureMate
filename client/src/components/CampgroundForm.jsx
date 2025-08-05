@@ -8,7 +8,7 @@ import MapPicker from './MapPicker';
 import { useTheme } from '../context/ThemeContext';
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || process.env.MAPBOX_TOKEN;
 
-const LOCAL_STORAGE_KEY = 'myancamp-owner-campground-form';
+const LOCAL_STORAGE_KEY = 'adventuremate-owner-campground-form';
 
 /**
  * CampgroundForm component for creating and editing campgrounds
@@ -521,10 +521,13 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
                       type="button"
                       className="remove-image-button"
                       onClick={() => toggleImageForDeletion(image.filename)}
+                      title={
+                        imagesToDelete.includes(image.filename)
+                          ? t('campgrounds.restore')
+                          : t('campgrounds.remove')
+                      }
                     >
-                      {imagesToDelete.includes(image.filename)
-                        ? t('campgrounds.restore')
-                        : t('campgrounds.remove')}
+                      ×
                     </button>
                   </div>
                 ))}
@@ -558,8 +561,9 @@ const CampgroundForm = ({ campground = null, isEditing = false, apiPath }) => {
                     type="button"
                     className="remove-image-button"
                     onClick={() => removeSelectedImage(index)}
+                    title={t('campgrounds.remove')}
                   >
-                    {t('campgrounds.remove')}
+                    ×
                   </button>
                 </div>
               ))}

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../context/AuthContext';
+import React, {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
+import {useAuth} from '@context/AuthContext';
 import apiClient from '../../utils/api';
-import { logError } from '../../utils/logger';
+import {logError} from '@utils/logger';
 import ConfirmDialog from '../common/ConfirmDialog';
 import './AdminTripList.css';
 
@@ -63,14 +63,14 @@ const AdminTripList = () => {
     fetchTrips();
   }, []);
 
-  const handleFilterChange = (filterName, value) => {
+  const handleFilterChange = async (filterName, value) => {
     const newFilters = { ...filters, [filterName]: value };
     setFilters(newFilters);
-    fetchTrips(1, newFilters);
+    await fetchTrips(1, newFilters);
   };
 
-  const handlePageChange = (newPage) => {
-    fetchTrips(newPage);
+  const handlePageChange = async (newPage) => {
+    await fetchTrips(newPage);
   };
 
   const handleDeleteClick = (trip) => {
@@ -86,7 +86,7 @@ const AdminTripList = () => {
     try {
       await apiClient.delete(`/admin/trips/${trip._id}`);
       // Refresh the trips list
-      fetchTrips(pagination.page);
+      await fetchTrips(pagination.page);
 
       // Close the dialog
       setDeleteDialog({ open: false, trip: null });
@@ -108,8 +108,7 @@ const AdminTripList = () => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     const diffTime = Math.abs(end - start);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
   const getTotalActivities = (trip) => {

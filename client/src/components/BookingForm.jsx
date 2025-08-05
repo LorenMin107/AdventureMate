@@ -292,7 +292,7 @@ const BookingForm = ({ campground }) => {
     campsiteSafetyAlerts.some((alert) => alert.requiresAcknowledgement);
 
   // Debug logging for safety alert acknowledgment status
-  console.log('BookingForm safety alert check:', {
+  console.log('Safety Alert Debug Info:', {
     safetyAlertsCount: safetyAlerts.length,
     campsiteSafetyAlertsCount: campsiteSafetyAlerts.length,
     hasAcknowledgedAll,
@@ -356,7 +356,7 @@ const BookingForm = ({ campground }) => {
               label={t('bookings.selectCampsite')}
               options={campsites.map((campsite) => ({
                 value: campsite._id,
-                label: `${campsite.name} - $${campsite.price}/night - ${t('bookings.capacity', { capacity: campsite.capacity })}`,
+                label: `${campsite.name} - $${campsite.price}/night - ${t('bookings.capacity')}: ${campsite.capacity}`,
               }))}
               onChange={(e) => handleCampsiteChange(e.target.value)}
               placeholder={t('bookings.chooseCampsite')}

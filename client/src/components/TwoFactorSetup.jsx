@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useUser } from '../context/UserContext';
 import { useFlashMessage } from '../context/FlashMessageContext';
 import './TwoFactorSetup.css';
-import { logInfo, logDebug, logError } from '../utils/logger';
 
 /**
  * Two-factor authentication setup component
@@ -24,33 +23,18 @@ const TwoFactorSetup = () => {
   const { userDetails, initiate2FASetup, verify2FASetup, disable2FA, loading, error } = useUser();
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
 
-  // Track component mount/unmount with more debugging
+  // Track component mount/unmount
   useEffect(() => {
-    logInfo('TwoFactorSetup component mounted');
-    logDebug('Component props/context at mount', { userDetails, loading, error });
     componentMounted.current = true;
 
     return () => {
-      logInfo('TwoFactorSetup component unmounted');
-      logDebug('Component state at unmount', { step, qrCode: Boolean(qrCode), isSetupInProgress });
       componentMounted.current = false;
     };
   }, []);
 
-  // Watch for userDetails changes that might cause unmounting
-  useEffect(() => {
-    logDebug('UserDetails changed', userDetails);
-  }, [userDetails]);
-
-  // Watch for loading state changes
-  useEffect(() => {
-    logDebug('Loading state changed', loading);
-  }, [loading]);
-
   // Restore state from ref if component remounts
   useEffect(() => {
     if (setupDataRef.current && !qrCode) {
-      logInfo('Restoring setup data from ref', setupDataRef.current);
       setQrCode(setupDataRef.current.qrCode);
       setSecret(setupDataRef.current.secret);
       setStep('qrCode');
@@ -67,23 +51,14 @@ const TwoFactorSetup = () => {
     }
 
     if (isSetupInProgress) {
-      logInfo('Setup already in progress, ignoring');
       return;
     }
-
-    logDebug('handleStartSetup called, current state', {
-      step,
-      isSetupInProgress,
-      componentMounted: componentMounted.current,
-    });
 
     setIsSetupInProgress(true);
     setFormError('');
 
     try {
-      logInfo('Starting 2FA setup...');
       const result = await initiate2FASetup();
-      logDebug('2FA setup result', result);
 
       // Store in ref for persistence across remounts
       setupDataRef.current = {
@@ -93,28 +68,9 @@ const TwoFactorSetup = () => {
 
       // Check if component is still mounted before updating state
       if (componentMounted.current && result.qrCode) {
-        logInfo('Component still mounted, setting QR code and updating step');
-
-        // Use callback form to ensure state updates are applied
-        setQrCode((prevQrCode) => {
-          logDebug(
-            'Setting QR code from',
-            prevQrCode,
-            'to',
-            result.qrCode.substring(0, 50) + '...'
-          );
-          return result.qrCode;
-        });
-
-        setSecret((prevSecret) => {
-          logDebug('Setting secret from', prevSecret, 'to', result.secret);
-          return result.secret;
-        });
-
-        setStep((prevStep) => {
-          logDebug('Setting step from', prevStep, 'to: qrCode');
-          return 'qrCode';
-        });
+        setQrCode(result.qrCode);
+        setSecret(result.secret);
+        setStep('qrCode');
 
         logInfo('All states updated, current step should be qrCode');
       } else {
@@ -148,7 +104,6 @@ const TwoFactorSetup = () => {
       setStep('backupCodes');
       addSuccessMessage(t('twoFactor.enabledSuccess'));
     } catch (err) {
-      logError('Error verifying 2FA setup', err);
       setFormError(err.message || t('twoFactor.invalidCode'));
     }
   };
@@ -173,7 +128,6 @@ const TwoFactorSetup = () => {
       setupDataRef.current = null;
       addSuccessMessage(t('twoFactor.disabledSuccess'));
     } catch (err) {
-      logError('Error disabling 2FA', err);
       setFormError(err.message || t('twoFactor.disableError'));
     }
   };
@@ -192,10 +146,6 @@ const TwoFactorSetup = () => {
 
   // Render different content based on the current step
   const renderContent = () => {
-    logDebug('Rendering content for step', step);
-    logDebug('QR code available', Boolean(qrCode));
-    logDebug('QR code length', qrCode ? qrCode.length : 0);
-
     // If 2FA is already enabled, show disable option
     if (userDetails?.isTwoFactorEnabled) {
       return (

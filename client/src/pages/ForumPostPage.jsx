@@ -319,7 +319,7 @@ const ForumPostPage = () => {
                 className={`vote-btn upvote ${post.userVote === 'upvote' ? 'active' : ''}`}
                 onClick={() => handleVote('upvote')}
                 disabled={isVoting}
-                title="Upvote"
+                title={t('forum.postCard.upvote')}
               >
                 <span className="vote-icon">👍</span>
                 <span className="vote-count">
@@ -336,7 +336,7 @@ const ForumPostPage = () => {
                 className={`vote-btn downvote ${post.userVote === 'downvote' ? 'active' : ''}`}
                 onClick={() => handleVote('downvote')}
                 disabled={isVoting}
-                title="Downvote"
+                title={t('forum.postCard.downvote')}
               >
                 <span className="vote-icon">👎</span>
                 <span className="vote-count">
@@ -423,7 +423,7 @@ const ForumPostPage = () => {
                       <button
                         className={`vote-btn upvote ${reply.userVote === 'upvote' ? 'active' : ''}`}
                         onClick={() => handleReplyVote(index, 'upvote')}
-                        title="Upvote"
+                        title={t('forum.postCard.upvote')}
                       >
                         <span className="vote-icon">👍</span>
                         <span className="vote-count">
@@ -434,7 +434,7 @@ const ForumPostPage = () => {
                       <button
                         className={`vote-btn downvote ${reply.userVote === 'downvote' ? 'active' : ''}`}
                         onClick={() => handleReplyVote(index, 'downvote')}
-                        title="Downvote"
+                        title={t('forum.postCard.downvote')}
                       >
                         <span className="vote-icon">👎</span>
                         <span className="vote-count">
@@ -449,9 +449,9 @@ const ForumPostPage = () => {
                       <button
                         onClick={() => handleDeleteReply(index, reply)}
                         className="forum-btn forum-btn-danger forum-btn-small"
-                        title="Delete Reply"
+                        title={t('forum.deleteReply')}
                       >
-                        Delete
+                        {t('forum.postPage.delete')}
                       </button>
                     )}
                   </div>
@@ -463,12 +463,12 @@ const ForumPostPage = () => {
           {/* Reply Form */}
           {isAuthenticated && !post.isLocked ? (
             <div className="reply-form-section">
-              <h4>Add Your Reply</h4>
+              <h4>{t('forum.postPage.addReply')}</h4>
               <form onSubmit={handleSubmitReply} className="reply-form">
                 <textarea
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="Write your reply..."
+                  placeholder={t('forum.postPage.writeReply')}
                   className="reply-textarea"
                   rows="4"
                   required
@@ -479,7 +479,7 @@ const ForumPostPage = () => {
                     className="forum-btn forum-btn-primary"
                     disabled={isSubmitting || !replyContent.trim()}
                   >
-                    {isSubmitting ? t('forum.posting') : t('forum.postReply')}
+                    {isSubmitting ? t('forum.postPage.posting') : t('forum.postPage.postReply')}
                   </button>
                 </div>
               </form>
@@ -487,12 +487,12 @@ const ForumPostPage = () => {
           ) : !isAuthenticated ? (
             <div className="login-prompt">
               <p>
-                <Link to="/login">Login</Link> to ask questions or join the discussion.
+                <Link to="/login">{t('navigation.login')}</Link> {t('forum.loginToParticipate')}
               </p>
             </div>
           ) : post.isLocked ? (
             <div className="locked-notice">
-              <p>This post is locked and cannot be replied to.</p>
+              <p>{t('forum.postPage.lockedNotice')}</p>
             </div>
           ) : null}
         </div>
@@ -502,20 +502,20 @@ const ForumPostPage = () => {
         open={deleteDialog.open}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Forum Post"
-        message={`Are you sure you want to delete "${deleteDialog.post?.title}"? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('forum.postPage.deletePost')}
+        message={t('forum.postPage.deletePostConfirm', { title: deleteDialog.post?.title })}
+        confirmLabel={t('forum.postPage.delete')}
+        cancelLabel={t('forum.postPage.cancel')}
       />
 
       <ConfirmDialog
         open={deleteReplyDialog.open}
         onClose={handleDeleteReplyCancel}
         onConfirm={handleDeleteReplyConfirm}
-        title="Delete Reply"
-        message={`Are you sure you want to delete this reply? This action cannot be undone.`}
-        confirmLabel="Delete"
-        cancelLabel="Cancel"
+        title={t('forum.deleteReply')}
+        message={t('forum.deleteReplyConfirm')}
+        confirmLabel={t('forum.postPage.delete')}
+        cancelLabel={t('forum.postPage.cancel')}
       />
     </div>
   );

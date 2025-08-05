@@ -268,17 +268,6 @@ const UserReviewList = ({ initialReviews = [] }) => {
           <button onClick={refreshReviews} className="review-list-refresh-btn" disabled={loading}>
             {loading ? t('common.loading') : t('common.refresh')}
           </button>
-          <button
-            onClick={() => {
-              clearAllCaches();
-              refreshReviews();
-            }}
-            className="review-list-force-refresh-btn"
-            disabled={loading}
-            title="Clear all caches and force refresh"
-          >
-            {loading ? t('common.loading') : '🔄 Force Refresh'}
-          </button>
         </div>
       </div>
 

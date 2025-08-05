@@ -50,9 +50,9 @@
   padding: 0;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  background-color: var(--color-card-bg, #1a1a1a);
-  border: 1px solid var(--color-border, #333);
-  color: var(--color-text, #e2e8f0);
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
   transition:
     background-color 0.3s ease,
     border-color 0.3s ease,
@@ -65,7 +65,7 @@
 /* Style the popup close button */
 .mapboxgl-popup-close-button {
   background-color: transparent;
-  color: var(--color-text-secondary, #a0aec0);
+  color: var(--color-text-secondary);
   border: none;
   width: 24px;
   height: 24px;
@@ -84,7 +84,7 @@
 }
 
 .mapboxgl-popup-close-button:hover {
-  color: var(--color-error, #e53e3e);
+  color: var(--color-error);
   background-color: transparent;
   border: none;
   transform: none;
@@ -102,15 +102,16 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding-bottom: 3px;
-  border-bottom: 1px solid var(--color-border-light, #2d3748);
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .popup-header h3 {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-text, #e2e8f0);
+  color: var(--color-text);
   white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -120,84 +121,71 @@
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
-  padding-right: 40px; /* Make room for close button */
   word-break: break-word;
   -webkit-hyphens: auto;
   hyphens: auto;
+  flex: 1;
+  min-width: 0;
 }
 
+/* Custom close button */
 .popup-close-button {
-  background-color: transparent;
-  color: var(--color-text-secondary, #a0aec0);
+  background: none;
   border: none;
-  width: 32px;
-  height: 32px;
-  font-size: 20px;
-  line-height: 1;
-  font-weight: normal;
+  color: var(--color-text-secondary);
+  font-size: 1.5rem;
   cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 4px;
   transition: all 0.2s ease;
-  border-radius: 50%;
   flex-shrink: 0;
 }
 
 .popup-close-button:hover {
-  color: var(--color-error, #e53e3e);
-  transform: scale(1.1);
+  color: var(--color-error);
+  background-color: rgba(229, 62, 62, 0.1);
 }
 
-.popup-close-button:active {
-  transform: scale(0.95);
-}
-
-/* Style popup tip */
-.mapboxgl-popup-tip {
-  border-top-color: var(--color-card-bg, #1a1a1a) !important;
-}
-
-.mapboxgl-popup-tip[data-placement='top'] {
-  border-bottom-color: var(--color-card-bg, #1a1a1a) !important;
-}
-
-.mapboxgl-popup-tip[data-placement='bottom'] {
-  border-top-color: var(--color-card-bg, #1a1a1a) !important;
-}
-
+/* Popup content */
 .popup-content {
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 400px;
+  gap: 8px;
+  max-height: 350px;
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .popup-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   min-width: 0;
 }
 
 .popup-info h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text, #e2e8f0);
+  color: var(--color-text);
   white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
-  max-height: 4.2em; /* Allow up to 3 lines */
+  line-height: 1.2;
+  max-height: 3.6em; /* Allow up to 3 lines */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
-  padding-right: 40px; /* Make room for close button */
+  padding-right: 32px; /* Make room for close button */
   word-break: break-word;
   -webkit-hyphens: auto;
   hyphens: auto;
@@ -205,13 +193,13 @@
 
 .popup-info p {
   margin: 0;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #a0aec0);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
   white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.4;
-  max-height: 4.2em; /* Allow up to 3 lines */
+  line-height: 1.3;
+  max-height: 3.9em; /* Allow up to 3 lines */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
@@ -228,6 +216,9 @@
   width: 100%;
   order: -1; /* Move weather to top */
   flex-shrink: 0;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .popup-content .weather-box.compact {
@@ -236,36 +227,95 @@
   order: -1; /* Move weather to top */
   align-self: stretch;
   flex-shrink: 0;
+  padding: 6px;
+  font-size: 10px;
+  line-height: 1.2;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+/* Weather box compact styles for popup */
+.popup-content .weather-box.compact .weather-current {
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  gap: 4px;
+}
+
+.popup-content .weather-box.compact .weather-icon {
+  font-size: 1.2rem;
+  width: 24px;
+}
+
+.popup-content .weather-box.compact .temp-value {
+  font-size: 0.875rem;
+}
+
+.popup-content .weather-box.compact .temp-unit {
+  font-size: 0.5rem;
+}
+
+.popup-content .weather-box.compact .weather-description {
+  font-size: 0.5rem;
+}
+
+.popup-content .weather-box.compact .weather-meta {
+  font-size: 0.4rem;
+}
+
+.popup-content .weather-box.compact .forecast-days {
+  gap: 2px;
+}
+
+.popup-content .weather-box.compact .forecast-day {
+  padding: 2px;
+}
+
+.popup-content .weather-box.compact .forecast-date {
+  font-size: 0.4rem;
+}
+
+.popup-content .weather-box.compact .forecast-icon {
+  font-size: 0.75rem;
+}
+
+.popup-content .weather-box.compact .temp-max,
+.popup-content .weather-box.compact .temp-min {
+  font-size: 0.4rem;
+}
+
+.popup-content .weather-box.compact .forecast-desc {
+  font-size: 0.3rem;
 }
 
 .popup-price {
   font-weight: 600;
-  color: var(--color-primary, #4caf50) !important;
-  font-size: 0.875rem;
+  color: var(--color-primary) !important;
+  font-size: 0.8rem;
   margin: 0;
 }
 
 .popup-view-button {
   display: inline-block;
   width: 100%;
-  padding: 12px 16px;
-  margin-top: 8px;
-  background-color: var(--color-primary, #4caf50);
+  padding: 8px 12px;
+  margin-top: 6px;
+  background-color: var(--color-primary);
   color: white !important;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 6px;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
   box-sizing: border-box;
-  min-height: 44px;
+  min-height: 36px;
 }
 
 .popup-view-button:hover {
-  background-color: var(--color-primary-hover, #45a049);
+  background-color: var(--color-primary-hover);
   text-decoration: none;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
@@ -274,211 +324,97 @@
 /* Mobile responsive popup styles */
 @media (max-width: 768px) {
   .mapboxgl-popup-content {
-    min-width: 220px;
-    max-width: 260px;
-    border-radius: 8px;
-  }
-
-  .popup-header h3 {
-    font-size: 0.9rem;
-    padding-right: 28px;
-    line-height: 1.2;
-    max-height: 3.6em;
-  }
-
-  .popup-close-button {
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    top: 8px;
-    right: 8px;
+    min-width: 240px;
+    max-width: 280px;
   }
 
   .popup-content {
-    padding: 8px;
+    padding: 10px;
     gap: 6px;
-    max-height: 280px;
+    max-height: 300px;
+  }
+
+  .popup-header {
+    gap: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+  }
+
+  .popup-header h3 {
+    font-size: 0.9rem;
+    max-height: 3.2em;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    padding-right: 24px;
   }
 
   .popup-info h3 {
     font-size: 0.9rem;
+    max-height: 3.2em;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     padding-right: 24px;
-    line-height: 1.2;
-    max-height: 3.6em;
   }
 
   .popup-info p {
     font-size: 0.75rem;
-    line-height: 1.3;
-    max-height: 3.9em;
-  }
-
-  .popup-view-button {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    min-height: 36px;
-    margin-top: 6px;
-  }
-
-  .popup-price {
-    font-size: 0.75rem;
-  }
-
-  /* Weather box adjustments for mobile */
-  .popup-content .weather-box {
-    margin: 0;
-    padding: 6px;
-  }
-
-  .popup-content .weather-box.compact {
-    padding: 6px;
-  }
-}
-
-@media (max-width: 480px) {
-  .mapboxgl-popup-content {
-    min-width: 200px;
-    max-width: 240px;
-    border-radius: 6px;
-  }
-
-  .popup-header h3 {
-    font-size: 0.85rem;
-    padding-right: 24px;
-    line-height: 1.2;
-    max-height: 3.4em;
-  }
-
-  .popup-close-button {
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
-    top: 6px;
-    right: 6px;
-  }
-
-  .popup-content {
-    padding: 6px;
-    gap: 4px;
-    max-height: 240px;
-  }
-
-  .popup-info h3 {
-    font-size: 0.85rem;
-    padding-right: 20px;
-    line-height: 1.2;
-    max-height: 3.4em;
-  }
-
-  .popup-info p {
-    font-size: 0.7rem;
-    line-height: 1.3;
-    max-height: 3.9em;
+    max-height: 3.2em;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   .popup-view-button {
     padding: 6px 10px;
     font-size: 0.75rem;
     min-height: 32px;
-    margin-top: 4px;
-  }
-
-  .popup-price {
-    font-size: 0.7rem;
-  }
-
-  /* Weather box adjustments for small mobile */
-  .popup-content .weather-box {
-    margin: 0;
-    padding: 4px;
-  }
-
-  .popup-content .weather-box.compact {
-    padding: 4px;
   }
 }
 
-/* Extra small mobile devices */
-@media (max-width: 360px) {
+/* Extra small screens */
+@media (max-width: 480px) {
   .mapboxgl-popup-content {
-    min-width: 180px;
-    max-width: 220px;
-  }
-
-  .popup-header h3 {
-    font-size: 0.8rem;
-    padding-right: 20px;
-  }
-
-  .popup-close-button {
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    top: 4px;
-    right: 4px;
+    min-width: 220px;
+    max-width: 260px;
   }
 
   .popup-content {
-    padding: 4px;
-    gap: 3px;
-    max-height: 200px;
+    padding: 8px;
+    gap: 4px;
+    max-height: 280px;
+  }
+
+  .popup-header {
+    gap: 4px;
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+  }
+
+  .popup-header h3 {
+    font-size: 0.85rem;
+    max-height: 2.8em;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    padding-right: 20px;
   }
 
   .popup-info h3 {
-    font-size: 0.8rem;
-    padding-right: 18px;
+    font-size: 0.85rem;
+    max-height: 2.8em;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    padding-right: 20px;
   }
 
   .popup-info p {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
+    max-height: 2.8em;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   .popup-view-button {
     padding: 5px 8px;
     font-size: 0.7rem;
     min-height: 28px;
-  }
-
-  .popup-price {
-    font-size: 0.65rem;
-  }
-}
-
-/* Touch-friendly improvements for popups */
-@media (hover: none) and (pointer: coarse) {
-  .popup-close-button {
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .popup-view-button {
-    min-height: 44px;
-  }
-
-  .popup-view-button:hover {
-    transform: none;
-  }
-
-  .popup-view-button:active {
-    transform: scale(0.98);
-  }
-}
-
-/* Make the map responsive */
-@media (max-width: 992px) {
-  .cluster-map-placeholder {
-    height: 500px !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .cluster-map-placeholder {
-    height: 400px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .cluster-map-placeholder {
-    height: 300px !important;
   }
 }

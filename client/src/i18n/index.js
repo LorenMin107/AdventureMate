@@ -15,13 +15,14 @@ const resources = {
   },
 };
 
+// Initialize i18n synchronously to ensure it's ready before React renders
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
     fallbackLng: 'en', // English as default
-    debug: process.env.NODE_ENV === 'development', // Only debug in development
+    debug: false, // Disable debug mode for production
     supportedLngs: ['en', 'th'],
 
     interpolation: {
@@ -31,7 +32,7 @@ i18n
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
-      lookupLocalStorage: 'myancamp-language',
+      lookupLocalStorage: 'adventuremate-language',
       checkWhitelist: true,
     },
 
@@ -46,15 +47,22 @@ i18n
     defaultNS: 'translation',
 
     // Force reload and disable caching for debugging
-    initImmediate: false,
+    initImmediate: true, // Initialize immediately
     keySeparator: '.',
     nsSeparator: ':',
-  })
-  .then(() => {
-    console.log('i18n initialized successfully');
-  })
-  .catch((error) => {
-    console.error('i18n initialization error:', error);
   });
+
+// Add error handling for i18n
+i18n.on('failedLoading', (lng, ns, msg) => {
+  console.error('i18n failed loading:', { lng, ns, msg });
+});
+
+i18n.on('loaded', (loaded) => {
+  console.log('i18n loaded:', loaded);
+});
+
+i18n.on('missingKey', (lngs, namespace, key, res) => {
+  console.warn('i18n missing key:', { lngs, namespace, key, res });
+});
 
 export default i18n;

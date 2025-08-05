@@ -19,6 +19,8 @@ const useOwners = () => {
         // Invalidate auth queries to refresh user data
         queryClient.invalidateQueries({ queryKey: ['auth'] });
         queryClient.invalidateQueries({ queryKey: ['user'] });
+        // Invalidate owner application query to refresh the application status
+        queryClient.invalidateQueries({ queryKey: ['owner', 'application'] });
       },
     });
   };
@@ -298,6 +300,87 @@ const useOwners = () => {
     });
   };
 
+  // Get owner application status
+  const useOwnerApplication = (options = {}) => {
+    return useQuery({
+      queryKey: ['owner', 'application'],
+      queryFn: async () => {
+        const { data } = await apiClient.get('/owners/application');
+        return data.application;
+      },
+      ...options,
+    });
+  };
+
+  // Export functions
+  const exportRevenueReport = async (period = '30d') => {
+    const response = await apiClient.get(`/owners/export/revenue?period=${period}`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute(
+      'download',
+      `revenue-report-${period}-${new Date().toISOString().split('T')[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const exportBookingReport = async (period = '30d') => {
+    const response = await apiClient.get(`/owners/export/bookings?period=${period}`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute(
+      'download',
+      `booking-report-${period}-${new Date().toISOString().split('T')[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const exportReviewsReport = async (period = '30d') => {
+    const response = await apiClient.get(`/owners/export/reviews?period=${period}`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute(
+      'download',
+      `reviews-report-${period}-${new Date().toISOString().split('T')[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const exportFullReport = async (period = '30d') => {
+    const response = await apiClient.get(`/owners/export/full?period=${period}`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute(
+      'download',
+      `full-report-${period}-${new Date().toISOString().split('T')[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
   return {
     useApplyToBeOwner,
     useRegisterOwner,
@@ -314,6 +397,11 @@ const useOwners = () => {
     useOwnerCampground,
     useCampgroundBookings,
     useUpdateBookingStatus,
+    useOwnerApplication,
+    exportRevenueReport,
+    exportBookingReport,
+    exportReviewsReport,
+    exportFullReport,
   };
 };
 

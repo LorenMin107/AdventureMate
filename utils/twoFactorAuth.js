@@ -8,7 +8,7 @@ const { logError, logInfo, logDebug } = require('./logger');
  */
 
 // Load environment variables for 2FA configuration
-const TWO_FACTOR_ISSUER = process.env.TWO_FACTOR_ISSUER || 'MyanCamp';
+const TWO_FACTOR_ISSUER = process.env.TWO_FACTOR_ISSUER || 'AdventureMate';
 const TWO_FACTOR_SECRET_LENGTH = parseInt(process.env.TWO_FACTOR_SECRET_LENGTH, 10) || 20;
 const TWO_FACTOR_QR_CODE_WIDTH = parseInt(process.env.TWO_FACTOR_QR_CODE_WIDTH, 10) || 300;
 
@@ -48,11 +48,11 @@ const generateQRCode = async (otpauthUrl) => {
     };
 
     const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl, options);
-    logDebug('Generated QR code data URL', { 
-      length: qrCodeDataUrl.length 
+    logDebug('Generated QR code data URL', {
+      length: qrCodeDataUrl.length,
     });
-    logDebug('QR code data URL preview', { 
-      preview: qrCodeDataUrl.substring(0, 30) + '...' 
+    logDebug('QR code data URL preview', {
+      preview: qrCodeDataUrl.substring(0, 30) + '...',
     });
 
     return qrCodeDataUrl;

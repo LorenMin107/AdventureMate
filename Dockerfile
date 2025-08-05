@@ -13,7 +13,7 @@ COPY vite.config.js ./
 COPY client/ ./client/
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Build frontend
 RUN npm run build
@@ -28,7 +28,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm ci --legacy-peer-deps
+RUN npm ci
 
 # Copy source code
 COPY . .

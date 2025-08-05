@@ -42,7 +42,7 @@ const OwnerCampgroundList = () => {
     try {
       await deleteCampgroundMutation.mutateAsync(campgroundId);
       showMessage(t('ownerCampgroundList.deleteSuccess'), 'success');
-      refetch();
+      await refetch();
     } catch (error) {
       logError('Error deleting campground', error);
       showMessage(error.response?.data?.message || t('ownerCampgroundList.deleteError'), 'error');
@@ -70,7 +70,7 @@ const OwnerCampgroundList = () => {
       <div className="owner-error">
         <h4>{t('ownerCampgroundList.errorTitle')}</h4>
         <p>{t('ownerCampgroundList.errorMessage')}</p>
-        <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
+        <button onClick={async () => await refetch()} className="owner-btn owner-btn-primary">
           {t('ownerCampgroundList.retry')}
         </button>
       </div>

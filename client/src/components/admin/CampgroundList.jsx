@@ -55,13 +55,6 @@ const CampgroundList = () => {
 
         const campgroundsData = responseData.campgrounds || [];
 
-        // Debug: Log the first campground to see the data structure
-        if (campgroundsData.length > 0) {
-          console.log('First campground data:', campgroundsData[0]);
-          console.log('Author field:', campgroundsData[0].author);
-          console.log('Owner field:', campgroundsData[0].owner);
-        }
-
         setCampgrounds(campgroundsData);
         setPagination(responseData.pagination || pagination);
         setSort(responseData.sort || sort);

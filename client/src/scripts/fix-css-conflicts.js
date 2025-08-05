@@ -4,7 +4,7 @@
  * CSS Conflict Detection and Fix Script
  *
  * This script helps identify and fix CSS class name conflicts between different sections
- * of the MyanCamp application.
+ * of the AdventureMate application.
  */
 
 const fs = require('fs');
@@ -138,7 +138,6 @@ function fixConflicts(filePath, section) {
 
   if (modified) {
     fs.writeFileSync(filePath, content, 'utf8');
-    console.log(`✅ Fixed conflicts in: ${filePath}`);
   }
 
   return modified;
@@ -148,8 +147,6 @@ function fixConflicts(filePath, section) {
  * Main function
  */
 function main() {
-  console.log('🔍 Detecting CSS conflicts...\n');
-
   // Find all JSX and CSS files
   const jsxFiles = glob.sync('client/src/**/*.{jsx,js}');
   const cssFiles = glob.sync('client/src/**/*.css');
@@ -163,21 +160,15 @@ function main() {
     const conflicts = detectConflicts(filePath);
 
     if (conflicts.length > 0) {
-      console.log(`📁 ${filePath}`);
       conflicts.forEach((conflict) => {
-        console.log(`   ⚠️  Found ${conflict.count} instances of "${conflict.className}"`);
         totalConflicts += conflict.count;
       });
-      console.log('');
     }
   });
 
   if (totalConflicts === 0) {
-    console.log('🎉 No CSS conflicts detected!');
     return;
   }
-
-  console.log(`📊 Total conflicts found: ${totalConflicts}\n`);
 
   // Ask user if they want to fix conflicts
   const readline = require('readline');
@@ -188,8 +179,6 @@ function main() {
 
   rl.question('Do you want to automatically fix these conflicts? (y/N): ', (answer) => {
     if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
-      console.log('\n🔧 Fixing CSS conflicts...\n');
-
       allFiles.forEach((filePath) => {
         const section = getFileSection(filePath);
         const conflicts = detectConflicts(filePath);
@@ -200,14 +189,7 @@ function main() {
           }
         }
       });
-
-      console.log(`\n✅ Fixed conflicts in ${fixedFiles} files`);
-      console.log('💡 Remember to:');
-      console.log('   1. Test navigation between different sections');
-      console.log('   2. Verify no style conflicts occur');
-      console.log('   3. Update any remaining manual class references');
     } else {
-      console.log('\n❌ No changes made. Conflicts remain unfixed.');
     }
 
     rl.close();

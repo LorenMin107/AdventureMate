@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-import ErrorBoundary from '../components/ErrorBoundary';
+import ErrorBoundary from '../components/common/ErrorBoundary';
+import RouteErrorBoundary from '../components/RouteErrorBoundary';
 import ProtectedRoute from '../components/ProtectedRoute';
 import LoginForm from '../components/LoginForm';
 import RegisterForm from '../components/RegisterForm';
@@ -92,7 +93,7 @@ const routes = [
   {
     path: '/',
     element: <MainLayout />,
-    errorElement: <ErrorBoundary />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       // Public routes
       {

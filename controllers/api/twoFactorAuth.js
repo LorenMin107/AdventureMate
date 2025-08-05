@@ -26,7 +26,7 @@ exports.initiate2FASetup = async (req, res) => {
       endpoint: '/api/v1/2fa/setup',
     });
 
-    // Ensure user is authenticated
+    // Ensure the user is authenticated
     if (!req.user) {
       logWarn('2FA setup attempted without authentication', {
         endpoint: '/api/v1/2fa/setup',
@@ -42,10 +42,6 @@ exports.initiate2FASetup = async (req, res) => {
       return res.status(400).json({ error: '2FA is already enabled for this account' });
     }
 
-    logDebug('Generating 2FA secret', {
-      userId: req.user._id,
-      username: req.user.username,
-    });
     // Generate a new secret
     const secret = generateSecret(req.user.username);
 
@@ -53,22 +49,9 @@ exports.initiate2FASetup = async (req, res) => {
     req.user.twoFactorSecret = secret.base32;
     req.user.twoFactorSetupCompleted = false;
     await req.user.save();
-    logDebug('2FA secret saved', {
-      userId: req.user._id,
-    });
 
     // Generate QR code
-    logDebug('Generating 2FA QR code', {
-      userId: req.user._id,
-    });
     const qrCode = await generateQRCode(secret.otpauth_url);
-    logDebug('2FA QR code generated successfully', {
-      userId: req.user._id,
-    });
-
-    logDebug('Sending 2FA setup response', {
-      userId: req.user._id,
-    });
     res.json({
       message: 'Two-factor authentication setup initiated',
       qrCode,
@@ -91,7 +74,7 @@ exports.initiate2FASetup = async (req, res) => {
  */
 exports.verify2FASetup = async (req, res) => {
   try {
-    // Ensure user is authenticated
+    // Ensure the user is authenticated
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
@@ -146,7 +129,7 @@ exports.verify2FASetup = async (req, res) => {
  */
 exports.disable2FA = async (req, res) => {
   try {
-    // Ensure user is authenticated
+    // Ensure the user is authenticated
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
@@ -227,7 +210,7 @@ exports.verify2FALogin = async (req, res) => {
       });
     }
 
-    // Check if user is suspended before generating final tokens
+    // Check if a user is suspended before generating final tokens
     if (user.isSuspended) {
       return res.status(403).json({
         error: 'Account suspended',
@@ -235,7 +218,7 @@ exports.verify2FALogin = async (req, res) => {
       });
     }
 
-    // If user is an owner, also check owner suspension status
+    // If a user is an owner, also check owner suspension status
     if (user.isOwner) {
       const Owner = require('../../models/owner');
       const owner = await Owner.findOne({ user: user._id });

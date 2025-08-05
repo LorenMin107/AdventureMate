@@ -268,18 +268,26 @@
 
 .remove-image-button {
   position: absolute;
-  bottom: 0.75rem;
-  right: 0.75rem;
-  background-color: rgba(0, 0, 0, 0.7);
+  top: 8px;
+  right: 8px;
+  background-color: rgba(220, 53, 69, 0.9);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  opacity: 0;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 0;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+  opacity: 1;
 }
 
 .image-preview:hover .remove-image-button {
@@ -287,17 +295,18 @@
 }
 
 .remove-image-button:hover {
-  background-color: rgba(0, 0, 0, 0.9);
-  transform: scale(1.05);
+  background-color: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
 .marked-for-deletion .remove-image-button {
-  background-color: #ef4444;
+  background-color: rgba(34, 197, 94, 0.9);
   opacity: 1;
 }
 
 .marked-for-deletion .remove-image-button:hover {
-  background-color: #dc2626;
+  background-color: rgba(34, 197, 94, 1);
 }
 
 /* Form actions */

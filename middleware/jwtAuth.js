@@ -51,8 +51,9 @@ const publicApiEndpoints = [
   { method: 'POST', pattern: /^\/api\/v1\/auth\/refresh\/?$/ },
   { method: 'POST', pattern: /^\/api\/v1\/auth\/forgot-password\/?$/ },
   { method: 'POST', pattern: /^\/api\/v1\/auth\/reset-password\/?$/ },
-  { method: 'POST', pattern: /^\/api\/v1\/auth\/verify-email\/?$/ },
+  { method: 'GET', pattern: /^\/api\/v1\/auth\/verify-email\/?(\?.*)?$/ },
   { method: 'POST', pattern: /^\/api\/v1\/auth\/resend-verification\/?$/ },
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/resend-verification-email-unauthenticated\/?$/ },
   { method: 'GET', pattern: /^\/api\/v1\/auth\/status\/?$/ },
   { method: 'POST', pattern: /^\/api\/v1\/auth\/google\/?$/ },
 ];

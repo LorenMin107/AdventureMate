@@ -342,22 +342,32 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 1rem;
+}
+
+/* Prevent body scrolling when modal is open */
+body.modal-open {
+  overflow: hidden;
 }
 
 .modal-content {
   background: var(--color-card-bg);
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1.5rem;
   max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
+  width: 100%;
+  max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: 0 4px 20px var(--color-card-shadow);
   transition: background-color 0.3s ease;
+  box-sizing: border-box;
 }
 
 .modal-content h3 {
@@ -388,6 +398,10 @@
   font-size: 1rem;
   resize: vertical;
   min-height: 100px;
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   transition:
     border-color 0.3s ease,
     background-color 0.3s ease,
@@ -404,6 +418,7 @@
   gap: 1rem;
   justify-content: flex-end;
   margin-top: 2rem;
+  flex-wrap: wrap;
 }
 
 .modal-button {
@@ -414,6 +429,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 100px;
+  flex: 1;
+  max-width: 200px;
 }
 
 .cancel-button {
@@ -495,17 +512,33 @@
     margin-bottom: 0.25rem;
   }
 
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+
   .modal-content {
-    margin: 1rem;
-    padding: 1.5rem;
+    padding: 1rem;
+    max-height: 95vh;
+  }
+
+  .modal-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
   }
 
   .modal-actions {
     flex-direction: column;
+    gap: 0.75rem;
   }
 
   .modal-button {
     width: 100%;
+    max-width: none;
+    min-width: auto;
+  }
+
+  .form-textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 }
 
@@ -522,5 +555,27 @@
 
   .filter-select {
     min-width: auto;
+  }
+
+  .modal-overlay {
+    padding: 0.25rem;
+  }
+
+  .modal-content {
+    padding: 0.75rem;
+    border-radius: 8px;
+  }
+
+  .modal-content h3 {
+    font-size: 1.1rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-textarea {
+    padding: 0.5rem;
+    min-height: 80px;
   }
 }

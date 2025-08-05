@@ -5,15 +5,8 @@ const CACHE_NAME = 'adventuremate-v1.0.0';
 const STATIC_CACHE = 'adventuremate-static-v1.0.0';
 const DYNAMIC_CACHE = 'adventuremate-dynamic-v1.0.0';
 
-// Files to cache immediately
-const STATIC_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon.ico',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-];
+// Files to cache immediately - only include files that definitely exist
+const STATIC_FILES = ['/', '/index.html', '/manifest.json'];
 
 // API endpoints to cache
 const API_CACHE_PATTERNS = ['/api/v1/campgrounds', '/api/v1/weather', '/api/v1/safety-alerts'];
@@ -27,14 +20,26 @@ self.addEventListener('install', (event) => {
       .open(STATIC_CACHE)
       .then((cache) => {
         console.log('[SW] Caching static files');
-        return cache.addAll(STATIC_FILES);
+        // Use addAll with individual error handling for each file
+        return Promise.allSettled(
+          STATIC_FILES.map((url) =>
+            cache.add(url).catch((error) => {
+              console.warn(`[SW] Failed to cache ${url}:`, error);
+              return null; // Continue with other files
+            })
+          )
+        );
       })
-      .then(() => {
-        console.log('[SW] Static files cached successfully');
+      .then((results) => {
+        const successful = results.filter((result) => result.status === 'fulfilled').length;
+        const failed = results.filter((result) => result.status === 'rejected').length;
+        console.log(`[SW] Static files cached: ${successful} successful, ${failed} failed`);
         return self.skipWaiting();
       })
       .catch((error) => {
         console.error('[SW] Failed to cache static files:', error);
+        // Continue with installation even if caching fails
+        return self.skipWaiting();
       })
   );
 });
@@ -106,7 +111,9 @@ async function handleApiRequest(request) {
       return networkResponse;
     }
 
-    throw new Error('Network response not ok');
+    // For non-OK responses, return the actual response instead of treating it as a network error
+    // This allows the application to handle 401, 404, 500, etc. properly
+    return networkResponse;
   } catch (error) {
     console.log('[SW] Network failed, trying cache for:', request.url);
 
@@ -116,7 +123,7 @@ async function handleApiRequest(request) {
       return cachedResponse;
     }
 
-    // Return offline response for API requests
+    // Return offline response for API requests only if it's a true network error
     return new Response(
       JSON.stringify({
         error: 'Offline',
@@ -297,8 +304,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: event.data ? event.data.text() : 'New notification from AdventureMate',
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
+    icon: '/favicon-32x32.png',
+    badge: '/favicon-32x32.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -308,12 +315,12 @@ self.addEventListener('push', (event) => {
       {
         action: 'explore',
         title: 'View Details',
-        icon: '/favicon.ico',
+        icon: '/favicon-32x32.png',
       },
       {
         action: 'close',
         title: 'Close',
-        icon: '/favicon.ico',
+        icon: '/favicon-32x32.png',
       },
     ],
   };

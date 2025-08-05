@@ -4,7 +4,7 @@ const { logInfo, logError, logWarn, logDebug } = require('./logger');
 
 /**
  * Redis Cache Service
- * Provides caching functionality for the MyanCamp application
+ * Provides caching functionality for the AdventureMate application
  */
 class RedisCache {
   constructor() {

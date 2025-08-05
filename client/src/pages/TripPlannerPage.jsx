@@ -74,9 +74,12 @@ const TripPlannerPage = () => {
   };
 
   useEffect(() => {
-    if (!loading && isAuthenticated) {
-      fetchTrips();
-    }
+    const loadTrips = async () => {
+      if (!loading && isAuthenticated) {
+        await fetchTrips();
+      }
+    };
+    loadTrips();
   }, [isAuthenticated, loading]);
 
   // Auto-select trip if tripIdFromUrl is present
@@ -189,7 +192,7 @@ const TripPlannerPage = () => {
       const res = await apiClient.get(`/trips/${selectedTrip._id}`);
       setSelectedTrip(res.data.trip);
       // Also refresh the main list in the background
-      fetchTrips();
+      await fetchTrips();
     } catch (err) {
       if (!handleApiError(err)) {
         setError(t('tripPlanner.failedToRefreshTrip'));
@@ -200,14 +203,16 @@ const TripPlannerPage = () => {
   };
 
   // Handle trip updates from child components (e.g., after sharing)
-  const handleTripUpdated = () => {
-    fetchTrips();
+  const handleTripUpdated = async () => {
+    await fetchTrips();
     if (selectedTrip) {
       // Refresh the selected trip if one is currently selected
-      apiClient
-        .get(`/trips/${selectedTrip._id}`)
-        .then((res) => setSelectedTrip(res.data.trip))
-        .catch((err) => console.error('Error refreshing trip:', err));
+      try {
+        const res = await apiClient.get(`/trips/${selectedTrip._id}`);
+        setSelectedTrip(res.data.trip);
+      } catch (err) {
+        console.error('Error refreshing trip:', err);
+      }
     }
   };
 

@@ -14,87 +14,20 @@
   "categories": ["travel", "lifestyle", "outdoors", "booking"],
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "16x16 32x32",
-      "type": "image/x-icon"
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
     },
     {
-      "src": "/icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
     },
     {
-      "src": "/icons/icon-96x96.png",
-      "sizes": "96x96",
+      "src": "/logo.png",
+      "sizes": "255x255",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop-home.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "AdventureMate Homepage"
-    },
-    {
-      "src": "/screenshots/mobile-home.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "AdventureMate Mobile Homepage"
-    },
-    {
-      "src": "/screenshots/desktop-campground.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Campground Details"
-    },
-    {
-      "src": "/screenshots/mobile-campground.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile Campground Details"
+      "purpose": "any"
     }
   ],
   "shortcuts": [
@@ -102,49 +35,25 @@
       "name": "Search Campgrounds",
       "short_name": "Search",
       "description": "Find campgrounds near you",
-      "url": "/search",
-      "icons": [
-        {
-          "src": "/icons/search-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/search"
     },
     {
       "name": "My Bookings",
       "short_name": "Bookings",
       "description": "View your current bookings",
-      "url": "/bookings",
-      "icons": [
-        {
-          "src": "/icons/bookings-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/bookings"
     },
     {
       "name": "Trip Planner",
       "short_name": "Trips",
       "description": "Plan your next adventure",
-      "url": "/trips",
-      "icons": [
-        {
-          "src": "/icons/trips-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/trips"
     },
     {
       "name": "Community Forum",
       "short_name": "Forum",
       "description": "Connect with other campers",
-      "url": "/forum",
-      "icons": [
-        {
-          "src": "/icons/forum-96x96.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/forum"
     }
   ],
   "related_applications": [],

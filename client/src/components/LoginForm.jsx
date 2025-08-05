@@ -47,38 +47,30 @@ const LoginForm = () => {
   // Redirect if user is already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('User is already authenticated, redirecting to home');
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
-    console.log('🔍 LoginForm: handleSubmit called');
     e.preventDefault();
-    console.log('🔍 LoginForm: preventDefault called');
     setFormError('');
 
     // Validate form
     if (!email.trim()) {
-      console.log('🔍 LoginForm: Email validation failed');
       setFormError(t('auth.emailRequired'));
       return;
     }
 
     if (!password) {
-      console.log('🔍 LoginForm: Password validation failed');
       setFormError(t('auth.passwordRequired'));
       return;
     }
 
-    console.log('🔍 LoginForm: Starting login attempt');
     try {
       const result = await login(email, password, rememberMe);
-      console.log('🔍 LoginForm: Login result:', result);
 
       // Check if login failed (returned null)
       if (result === null) {
-        console.log('🔍 LoginForm: Login failed, showing error message');
         // Error is already set in AuthContext, just add to flash messages
         addErrorMessage(error || t('auth.loginFailed'));
         return;
@@ -86,16 +78,13 @@ const LoginForm = () => {
 
       // Check if 2FA is required
       if (result && result.requiresTwoFactor) {
-        console.log('🔍 LoginForm: 2FA required');
         // The requiresTwoFactor state in AuthContext will trigger the 2FA verification UI
         return;
       }
 
-      console.log('🔍 LoginForm: Login successful, navigating to home');
       addSuccessMessage(t('auth.loginSuccessful'));
       navigate('/'); // Redirect to home page after successful login
     } catch (err) {
-      console.log('🔍 LoginForm: Login error caught:', err);
       // Extract error message from the error object
       let errorMessage = t('auth.loginFailed');
 
@@ -107,7 +96,6 @@ const LoginForm = () => {
         errorMessage = err.message;
       }
 
-      console.log('🔍 LoginForm: Setting error message:', errorMessage);
       // Set form error for immediate display
       setFormError(errorMessage);
 

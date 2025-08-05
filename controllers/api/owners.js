@@ -670,6 +670,53 @@ const getOwnerAnalytics = async (req, res) => {
 
     const reviews = reviewsStats[0] || { averageRating: 0, totalReviews: 0 };
 
+    // Get recent reviews for the owner's campgrounds
+    const recentReviews = await Review.aggregate([
+      {
+        $lookup: {
+          from: 'campgrounds',
+          localField: 'campground',
+          foreignField: '_id',
+          as: 'campgroundData',
+        },
+      },
+      {
+        $match: {
+          'campgroundData._id': { $in: campgroundsToAnalyze },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'author',
+          foreignField: '_id',
+          as: 'userData',
+        },
+      },
+      {
+        $unwind: '$campgroundData',
+      },
+      {
+        $unwind: '$userData',
+      },
+      {
+        $project: {
+          _id: 1,
+          rating: 1,
+          body: 1,
+          createdAt: 1,
+          campground: '$campgroundData.title',
+          author: '$userData.username',
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $limit: 10,
+      },
+    ]);
+
     // Calculate average booking value and duration (include cancelled bookings since no refunds are given)
     const bookingMetrics = await Booking.aggregate([
       {
@@ -748,6 +795,7 @@ const getOwnerAnalytics = async (req, res) => {
       reviews: {
         averageRating: reviews.averageRating,
         totalReviews: reviews.totalReviews,
+        recent: recentReviews,
       },
       trends: {
         // Would need time-series data to calculate trends
@@ -977,15 +1025,6 @@ const applyToBeOwner = async (req, res) => {
       expectedProperties,
     } = req.body;
 
-    // Check if user already has an application
-    const existingApplication = await OwnerApplication.findOne({ user: req.user._id });
-    if (existingApplication) {
-      return res.status(400).json({
-        error: 'Bad Request',
-        message: 'You already have a pending owner application',
-      });
-    }
-
     // Check if user is already an owner
     const existingOwner = await Owner.findOne({ user: req.user._id });
     if (existingOwner) {
@@ -995,7 +1034,69 @@ const applyToBeOwner = async (req, res) => {
       });
     }
 
-    // Create new owner application
+    // Check if user already has any application
+    const existingApplication = await OwnerApplication.findOne({
+      user: req.user._id,
+    });
+
+    if (existingApplication) {
+      // If there's a pending or under_review application, don't allow resubmission
+      if (
+        existingApplication.status === 'pending' ||
+        existingApplication.status === 'under_review'
+      ) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'You already have a pending owner application',
+        });
+      }
+
+      // If there's a rejected application, update it instead of creating a new one
+      if (existingApplication.status === 'rejected') {
+        // Update the existing application with new data
+        existingApplication.businessName = businessName;
+        existingApplication.businessType = businessType;
+        existingApplication.businessRegistrationNumber = businessRegistrationNumber;
+        existingApplication.taxId = taxId;
+        existingApplication.businessAddress = businessAddress;
+        existingApplication.businessPhone = businessPhone;
+        existingApplication.businessEmail = businessEmail;
+        existingApplication.bankingInfo = bankingInfo;
+        existingApplication.applicationReason = applicationReason;
+        existingApplication.experience = experience;
+        existingApplication.expectedProperties = expectedProperties;
+        existingApplication.status = 'pending';
+        existingApplication.rejectionReason = undefined; // Clear rejection reason
+        existingApplication.reviewedBy = undefined; // Clear previous review
+        existingApplication.reviewedAt = undefined; // Clear previous review date
+
+        await existingApplication.save();
+
+        res.status(200).json({
+          message:
+            'Owner application resubmitted successfully. You will be notified once it is reviewed.',
+          application: {
+            id: existingApplication._id,
+            businessName: existingApplication.businessName,
+            status: existingApplication.status,
+            statusDisplay: existingApplication.statusDisplay,
+            createdAt: existingApplication.createdAt,
+            isResubmission: true,
+          },
+        });
+        return;
+      }
+
+      // If there's an approved application, user is already an owner
+      if (existingApplication.status === 'approved') {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'You are already an approved owner',
+        });
+      }
+    }
+
+    // Create new owner application if no existing application
     const application = new OwnerApplication({
       user: req.user._id,
       businessName,
@@ -1023,6 +1124,7 @@ const applyToBeOwner = async (req, res) => {
         status: application.status,
         statusDisplay: application.statusDisplay,
         createdAt: application.createdAt,
+        isResubmission: false,
       },
     });
   } catch (error) {
@@ -1206,6 +1308,394 @@ const uploadApplicationDocuments = async (req, res) => {
   }
 };
 
+/**
+ * Export revenue report
+ * GET /api/owners/export/revenue
+ */
+const exportRevenueReport = async (req, res) => {
+  try {
+    const { period = '30d', format = 'csv' } = req.query;
+    const owner = await Owner.findOne({ user: req.user._id }).populate('campgrounds');
+
+    if (!owner) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Owner profile not found',
+      });
+    }
+
+    // Calculate date range based on period
+    const now = new Date();
+    let startDate;
+    switch (period) {
+      case '7d':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case '90d':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      case '1y':
+        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    // Get revenue data
+    const revenueData = await Booking.aggregate([
+      {
+        $match: {
+          campground: { $in: owner.campgrounds.map((c) => c._id) },
+          createdAt: { $gte: startDate },
+          status: { $in: ['confirmed', 'cancelled'] },
+          paid: true,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            date: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            campground: '$campground',
+          },
+          revenue: { $sum: '$totalPrice' },
+          bookings: { $sum: 1 },
+        },
+      },
+      {
+        $lookup: {
+          from: 'campgrounds',
+          localField: '_id.campground',
+          foreignField: '_id',
+          as: 'campgroundInfo',
+        },
+      },
+      {
+        $unwind: '$campgroundInfo',
+      },
+      {
+        $sort: { '_id.date': 1 },
+      },
+    ]);
+
+    if (format === 'json') {
+      return res.json({
+        period,
+        startDate,
+        endDate: now,
+        revenueData,
+      });
+    }
+
+    // Generate CSV
+    const csvHeader = 'Date,Campground,Revenue,Bookings\n';
+    const csvRows = revenueData
+      .map(
+        (item) => `${item._id.date},"${item.campgroundInfo.title}",${item.revenue},${item.bookings}`
+      )
+      .join('\n');
+    const csvContent = csvHeader + csvRows;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="revenue-report-${period}-${new Date().toISOString().split('T')[0]}.csv"`
+    );
+    res.send(csvContent);
+  } catch (error) {
+    logError('Error exporting revenue report', error, {
+      endpoint: '/api/owners/export/revenue',
+      userId: req.user?._id,
+    });
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to export revenue report',
+    });
+  }
+};
+
+/**
+ * Export booking report
+ * GET /api/owners/export/bookings
+ */
+const exportBookingReport = async (req, res) => {
+  try {
+    const { period = '30d', format = 'csv' } = req.query;
+    const owner = await Owner.findOne({ user: req.user._id }).populate('campgrounds');
+
+    if (!owner) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Owner profile not found',
+      });
+    }
+
+    // Calculate date range based on period
+    const now = new Date();
+    let startDate;
+    switch (period) {
+      case '7d':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case '90d':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      case '1y':
+        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    // Get booking data
+    const bookingData = await Booking.find({
+      campground: { $in: owner.campgrounds.map((c) => c._id) },
+      createdAt: { $gte: startDate },
+    })
+      .populate('user', 'username email')
+      .populate('campground', 'title')
+      .populate('campsite', 'name')
+      .sort({ createdAt: -1 });
+
+    if (format === 'json') {
+      return res.json({
+        period,
+        startDate,
+        endDate: now,
+        bookingData,
+      });
+    }
+
+    // Generate CSV
+    const csvHeader =
+      'Booking ID,Date,Campground,Campsite,User,Status,Total Price,Check-in,Check-out\n';
+    const csvRows = bookingData
+      .map((booking) => {
+        const title = booking.campground?.title || 'N/A';
+        const name = booking.campsite?.name || 'N/A';
+        const username = booking.user?.username || 'N/A';
+        return `${booking._id},"${booking.createdAt.toISOString().split('T')[0]}","${title}","${name}","${username}","${booking.status}",${booking.totalPrice},"${booking.startDate}","${booking.endDate}"`;
+      })
+      .join('\n');
+    const csvContent = csvHeader + csvRows;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="booking-report-${period}-${new Date().toISOString().split('T')[0]}.csv"`
+    );
+    res.send(csvContent);
+  } catch (error) {
+    logError('Error exporting booking report', error, {
+      endpoint: '/api/owners/export/bookings',
+      userId: req.user?._id,
+    });
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to export booking report',
+    });
+  }
+};
+
+/**
+ * Export reviews report
+ * GET /api/owners/export/reviews
+ */
+const exportReviewsReport = async (req, res) => {
+  try {
+    const { period = '30d', format = 'csv' } = req.query;
+    const owner = await Owner.findOne({ user: req.user._id }).populate('campgrounds');
+
+    if (!owner) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Owner profile not found',
+      });
+    }
+
+    // Calculate date range based on period
+    const now = new Date();
+    let startDate;
+    switch (period) {
+      case '7d':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case '90d':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      case '1y':
+        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    // Get reviews data
+    const reviewsData = await Review.find({
+      campground: { $in: owner.campgrounds.map((c) => c._id) },
+      createdAt: { $gte: startDate },
+    })
+      .populate('author', 'username')
+      .populate('campground', 'title')
+      .sort({ createdAt: -1 });
+
+    if (format === 'json') {
+      return res.json({
+        period,
+        startDate,
+        endDate: now,
+        reviewsData,
+      });
+    }
+
+    // Generate CSV
+    const csvHeader = 'Review ID,Date,Campground,Author,Rating,Comment\n';
+    const csvRows = reviewsData
+      .map((review) => {
+        const title = review.campground?.title || 'N/A';
+        const username = review.author?.username || 'N/A';
+        const body = review.body.replace(/"/g, '""');
+        return `${review._id},"${review.createdAt.toISOString().split('T')[0]}","${title}","${username}",${review.rating},"${body}"`;
+      })
+      .join('\n');
+    const csvContent = csvHeader + csvRows;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="reviews-report-${period}-${new Date().toISOString().split('T')[0]}.csv"`
+    );
+    res.send(csvContent);
+  } catch (error) {
+    logError('Error exporting reviews report', error, {
+      endpoint: '/api/owners/export/reviews',
+      userId: req.user?._id,
+    });
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to export reviews report',
+    });
+  }
+};
+
+/**
+ * Export full report (combined data)
+ * GET /api/owners/export/full
+ */
+const exportFullReport = async (req, res) => {
+  try {
+    const { period = '30d', format = 'csv' } = req.query;
+    const owner = await Owner.findOne({ user: req.user._id }).populate('campgrounds');
+
+    if (!owner) {
+      return res.status(404).json({
+        error: 'Not Found',
+        message: 'Owner profile not found',
+      });
+    }
+
+    // Calculate date range based on period
+    const now = new Date();
+    let startDate;
+    switch (period) {
+      case '7d':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case '90d':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      case '1y':
+        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    }
+
+    // Get all data
+    const [revenueData, bookingData, reviewsData] = await Promise.all([
+      Booking.aggregate([
+        {
+          $match: {
+            campground: { $in: owner.campgrounds.map((c) => c._id) },
+            createdAt: { $gte: startDate },
+            status: { $in: ['confirmed', 'cancelled'] },
+            paid: true,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: '$totalPrice' },
+            totalBookings: { $sum: 1 },
+          },
+        },
+      ]),
+      Booking.find({
+        campground: { $in: owner.campgrounds.map((c) => c._id) },
+        createdAt: { $gte: startDate },
+      }).countDocuments(),
+      Review.find({
+        campground: { $in: owner.campgrounds.map((c) => c._id) },
+        createdAt: { $gte: startDate },
+      }).countDocuments(),
+    ]);
+
+    const summary = {
+      period,
+      startDate,
+      endDate: now,
+      totalRevenue: revenueData[0]?.totalRevenue || 0,
+      totalBookings: revenueData[0]?.totalBookings || 0,
+      totalReviews: reviewsData,
+      campgrounds: owner.campgrounds.length,
+    };
+
+    if (format === 'json') {
+      return res.json(summary);
+    }
+
+    // Generate CSV
+    const csvHeader = 'Metric,Value\n';
+    const csvRows = [
+      `Period,${period}`,
+      `Start Date,${startDate.toISOString().split('T')[0]}`,
+      `End Date,${now.toISOString().split('T')[0]}`,
+      `Total Revenue,${summary.totalRevenue}`,
+      `Total Bookings,${summary.totalBookings}`,
+      `Total Reviews,${summary.totalReviews}`,
+      `Campgrounds,${summary.campgrounds}`,
+    ].join('\n');
+    const csvContent = csvHeader + csvRows;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="full-report-${period}-${new Date().toISOString().split('T')[0]}.csv"`
+    );
+    res.send(csvContent);
+  } catch (error) {
+    logError('Error exporting full report', error, {
+      endpoint: '/api/owners/export/full',
+      userId: req.user?._id,
+    });
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to export full report',
+    });
+  }
+};
+
 module.exports = {
   registerOwner,
   getOwnerProfile,
@@ -1220,4 +1710,8 @@ module.exports = {
   getOwnerApplication,
   updateOwnerApplication,
   uploadApplicationDocuments,
+  exportRevenueReport,
+  exportBookingReport,
+  exportReviewsReport,
+  exportFullReport,
 };

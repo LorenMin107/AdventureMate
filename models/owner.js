@@ -40,7 +40,7 @@ const OwnerSchema = new Schema(
       city: { type: String, required: true },
       state: { type: String, required: true },
       zipCode: { type: String, required: true },
-      country: { type: String, required: true, default: 'Myanmar' },
+      country: { type: String, required: true, default: 'Thailand' },
     },
 
     businessPhone: {
@@ -150,19 +150,6 @@ const OwnerSchema = new Schema(
 
     // Owner Settings
     settings: {
-      autoApproveBookings: {
-        type: Boolean,
-        default: false,
-      },
-      allowInstantBooking: {
-        type: Boolean,
-        default: true,
-      },
-      cancellationPolicy: {
-        type: String,
-        enum: ['flexible', 'moderate', 'strict'],
-        default: 'moderate',
-      },
       minimumStay: {
         type: Number,
         default: 1,

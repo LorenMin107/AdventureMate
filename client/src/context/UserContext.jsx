@@ -111,9 +111,7 @@ export const UserProvider = ({ children }) => {
     setError(null);
 
     try {
-      console.log('Making API call to update profile...');
       const response = await apiClient.put('/users/profile', profileData, { headers });
-      console.log('API response:', response);
       const updatedUser = response.data.user;
 
       // Update both UserContext and AuthContext
@@ -137,11 +135,8 @@ export const UserProvider = ({ children }) => {
         window.dispatchEvent(event);
       }
 
-      console.log('Profile update successful, returning success result');
       return { success: true, user: updatedUser };
     } catch (err) {
-      console.log('Profile update failed with error:', err);
-      console.log('Error response data:', err.response?.data);
 
       // Don't set the global error state for validation errors
       // Let the component handle them locally
@@ -153,7 +148,6 @@ export const UserProvider = ({ children }) => {
         message: errorMessage,
       };
 
-      console.log('Returning error result:', result);
       return result;
     } finally {
       setLoading(false);
@@ -172,18 +166,7 @@ export const UserProvider = ({ children }) => {
     setError(null);
 
     try {
-      logInfo('Making API request to initiate 2FA setup...');
-      logDebug('Authentication status', isAuthenticated);
-      logDebug('Current user', currentUser);
-
       const response = await apiClient.post('/2fa/setup');
-
-      logDebug('API response status', response.status);
-      logDebug('API response data', {
-        qrCode: response.data.qrCode ? 'QR code data present' : 'No QR code data',
-        secret: response.data.secret ? 'Secret present' : 'No secret',
-        setupCompleted: response.data.setupCompleted,
-      });
 
       return {
         qrCode: response.data.qrCode,

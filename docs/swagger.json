@@ -15,7 +15,7 @@
       "description": "Development server"
     },
     {
-      "url": "https://myancamp.com/api/v1",
+      "url": "https://adventuremate.com/api/v1",
       "description": "Production server"
     }
   ],
@@ -3504,11 +3504,11 @@
                 },
                 "url": {
                   "type": "string",
-                  "example": "https://res.cloudinary.com/dlvtzyb7j/image/upload/v1624456518/MyanCamp/documents/license_xyzabc.jpg"
+                  "example": "https://res.cloudinary.com/dlvtzyb7j/image/upload/v1624456518/AdventureMate/documents/license_xyzabc.jpg"
                 },
                 "filename": {
                   "type": "string",
-                  "example": "MyanCamp/documents/license_xyzabc"
+                  "example": "AdventureMate/documents/license_xyzabc"
                 },
                 "description": {
                   "type": "string",
@@ -3623,11 +3623,11 @@
               "properties": {
                 "url": {
                   "type": "string",
-                  "example": "https://res.cloudinary.com/dlvtzyb7j/image/upload/v1624456518/MyanCamp/campground1_xyzabc.jpg"
+                  "example": "https://res.cloudinary.com/dlvtzyb7j/image/upload/v1624456518/AdventureMate/campground1_xyzabc.jpg"
                 },
                 "filename": {
                   "type": "string",
-                  "example": "MyanCamp/campground1_xyzabc"
+                  "example": "AdventureMate/campground1_xyzabc"
                 }
               }
             }

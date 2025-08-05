@@ -7,10 +7,11 @@
 const TEMPLATE_TYPES = {
   VERIFICATION: 'verification',
   WELCOME: 'welcome',
-  PASSWORD_RESET: 'password-reset',
-  BOOKING_CONFIRMATION: 'booking-confirmation',
-  ACCOUNT_UPDATE: 'account-update',
-  TRIP_INVITE: 'trip-invite',
+  PASSWORD_RESET: 'password_reset',
+  ACCOUNT_UPDATE: 'account_update',
+  TRIP_INVITE: 'trip_invite',
+  OWNER_APPROVAL: 'owner_approval',
+  OWNER_REJECTION: 'owner_rejection',
 };
 
 /**
@@ -33,6 +34,10 @@ const getHtmlTemplate = (type, data = {}) => {
       return renderAccountUpdateEmail(data);
     case TEMPLATE_TYPES.TRIP_INVITE:
       return renderTripInviteEmail(data);
+    case TEMPLATE_TYPES.OWNER_APPROVAL:
+      return renderOwnerApprovalEmail(data);
+    case TEMPLATE_TYPES.OWNER_REJECTION:
+      return renderOwnerRejectionEmail(data);
     default:
       throw new Error(`Unknown template type: ${type}`);
   }
@@ -58,6 +63,10 @@ const getTextTemplate = (type, data = {}) => {
       return renderAccountUpdateEmailText(data);
     case TEMPLATE_TYPES.TRIP_INVITE:
       return renderTripInviteEmailText(data);
+    case TEMPLATE_TYPES.OWNER_APPROVAL:
+      return renderOwnerApprovalEmailText(data);
+    case TEMPLATE_TYPES.OWNER_REJECTION:
+      return renderOwnerRejectionEmailText(data);
     default:
       throw new Error(`Unknown template type: ${type}`);
   }
@@ -146,12 +155,12 @@ const renderVerificationEmail = ({ username, verificationUrl }) => {
     <body>
       <div class="container">
         <div class="header">
-          <h1>MyanCamp</h1>
+          <h1>AdventureMate</h1>
         </div>
         <div class="content">
           <h2>Verify Your Email Address</h2>
           <p>Hello ${username},</p>
-          <p>Thank you for registering with MyanCamp. To complete your registration, please verify your email address by clicking the button below:</p>
+          <p>Thank you for registering with AdventureMate. To complete your registration, please verify your email address by clicking the button below:</p>
           
           <div style="text-align: center;">
             <a href="${verificationUrl}" class="button">Verify Email</a>
@@ -160,7 +169,7 @@ const renderVerificationEmail = ({ username, verificationUrl }) => {
           <p>This link will expire in 24 hours.</p>
           <p>If you did not register for an account, please ignore this email.</p>
           
-          <p>Best regards,<br>The MyanCamp Team</p>
+          <p>Best regards,<br>The AdventureMate Team</p>
           
           <div class="link-fallback">
             If the button doesn't work, copy and paste this link into your browser:<br>
@@ -168,7 +177,7 @@ const renderVerificationEmail = ({ username, verificationUrl }) => {
           </div>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} MyanCamp. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} AdventureMate. All rights reserved.</p>
           <p>This is an automated message, please do not reply to this email.</p>
         </div>
       </div>
@@ -188,7 +197,7 @@ const renderVerificationEmailText = ({ username, verificationUrl }) => {
   return `
     Hello ${username},
     
-    Thank you for registering with MyanCamp. To complete your registration, please verify your email address by visiting the link below:
+    Thank you for registering with AdventureMate. To complete your registration, please verify your email address by visiting the link below:
     
     ${verificationUrl}
     
@@ -197,9 +206,9 @@ const renderVerificationEmailText = ({ username, verificationUrl }) => {
     If you did not register for an account, please ignore this email.
     
     Best regards,
-    The MyanCamp Team
+    The AdventureMate Team
     
-    © ${new Date().getFullYear()} MyanCamp. All rights reserved.
+    © ${new Date().getFullYear()} AdventureMate. All rights reserved.
     This is an automated message, please do not reply to this email.
   `;
 };
@@ -217,7 +226,7 @@ const renderWelcomeEmail = ({ username }) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Welcome to MyanCamp</title>
+      <title>Welcome to AdventureMate</title>
       <style>
         /* Base styles */
         body {
@@ -295,14 +304,14 @@ const renderWelcomeEmail = ({ username }) => {
     <body>
       <div class="container">
         <div class="header">
-          <h1>MyanCamp</h1>
+          <h1>AdventureMate</h1>
         </div>
         <div class="content">
-          <h2>Welcome to MyanCamp!</h2>
+          <h2>Welcome to AdventureMate!</h2>
           <p>Hello ${username},</p>
-          <p>Thank you for joining MyanCamp! Your account has been successfully created and verified.</p>
+          <p>Thank you for joining AdventureMate! Your account has been successfully created and verified.</p>
           
-          <p>With your MyanCamp account, you can:</p>
+          <p>With your AdventureMate account, you can:</p>
           
           <div class="features">
             <div class="feature">
@@ -324,15 +333,15 @@ const renderWelcomeEmail = ({ username }) => {
           </div>
           
           <div style="text-align: center;">
-            <a href="https://myancamp.com/campgrounds" class="button">Explore Campgrounds</a>
+            <a href="https://adventuremate.com/campgrounds" class="button">Explore Campgrounds</a>
           </div>
           
           <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
           
-          <p>Best regards,<br>The MyanCamp Team</p>
+          <p>Best regards,<br>The AdventureMate Team</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} MyanCamp. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} AdventureMate. All rights reserved.</p>
           <p>This is an automated message, please do not reply to this email.</p>
         </div>
       </div>
@@ -351,23 +360,23 @@ const renderWelcomeEmailText = ({ username }) => {
   return `
     Hello ${username},
     
-    Thank you for joining MyanCamp! Your account has been successfully created and verified.
+    Thank you for joining AdventureMate! Your account has been successfully created and verified.
     
-    With your MyanCamp account, you can:
+    With your AdventureMate account, you can:
     
     - Discover Campgrounds: Find the best camping spots in Myanmar's beautiful landscapes.
     - Book Easily: Make reservations with our simple booking system.
     - Share Experiences: Write reviews and share your camping adventures.
     - Manage Bookings: View and manage all your bookings in one place.
     
-    Visit our website to explore campgrounds: https://myancamp.com/campgrounds
+    Visit our website to explore campgrounds: https://adventuremate.com/campgrounds
     
     If you have any questions or need assistance, please don't hesitate to contact our support team.
     
     Best regards,
-    The MyanCamp Team
+    The AdventureMate Team
     
-    © ${new Date().getFullYear()} MyanCamp. All rights reserved.
+    © ${new Date().getFullYear()} AdventureMate. All rights reserved.
     This is an automated message, please do not reply to this email.
   `;
 };
@@ -462,12 +471,12 @@ const renderPasswordResetEmail = ({ username, resetUrl }) => {
     <body>
       <div class="container">
         <div class="header">
-          <h1>MyanCamp</h1>
+          <h1>AdventureMate</h1>
         </div>
         <div class="content">
           <h2>Reset Your Password</h2>
           <p>Hello ${username},</p>
-          <p>We received a request to reset your password for your MyanCamp account. Click the button below to reset your password:</p>
+          <p>We received a request to reset your password for your AdventureMate account. Click the button below to reset your password:</p>
           
           <div style="text-align: center;">
             <a href="${resetUrl}" class="button">Reset Password</a>
@@ -479,7 +488,7 @@ const renderPasswordResetEmail = ({ username, resetUrl }) => {
           
           <p>For security reasons, this password reset link can only be used once.</p>
           
-          <p>Best regards,<br>The MyanCamp Team</p>
+          <p>Best regards,<br>The AdventureMate Team</p>
           
           <div class="link-fallback">
             If the button doesn't work, copy and paste this link into your browser:<br>
@@ -487,7 +496,7 @@ const renderPasswordResetEmail = ({ username, resetUrl }) => {
           </div>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} MyanCamp. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} AdventureMate. All rights reserved.</p>
           <p>This is an automated message, please do not reply to this email.</p>
         </div>
       </div>
@@ -507,7 +516,7 @@ const renderPasswordResetEmailText = ({ username, resetUrl }) => {
   return `
     Hello ${username},
     
-    We received a request to reset your password for your MyanCamp account. Please use the link below to reset your password:
+    We received a request to reset your password for your AdventureMate account. Please use the link below to reset your password:
     
     ${resetUrl}
     
@@ -516,9 +525,9 @@ const renderPasswordResetEmailText = ({ username, resetUrl }) => {
     For security reasons, this password reset link can only be used once.
     
     Best regards,
-    The MyanCamp Team
+    The AdventureMate Team
     
-    © ${new Date().getFullYear()} MyanCamp. All rights reserved.
+    © ${new Date().getFullYear()} AdventureMate. All rights reserved.
     This is an automated message, please do not reply to this email.
   `;
 };
@@ -824,12 +833,12 @@ const renderAccountUpdateEmail = ({ username, updates }) => {
     <body>
       <div class="container">
         <div class="header">
-          <h1>MyanCamp</h1>
+          <h1>AdventureMate</h1>
         </div>
         <div class="content">
           <h2>Account Update Notification</h2>
           <p>Hello ${username},</p>
-          <p>We're writing to inform you that your MyanCamp account has been updated.</p>
+          <p>We're writing to inform you that your AdventureMate account has been updated.</p>
           
           <div class="updates">
             <h3>Changes to Your Account</h3>
@@ -845,15 +854,15 @@ const renderAccountUpdateEmail = ({ username, updates }) => {
           <p>You can review your account settings by clicking the button below:</p>
           
           <div style="text-align: center;">
-            <a href="https://myancamp.com/profile" class="button">View Account Settings</a>
+            <a href="https://adventuremate.com/profile" class="button">View Account Settings</a>
           </div>
           
           <p>If you have any questions or concerns, please don't hesitate to contact us.</p>
           
-          <p>Best regards,<br>The MyanCamp Team</p>
+          <p>Best regards,<br>The AdventureMate Team</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} MyanCamp. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} AdventureMate. All rights reserved.</p>
           <p>This is an automated message, please do not reply to this email.</p>
         </div>
       </div>
@@ -878,7 +887,7 @@ const renderAccountUpdateEmailText = ({ username, updates }) => {
   return `
     Hello ${username},
     
-    We're writing to inform you that your MyanCamp account has been updated.
+    We're writing to inform you that your AdventureMate account has been updated.
     
     Changes to Your Account:
     -----------------------
@@ -887,14 +896,14 @@ const renderAccountUpdateEmailText = ({ username, updates }) => {
     Security Note: If you did not make these changes, please contact our support team immediately.
     
     You can review your account settings by visiting:
-    https://myancamp.com/profile
+    https://adventuremate.com/profile
     
     If you have any questions or concerns, please don't hesitate to contact us.
     
     Best regards,
-    The MyanCamp Team
+    The AdventureMate Team
     
-    © ${new Date().getFullYear()} MyanCamp. All rights reserved.
+    © ${new Date().getFullYear()} AdventureMate. All rights reserved.
     This is an automated message, please do not reply to this email.
   `;
 };
@@ -1023,6 +1032,425 @@ The AdventureCamp Team
 © ${new Date().getFullYear()} AdventureCamp. All rights reserved.
 This is an automated message, please do not reply to this email.
 `;
+};
+
+/**
+ * Render the owner application approval email HTML template
+ * @param {Object} data - Template data
+ * @param {string} data.username - User's name
+ * @param {string} data.businessName - Name of the business
+ * @param {string} data.adminName - Name of the admin who approved
+ * @param {string} data.approvalDate - Date of approval
+ * @returns {string} HTML template
+ */
+const renderOwnerApprovalEmail = ({ username, businessName, adminName, approvalDate }) => {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Owner Application Approved - AdventureMate</title>
+      <style>
+        /* Base styles */
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          margin: 0;
+          padding: 0;
+          background-color: #f4f4f4;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 30px;
+          text-align: center;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 28px;
+          font-weight: 600;
+        }
+        .content {
+          padding: 40px 30px;
+        }
+        .success-icon {
+          text-align: center;
+          margin-bottom: 30px;
+        }
+        .success-icon span {
+          font-size: 48px;
+          color: #28a745;
+        }
+        .content h2 {
+          color: #28a745;
+          margin-bottom: 20px;
+          text-align: center;
+        }
+        .content p {
+          margin-bottom: 15px;
+          font-size: 16px;
+        }
+        .highlight-box {
+          background-color: #f8f9fa;
+          border-left: 4px solid #28a745;
+          padding: 20px;
+          margin: 25px 0;
+          border-radius: 4px;
+        }
+        .next-steps {
+          background-color: #e8f5e8;
+          border: 1px solid #28a745;
+          border-radius: 8px;
+          padding: 25px;
+          margin: 30px 0;
+        }
+        .next-steps h3 {
+          color: #28a745;
+          margin-top: 0;
+          margin-bottom: 15px;
+        }
+        .next-steps ul {
+          margin: 0;
+          padding-left: 20px;
+        }
+        .next-steps li {
+          margin-bottom: 8px;
+        }
+        .button {
+          display: inline-block;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          text-decoration: none;
+          padding: 12px 30px;
+          border-radius: 6px;
+          font-weight: 600;
+          margin: 20px 0;
+        }
+        .footer {
+          background-color: #f8f9fa;
+          padding: 30px;
+          text-align: center;
+          color: #666;
+          font-size: 14px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>AdventureMate</h1>
+        </div>
+        <div class="content">
+          <div class="success-icon">
+            <span>✅</span>
+          </div>
+          <h2>Congratulations! Your Application Has Been Approved!</h2>
+          <p>Hello ${username},</p>
+          <p>Great news! Your owner application for <strong>${businessName}</strong> has been approved by our team.</p>
+          
+          <div class="highlight-box">
+            <p><strong>Application Details:</strong></p>
+            <p>• Business Name: ${businessName}</p>
+            <p>• Approved By: ${adminName}</p>
+            <p>• Approval Date: ${approvalDate}</p>
+          </div>
+
+          <div class="next-steps">
+            <h3>What's Next?</h3>
+            <ul>
+              <li><strong>Access Owner Dashboard:</strong> You can now log in and access your owner dashboard</li>
+              <li><strong>Add Your Campgrounds:</strong> Start listing your camping properties</li>
+              <li><strong>Set Up Your Profile:</strong> Complete your business profile and settings</li>
+              <li><strong>Upload Photos:</strong> Add high-quality images of your campgrounds</li>
+              <li><strong>Set Pricing:</strong> Configure rates and availability for your campsites</li>
+            </ul>
+          </div>
+
+          <p>If you have any questions or need assistance getting started, please don't hesitate to contact our support team.</p>
+          
+          <p>Welcome to the AdventureMate community!</p>
+          
+          <p>Best regards,<br>The AdventureMate Team</p>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} AdventureMate. All rights reserved.</p>
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+};
+
+/**
+ * Render the owner application approval email text template
+ * @param {Object} data - Template data
+ * @param {string} data.username - User's name
+ * @param {string} data.businessName - Name of the business
+ * @param {string} data.adminName - Name of the admin who approved
+ * @param {string} data.approvalDate - Date of approval
+ * @returns {string} Text template
+ */
+const renderOwnerApprovalEmailText = ({ username, businessName, adminName, approvalDate }) => {
+  return `
+    Hello ${username},
+
+    Congratulations! Your owner application for ${businessName} has been approved by our team.
+
+    Application Details:
+    - Business Name: ${businessName}
+    - Approved By: ${adminName}
+    - Approval Date: ${approvalDate}
+
+    What's Next?
+    - Access Owner Dashboard: You can now log in and access your owner dashboard
+    - Add Your Campgrounds: Start listing your camping properties
+    - Set Up Your Profile: Complete your business profile and settings
+    - Upload Photos: Add high-quality images of your campgrounds
+    - Set Pricing: Configure rates and availability for your campsites
+
+    If you have any questions or need assistance getting started, please don't hesitate to contact our support team.
+
+    Welcome to the AdventureMate community!
+
+    Best regards,
+    The AdventureMate Team
+
+    © ${new Date().getFullYear()} AdventureMate. All rights reserved.
+    This is an automated message, please do not reply to this email.
+  `;
+};
+
+/**
+ * Render the owner application rejection email HTML template
+ * @param {Object} data - Template data
+ * @param {string} data.username - User's name
+ * @param {string} data.businessName - Name of the business
+ * @param {string} data.adminName - Name of the admin who rejected
+ * @param {string} data.rejectionDate - Date of rejection
+ * @param {string} data.reason - Reason for rejection
+ * @returns {string} HTML template
+ */
+const renderOwnerRejectionEmail = ({
+  username,
+  businessName,
+  adminName,
+  rejectionDate,
+  reason,
+}) => {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Owner Application Update - AdventureMate</title>
+      <style>
+        /* Base styles */
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          margin: 0;
+          padding: 0;
+          background-color: #f4f4f4;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 30px;
+          text-align: center;
+        }
+        .header h1 {
+          margin: 0;
+          font-size: 28px;
+          font-weight: 600;
+        }
+        .content {
+          padding: 40px 30px;
+        }
+        .content h2 {
+          color: #dc3545;
+          margin-bottom: 20px;
+          text-align: center;
+        }
+        .content p {
+          margin-bottom: 15px;
+          font-size: 16px;
+        }
+        .rejection-box {
+          background-color: #f8f9fa;
+          border-left: 4px solid #dc3545;
+          padding: 20px;
+          margin: 25px 0;
+          border-radius: 4px;
+        }
+        .reason-box {
+          background-color: #fff3cd;
+          border: 1px solid #ffeaa7;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 25px 0;
+        }
+        .reason-box h3 {
+          color: #856404;
+          margin-top: 0;
+          margin-bottom: 15px;
+        }
+        .next-steps {
+          background-color: #e8f4fd;
+          border: 1px solid #bee5eb;
+          border-radius: 8px;
+          padding: 25px;
+          margin: 30px 0;
+        }
+        .next-steps h3 {
+          color: #0c5460;
+          margin-top: 0;
+          margin-bottom: 15px;
+        }
+        .next-steps ul {
+          margin: 0;
+          padding-left: 20px;
+        }
+        .next-steps li {
+          margin-bottom: 8px;
+        }
+        .button {
+          display: inline-block;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          text-decoration: none;
+          padding: 12px 30px;
+          border-radius: 6px;
+          font-weight: 600;
+          margin: 20px 0;
+        }
+        .footer {
+          background-color: #f8f9fa;
+          padding: 30px;
+          text-align: center;
+          color: #666;
+          font-size: 14px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>AdventureMate</h1>
+        </div>
+        <div class="content">
+          <h2>Update on Your Owner Application</h2>
+          <p>Hello ${username},</p>
+          <p>Thank you for your interest in becoming an owner on AdventureMate. We have reviewed your application for <strong>${businessName}</strong>.</p>
+          
+          <div class="rejection-box">
+            <p><strong>Application Status:</strong> Not Approved</p>
+            <p>• Reviewed By: ${adminName}</p>
+            <p>• Review Date: ${rejectionDate}</p>
+          </div>
+
+          <div class="reason-box">
+            <h3>Reason for Decision:</h3>
+            <p>${reason}</p>
+          </div>
+
+          <div class="next-steps">
+            <h3>What You Can Do Next:</h3>
+            <ul>
+              <li><strong>Review the Feedback:</strong> Carefully consider the reason provided above</li>
+              <li><strong>Address the Issues:</strong> Make necessary improvements to your application</li>
+              <li><strong>Resubmit:</strong> You can submit a new application once you've addressed the concerns</li>
+              <li><strong>Contact Support:</strong> If you have questions, our team is here to help</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center;">
+            <a href="https://adventuremate.com/owner/apply" class="button">Submit New Application</a>
+          </div>
+
+          <p>We encourage you to address the feedback and submit a new application. We're here to support you in becoming a successful campground owner on our platform.</p>
+          
+          <p>If you have any questions about the feedback or need assistance, please don't hesitate to contact our support team.</p>
+          
+          <p>Best regards,<br>The AdventureMate Team</p>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} AdventureMate. All rights reserved.</p>
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+};
+
+/**
+ * Render the owner application rejection email text template
+ * @param {Object} data - Template data
+ * @param {string} data.username - User's name
+ * @param {string} data.businessName - Name of the business
+ * @param {string} data.adminName - Name of the admin who rejected
+ * @param {string} data.rejectionDate - Date of rejection
+ * @param {string} data.reason - Reason for rejection
+ * @returns {string} Text template
+ */
+const renderOwnerRejectionEmailText = ({
+  username,
+  businessName,
+  adminName,
+  rejectionDate,
+  reason,
+}) => {
+  return `
+    Hello ${username},
+
+    Thank you for your interest in becoming an owner on AdventureMate. We have reviewed your application for ${businessName}.
+
+    Application Status: Not Approved
+    - Reviewed By: ${adminName}
+    - Review Date: ${rejectionDate}
+
+    Reason for Decision:
+    ${reason}
+
+    What You Can Do Next:
+    - Review the Feedback: Carefully consider the reason provided above
+    - Address the Issues: Make necessary improvements to your application
+    - Resubmit: You can submit a new application once you've addressed the concerns
+    - Contact Support: If you have questions, our team is here to help
+
+    Visit our website to submit a new application: https://adventuremate.com/owner/apply
+
+    We encourage you to address the feedback and submit a new application. We're here to support you in becoming a successful campground owner on our platform.
+
+    If you have any questions about the feedback or need assistance, please don't hesitate to contact our support team.
+
+    Best regards,
+    The AdventureMate Team
+
+    © ${new Date().getFullYear()} AdventureMate. All rights reserved.
+    This is an automated message, please do not reply to this email.
+  `;
 };
 
 module.exports = {

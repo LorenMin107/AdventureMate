@@ -55,6 +55,20 @@ const OwnerApplicationList = () => {
     fetchApplications();
   }, [currentPage, statusFilter]);
 
+  // Handle body scroll when modal is open
+  useEffect(() => {
+    if (showActionModal) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    // Cleanup function to remove class when component unmounts
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [showActionModal]);
+
   // Handle application action (approve/reject)
   const handleApplicationAction = async () => {
     if (!selectedApplication) return;
@@ -203,11 +217,11 @@ const OwnerApplicationList = () => {
               <div className="application-details">
                 <div className="detail-row">
                   <span className="detail-label">{t('adminOwnerApplication.email')}:</span>
-                  <span className="detail-value">{application.email}</span>
+                  <span className="detail-value">{application.user?.email || 'N/A'}</span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-label">{t('adminOwnerApplication.phone')}:</span>
-                  <span className="detail-value">{application.phone || 'N/A'}</span>
+                  <span className="detail-value">{application.user?.phone || 'N/A'}</span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-label">{t('adminOwnerApplication.businessType')}:</span>

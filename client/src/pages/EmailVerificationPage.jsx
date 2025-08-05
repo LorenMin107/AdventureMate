@@ -55,7 +55,18 @@ const EmailVerificationPage = () => {
     setResendMessage('');
 
     try {
-      const response = await apiClient.post('/auth/resend-verification-email');
+      // Get email from the verification response or use a fallback
+      const email = user?.email || '';
+
+      if (!email) {
+        setResendStatus('error');
+        setResendMessage('Unable to determine email address. Please try logging in again.');
+        return;
+      }
+
+      const response = await apiClient.post('/resend-verification-email-unauthenticated', {
+        email: email,
+      });
       setResendStatus('success');
       setResendMessage(response.data.message);
     } catch (error) {
@@ -83,8 +94,12 @@ const EmailVerificationPage = () => {
             <p>{message}</p>
             {user && (
               <div className="user-info">
-                <p>Username: {user.username}</p>
-                <p>Email: {user.email}</p>
+                <p>
+                  {t('emailVerification.userInfo.username')}: {user.username}
+                </p>
+                <p>
+                  {t('emailVerification.userInfo.email')}: {user.email}
+                </p>
               </div>
             )}
             <div className="action-buttons">

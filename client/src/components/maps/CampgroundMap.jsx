@@ -50,6 +50,22 @@ const CampgroundMap = ({ geometry, title, popupContent, enablePopup = true, zoom
     }
   }, [geometry]);
 
+  // Force map re-render when theme changes
+  useEffect(() => {
+    if (mapRef.current) {
+      const map = mapRef.current.getMap();
+      if (map) {
+        // Update map style when theme changes
+        const newMapStyle =
+          theme === 'dark'
+            ? 'mapbox://styles/mapbox/dark-v11'
+            : 'mapbox://styles/mapbox/outdoors-v12';
+
+        map.setStyle(newMapStyle);
+      }
+    }
+  }, [theme]);
+
   // Trigger map resize after component mounts and container is properly sized
   useEffect(() => {
     if (mapRef.current) {
@@ -397,6 +413,7 @@ const CampgroundMap = ({ geometry, title, popupContent, enablePopup = true, zoom
 
       {renderMap && (
         <Map
+          key={`campground-map-${theme}`}
           ref={mapRef}
           {...viewState}
           onMove={(evt) => setViewState(evt.viewState)}

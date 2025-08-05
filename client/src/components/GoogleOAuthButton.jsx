@@ -38,7 +38,6 @@ const GoogleOAuthButton = ({ onSuccess, onError, disabled = false }) => {
 
       // Redirect to Google OAuth
       const authUrl = getGoogleOAuthURL();
-      console.log('Google OAuth URL:', authUrl);
       window.location.href = authUrl;
     } catch (error) {
       logError('Google OAuth error', error);

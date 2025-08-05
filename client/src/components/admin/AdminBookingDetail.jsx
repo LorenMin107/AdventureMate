@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@context/AuthContext';
 import apiClient from '../../utils/api';
-import { logError } from '../../utils/logger';
+import { logError } from '@utils/logger';
 import ConfirmDialog from '../common/ConfirmDialog';
 import './AdminBookingDetail.css';
 
@@ -168,11 +168,10 @@ const AdminBookingDetail = ({ initialBooking = null }) => {
                   <p className="admin-booking-detail-campsite-capacity">
                     {t('adminBookingDetail.capacity', {
                       capacity: campsite.capacity,
-                      person:
-                        campsite.capacity === 1
-                          ? t('adminBookingDetail.person')
-                          : t('adminBookingDetail.people'),
-                    })}
+                    })}{' '}
+                    {campsite.capacity === 1
+                      ? t('adminBookingDetail.person')
+                      : t('adminBookingDetail.people')}
                   </p>
                 )}
                 {campsite.features && campsite.features.length > 0 && (

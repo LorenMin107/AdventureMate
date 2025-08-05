@@ -91,16 +91,12 @@ const OwnerBookingsPage = () => {
 
   const handleStatusUpdate = async (bookingId, newStatus) => {
     try {
-      console.log('Updating booking status:', { bookingId, newStatus });
-
       // Show loading message
       showMessage(t('ownerBookings.updatingStatus'), 'info');
 
       const response = await apiClient.patch(`/owner/bookings/${bookingId}/status`, {
         status: newStatus,
       });
-
-      console.log('Status update response:', response);
 
       showMessage(t('ownerBookings.statusUpdated', { status: newStatus }), 'success');
 
@@ -112,7 +108,7 @@ const OwnerBookingsPage = () => {
       );
 
       // Refetch to get updated data
-      refetch();
+      await refetch();
     } catch (err) {
       console.error('Error updating booking status:', err);
       console.error('Error details:', {
@@ -190,7 +186,7 @@ const OwnerBookingsPage = () => {
       <CSSIsolationWrapper section="owner" className="owner-error">
         <h4>{t('ownerBookings.errorTitle')}</h4>
         <p>{error}</p>
-        <button onClick={() => refetch()} className="owner-btn owner-btn-primary">
+        <button onClick={async () => await refetch()} className="owner-btn owner-btn-primary">
           {t('ownerBookings.retry')}
         </button>
       </CSSIsolationWrapper>

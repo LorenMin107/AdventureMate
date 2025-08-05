@@ -172,10 +172,6 @@ const ProfilePage = () => {
     }
 
     try {
-      console.log('Starting profile update...');
-      console.log('removeProfilePicture flag:', removeProfilePicture);
-      console.log('editProfilePicture:', editProfilePicture);
-
       // Create FormData if we have a profile picture
       let profileData;
       let headers = {};
@@ -187,7 +183,6 @@ const ProfilePage = () => {
         profileData.append('phone', editPhone);
         profileData.append('profilePicture', editProfilePicture);
         headers = { 'Content-Type': 'multipart/form-data' };
-        console.log('Sending new profile picture');
       } else if (removeProfilePicture) {
         // Handle profile picture removal
         profileData = {
@@ -196,23 +191,18 @@ const ProfilePage = () => {
           phone: editPhone,
           removeProfilePicture: true,
         };
-        console.log('Sending profile picture removal request');
       } else {
         profileData = {
           username: editUsername,
           profileName: editDisplayName,
           phone: editPhone,
         };
-        console.log('Sending profile update without picture changes');
       }
 
       // Use the updateProfile function from UserContext
       const result = await updateProfile(profileData, headers);
 
-      console.log('Profile update result:', result);
-
       if (result.success) {
-        console.log('Profile update successful');
         setEditLoading(false);
         setEditSuccess(true);
         setEditModalOpen(false); // Only close on success!
@@ -222,16 +212,13 @@ const ProfilePage = () => {
           setEditSuccess(false);
         }, 3000);
       } else {
-        console.log('Profile update failed:', result);
         setEditLoading(false);
         // Backend error handling
         const responseData = result.error;
-        console.log('Response data:', responseData);
 
         // Handle express-validator error format
         if (responseData && responseData.data && responseData.data.errors) {
           const validationErrors = responseData.data.errors;
-          console.log('Validation errors:', validationErrors);
           validationErrors.forEach((e) => {
             if (e.field === 'username') setEditUsernameError(e.message);
             if (e.field === 'profileName') setEditDisplayNameError(e.message);
@@ -244,7 +231,6 @@ const ProfilePage = () => {
         } else {
           // Fallback for direct error
           const backendError = responseData?.error || responseData?.message;
-          console.log('Backend error:', backendError);
           if (backendError && backendError.toLowerCase().includes('username')) {
             setEditUsernameError(backendError);
           } else if (backendError && backendError.toLowerCase().includes('name')) {
@@ -260,7 +246,6 @@ const ProfilePage = () => {
         // Do NOT close the modal on error!
       }
     } catch (err) {
-      console.log('Caught error in handleEditSave:', err);
       setEditLoading(false);
       setEditError(t('profile.updateError'));
       // Do NOT close the modal on error!
@@ -280,19 +265,6 @@ const ProfilePage = () => {
 
   // Render edit modal
   const renderEditModal = () => {
-    console.log('Rendering edit modal, editModalOpen:', editModalOpen);
-    console.log(
-      'Edit errors - username:',
-      editUsernameError,
-      'displayName:',
-      editDisplayNameError,
-      'phone:',
-      editPhoneError,
-      'picture:',
-      editProfilePictureError,
-      'general:',
-      editError
-    );
 
     return (
       <div className="profile-edit-modal-overlay">

@@ -2,8 +2,6 @@
 # This file is automatically loaded by docker-compose and can be customized per developer
 # Copy this file to docker-compose.override.yml and modify as needed
 
-version: '3.8'
-
 services:
   # Override app service for development
   app:

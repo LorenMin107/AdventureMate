@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../context/AuthContext';
-import { useFlashMessage } from '../context/FlashMessageContext';
-import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '@context/AuthContext';
+import { useFlashMessage } from '@context/FlashMessageContext';
+import { useTheme } from '@context/ThemeContext';
 import apiClient from '../utils/api';
-import { logError } from '../utils/logger';
+import { logError } from '@utils/logger';
 import './AdminAnalyticsPage.css';
 
 /**

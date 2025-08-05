@@ -47,7 +47,6 @@ const SafetyAlertList = ({
         // If initialAlerts are provided, use them instead of fetching
         if (initialAlerts && initialAlerts.length > 0) {
           if (process.env.NODE_ENV === 'development') {
-            console.log('Using initialAlerts provided by parent count:', initialAlerts.length);
           }
           setAlerts(initialAlerts);
           setLoading(false);
@@ -133,14 +132,6 @@ const SafetyAlertList = ({
         const entityPath = entityType === 'campsite' ? 'campsite-safety-alerts' : 'campgrounds';
         deleteUrl = `/${entityPath}/${entityId}/safety-alerts/${alert._id}`;
       }
-
-      console.log('Deleting safety alert with URL:', deleteUrl);
-      console.log('Alert properties:', {
-        id: alert._id,
-        campsite: alert.campsite,
-        campground: alert.campground,
-        entityType,
-      });
 
       await apiClient.delete(deleteUrl);
 
@@ -269,7 +260,6 @@ const SafetyAlertList = ({
         const finalResponseData = finalRefreshResponse.data;
         const finalUpdatedAlerts = finalResponseData.data?.alerts || [];
         if (process.env.NODE_ENV === 'development') {
-          console.log('Final refresh - Updated alerts count:', finalUpdatedAlerts.length);
         }
         setAlerts(finalUpdatedAlerts);
       } catch (refreshErr) {
@@ -288,8 +278,6 @@ const SafetyAlertList = ({
         const data = err.response.data;
 
         if (process.env.NODE_ENV === 'development') {
-          console.log('Error response status:', status);
-          console.log('Error response data:', data);
         }
 
         if (status === 404) {
@@ -298,7 +286,6 @@ const SafetyAlertList = ({
           if (data?.message === 'Already acknowledged') {
             // If already acknowledged, just refresh the data and don't show an error
             if (process.env.NODE_ENV === 'development') {
-              console.log('Alert already acknowledged, refreshing data...');
             }
 
             // Refresh the alerts to get the updated acknowledgment status
@@ -319,12 +306,6 @@ const SafetyAlertList = ({
 
               const refreshData = refreshResponse.data;
               const refreshedAlerts = refreshData.data?.alerts || [];
-              if (process.env.NODE_ENV === 'development') {
-                console.log(
-                  'Refreshed alerts after already acknowledged count:',
-                  refreshedAlerts.length
-                );
-              }
               setAlerts(refreshedAlerts);
 
               // Don't show error, just return

@@ -5,7 +5,7 @@ import { useFlashMessage } from '../context/FlashMessageContext';
 import { useTheme } from '../context/ThemeContext';
 import { extractAuthCodeFromURL, clearOAuthParamsFromURL } from '../utils/googleOAuth';
 import { logError } from '../utils/logger';
-import { debugThemeState, forceRestoreTheme, checkThemeConsistency } from '../utils/themeDebug';
+
 import { useTranslation } from 'react-i18next';
 import './GoogleOAuthCallbackPage.css';
 
@@ -24,30 +24,37 @@ const GoogleOAuthCallbackPage = () => {
   const hasProcessedRef = useRef(false);
 
   useEffect(() => {
+    let redirectTimeout;
+
     const handleOAuthCallback = async () => {
       // Restore theme from localStorage after OAuth redirect
       try {
-        const storedTheme = localStorage.getItem('myancamp-theme');
+        const storedTheme = localStorage.getItem('adventuremate-theme');
         if (storedTheme && ['light', 'dark'].includes(storedTheme)) {
-          console.log('Restoring theme after OAuth redirect:', storedTheme);
           setSpecificTheme(storedTheme);
         }
       } catch (error) {
-        console.warn('Error restoring theme after OAuth redirect:', error);
+        // Silent error handling for theme restoration
       }
 
       // Prevent multiple executions
       if (hasProcessedRef.current) {
-        console.log('OAuth callback already processed, skipping...');
         return;
       }
 
       // Check if there's an authorization code in the URL
       const code = extractAuthCodeFromURL(location.search);
       if (!code) {
-        console.log('No authorization code found in URL, skipping OAuth callback');
         setStatus('error');
         addErrorMessage('No authorization code received from Google');
+        // Redirect to login page after a delay
+        redirectTimeout = setTimeout(() => {
+          try {
+            navigate('/login', { replace: true });
+          } catch (navError) {
+            window.location.href = '/login';
+          }
+        }, 3000);
         return;
       }
 
@@ -55,15 +62,9 @@ const GoogleOAuthCallbackPage = () => {
       hasProcessedRef.current = true;
 
       try {
-        // Debug: Log the current URL and search params
-        console.log('Current URL:', window.location.href);
-        console.log('Search params:', location.search);
-        console.log('Extracted code:', code ? code.substring(0, 10) + '...' : 'null');
-
         // Check for error parameters
         const urlParams = new URLSearchParams(location.search);
         const error = urlParams.get('error');
-        console.log('Error param:', error);
 
         if (error) {
           throw new Error(`OAuth error: ${error}`);
@@ -76,12 +77,8 @@ const GoogleOAuthCallbackPage = () => {
         const redirectUri = `${window.location.origin}/auth/google/callback`;
         const userOrResponse = await googleLogin(code, redirectUri);
 
-        // Debug: Log the response structure
-        console.log('Google login response:', userOrResponse);
-
         // Check for 2FA requirement (backend returns requiresTwoFactor)
         if (userOrResponse && userOrResponse.requiresTwoFactor) {
-          console.log('2FA required, redirecting to verification page');
           // Store tempAccessToken for 2FA verification
           localStorage.setItem('tempAccessToken', userOrResponse.tempAccessToken);
           // Optionally store user info if needed
@@ -92,8 +89,13 @@ const GoogleOAuthCallbackPage = () => {
               'Two-factor authentication required. Please enter your code.'
           );
           // Redirect to login page - the ProtectedRoute will handle 2FA verification
-          setTimeout(() => {
-            navigate('/login');
+          redirectTimeout = setTimeout(() => {
+            try {
+              navigate('/login', { replace: true });
+            } catch (navError) {
+              // Fallback to window.location if navigate fails
+              window.location.href = '/login';
+            }
           }, 1000);
           return;
         }
@@ -104,8 +106,13 @@ const GoogleOAuthCallbackPage = () => {
           addSuccessMessage(t('auth.googleLoginSuccess') || 'Successfully logged in with Google!');
 
           // Redirect to home page after a short delay
-          setTimeout(() => {
-            navigate('/');
+          redirectTimeout = setTimeout(() => {
+            try {
+              navigate('/', { replace: true });
+            } catch (navError) {
+              // Fallback to window.location if navigate fails
+              window.location.href = '/';
+            }
           }, 1500);
         } else {
           throw new Error('Failed to complete Google login');
@@ -144,8 +151,13 @@ const GoogleOAuthCallbackPage = () => {
         addErrorMessage(errorMessage);
 
         // Redirect to login page after a delay
-        setTimeout(() => {
-          navigate('/login');
+        redirectTimeout = setTimeout(() => {
+          try {
+            navigate('/login', { replace: true });
+          } catch (navError) {
+            // Fallback to window.location if navigate fails
+            window.location.href = '/login';
+          }
         }, redirectDelay);
       }
     };
@@ -154,6 +166,10 @@ const GoogleOAuthCallbackPage = () => {
 
     // Cleanup function
     return () => {
+      // Clear any pending redirects
+      if (redirectTimeout) {
+        clearTimeout(redirectTimeout);
+      }
       // Don't reset hasProcessedRef here as we want to prevent multiple calls
     };
   }, [
@@ -170,28 +186,12 @@ const GoogleOAuthCallbackPage = () => {
   useEffect(() => {
     const restoreTheme = () => {
       try {
-        // Debug theme state
-        debugThemeState();
-
-        // Check theme consistency
-        const isConsistent = checkThemeConsistency();
-
-        const storedTheme = localStorage.getItem('myancamp-theme');
+        const storedTheme = localStorage.getItem('adventuremate-theme');
         if (storedTheme && ['light', 'dark'].includes(storedTheme)) {
-          console.log('Ensuring theme is restored on OAuth callback page:', storedTheme);
           setSpecificTheme(storedTheme);
-
-          // Force restore theme as backup
-          setTimeout(() => {
-            forceRestoreTheme();
-          }, 100);
-        }
-
-        if (!isConsistent) {
-          console.warn('Theme inconsistency detected on OAuth callback page');
         }
       } catch (error) {
-        console.warn('Error ensuring theme restoration on OAuth callback page:', error);
+        // Silent error handling for theme restoration
       }
     };
 

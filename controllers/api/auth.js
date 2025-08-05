@@ -372,12 +372,9 @@ module.exports.logoutAll = asyncHandler(async (req, res) => {
  * Marks the user's email as verified
  */
 module.exports.verifyEmail = asyncHandler(async (req, res) => {
-  logDebug('Verify email endpoint called', { query: req.query });
-
   const { token } = req.query;
 
   if (!token) {
-    logWarn('Email verification attempted without token');
     return res.status(400).json({
       error: 'Bad Request',
       message: 'Verification token is required',
@@ -386,26 +383,19 @@ module.exports.verifyEmail = asyncHandler(async (req, res) => {
 
   try {
     // Verify the token
-    logDebug('Verifying email token', { token: token.substring(0, 10) + '...' });
     const verificationToken = await verifyEmailToken(token);
-    logDebug('Token verified successfully');
 
     // Get the user
-    logDebug('Finding user for verification', { userId: verificationToken.user });
     const user = await User.findById(verificationToken.user);
     if (!user) {
-      logWarn('User not found for email verification', { userId: verificationToken.user });
       return res.status(404).json({
         error: 'Not Found',
         message: 'User not found',
       });
     }
-    logDebug('User found for email verification', { userId: user._id, username: user.username });
 
     // Check if email is already verified
     if (user.isEmailVerified) {
-      logInfo('Email already verified', { userId: user._id, username: user.username });
-
       // Set a cookie to indicate that email verification was successful
       // This will be used to bypass rate limiting for the login endpoint
       res.cookie('email_verified', 'true', {
@@ -427,18 +417,12 @@ module.exports.verifyEmail = asyncHandler(async (req, res) => {
     }
 
     // Mark the user's email as verified
-    logInfo('Marking user email as verified', { userId: user._id });
     user.isEmailVerified = true;
     user.emailVerifiedAt = new Date();
     await user.save();
-    logInfo('User updated with verified email', { userId: user._id });
 
     // Mark the token as used
-    logDebug('Marking token as used');
     await markEmailTokenAsUsed(token);
-    logDebug('Token marked as used');
-
-    logInfo('Email verification successful', { userId: user._id });
 
     // Set a cookie to indicate that email verification was successful
     // This will be used to bypass rate limiting for the login endpoint
@@ -508,6 +492,64 @@ module.exports.verifyEmail = asyncHandler(async (req, res) => {
     return res.status(400).json({
       error: 'Invalid token',
       message: error.message,
+    });
+  }
+});
+
+/**
+ * Resend verification email for unauthenticated users
+ * Allows users to request a new verification email by providing their email address
+ */
+module.exports.resendVerificationEmailUnauthenticated = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      error: 'Bad Request',
+      message: 'Email is required',
+    });
+  }
+
+  // Find the user by email
+  const user = await User.findOne({ email });
+
+  // For security reasons, don't reveal if the email exists or not
+  // Always return a success message even if the email doesn't exist
+  if (!user) {
+    logInfo('Verification email resend requested for non-existent email', { email });
+    return res.json({
+      message: 'If your email is registered, you will receive a verification email shortly.',
+    });
+  }
+
+  // Check if email is already verified
+  if (user.isEmailVerified) {
+    return res.status(400).json({
+      error: 'Bad Request',
+      message: 'Email is already verified',
+    });
+  }
+
+  try {
+    // Generate a new verification token
+    const verificationToken = await generateEmailVerificationToken(user, req);
+
+    // Generate verification URL
+    const verificationUrl = generateVerificationUrl(verificationToken.token);
+
+    // Send verification email
+    await sendVerificationEmail(user, verificationUrl);
+
+    logInfo('Verification email resent successfully', { userId: user._id, email });
+
+    res.json({
+      message: 'If your email is registered, you will receive a verification email shortly.',
+    });
+  } catch (error) {
+    logError('Error resending verification email', error, { email });
+    return res.status(500).json({
+      error: 'Server Error',
+      message: 'Failed to send verification email',
     });
   }
 });

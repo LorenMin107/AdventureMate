@@ -26,7 +26,7 @@ describe('Security Tests', () => {
     await Campground.deleteMany({});
 
     // Create test users with hashed passwords
-    const hashedPassword = await hashPassword('Password123!');
+    const hashedPassword = hashPassword('Password123!');
     testUser = await User.create({
       email: 'test@example.com',
       username: 'testuser',

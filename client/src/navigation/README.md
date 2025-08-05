@@ -1,6 +1,6 @@
 # Navigation System
 
-This directory contains documentation for the navigation system in the MyanCamp application.
+This directory contains documentation for the navigation system in the AdventureMate application.
 
 ## Overview
 
@@ -22,11 +22,9 @@ The `Header` component (`/components/Header.jsx`) provides the main navigation b
 
 ```jsx
 // Example usage of NavLink for active link indicators
-<NavLink 
-  to="/campgrounds" 
-  className={({ isActive }) => 
-    isActive ? "nav-link active" : "nav-link"
-  }
+<NavLink
+  to="/campgrounds"
+  className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
 >
   Campgrounds
 </NavLink>
@@ -42,7 +40,7 @@ The `Breadcrumbs` component (`/components/Breadcrumbs.jsx`) automatically genera
 
 ```jsx
 // Example breadcrumb trail for /campgrounds/123/edit
-Home > Campgrounds > Details > Edit
+Home > Campgrounds > Details > Edit;
 ```
 
 ### PageTransition
@@ -66,7 +64,7 @@ import { Link, NavLink } from 'react-router-dom';
 <Link to="/campgrounds">Campgrounds</Link>
 
 // Link with active state
-<NavLink 
+<NavLink
   to="/campgrounds"
   className={({ isActive }) => isActive ? "active" : ""}
 >
@@ -83,18 +81,16 @@ import { useNavigate } from 'react-router-dom';
 
 const MyComponent = () => {
   const navigate = useNavigate();
-  
+
   const handleSubmit = async (data) => {
     // Save data
     await saveData(data);
-    
+
     // Navigate to another page
     navigate('/success');
   };
-  
-  return (
-    <button onClick={() => navigate(-1)}>Go Back</button>
-  );
+
+  return <button onClick={() => navigate(-1)}>Go Back</button>;
 };
 ```
 
@@ -107,10 +103,10 @@ import { useParams } from 'react-router-dom';
 
 const CampgroundDetail = () => {
   const { id } = useParams();
-  
+
   // Use the ID to fetch data
   const { data } = useCampground(id);
-  
+
   return <div>{data.name}</div>;
 };
 ```
@@ -129,11 +125,11 @@ To customize transitions for specific routes, modify the `PageTransition.css` fi
 
 ```css
 /* Example: Custom animation for a specific route */
-[data-route-pattern="/bookings"] .page-enter {
+[data-route-pattern='/bookings'] .page-enter {
   transform: translateY(50px);
 }
 
-[data-route-pattern="/bookings"] .page-enter-active {
+[data-route-pattern='/bookings'] .page-enter-active {
   transform: translateY(0);
 }
 ```

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@context/AuthContext';
 import apiClient from '../../utils/api';
-import { logError } from '../../utils/logger';
+import { logError } from '@utils/logger';
 import './AdminDashboard.css';
 
 /**

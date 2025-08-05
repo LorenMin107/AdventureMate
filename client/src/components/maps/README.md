@@ -1,6 +1,6 @@
-# Map Components for MyanCamp
+# Map Components for AdventureMate
 
-This directory contains React components for displaying maps in the MyanCamp application using Mapbox GL JS.
+This directory contains React components for displaying maps in the AdventureMate application using Mapbox GL JS.
 
 ## Components
 
@@ -21,11 +21,11 @@ A component for displaying a single campground location on a map.
 import CampgroundMap from '../components/maps/CampgroundMap';
 
 // In your component
-<CampgroundMap 
-  geometry={campground.geometry} 
-  title={campground.title} 
+<CampgroundMap
+  geometry={campground.geometry}
+  title={campground.title}
   popupContent={`<strong>${campground.title}</strong><p>${campground.location}</p>`}
-/>
+/>;
 ```
 
 ### ClusterMap
@@ -43,7 +43,7 @@ A component for displaying multiple campgrounds on a map.
 import ClusterMap from '../components/maps/ClusterMap';
 
 // In your component
-<ClusterMap campgrounds={campgrounds} />
+<ClusterMap campgrounds={campgrounds} />;
 ```
 
 ## Configuration

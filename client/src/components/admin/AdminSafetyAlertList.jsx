@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@context/AuthContext';
 import apiClient from '../../utils/api';
-import { logError } from '../../utils/logger';
+import { logError } from '@utils/logger';
 import ConfirmDialog from '../common/ConfirmDialog';
 import './AdminSafetyAlertList.css';
 
@@ -54,19 +54,11 @@ const AdminSafetyAlertList = () => {
         }
       });
 
-      // Debug: Log the params being sent
-      console.log('Safety alerts filter params:', params);
-
       const response = await apiClient.get('/admin/safety-alerts', { params });
       const data = response.data.data || response.data;
 
       setAlerts(data.alerts || []);
       setPagination(data.pagination || {});
-
-      // Debug: Log the first alert's acknowledgment data
-      if (data.alerts && data.alerts.length > 0) {
-        console.log('First alert acknowledgment data:', data.alerts[0].acknowledgedBy);
-      }
 
       // Calculate stats
       const alertsData = data.alerts || [];
@@ -118,7 +110,6 @@ const AdminSafetyAlertList = () => {
       setAlerts(alerts.filter((a) => a._id !== alert._id));
 
       // Show success message (you could add a toast notification here)
-      console.log('Safety alert deleted successfully');
 
       // Close the dialog
       setDeleteDialog({ open: false, alert: null });

@@ -15,7 +15,7 @@ export const ThemeProvider = ({ children }) => {
   const getInitialTheme = () => {
     try {
       // Check for stored theme preference first
-      const storedTheme = localStorage.getItem('myancamp-theme');
+      const storedTheme = localStorage.getItem('adventuremate-theme');
       if (storedTheme && ['light', 'dark'].includes(storedTheme)) {
         return storedTheme;
       }
@@ -23,7 +23,6 @@ export const ThemeProvider = ({ children }) => {
       // Fall back to browser preference
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     } catch (error) {
-      console.warn('Error reading theme from localStorage:', error);
       // Fall back to browser preference
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
@@ -32,9 +31,8 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getInitialTheme);
   const [isSystemTheme, setIsSystemTheme] = useState(() => {
     try {
-      return !localStorage.getItem('myancamp-theme');
+      return !localStorage.getItem('adventuremate-theme');
     } catch (error) {
-      console.warn('Error checking system theme:', error);
       return true;
     }
   });
@@ -68,14 +66,13 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     const restoreTheme = () => {
       try {
-        const storedTheme = localStorage.getItem('myancamp-theme');
+        const storedTheme = localStorage.getItem('adventuremate-theme');
         if (storedTheme && ['light', 'dark'].includes(storedTheme) && storedTheme !== theme) {
-          console.log('Restoring theme from localStorage:', storedTheme);
           setTheme(storedTheme);
           setIsSystemTheme(false);
         }
       } catch (error) {
-        console.warn('Error restoring theme from localStorage:', error);
+        // Silent error handling
       }
     };
 
@@ -91,9 +88,8 @@ export const ThemeProvider = ({ children }) => {
       const newTheme = theme === 'light' ? 'dark' : 'light';
       setTheme(newTheme);
       setIsSystemTheme(false);
-      localStorage.setItem('myancamp-theme', newTheme);
+      localStorage.setItem('adventuremate-theme', newTheme);
     } catch (error) {
-      console.warn('Error toggling theme:', error);
       // Still update the theme state even if localStorage fails
       const newTheme = theme === 'light' ? 'dark' : 'light';
       setTheme(newTheme);
@@ -107,9 +103,8 @@ export const ThemeProvider = ({ children }) => {
       try {
         setTheme(newTheme);
         setIsSystemTheme(false);
-        localStorage.setItem('myancamp-theme', newTheme);
+        localStorage.setItem('adventuremate-theme', newTheme);
       } catch (error) {
-        console.warn('Error setting specific theme:', error);
         // Still update the theme state even if localStorage fails
         setTheme(newTheme);
         setIsSystemTheme(false);
@@ -125,9 +120,8 @@ export const ThemeProvider = ({ children }) => {
         : 'light';
       setTheme(systemTheme);
       setIsSystemTheme(true);
-      localStorage.removeItem('myancamp-theme');
+      localStorage.removeItem('adventuremate-theme');
     } catch (error) {
-      console.warn('Error resetting to system theme:', error);
       // Still update the theme state even if localStorage fails
       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark'

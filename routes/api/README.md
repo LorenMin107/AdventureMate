@@ -1,6 +1,6 @@
 # API Routes
 
-This directory contains the API routes for the MyanCamp application.
+This directory contains the API routes for the AdventureMate application.
 
 ## Directory Structure
 
@@ -9,7 +9,7 @@ This directory contains the API routes for the MyanCamp application.
 
 ## Versioning Strategy
 
-MyanCamp uses URL path versioning for its API. This means that the version is specified in the URL path, e.g., `/api/v1/campgrounds`.
+AdventureMate uses URL path versioning for its API. This means that the version is specified in the URL path, e.g., `/api/v1/campgrounds`.
 
 For more information about the API versioning strategy, see [docs/api-versioning.md](../../docs/api-versioning.md).
 
@@ -36,17 +36,17 @@ Here's an example of how to add a new route to the v1 API:
 
 ```javascript
 // routes/api/v1/example.js
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const examples = require("../../../controllers/api/examples");
-const catchAsync = require("../../../utils/catchAsync");
-const { isLoggedInApi } = require("../../../middleware");
+const examples = require('../../../controllers/api/examples');
+const catchAsync = require('../../../utils/catchAsync');
+const { isLoggedInApi } = require('../../../middleware');
 
 // Get all examples
-router.get("/", catchAsync(examples.index));
+router.get('/', catchAsync(examples.index));
 
 // Get a specific example
-router.get("/:id", catchAsync(examples.showExample));
+router.get('/:id', catchAsync(examples.showExample));
 
 module.exports = router;
 ```

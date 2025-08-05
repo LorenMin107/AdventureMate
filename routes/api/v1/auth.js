@@ -73,6 +73,11 @@ router.post(
   requireAuth,
   authController.resendVerificationEmail
 );
+router.post(
+  '/resend-verification-email-unauthenticated',
+  resendVerificationLimiter,
+  authController.resendVerificationEmailUnauthenticated
+);
 
 // Password reset routes
 router.post(

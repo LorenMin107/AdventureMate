@@ -63,7 +63,7 @@ const consoleFormat = winston.format.combine(
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: logFormat,
-  defaultMeta: { service: 'myancamp' },
+  defaultMeta: { service: 'adventuremate' },
   transports: [
     // Error logs
     new DailyRotateFile({

@@ -2,7 +2,7 @@
 
 ## Overview
 
-MyanCamp API provides a comprehensive RESTful interface for campground management, booking, and user interactions.
+AdventureMate API provides a comprehensive RESTful interface for campground management, booking, and user interactions.
 
 ## Base URL
 

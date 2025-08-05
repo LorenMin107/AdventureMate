@@ -182,7 +182,7 @@
     "bookNow": "Book Now",
     "selectDates": "Select Dates",
     "selectCampsite": "Select Campsite",
-    "capacity": "Capacity: {{capacity}} guests",
+    "capacity": "Capacity",
     "chooseCampsite": "Choose a campsite",
     "features": "Features",
     "numberOfGuests": "Number of Guests",
@@ -313,7 +313,7 @@
       "exploreButton": "Explore"
     },
     "features": {
-      "title": "Why Choose MyanCamp?",
+      "title": "Why Choose AdventureMate?",
       "feature1": {
         "title": "Easy Booking",
         "description": "Book your camping spot with just a few clicks"
@@ -528,11 +528,28 @@
       "failed": "Failed to resend verification email. Please try again later.",
       "tryAgain": "Try Again"
     },
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "userInfo": {
+      "username": "Username",
+      "email": "Email"
+    },
+    "required": {
+      "title": "Email Verification Required",
+      "heading": "Please Verify Your Email",
+      "message": "We've sent a verification email to {{email}}. Please check your inbox and click the verification link to activate your account.",
+      "requirement": "You need to verify your email address before you can access this content.",
+      "didntReceive": "Didn't receive the email?",
+      "resendButton": "Resend Verification Email",
+      "sending": "Sending...",
+      "checkEmail": "Please check your email for the verification link.",
+      "tryAgain": "Try Again",
+      "logout": "Logout",
+      "loggingOut": "Logging out..."
+    }
   },
   "campgroundsPage": {
     "title": "Find Your Perfect Campground",
-    "subtitle": "Search by name, description, or location, then filter by specific areas",
+    "subtitle": "Search by name, description, or location, then sort by price",
     "searchPlaceholder": "Search campgrounds...",
     "clearFilters": "Clear Filters",
     "loadingMap": "Loading map...",
@@ -540,7 +557,12 @@
     "failedToLoadMap": "Failed to load map data",
     "noCampgroundsFound": "No campgrounds match your search criteria",
     "allLocations": "All Locations",
-    "loadingLocations": "Loading locations..."
+    "loadingLocations": "Loading locations...",
+    "sortBy": {
+      "default": "Sort by",
+      "priceLowHigh": "Price: Low to High",
+      "priceHighLow": "Price: High to Low"
+    }
   },
   "campgroundList": {
     "loading": "Loading campgrounds...",
@@ -1274,6 +1296,7 @@
     "confirmApproval": "Are you sure you want to approve this application?",
     "confirmRejection": "Are you sure you want to reject this application?",
     "confirmReview": "Are you sure you want to mark this application as under review?",
+    "cancel": "Cancel",
     "approvalSuccess": "Application approved successfully",
     "rejectionSuccess": "Application rejected successfully",
     "reviewSuccess": "Application marked as under review",
@@ -1566,7 +1589,7 @@
     "cancelBookingConfirm": "Cancel Booking",
     "keepBooking": "Keep Booking",
     "cancelBookingError": "Failed to cancel booking. Please try again later.",
-    "capacity": "Capacity: {{capacity}} {{person}}",
+    "capacity": "Capacity: {{capacity}}",
     "person": "person",
     "people": "people",
     "features": "Features:",
@@ -2293,7 +2316,8 @@
       },
       "recentReviews": {
         "title": "Recent Customer Reviews",
-        "subtitle": "Latest feedback from guests"
+        "subtitle": "Latest feedback from guests",
+        "noReviews": "No reviews yet. Reviews will appear here once guests leave feedback."
       }
     },
     "exportReports": {
@@ -2302,7 +2326,12 @@
       "revenueReport": "Export Revenue Report",
       "bookingReport": "Export Booking Report",
       "reviewsReport": "Export Reviews Report",
-      "fullReport": "Export Full Report"
+      "fullReport": "Export Full Report",
+      "revenueExported": "Revenue report exported successfully",
+      "bookingsExported": "Booking report exported successfully",
+      "reviewsExported": "Reviews report exported successfully",
+      "fullExported": "Full report exported successfully",
+      "exportError": "Failed to export report. Please try again."
     },
     "occupancyRate": "Occupancy Rate",
     "averageRating": "Average Rating",
@@ -2721,7 +2750,20 @@
     },
     "success": {
       "title": "Your owner application has been submitted and is pending review. You will be notified once it is approved."
-    }
+    },
+    "applicationRejected": "Application Rejected",
+    "applicationRejectedMessage": "Your owner application has been rejected. Please review the reason below and resubmit your application with the necessary corrections.",
+    "rejectionReason": "Rejection Reason",
+    "resubmitApplication": "Resubmit Application",
+    "applicationPending": "Application Pending",
+    "applicationPendingMessage": "Your owner application is currently under review. We will notify you once a decision has been made.",
+    "applicationUnderReview": "Application Under Review",
+    "applicationUnderReviewMessage": "Your owner application is being reviewed by our team. This process typically takes 2-3 business days.",
+    "applicationApproved": "Application Approved",
+    "applicationApprovedMessage": "Congratulations! Your owner application has been approved. You can now access the owner dashboard and start managing your campgrounds.",
+    "goToDashboard": "Go to Dashboard",
+    "businessName": "Business Name",
+    "submittedOn": "Submitted On"
   },
   "ownerCreateProfile": {
     "title": "Create Owner Profile",

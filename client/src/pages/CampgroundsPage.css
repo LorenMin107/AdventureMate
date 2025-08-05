@@ -277,6 +277,56 @@
   cursor: not-allowed;
 }
 
+/* Sort Container */
+.sort-container {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--color-card-bg);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 380px;
+}
+
+.sort-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: var(--color-background);
+  color: var(--color-text);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+.sort-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sort-select option {
+  background: var(--color-background);
+  color: var(--color-text);
+  padding: 0.5rem;
+}
+
 @media (max-width: 992px) {
   .campgrounds-main-content {
     flex-direction: column;
@@ -338,16 +388,16 @@
   }
 
   .search-input-group {
-    margin-bottom: 0;
+    width: 100%;
   }
 
   .search-buttons {
-    justify-content: center;
-    margin-top: 0.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .clear-search-button {
-    min-width: 100px;
+    width: 100%;
   }
 
   .campgrounds-main-content {
@@ -356,15 +406,16 @@
 
   .campgrounds-page .map-section {
     height: 400px;
-    display: block;
-    visibility: visible;
-    width: 100%;
+  }
+
+  /* Sort container responsive design */
+  .sort-container {
     max-width: 100%;
   }
 
-  .campgrounds-page {
-    padding: 0.5rem;
-    max-width: 100%;
+  .sort-select {
+    min-height: 44px; /* Standard mobile touch target */
+    touch-action: manipulation;
   }
 }
 
@@ -375,5 +426,11 @@
     visibility: visible;
     width: 100%;
     max-width: 100%;
+  }
+
+  /* Subtle mobile improvements */
+  .sort-select {
+    min-height: 44px;
+    touch-action: manipulation;
   }
 }

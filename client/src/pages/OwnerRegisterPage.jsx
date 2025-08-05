@@ -19,8 +19,17 @@ const OwnerRegisterPage = () => {
   const { addSuccessMessage, addErrorMessage } = useFlashMessage();
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const { useApplyToBeOwner } = useOwners();
+  const { useApplyToBeOwner, useOwnerApplication } = useOwners();
   const applyToBeOwnerMutation = useApplyToBeOwner();
+
+  // Check for existing application
+  const { data: existingApplication, isLoading: isLoadingApplication } = useOwnerApplication({
+    enabled: isAuthenticated,
+    retry: false,
+    onError: () => {
+      // Application not found, user can apply
+    },
+  });
 
   const [formData, setFormData] = useState({
     businessName: '',
@@ -32,7 +41,7 @@ const OwnerRegisterPage = () => {
       city: '',
       state: '',
       zipCode: '',
-      country: 'Myanmar',
+      country: 'Thailand',
     },
     businessPhone: '',
     businessEmail: currentUser?.email || '',
@@ -44,9 +53,6 @@ const OwnerRegisterPage = () => {
       swiftCode: '',
     },
     settings: {
-      autoApproveBookings: false,
-      allowInstantBooking: true,
-      cancellationPolicy: 'moderate',
       minimumStay: 1,
       maximumStay: 30,
       checkInTime: '15:00',
@@ -57,6 +63,7 @@ const OwnerRegisterPage = () => {
 
   const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(1);
+  const [isResubmitting, setIsResubmitting] = useState(false);
   const totalSteps = 4;
 
   const handleInputChange = (e) => {
@@ -163,12 +170,51 @@ const OwnerRegisterPage = () => {
       // Show the message from the server or a default success message
       addSuccessMessage(response.message || t('ownerRegister.success.title'));
 
+      // Reset resubmission state
+      setIsResubmitting(false);
+
       // Redirect to verification page for pending applications
       navigate('/owner/verification');
     } catch (error) {
       logError('Registration error', error);
       addErrorMessage(error.response?.data?.message || 'Registration failed. Please try again.');
     }
+  };
+
+  const handleResubmit = () => {
+    setIsResubmitting(true);
+    // Reset form data to empty state to allow resubmission
+    setFormData({
+      businessName: '',
+      businessType: 'individual',
+      businessRegistrationNumber: '',
+      taxId: '',
+      businessAddress: {
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: 'Thailand',
+      },
+      businessPhone: '',
+      businessEmail: currentUser?.email || '',
+      bankingInfo: {
+        accountHolderName: '',
+        bankName: '',
+        accountNumber: '',
+        routingNumber: '',
+        swiftCode: '',
+      },
+      settings: {
+        minimumStay: 1,
+        maximumStay: 30,
+        checkInTime: '15:00',
+        checkOutTime: '11:00',
+      },
+      applicationReason: '',
+    });
+    setErrors({});
+    setCurrentStep(1);
   };
 
   const renderStepContent = () => {
@@ -370,18 +416,13 @@ const OwnerRegisterPage = () => {
                 <label htmlFor="businessAddress.country">
                   {t('ownerRegister.businessAddress.country')}
                 </label>
-                <select
+                <input
+                  type="hidden"
                   id="businessAddress.country"
                   name="businessAddress.country"
-                  value={formData.businessAddress.country}
-                  onChange={handleInputChange}
-                >
-                  <option value="Myanmar">Myanmar</option>
-                  <option value="Thailand">Thailand</option>
-                  <option value="Vietnam">Vietnam</option>
-                  <option value="Laos">Laos</option>
-                  <option value="Cambodia">Cambodia</option>
-                </select>
+                  value="Thailand"
+                />
+                <input type="text" value="Thailand" disabled className="disabled-input" />
               </div>
             </div>
           </div>
@@ -483,86 +524,34 @@ const OwnerRegisterPage = () => {
             <h3>{t('ownerRegister.bookingSettings.title')}</h3>
             <p className="step-description">{t('ownerRegister.bookingSettings.description')}</p>
 
-            <div className="form-group checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="settings.autoApproveBookings"
-                  checked={formData.settings.autoApproveBookings}
-                  onChange={handleInputChange}
-                />
-                <span className="checkmark"></span>
-                {t('ownerRegister.bookingSettings.autoApproveBookings')}
+            <div className="form-group">
+              <label htmlFor="settings.minimumStay">
+                {t('ownerRegister.bookingSettings.minimumStay')}
               </label>
-              <small>{t('ownerRegister.bookingSettings.autoApproveDescription')}</small>
-            </div>
-
-            <div className="form-group checkbox-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="settings.allowInstantBooking"
-                  checked={formData.settings.allowInstantBooking}
-                  onChange={handleInputChange}
-                />
-                <span className="checkmark"></span>
-                {t('ownerRegister.bookingSettings.allowInstantBooking')}
-              </label>
-              <small>{t('ownerRegister.bookingSettings.allowInstantDescription')}</small>
+              <input
+                type="number"
+                id="settings.minimumStay"
+                name="settings.minimumStay"
+                value={formData.settings.minimumStay}
+                onChange={handleInputChange}
+                min="1"
+                max="30"
+              />
             </div>
 
             <div className="form-group">
-              <label htmlFor="settings.cancellationPolicy">
-                {t('ownerRegister.bookingSettings.cancellationPolicy')}
+              <label htmlFor="settings.maximumStay">
+                {t('ownerRegister.bookingSettings.maximumStay')}
               </label>
-              <select
-                id="settings.cancellationPolicy"
-                name="settings.cancellationPolicy"
-                value={formData.settings.cancellationPolicy}
+              <input
+                type="number"
+                id="settings.maximumStay"
+                name="settings.maximumStay"
+                value={formData.settings.maximumStay}
                 onChange={handleInputChange}
-              >
-                <option value="flexible">
-                  {t('ownerRegister.bookingSettings.cancellationPolicies.flexible')}
-                </option>
-                <option value="moderate">
-                  {t('ownerRegister.bookingSettings.cancellationPolicies.moderate')}
-                </option>
-                <option value="strict">
-                  {t('ownerRegister.bookingSettings.cancellationPolicies.strict')}
-                </option>
-              </select>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="settings.minimumStay">
-                  {t('ownerRegister.bookingSettings.minimumStay')}
-                </label>
-                <input
-                  type="number"
-                  id="settings.minimumStay"
-                  name="settings.minimumStay"
-                  value={formData.settings.minimumStay}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="30"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="settings.maximumStay">
-                  {t('ownerRegister.bookingSettings.maximumStay')}
-                </label>
-                <input
-                  type="number"
-                  id="settings.maximumStay"
-                  name="settings.maximumStay"
-                  value={formData.settings.maximumStay}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="365"
-                />
-              </div>
+                min="1"
+                max="365"
+              />
             </div>
 
             <div className="form-row">
@@ -616,6 +605,131 @@ const OwnerRegisterPage = () => {
         return null;
     }
   };
+
+  // Show loading state while checking application status
+  if (isLoadingApplication) {
+    return (
+      <div className={`owner-register-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
+        <div className="owner-page-header">
+          <div className="header-content">
+            <div className="header-main">
+              <div className="greeting-section">
+                <h1>{t('ownerRegister.title')}</h1>
+                <p className="header-subtitle">{t('ownerRegister.subtitle')}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="profile-content">
+          <div className="owner-card">
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>{t('common.loading')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show existing application status
+  if (existingApplication && !isResubmitting) {
+    const isRejected = existingApplication.status === 'rejected';
+    const isPending = existingApplication.status === 'pending';
+    const isUnderReview = existingApplication.status === 'under_review';
+    const isApproved = existingApplication.status === 'approved';
+
+    return (
+      <div className={`owner-register-page ${theme === 'dark' ? 'dark-theme' : ''}`}>
+        <div className="owner-page-header">
+          <div className="header-content">
+            <div className="header-main">
+              <div className="greeting-section">
+                <h1>{t('ownerRegister.title')}</h1>
+                <p className="header-subtitle">{t('ownerRegister.subtitle')}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="profile-content">
+          <div className="owner-card">
+            <div className="application-status">
+              {isRejected && (
+                <>
+                  <div className="status-icon rejected">
+                    <span>❌</span>
+                  </div>
+                  <h2>{t('ownerRegister.applicationRejected')}</h2>
+                  <p>{t('ownerRegister.applicationRejectedMessage')}</p>
+                  {existingApplication.rejectionReason && (
+                    <div className="rejection-reason">
+                      <h3>{t('ownerRegister.rejectionReason')}:</h3>
+                      <p>{existingApplication.rejectionReason}</p>
+                    </div>
+                  )}
+                  <div className="action-buttons">
+                    <button className="common-btn common-btn-primary" onClick={handleResubmit}>
+                      {t('ownerRegister.resubmitApplication')}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {isPending && (
+                <>
+                  <div className="status-icon pending">
+                    <span>⏳</span>
+                  </div>
+                  <h2>{t('ownerRegister.applicationPending')}</h2>
+                  <p>{t('ownerRegister.applicationPendingMessage')}</p>
+                  <div className="application-details">
+                    <p>
+                      <strong>{t('ownerRegister.businessName')}:</strong>{' '}
+                      {existingApplication.businessName}
+                    </p>
+                    <p>
+                      <strong>{t('ownerRegister.submittedOn')}:</strong>{' '}
+                      {new Date(existingApplication.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {isUnderReview && (
+                <>
+                  <div className="status-icon under-review">
+                    <span>🔍</span>
+                  </div>
+                  <h2>{t('ownerRegister.applicationUnderReview')}</h2>
+                  <p>{t('ownerRegister.applicationUnderReviewMessage')}</p>
+                  <div className="application-details">
+                    <p>
+                      <strong>{t('ownerRegister.businessName')}:</strong>{' '}
+                      {existingApplication.businessName}
+                    </p>
+                    <p>
+                      <strong>{t('ownerRegister.submittedOn')}:</strong>{' '}
+                      {new Date(existingApplication.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {isApproved && (
+                <>
+                  <div className="status-icon approved">
+                    <span>✅</span>
+                  </div>
+                  <h2>{t('ownerRegister.applicationApproved')}</h2>
+                  <p>{t('ownerRegister.applicationApprovedMessage')}</p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // If user is not authenticated, show login/register prompt
   if (!isAuthenticated) {

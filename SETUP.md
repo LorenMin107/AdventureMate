@@ -1,6 +1,6 @@
 # Database Setup Instructions
 
-This document provides instructions for setting up the database for the MyanCamp application.
+This document provides instructions for setting up the database for the AdventureMate application.
 
 ## Issue Resolution
 

@@ -13,7 +13,13 @@ const OwnerAnalyticsPage = () => {
   const { t } = useTranslation();
   const { showMessage } = useFlashMessage();
   const { theme } = useTheme();
-  const { useOwnerAnalytics } = useOwners();
+  const {
+    useOwnerAnalytics,
+    exportRevenueReport,
+    exportBookingReport,
+    exportReviewsReport,
+    exportFullReport,
+  } = useOwners();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,6 +61,42 @@ const OwnerAnalyticsPage = () => {
 
   const handleCampgroundChange = (e) => {
     setSelectedCampground(e.target.value);
+  };
+
+  const handleExportRevenue = async () => {
+    try {
+      await exportRevenueReport(selectedPeriod);
+      showMessage(t('ownerAnalytics.exportReports.revenueExported'), 'success');
+    } catch (error) {
+      showMessage(t('ownerAnalytics.exportReports.exportError'), 'error');
+    }
+  };
+
+  const handleExportBookings = async () => {
+    try {
+      await exportBookingReport(selectedPeriod);
+      showMessage(t('ownerAnalytics.exportReports.bookingsExported'), 'success');
+    } catch (error) {
+      showMessage(t('ownerAnalytics.exportReports.exportError'), 'error');
+    }
+  };
+
+  const handleExportReviews = async () => {
+    try {
+      await exportReviewsReport(selectedPeriod);
+      showMessage(t('ownerAnalytics.exportReports.reviewsExported'), 'success');
+    } catch (error) {
+      showMessage(t('ownerAnalytics.exportReports.exportError'), 'error');
+    }
+  };
+
+  const handleExportFull = async () => {
+    try {
+      await exportFullReport(selectedPeriod);
+      showMessage(t('ownerAnalytics.exportReports.fullExported'), 'success');
+    } catch (error) {
+      showMessage(t('ownerAnalytics.exportReports.exportError'), 'error');
+    }
   };
 
   const formatCurrency = (amount) => {
@@ -451,18 +493,24 @@ const OwnerAnalyticsPage = () => {
               </div>
               <div className="card-content">
                 <div className="reviews-list">
-                  {reviews.recent?.map((review, index) => (
-                    <div key={index} className="review-item">
-                      <div className="review-header">
-                        <div className="review-rating">{'⭐'.repeat(review.rating)}</div>
-                        <div className="review-date">
-                          {new Date(review.createdAt).toLocaleDateString()}
+                  {reviews.recent && reviews.recent.length > 0 ? (
+                    reviews.recent.map((review, index) => (
+                      <div key={index} className="review-item">
+                        <div className="review-header">
+                          <div className="review-rating">{'⭐'.repeat(review.rating)}</div>
+                          <div className="review-date">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </div>
                         </div>
+                        <div className="review-content">{review.body}</div>
+                        <div className="review-campground">{review.campground}</div>
                       </div>
-                      <div className="review-content">{review.comment}</div>
-                      <div className="review-campground">{review.campground}</div>
+                    ))
+                  ) : (
+                    <div className="no-reviews-message">
+                      <p>{t('ownerAnalytics.performanceInsights.recentReviews.noReviews')}</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
@@ -480,16 +528,16 @@ const OwnerAnalyticsPage = () => {
             </div>
             <div className="card-content">
               <div className="export-buttons">
-                <button className="owner-btn owner-btn-outline">
+                <button className="owner-btn owner-btn-outline" onClick={handleExportRevenue}>
                   📊 {t('ownerAnalytics.exportReports.revenueReport')}
                 </button>
-                <button className="owner-btn owner-btn-outline">
+                <button className="owner-btn owner-btn-outline" onClick={handleExportBookings}>
                   📅 {t('ownerAnalytics.exportReports.bookingReport')}
                 </button>
-                <button className="owner-btn owner-btn-outline">
+                <button className="owner-btn owner-btn-outline" onClick={handleExportReviews}>
                   ⭐ {t('ownerAnalytics.exportReports.reviewsReport')}
                 </button>
-                <button className="owner-btn owner-btn-primary">
+                <button className="owner-btn owner-btn-primary" onClick={handleExportFull}>
                   📋 {t('ownerAnalytics.exportReports.fullReport')}
                 </button>
               </div>

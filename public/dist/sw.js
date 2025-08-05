@@ -101,7 +101,7 @@ async function handleApiRequest(request) {
     if (networkResponse.ok) {
       // Cache successful responses
       const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, networkResponse.clone());
+      await cache.put(request, networkResponse.clone());
 
       return networkResponse;
     }
@@ -149,7 +149,7 @@ async function handleStaticRequest(request) {
     if (networkResponse.ok) {
       // Cache for future use
       const cache = await caches.open(STATIC_CACHE);
-      cache.put(request, networkResponse.clone());
+      await cache.put(request, networkResponse.clone());
     }
 
     return networkResponse;
@@ -174,7 +174,7 @@ async function handleExternalRequest(request) {
     if (networkResponse.ok) {
       // Cache successful responses
       const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, networkResponse.clone());
+      await cache.put(request, networkResponse.clone());
     }
 
     return networkResponse;

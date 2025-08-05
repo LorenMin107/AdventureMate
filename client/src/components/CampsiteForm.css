@@ -26,8 +26,8 @@
   color: var(--color-text);
 }
 
-.form-group input[type="text"],
-.form-group input[type="number"],
+.form-group input[type='text'],
+.form-group input[type='number'],
 .form-group textarea {
   padding: 10px;
   border: 1px solid var(--color-border);
@@ -79,7 +79,9 @@
   background-color: var(--color-background);
   color: var(--color-text);
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .currency-input:focus {
@@ -115,7 +117,7 @@
   cursor: pointer;
 }
 
-.checkbox-label input[type="checkbox"] {
+.checkbox-label input[type='checkbox'] {
   margin-right: 10px;
   width: 18px;
   height: 18px;
@@ -189,7 +191,7 @@
   margin-bottom: 15px;
 }
 
-.image-upload input[type="file"] {
+.image-upload input[type='file'] {
   display: none;
 }
 
@@ -217,10 +219,17 @@
 
 .image-preview {
   position: relative;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 5px var(--color-card-shadow);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   border: 1px solid var(--color-border);
+  background-color: var(--color-card-bg);
+  transition: all 0.2s ease;
+}
+
+.image-preview:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
 .image-preview img {
@@ -236,24 +245,31 @@
 
 .remove-image-button {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: rgba(0, 0, 0, 0.6);
+  top: 8px;
+  right: 8px;
+  background-color: rgba(220, 53, 69, 0.9);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 25px;
-  height: 25px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 18px;
+  font-weight: bold;
   padding: 0;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1;
 }
 
 .remove-image-button:hover {
-  background-color: rgba(217, 83, 79, 0.8);
+  background-color: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
 }
 
 .existing-images p {

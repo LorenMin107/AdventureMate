@@ -12,23 +12,31 @@ import './CampgroundList.css';
  *
  * @param {Object} props - Component props
  * @param {string} props.searchTerm - Search term for filtering campgrounds
- * @param {string} props.locationFilter - Location filter for filtering campgrounds
+ * @param {string} props.sortOption - Sort option for campgrounds
+ * @param {Array} props.campgrounds - Pre-filtered and sorted campgrounds
  */
-const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
+const CampgroundList = ({ searchTerm = '', sortOption = 'default', campgrounds = [] }) => {
   const { t } = useTranslation();
-  // Use the custom hook to fetch all campgrounds
+
+  // Use the custom hook to fetch all campgrounds if no campgrounds are provided
   const { useAllCampgrounds } = useCampgrounds();
   const { data, isLoading, isError, error, refetch } = useAllCampgrounds({
     // Enable refetching when search term changes
-    enabled: true,
+    enabled: campgrounds.length === 0,
   });
 
-  // Extract campgrounds from data
-  const campgrounds = data?.campgrounds || [];
+  // Use provided campgrounds or fetch from API
+  const campgroundsToDisplay = campgrounds.length > 0 ? campgrounds : data?.campgrounds || [];
 
-  // Filter campgrounds by search term and location
+  // Filter campgrounds by search term (only if not already filtered)
   const filteredCampgrounds = useMemo(() => {
-    return campgrounds.filter((campground) => {
+    // If campgrounds are already filtered and sorted, return them as is
+    if (campgrounds.length > 0) {
+      return campgrounds;
+    }
+
+    // Otherwise, apply filters
+    return campgroundsToDisplay.filter((campground) => {
       // Check if campground matches the search term
       const matchesSearchTerm =
         !searchTerm ||
@@ -36,19 +44,12 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
         campground.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         campground.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // Check if campground matches the location filter
-      const matchesLocation =
-        !locationFilter || campground.location.toLowerCase().includes(locationFilter.toLowerCase());
-
-      // Return true if campground matches both filters
-      return matchesSearchTerm && matchesLocation;
+      return matchesSearchTerm;
     });
-  }, [campgrounds, searchTerm, locationFilter]);
-
-  // No view toggle needed - only grid view is supported
+  }, [campgrounds, campgroundsToDisplay, searchTerm]);
 
   // Handle loading state
-  if (isLoading) {
+  if (isLoading && campgrounds.length === 0) {
     return (
       <div className="loading-message">
         <div className="spinner"></div>
@@ -58,7 +59,7 @@ const CampgroundList = ({ searchTerm = '', locationFilter = '' }) => {
   }
 
   // Handle error state
-  if (isError) {
+  if (isError && campgrounds.length === 0) {
     return (
       <div className="error-message">
         <h3>{t('campgroundList.error.title')}</h3>

@@ -79,33 +79,17 @@ const getTransporter = async () => {
  */
 const sendEmail = async (options) => {
   try {
-    logInfo('Attempting to send email', {
-      to: options.to,
-      subject: options.subject,
-    });
-
     const transport = await getTransporter();
-    logDebug('Email transporter obtained successfully');
 
     const mailOptions = {
-      from: config.email.from || '"MyanCamp" <noreply@myancamp.com>',
+      from: config.email.from,
       to: options.to,
       subject: options.subject,
       text: options.text,
       html: options.html,
     };
 
-    logDebug('Sending email with options', {
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject,
-    });
-
     const info = await transport.sendMail(mailOptions);
-    logInfo('Email sent successfully', {
-      messageId: info.messageId,
-      to: options.to,
-    });
 
     // Log preview URL in development
     if (!config.server.isProduction && nodemailer.getTestMessageUrl(info)) {
@@ -157,7 +141,7 @@ const sendVerificationEmail = async (user, verificationUrl) => {
  * @returns {Promise<Object>} Email send info
  */
 const sendWelcomeEmail = async (user) => {
-  const subject = 'Welcome to MyanCamp!';
+  const subject = 'Welcome to AdventureMate!';
 
   const html = getHtmlTemplate(TEMPLATE_TYPES.WELCOME, {
     username: user.username,
@@ -279,7 +263,7 @@ const sendTripInviteEmail = async ({
   tripEndDate,
   inviterMessage,
 }) => {
-  const subject = `${inviter} invited you to join a trip on MyanCamp!`;
+  const subject = `${inviter} invited you to join a trip on AdventureMate!`;
 
   const html = getHtmlTemplate(TEMPLATE_TYPES.TRIP_INVITE, {
     inviter,
@@ -334,7 +318,7 @@ const sendSuspensionNotification = async (userEmail, suspensionData) => {
     const textContent = `
 Dear ${username},
 
-Your account has been ${isTemporary ? 'temporarily suspended' : 'suspended'} from MyanCamp.
+Your account has been ${isTemporary ? 'temporarily suspended' : 'suspended'} from AdventureMate.
 
 Suspension Details:
 - Reason: ${reason}
@@ -345,7 +329,7 @@ ${isTemporary ? `- Suspension expires: ${expiryDate}` : '- This is a permanent s
 If you believe this suspension was made in error, please contact our support team.
 
 Best regards,
-The MyanCamp Team
+The AdventureMate Team
     `.trim();
 
     const htmlContent = `
@@ -371,7 +355,7 @@ The MyanCamp Team
         <div class="content">
             <p>Dear ${username},</p>
             
-            <p>Your account has been <strong>${isTemporary ? 'temporarily suspended' : 'suspended'}</strong> from MyanCamp.</p>
+            <p>Your account has been <strong>${isTemporary ? 'temporarily suspended' : 'suspended'}</strong> from AdventureMate.</p>
             
             <div class="details">
                 <h3>Suspension Details:</h3>
@@ -386,7 +370,7 @@ The MyanCamp Team
             <p>If you believe this suspension was made in error, please contact our support team.</p>
         </div>
         <div class="footer">
-            <p>Best regards,<br>The MyanCamp Team</p>
+            <p>Best regards,<br>The AdventureMate Team</p>
         </div>
     </div>
 </body>
@@ -426,17 +410,17 @@ const sendReactivationNotification = async (userEmail, reactivationData) => {
     const textContent = `
 Dear ${username},
 
-Your account has been reactivated and you can now access MyanCamp again.
+Your account has been reactivated and you can now access AdventureMate again.
 
 Reactivation Details:
 - Reactivated on: ${new Date().toLocaleDateString()}
 ${reason ? `- Reason: ${reason}` : ''}
 - Admin contact: ${adminEmail}
 
-Welcome back to MyanCamp!
+Welcome back to AdventureMate!
 
 Best regards,
-The MyanCamp Team
+The AdventureMate Team
     `.trim();
 
     const htmlContent = `
@@ -462,7 +446,7 @@ The MyanCamp Team
         <div class="content">
             <p>Dear ${username},</p>
             
-            <p>Your account has been <strong>reactivated</strong> and you can now access MyanCamp again.</p>
+            <p>Your account has been <strong>reactivated</strong> and you can now access AdventureMate again.</p>
             
             <div class="details">
                 <h3>Reactivation Details:</h3>
@@ -473,10 +457,10 @@ The MyanCamp Team
                 </ul>
             </div>
             
-            <p>Welcome back to MyanCamp!</p>
+            <p>Welcome back to AdventureMate!</p>
         </div>
         <div class="footer">
-            <p>Best regards,<br>The MyanCamp Team</p>
+            <p>Best regards,<br>The AdventureMate Team</p>
         </div>
     </div>
 </body>
@@ -498,6 +482,73 @@ The MyanCamp Team
   }
 };
 
+/**
+ * Send owner application approval email
+ * @param {Object} user - User object
+ * @param {Object} application - Owner application object
+ * @param {Object} adminUser - Admin user who approved the application
+ * @returns {Promise<Object>} Email send info
+ */
+const sendOwnerApplicationApprovalEmail = async (user, application, adminUser) => {
+  const subject = 'Your Owner Application Has Been Approved!';
+
+  const html = getHtmlTemplate(TEMPLATE_TYPES.OWNER_APPROVAL, {
+    username: user.username,
+    businessName: application.businessName,
+    adminName: adminUser.username,
+    approvalDate: new Date().toLocaleDateString(),
+  });
+
+  const text = getTextTemplate(TEMPLATE_TYPES.OWNER_APPROVAL, {
+    username: user.username,
+    businessName: application.businessName,
+    adminName: adminUser.username,
+    approvalDate: new Date().toLocaleDateString(),
+  });
+
+  return await sendEmail({
+    to: user.email,
+    subject,
+    text,
+    html,
+  });
+};
+
+/**
+ * Send owner application rejection email
+ * @param {Object} user - User object
+ * @param {Object} application - Owner application object
+ * @param {Object} adminUser - Admin user who rejected the application
+ * @param {string} reason - Rejection reason
+ * @returns {Promise<Object>} Email send info
+ */
+const sendOwnerApplicationRejectionEmail = async (user, application, adminUser, reason) => {
+  const subject = 'Update on Your Owner Application';
+
+  const html = getHtmlTemplate(TEMPLATE_TYPES.OWNER_REJECTION, {
+    username: user.username,
+    businessName: application.businessName,
+    adminName: adminUser.username,
+    rejectionDate: new Date().toLocaleDateString(),
+    reason: reason,
+  });
+
+  const text = getTextTemplate(TEMPLATE_TYPES.OWNER_REJECTION, {
+    username: user.username,
+    businessName: application.businessName,
+    adminName: adminUser.username,
+    rejectionDate: new Date().toLocaleDateString(),
+    reason: reason,
+  });
+
+  return await sendEmail({
+    to: user.email,
+    subject,
+    text,
+    html,
+  });
+};
+
 module.exports = {
   sendEmail,
   sendVerificationEmail,
@@ -508,4 +559,6 @@ module.exports = {
   sendTripInviteEmail,
   sendSuspensionNotification,
   sendReactivationNotification,
+  sendOwnerApplicationApprovalEmail,
+  sendOwnerApplicationRejectionEmail,
 };

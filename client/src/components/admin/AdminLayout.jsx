@@ -1,6 +1,7 @@
+import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@context/AuthContext';
 import { useEffect, useState, useRef } from 'react';
 import './AdminLayout.css';
 

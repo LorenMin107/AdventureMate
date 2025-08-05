@@ -1,36 +1,29 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom';
 import './ErrorBoundary.css';
 
 /**
- * ErrorBoundary component
- * Catches errors in the component tree and displays a fallback UI
- * This version handles both route errors and general errors
+ * RouteErrorBoundary component
+ * Specifically for handling route errors using useRouteError
+ * This should only be used as an errorElement in routes
  */
-const ErrorBoundary = ({ error, resetErrorBoundary }) => {
+const RouteErrorBoundary = () => {
   const { t } = useTranslation();
-
-  // If no error is passed, this is a general error boundary
-  if (!error) {
-    return null;
-  }
+  const error = useRouteError();
 
   // Determine if it's a route error or a general error
-  const isRouteError = error && typeof error === 'object' && 'status' in error;
-  const isRouteErrorResponse = error && typeof error === 'object' && 'statusText' in error;
+  const isRouteError = isRouteErrorResponse(error);
 
   // Get appropriate error message
   let errorMessage = 'An unexpected error occurred';
   let statusCode = 500;
 
-  if (isRouteError || isRouteErrorResponse) {
-    statusCode = error.status || 500;
+  if (isRouteError) {
+    statusCode = error.status;
     errorMessage = error.data?.message || error.statusText || 'Something went wrong';
   } else if (error instanceof Error) {
     errorMessage = error.message;
-  } else if (typeof error === 'string') {
-    errorMessage = error;
   }
 
   // Function to clear all caches and reload
@@ -108,4 +101,4 @@ const ErrorBoundary = ({ error, resetErrorBoundary }) => {
   );
 };
 
-export default ErrorBoundary;
+export default RouteErrorBoundary;

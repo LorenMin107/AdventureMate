@@ -99,7 +99,7 @@ const CampgroundDetailPage = () => {
               setReviews(campgroundData.reviews);
             } else {
               // If reviews are not populated, fetch them separately
-              fetchReviews(campgroundData._id);
+              await fetchReviews(campgroundData._id);
             }
           }
 
@@ -141,7 +141,7 @@ const CampgroundDetailPage = () => {
             setReviews(campgroundData.reviews);
           } else {
             // If reviews are not populated, fetch them separately
-            fetchReviews(campgroundData._id);
+            await fetchReviews(campgroundData._id);
           }
         }
       } catch (err) {
@@ -582,18 +582,6 @@ const CampgroundDetailPage = () => {
               <span className="price">${startingPrice}</span>
               <span className="price-unit">{t('bookings.startingPricePerNight')}</span>
             </div>
-
-            {!currentUser && (
-              <div className="login-to-book">
-                <Link
-                  to={`/login?redirect=/campgrounds/${id}`}
-                  className="common-btn common-btn-primary"
-                >
-                  {t('bookings.loginToBook')}
-                </Link>
-                <p className="login-message">{t('bookings.loginToBookMessage')}</p>
-              </div>
-            )}
           </div>
         </div>
       </div>

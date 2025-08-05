@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '@context/AuthContext';
 import apiClient from '../../utils/api';
-import { logError } from '../../utils/logger';
+import { logError } from '@utils/logger';
 import './AdminBookingList.css';
 
 /**

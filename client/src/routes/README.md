@@ -1,10 +1,11 @@
 # React Router Setup
 
-This directory contains the routing configuration for the MyanCamp application.
+This directory contains the routing configuration for the AdventureMate application.
 
 ## Overview
 
 The routing system is built using React Router v6 and includes:
+
 - Declarative route configuration
 - Nested routes for better organization
 - Protected routes for authenticated users
@@ -75,12 +76,8 @@ import routes from './routes';
 
 function App() {
   const routeElement = useRoutes(routes);
-  
-  return (
-    <div className="App">
-      {routeElement}
-    </div>
-  );
+
+  return <div className="App">{routeElement}</div>;
 }
 ```
 

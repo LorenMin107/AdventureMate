@@ -47,6 +47,20 @@ const OwnerApplicationDetail = () => {
     fetchApplication();
   }, [id]);
 
+  // Handle body scroll when modals are open
+  useEffect(() => {
+    if (showActionModal || showReviewModal) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    // Cleanup function to remove class when component unmounts
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [showActionModal, showReviewModal]);
+
   // Handle application action (approve/reject)
   const handleApplicationAction = async () => {
     try {

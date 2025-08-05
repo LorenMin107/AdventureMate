@@ -25,7 +25,9 @@ const EmailVerificationRequired = () => {
     setResendMessage('');
 
     try {
-      const response = await apiClient.post('/v1/auth/resend-verification-email');
+      const response = await apiClient.post('/resend-verification-email-unauthenticated', {
+        email: currentUser?.email || '',
+      });
       setResendStatus('success');
       setResendMessage(response.data.message);
     } catch (error) {
@@ -52,19 +54,16 @@ const EmailVerificationRequired = () => {
   return (
     <div className="email-verification-required">
       <div className="verification-container">
-        <h1>Email Verification Required</h1>
+        <h1>{t('emailVerification.required.title')}</h1>
         <div className="verification-message">
           <div className="warning-icon">!</div>
-          <h2>Please Verify Your Email</h2>
-          <p>
-            We've sent a verification email to <strong>{currentUser?.email}</strong>. Please check
-            your inbox and click the verification link to activate your account.
-          </p>
-          <p>You need to verify your email address before you can access this content.</p>
+          <h2>{t('emailVerification.required.heading')}</h2>
+          <p>{t('emailVerification.required.message', { email: currentUser?.email })}</p>
+          <p>{t('emailVerification.required.requirement')}</p>
         </div>
 
         <div className="resend-section">
-          <p>Didn't receive the email?</p>
+          <p>{t('emailVerification.required.didntReceive')}</p>
 
           {resendStatus === 'idle' && (
             <button
@@ -72,21 +71,21 @@ const EmailVerificationRequired = () => {
               className="btn btn-primary"
               disabled={resendStatus === 'loading'}
             >
-              Resend Verification Email
+              {t('emailVerification.required.resendButton')}
             </button>
           )}
 
           {resendStatus === 'loading' && (
             <div className="resend-loading">
               <div className="spinner-small"></div>
-              <span>Sending...</span>
+              <span>{t('emailVerification.required.sending')}</span>
             </div>
           )}
 
           {resendStatus === 'success' && (
             <div className="resend-success">
               <p>{resendMessage}</p>
-              <p>Please check your email for the verification link.</p>
+              <p>{t('emailVerification.required.checkEmail')}</p>
             </div>
           )}
 
@@ -94,7 +93,7 @@ const EmailVerificationRequired = () => {
             <div className="resend-error">
               <p>{resendMessage}</p>
               <button onClick={handleResendVerification} className="btn btn-primary">
-                Try Again
+                {t('emailVerification.required.tryAgain')}
               </button>
             </div>
           )}
@@ -109,7 +108,9 @@ const EmailVerificationRequired = () => {
             className="btn btn-secondary"
             disabled={logoutStatus === 'loading'}
           >
-            {logoutStatus === 'loading' ? 'Logging out...' : 'Logout'}
+            {logoutStatus === 'loading'
+              ? t('emailVerification.required.loggingOut')
+              : t('emailVerification.required.logout')}
           </button>
         </div>
       </div>

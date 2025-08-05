@@ -1,15 +1,15 @@
 import React from 'react';
-import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import './LanguageSwitcher.css';
 
 const LanguageSwitcher = ({ className = '' }) => {
-  const { currentLanguage, changeLanguage } = useLanguage();
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const currentLanguage = i18n.language || 'en';
 
   const handleLanguageChange = async (language) => {
     try {
-      await changeLanguage(language);
+      await i18n.changeLanguage(language);
+      localStorage.setItem('adventuremate-language', language);
     } catch (error) {
       console.error('LanguageSwitcher: Error changing language:', error);
     }

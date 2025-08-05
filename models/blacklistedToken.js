@@ -81,7 +81,7 @@ BlacklistedTokenSchema.statics.addToBlacklist = async function (tokenData) {
   }
 
   // Create a new blacklisted token document
-  return await this.create(tokenData);
+  return this.create(tokenData);
 };
 
 module.exports = mongoose.model('BlacklistedToken', BlacklistedTokenSchema);
