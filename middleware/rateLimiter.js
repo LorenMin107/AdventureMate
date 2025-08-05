@@ -9,7 +9,7 @@ const rateLimit = require('express-rate-limit');
 const defaultOptions = {
   standardWindowMs: 15 * 60 * 1000, // 15 minutes
   standardMax: 3000, // 3000 requests per windowMs (increased from 2000)
-  message: 'Too many requests from this IP, please try again later'
+  message: 'Too many requests from this IP, please try again later',
 };
 
 // General API rate limiter
@@ -18,7 +18,7 @@ const apiLimiter = rateLimit({
   max: defaultOptions.standardMax,
   message: {
     error: 'Rate limit exceeded',
-    message: defaultOptions.message
+    message: defaultOptions.message,
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -30,7 +30,7 @@ const authLimiter = rateLimit({
   max: 1500, // 1500 requests per hour (increased from 1000)
   message: {
     error: 'Rate limit exceeded',
-    message: 'Too many authentication attempts, please try again later'
+    message: 'Too many authentication attempts, please try again later',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -38,7 +38,7 @@ const authLimiter = rateLimit({
   skip: (req, res) => {
     // If the request has a verified email token cookie, skip rate limiting
     return req.cookies && req.cookies.email_verified === 'true';
-  }
+  },
 });
 
 // Rate limiter for email verification endpoints
@@ -47,7 +47,7 @@ const emailVerificationLimiter = rateLimit({
   max: 200, // 200 requests per hour (increased from 100)
   message: {
     error: 'Rate limit exceeded',
-    message: 'Too many verification attempts, please try again later'
+    message: 'Too many verification attempts, please try again later',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -59,7 +59,8 @@ const resendVerificationLimiter = rateLimit({
   max: 120, // 120 requests per day (increased from 60)
   message: {
     error: 'Rate limit exceeded',
-    message: 'You have reached the limit for resending verification emails. Please try again tomorrow.'
+    message:
+      'You have reached the limit for resending verification emails. Please try again tomorrow.',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -71,7 +72,7 @@ const passwordResetLimiter = rateLimit({
   max: 100, // 100 requests per hour
   message: {
     error: 'Rate limit exceeded',
-    message: 'Too many password reset attempts, please try again later'
+    message: 'Too many password reset attempts, please try again later',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -84,7 +85,7 @@ const authStatusLimiter = rateLimit({
   max: 5000, // 5000 requests per hour
   message: {
     error: 'Rate limit exceeded',
-    message: 'Too many authentication status checks, please try again later'
+    message: 'Too many authentication status checks, please try again later',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -93,7 +94,29 @@ const authStatusLimiter = rateLimit({
     // If the request has a valid JWT token, skip rate limiting
     const authHeader = req.headers.authorization;
     return authHeader && authHeader.startsWith('Bearer ');
-  }
+  },
+});
+
+// Rate limiter specifically for Google OAuth endpoint
+// More restrictive due to the sensitive nature of the endpoint
+const googleOAuthLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 100, // 100 requests per hour (much more restrictive than general auth)
+  message: {
+    error: 'Rate limit exceeded',
+    message: 'Too many Google OAuth attempts, please try again later',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Additional security: Track by IP and user agent combination
+  keyGenerator: (req) => {
+    return `${req.ip}-${req.headers['user-agent'] || 'unknown'}`;
+  },
+  // Skip rate limiting for successful OAuth flows (to avoid blocking legitimate users)
+  skip: (req, res) => {
+    // If the response indicates success, skip rate limiting
+    return res.statusCode === 200;
+  },
 });
 
 module.exports = {
@@ -102,5 +125,6 @@ module.exports = {
   emailVerificationLimiter,
   resendVerificationLimiter,
   passwordResetLimiter,
-  authStatusLimiter
+  authStatusLimiter,
+  googleOAuthLimiter,
 };

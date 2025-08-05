@@ -10,6 +10,7 @@ const {
   resendVerificationLimiter,
   passwordResetLimiter,
   authStatusLimiter,
+  googleOAuthLimiter,
 } = require('../../../middleware/rateLimiter');
 
 // Validation rules
@@ -97,6 +98,11 @@ router.post(
 router.get('/status', authStatusLimiter, authenticateJWT, authController.checkAuthStatus);
 
 // Social login routes
-router.post('/google', authLimiter, validate(socialAuthValidation), authController.googleAuth);
+router.post(
+  '/google',
+  googleOAuthLimiter,
+  validate(socialAuthValidation),
+  authController.googleAuth
+);
 
 module.exports = router;

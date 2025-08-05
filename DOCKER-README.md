@@ -44,7 +44,7 @@ The Docker setup includes:
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/LorenMin107/AdventureMate.git
 cd AdventureMate
 
 # Copy the development override file

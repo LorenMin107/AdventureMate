@@ -749,7 +749,22 @@ module.exports.resetPassword = asyncHandler(async (req, res) => {
 module.exports.googleAuth = asyncHandler(async (req, res) => {
   const { code, redirectUri } = req.body;
 
+  // Additional security logging
+  logInfo('Google OAuth attempt', {
+    ip: req.ip,
+    userAgent: req.headers['user-agent'],
+    hasCode: !!code,
+    hasRedirectUri: !!redirectUri,
+    redirectUri: redirectUri,
+  });
+
   if (!code || !redirectUri) {
+    logWarn('Google OAuth failed: Missing required fields', {
+      ip: req.ip,
+      hasCode: !!code,
+      hasRedirectUri: !!redirectUri,
+    });
+
     return res.status(400).json({
       error: 'Bad Request',
       message: 'Authorization code and redirect URI are required',
@@ -757,6 +772,19 @@ module.exports.googleAuth = asyncHandler(async (req, res) => {
   }
 
   try {
+    // Additional validation: Check if Google OAuth is properly configured
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      logError('Google OAuth configuration missing', {
+        hasClientId: !!process.env.GOOGLE_CLIENT_ID,
+        hasClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+      });
+
+      return res.status(500).json({
+        error: 'Server Configuration Error',
+        message: 'Google OAuth is not properly configured',
+      });
+    }
+
     // Exchange the authorization code for tokens
     const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
       code,

@@ -55,18 +55,123 @@ const publicApiEndpoints = [
   { method: 'POST', pattern: /^\/api\/v1\/auth\/resend-verification\/?$/ },
   { method: 'POST', pattern: /^\/api\/v1\/auth\/resend-verification-email-unauthenticated\/?$/ },
   { method: 'GET', pattern: /^\/api\/v1\/auth\/status\/?$/ },
-  { method: 'POST', pattern: /^\/api\/v1\/auth\/google\/?$/ },
+  // Google OAuth endpoint - requires additional security validation
+  { method: 'POST', pattern: /^\/api\/v1\/auth\/google\/?$/, requiresSecurityValidation: true },
 ];
 
 /**
  * Check if the request is for a public API endpoint
  * @param {Object} req - Express request object
- * @returns {Boolean} - True if the request is for a public API endpoint
+ * @returns {Object} - Object with isPublic boolean and requiresSecurityValidation boolean
  */
 const isPublicApiEndpoint = (req) => {
-  return publicApiEndpoints.some(
+  const endpoint = publicApiEndpoints.find(
     (endpoint) => req.method === endpoint.method && endpoint.pattern.test(req.originalUrl)
   );
+
+  return {
+    isPublic: !!endpoint,
+    requiresSecurityValidation: endpoint?.requiresSecurityValidation || false,
+  };
+};
+
+/**
+ * Validate Google OAuth request security
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Boolean} - True if validation passes
+ */
+const validateGoogleOAuthSecurity = (req, res) => {
+  // Validate required fields
+  const { code, redirectUri } = req.body;
+
+  if (!code || !redirectUri) {
+    logWarn('Google OAuth security validation failed: Missing required fields', {
+      method: req.method,
+      url: req.originalUrl,
+      ip: req.ip,
+      hasCode: !!code,
+      hasRedirectUri: !!redirectUri,
+    });
+
+    sendAuthError(res, 'Bad Request', 'Authorization code and redirect URI are required', 400);
+    return false;
+  }
+
+  // Validate authorization code format (should be a string and not too long)
+  if (typeof code !== 'string' || code.length > 1000) {
+    logWarn('Google OAuth security validation failed: Invalid authorization code format', {
+      method: req.method,
+      url: req.originalUrl,
+      ip: req.ip,
+      codeLength: code?.length,
+    });
+
+    sendAuthError(res, 'Bad Request', 'Invalid authorization code format', 400);
+    return false;
+  }
+
+  // Validate redirect URI format
+  try {
+    const url = new URL(redirectUri);
+    // Ensure it's a valid HTTPS URL or localhost for development
+    if (url.protocol !== 'https:' && !url.hostname.includes('localhost')) {
+      logWarn('Google OAuth security validation failed: Invalid redirect URI protocol', {
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip,
+        redirectUri: redirectUri,
+      });
+
+      sendAuthError(res, 'Bad Request', 'Invalid redirect URI', 400);
+      return false;
+    }
+  } catch (error) {
+    logWarn('Google OAuth security validation failed: Invalid redirect URI format', {
+      method: req.method,
+      url: req.originalUrl,
+      ip: req.ip,
+      redirectUri: redirectUri,
+      error: error.message,
+    });
+
+    sendAuthError(res, 'Bad Request', 'Invalid redirect URI format', 400);
+    return false;
+  }
+
+  // Validate Content-Type header
+  const contentType = req.headers['content-type'];
+  if (!contentType || !contentType.includes('application/json')) {
+    logWarn('Google OAuth security validation failed: Invalid Content-Type', {
+      method: req.method,
+      url: req.originalUrl,
+      ip: req.ip,
+      contentType: contentType,
+    });
+
+    sendAuthError(res, 'Bad Request', 'Content-Type must be application/json', 400);
+    return false;
+  }
+
+  // Additional security: Check for suspicious patterns
+  const suspiciousPatterns = [/<script/i, /javascript:/i, /data:/i, /vbscript:/i];
+
+  const requestBody = JSON.stringify(req.body);
+  for (const pattern of suspiciousPatterns) {
+    if (pattern.test(requestBody)) {
+      logWarn('Google OAuth security validation failed: Suspicious content detected', {
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip,
+        pattern: pattern.source,
+      });
+
+      sendAuthError(res, 'Bad Request', 'Invalid request content', 400);
+      return false;
+    }
+  }
+
+  return true;
 };
 
 /**
@@ -76,7 +181,7 @@ const isPublicApiEndpoint = (req) => {
  */
 const requiresAuthentication = (req) => {
   // All API v1 endpoints require authentication unless they're in the public list
-  return req.originalUrl.includes('/api/v1/') && !isPublicApiEndpoint(req);
+  return req.originalUrl.includes('/api/v1/') && !isPublicApiEndpoint(req).isPublic;
 };
 
 /**
@@ -101,6 +206,16 @@ const sendAuthError = (res, error, message, statusCode = 401) => {
  */
 const authenticateJWT = async (req, res, next) => {
   try {
+    // Check if this is a public endpoint that requires additional security validation
+    const publicEndpointInfo = isPublicApiEndpoint(req);
+
+    if (publicEndpointInfo.isPublic && publicEndpointInfo.requiresSecurityValidation) {
+      // Apply additional security validation for sensitive public endpoints
+      if (!validateGoogleOAuthSecurity(req, res)) {
+        return; // Validation failed, response already sent
+      }
+    }
+
     // Extract token from Authorization header
     const token = extractTokenFromHeader(req);
 
