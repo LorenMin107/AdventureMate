@@ -227,13 +227,111 @@ jest.mock('mongoose', () => {
     populate: jest.fn().mockReturnThis(),
   });
 
-  MockModel.findById = jest.fn().mockReturnValue({
-    exec: jest.fn().mockResolvedValue(null),
-    populate: jest.fn().mockReturnThis(),
+  // Create a more robust mock for complex query chains
+  const createMockQuery = (finalResult) => {
+    const mockQuery = {
+      populate: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      select: jest.fn().mockReturnThis(),
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(finalResult),
+    };
+
+    // Make the query itself array-like for methods like .map()
+    if (Array.isArray(finalResult)) {
+      finalResult.forEach((item, index) => {
+        mockQuery[index] = item;
+      });
+      mockQuery.length = finalResult.length;
+      mockQuery.map = jest.fn().mockImplementation((fn) => finalResult.map(fn));
+      mockQuery.forEach = jest.fn().mockImplementation((fn) => finalResult.forEach(fn));
+      mockQuery.filter = jest.fn().mockImplementation((fn) => finalResult.filter(fn));
+    }
+
+    return mockQuery;
+  };
+
+  // Mock the find method with proper chaining support
+  MockModel.find = jest.fn().mockImplementation(() => {
+    const mockCampgrounds = [
+      {
+        _id: 'test-campground-id',
+        title: 'Test Campground',
+        description: 'A test campground',
+        location: 'Test Location',
+        price: 100,
+        campsites: [
+          { _id: 'test-campsite-1', name: 'Test Campsite 1', price: 100, availability: true },
+          { _id: 'test-campsite-2', name: 'Test Campsite 2', price: 150, availability: true },
+        ],
+        author: { _id: 'test-user-id', username: 'testuser', email: 'test@example.com' },
+        toObject: jest.fn().mockReturnValue({
+          _id: 'test-campground-id',
+          title: 'Test Campground',
+          description: 'A test campground',
+          location: 'Test Location',
+          price: 100,
+          campsites: [
+            { _id: 'test-campsite-1', name: 'Test Campsite 1', price: 100, availability: true },
+            { _id: 'test-campsite-2', name: 'Test Campsite 2', price: 150, availability: true },
+          ],
+          author: { _id: 'test-user-id', username: 'testuser', email: 'test@example.com' },
+        }),
+      },
+    ];
+
+    return createMockQuery(mockCampgrounds);
   });
 
-  MockModel.findOne = jest.fn().mockReturnValue({
-    exec: jest.fn().mockResolvedValue(null),
+  MockModel.findById = jest.fn().mockImplementation(() => {
+    const mockCampground = {
+      _id: 'test-campground-id',
+      title: 'Test Campground',
+      description: 'A test campground',
+      location: 'Test Location',
+      price: 100,
+      campsites: [
+        { _id: 'test-campsite-1', name: 'Test Campsite 1', price: 100, availability: true },
+        { _id: 'test-campsite-2', name: 'Test Campsite 2', price: 150, availability: true },
+      ],
+      author: { _id: 'test-user-id', username: 'testuser', email: 'test@example.com' },
+      toObject: jest.fn().mockReturnValue({
+        _id: 'test-campground-id',
+        title: 'Test Campground',
+        description: 'A test campground',
+        location: 'Test Location',
+        price: 100,
+        campsites: [
+          { _id: 'test-campsite-1', name: 'Test Campsite 1', price: 100, availability: true },
+          { _id: 'test-campsite-2', name: 'Test Campsite 2', price: 150, availability: true },
+        ],
+        author: { _id: 'test-user-id', username: 'testuser', email: 'test@example.com' },
+      }),
+    };
+
+    return createMockQuery(mockCampground);
+  });
+
+  MockModel.findOne = jest.fn().mockImplementation(() => {
+    const mockUser = {
+      _id: 'test-user-id',
+      username: 'testuser',
+      email: 'test@example.com',
+      password: '$2b$10$test.hash.value',
+      isEmailVerified: true,
+      isAdmin: false,
+      toObject: jest.fn().mockReturnValue({
+        _id: 'test-user-id',
+        username: 'testuser',
+        email: 'test@example.com',
+        isEmailVerified: true,
+        isAdmin: false,
+      }),
+    };
+
+    return createMockQuery(mockUser);
   });
 
   MockModel.deleteMany = jest.fn().mockResolvedValue({});

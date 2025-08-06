@@ -87,14 +87,21 @@ jest.mock('./context/FlashMessageContext', () => ({
   }),
 }));
 
-jest.mock('./context/LanguageContext', () => ({
-  useLanguage: () => ({
-    currentLanguage: 'en',
-    currency: 'USD',
-    changeLanguage: jest.fn(),
-    getCurrencySymbol: jest.fn(() => '$'),
-    formatPrice: jest.fn((price) => `$${price}`),
+// Mock react-i18next
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key) => key,
+    i18n: {
+      changeLanguage: jest.fn(),
+      language: 'en',
+      isInitialized: true,
+    },
   }),
+  Trans: ({ children }) => children,
+  initReactI18next: {
+    type: '3rdParty',
+    init: jest.fn(),
+  },
 }));
 
 jest.mock('./context/UserContext', () => ({
