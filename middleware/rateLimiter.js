@@ -109,8 +109,12 @@ const googleOAuthLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   // Additional security: Track by IP and user agent combination
+  // Using the built-in keyGenerator to properly handle IPv6 addresses
   keyGenerator: (req) => {
-    return `${req.ip}-${req.headers['user-agent'] || 'unknown'}`;
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    // Use the built-in ipKeyGenerator helper for proper IPv6 handling
+    const ipKey = rateLimit.ipKeyGenerator(req);
+    return `${ipKey}-${userAgent}`;
   },
   // Skip rate limiting for successful OAuth flows (to avoid blocking legitimate users)
   skip: (req, res) => {
