@@ -1,0 +1,45 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/.82ef7eae6107a6408b64f4406ffe7a45e7431d71-audit.json",
+    "files": [
+        {
+            "date": 1753975612800,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/error-2025-07-31.log",
+            "hash": "fd9123ba94cc8028e5adfdcfd2da86b240036be2c06c7bfcfe3067fcc372428d"
+        },
+        {
+            "date": 1754026425425,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/error-2025-08-01.log",
+            "hash": "11e5e5a9c6cf491bd5cc85ecede68eaa8da881ead3c1a2d25962dbc1a7e80731"
+        },
+        {
+            "date": 1754145067256,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/error-2025-08-02.log",
+            "hash": "6f59cc41223e14912463bdf7312d271737381f07ae4787038d035857580c821f"
+        },
+        {
+            "date": 1754291235578,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/error-2025-08-04.log",
+            "hash": "0d85089b58f991533fbf1a513635da21a5cd17547c38f5ce6c95ae5e1ca6aa76"
+        },
+        {
+            "date": 1754379107759,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/error-2025-08-05.log",
+            "hash": "671cb3c01029916daa82cd407436c6ecbaf8a58b4126702343fff4f881dfa114"
+        },
+        {
+            "date": 1754475883076,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/error-2025-08-06.log",
+            "hash": "56dbdc429a81bce56e1f7f5e35bedd399ec3cadc28fe264ada449689dbd2c475"
+        },
+        {
+            "date": 1754581123886,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/error-2025-08-07.log",
+            "hash": "0093a03fcdf31aa708174860e2cc6b54e787428172c240bb3f1ffd580551c952"
+        }
+    ],
+    "hashType": "sha256"
+}

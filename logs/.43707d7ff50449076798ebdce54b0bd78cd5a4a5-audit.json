@@ -1,0 +1,40 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 7
+    },
+    "auditLog": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/.43707d7ff50449076798ebdce54b0bd78cd5a4a5-audit.json",
+    "files": [
+        {
+            "date": 1754026425426,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/debug-2025-08-01.log",
+            "hash": "5e33e6ca690fb321578d1fcddd253eb2a69a0fb7dd99512e7a6128d7899255cb"
+        },
+        {
+            "date": 1754145067259,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/debug-2025-08-02.log",
+            "hash": "45b7bd66e0c442d6959951bbc1fbdf4cd5c0c6337fd8dec41b6fa74b397e6478"
+        },
+        {
+            "date": 1754291235581,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/debug-2025-08-04.log",
+            "hash": "9cf454ddb5d52257f95e4eea13db7b2983a164e1e63912663169bb1316d2c31f"
+        },
+        {
+            "date": 1754379107763,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/debug-2025-08-05.log",
+            "hash": "a2899797a8d72aa286f9e756539545740353201840a7b5d806a40f9b30e57cda"
+        },
+        {
+            "date": 1754475883077,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/debug-2025-08-06.log",
+            "hash": "7d97ef9a592cfb8c78bbd573c56e9eacf39b057539cc06e85ac276d8bb0405bf"
+        },
+        {
+            "date": 1754581123887,
+            "name": "/Users/liammin/Library/CloudStorage/OneDrive-Personal/Documents/Codes/AdventureMate/logs/debug-2025-08-07.log",
+            "hash": "d6ddf776548b7218953497194e0acdc71d7f6fbd2082cc846261c20b31580b58"
+        }
+    ],
+    "hashType": "sha256"
+}
