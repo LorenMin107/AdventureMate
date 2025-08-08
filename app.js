@@ -63,18 +63,23 @@ const dbMonitor = require('./utils/dbMonitor'); // import database monitoring ut
       });
     }
   } catch (err) {
-    logError('MongoDB Atlas connection error', err, { url: config.db.url });
+    logError('MongoDB Atlas connection error', err, { 
+      // Sanitize URL to remove credentials
+      url: config.db.url.replace(/\/\/[^:]+:[^@]+@/, '//***:***@') 
+    });
 
     // In development, try to connect to local MongoDB if Atlas connection fails
     if (!config.server.isProduction) {
       try {
         const localMongoUrl = 'mongodb://localhost:27017/myan-camp';
         logInfo('Attempting to connect to local MongoDB with connection pooling', {
-          url: localMongoUrl,
+          // Sanitize URL to remove credentials
+          url: localMongoUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'),
         });
         await mongoose.connect(localMongoUrl, config.db.options);
         logInfo('Connected to local MongoDB with connection pooling', {
-          url: localMongoUrl,
+          // Sanitize URL to remove credentials
+          url: localMongoUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'),
           maxPoolSize: config.db.options.maxPoolSize,
           minPoolSize: config.db.options.minPoolSize,
         });

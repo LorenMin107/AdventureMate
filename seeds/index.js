@@ -12,7 +12,10 @@ mongoose.connect(config.db.url);
 const db = mongoose.connection;
 db.on('error', (err) => logError('Database connection error', err));
 db.once('open', () => {
-  logInfo('Database connected', { url: config.db.url });
+  logInfo('Database connected', { 
+    // Sanitize URL to remove credentials
+    url: config.db.url.replace(/\/\/[^:]+:[^@]+@/, '//***:***@') 
+  });
 });
 
 const sample = (array) => array[Math.floor(Math.random() * array.length)];

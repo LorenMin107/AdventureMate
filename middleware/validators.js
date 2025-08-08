@@ -4,6 +4,42 @@ const ExpressError = require('../utils/ExpressError');
 const { logWarn } = require('../utils/logger');
 
 /**
+ * Sanitize sensitive data from request body for logging
+ * @param {Object} body - Request body object
+ * @returns {Object} - Sanitized body object
+ */
+const sanitizeBodyForLogging = (body) => {
+  if (!body || typeof body !== 'object') {
+    return body;
+  }
+
+  const sanitized = { ...body };
+  const sensitiveFields = [
+    'password', 'confirmPassword', 'currentPassword', 'newPassword',
+    'token', 'refreshToken', 'accessToken', 'apiKey', 'secret',
+    'creditCard', 'cardNumber', 'cvv', 'ssn', 'socialSecurityNumber'
+  ];
+
+  // Recursively sanitize nested objects
+  const sanitizeObject = (obj) => {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+          sanitizeObject(obj[key]);
+        } else if (sensitiveFields.some(field => 
+          key.toLowerCase().includes(field.toLowerCase())
+        )) {
+          obj[key] = '[REDACTED]';
+        }
+      }
+    }
+  };
+
+  sanitizeObject(sanitized);
+  return sanitized;
+};
+
+/**
  * Middleware to validate request data
  * @param {Array|Function} validations - Array of express-validator validation chains or a middleware function
  * @returns {Function} - Express middleware function
@@ -29,8 +65,11 @@ const validate = (validations) => {
       return next();
     }
 
-    // Log validation errors for debugging
-    logWarn('Validation errors', { errors: errors.array(), body: req.body });
+    // Log validation errors for debugging (with sanitized body)
+    logWarn('Validation errors', { 
+      errors: errors.array(), 
+      body: sanitizeBodyForLogging(req.body) 
+    });
 
     // Format validation errors
     const extractedErrors = errors.array().map((err) => ({
