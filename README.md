@@ -146,6 +146,35 @@ AdventureMate/
 
 ## 🚀 Setup Instructions
 
+### 🐳 **Recommended: Docker Setup (Easiest)**
+
+```bash
+# 1. Install Docker Desktop
+# Download from: https://www.docker.com/products/docker-desktop
+
+# 2. Extract the project files and start
+# Extract the downloaded zip file to a folder
+cd AdventureMate
+docker-compose up -d
+
+# 3. Access the application
+# Frontend: http://localhost:5173
+# Backend: http://localhost:3001
+# Admin: username="admin", password="asdf!"
+```
+
+**Benefits:**
+
+- ✅ No Node.js installation required
+- ✅ No macOS security warnings
+- ✅ Works on Windows, macOS, and Linux
+- ✅ All dependencies included
+- ✅ Consistent environment
+
+**For detailed Docker instructions, see [DOCKER-README.md](DOCKER-README.md)**
+
+### 🔧 **Alternative: Local Setup**
+
 ### Prerequisites
 
 #### System Requirements
@@ -181,8 +210,8 @@ AdventureMate/
 ### Quick Start
 
 ```bash
-# Clone repository
-git clone https://github.com/LorenMin107/AdventureMate.git
+# Extract the project files
+# Extract the downloaded zip file to a folder
 cd AdventureMate
 
 # Install dependencies
