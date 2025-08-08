@@ -12,9 +12,9 @@ mongoose.connect(config.db.url);
 const db = mongoose.connection;
 db.on('error', (err) => logError('Database connection error', err));
 db.once('open', () => {
-  logInfo('Database connected', { 
+  logInfo('Database connected', {
     // Sanitize URL to remove credentials
-    url: config.db.url.replace(/\/\/[^:]+:[^@]+@/, '//***:***@') 
+    url: config.db.url.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'),
   });
 });
 

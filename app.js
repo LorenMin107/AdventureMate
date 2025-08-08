@@ -63,9 +63,9 @@ const dbMonitor = require('./utils/dbMonitor'); // import database monitoring ut
       });
     }
   } catch (err) {
-    logError('MongoDB Atlas connection error', err, { 
+    logError('MongoDB Atlas connection error', err, {
       // Sanitize URL to remove credentials
-      url: config.db.url.replace(/\/\/[^:]+:[^@]+@/, '//***:***@') 
+      url: config.db.url.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'),
     });
 
     // In development, try to connect to local MongoDB if Atlas connection fails

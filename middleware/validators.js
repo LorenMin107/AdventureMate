@@ -15,9 +15,20 @@ const sanitizeBodyForLogging = (body) => {
 
   const sanitized = { ...body };
   const sensitiveFields = [
-    'password', 'confirmPassword', 'currentPassword', 'newPassword',
-    'token', 'refreshToken', 'accessToken', 'apiKey', 'secret',
-    'creditCard', 'cardNumber', 'cvv', 'ssn', 'socialSecurityNumber'
+    'password',
+    'confirmPassword',
+    'currentPassword',
+    'newPassword',
+    'token',
+    'refreshToken',
+    'accessToken',
+    'apiKey',
+    'secret',
+    'creditCard',
+    'cardNumber',
+    'cvv',
+    'ssn',
+    'socialSecurityNumber',
   ];
 
   // Recursively sanitize nested objects
@@ -26,9 +37,9 @@ const sanitizeBodyForLogging = (body) => {
       if (obj.hasOwnProperty(key)) {
         if (typeof obj[key] === 'object' && obj[key] !== null) {
           sanitizeObject(obj[key]);
-        } else if (sensitiveFields.some(field => 
-          key.toLowerCase().includes(field.toLowerCase())
-        )) {
+        } else if (
+          sensitiveFields.some((field) => key.toLowerCase().includes(field.toLowerCase()))
+        ) {
           obj[key] = '[REDACTED]';
         }
       }
@@ -66,9 +77,9 @@ const validate = (validations) => {
     }
 
     // Log validation errors for debugging (with sanitized body)
-    logWarn('Validation errors', { 
-      errors: errors.array(), 
-      body: sanitizeBodyForLogging(req.body) 
+    logWarn('Validation errors', {
+      errors: errors.array(),
+      body: sanitizeBodyForLogging(req.body),
     });
 
     // Format validation errors
